@@ -30,7 +30,7 @@ export function PageShell({ title, description, tabs, children }: PageShellProps
   const breadcrumbs = generateBreadcrumbs(pathname)
 
   return (
-    <div className="space-y-6 pt-6">
+    <div className="space-y-6">
       <div>
         <Breadcrumb className="mb-4">
           <BreadcrumbList>
