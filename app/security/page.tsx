@@ -3,14 +3,21 @@ import { PageShell } from "@/components/page-shell"
 export default function SecurityPage() {
   return (
     <PageShell
-      title="Security & Compliance"
-      description="Manage security settings and compliance"
+      title="Security"
+      description="Manage security and compliance settings"
       tabs={[
-        { title: "Identity & Access Management", href: "/security/iam" },
-        { title: "Encryption", href: "/security/encryption" },
-        { title: "Audit Logs", href: "/security/audit" },
-        { title: "Compliance Center", href: "/security/compliance" },
+        { title: "IAM", href: "/security/iam" },
+        { title: "Audit", href: "/security/audit" },
+        { title: "Compliance", href: "/security/compliance" },
+        { title: "Encryption", href: "/security/encryption" }
       ]}
-    />
+    >
+      <div className="flex items-center justify-center h-[400px] border rounded-lg">
+        <div className="text-center">
+          <h3 className="text-xl font-bold mb-2">Security Overview</h3>
+          <p className="text-muted-foreground">This is a placeholder for the Security overview content</p>
+        </div>
+      </div>
+    </PageShell>
   )
 }
