@@ -1,0 +1,162 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ArrowLeft, FileText, Shield } from "lucide-react"
+import { KrutrimLogo } from "@/components/ui/krutrim-logo"
+
+interface DigiLockerConsentScreenProps {
+  onBack: () => void
+  onNext: () => void
+}
+
+export function DigiLockerConsentScreen({ onBack, onNext }: DigiLockerConsentScreenProps) {
+  const [consents, setConsents] = useState({
+    accessDocuments: false,
+    shareAadhaar: false,
+    sharePan: false,
+    termsAndConditions: false,
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleConsentChange = (key: keyof typeof consents, checked: boolean) => {
+    setConsents((prev) => ({ ...prev, [key]: checked }))
+    if (error) setError("")
+  }
+
+  const handleSubmit = async () => {
+    // Check if all consents are given
+    if (!Object.values(consents).every(Boolean)) {
+      setError("Please agree to all terms to proceed")
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // Make sure we're calling onNext here
+      onNext()
+    } catch (error) {
+      setError("An error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="p-8">
+      {/* Add Krutrim Logo */}
+      <div className="flex justify-center mb-6">
+        <KrutrimLogo className="h-12" />
+      </div>
+
+      <h2 className="text-2xl font-bold mb-2">DigiLocker Consent</h2>
+      <p className="text-gray-600 mb-6">
+        To verify your identity, we need your consent to access your documents from DigiLocker.
+      </p>
+
+      {error && <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-600">{error}</div>}
+
+      <div className="flex items-start gap-4 mb-8">
+        <div className="bg-blue-100 p-3 rounded-full flex-shrink-0">
+          <FileText className="h-6 w-6 text-blue-600" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-lg mb-2">What is DigiLocker?</h3>
+          <p className="text-gray-600 mb-2">
+            DigiLocker is a secure digital document wallet provided by the Government of India that allows citizens to
+            store and access their documents like Aadhaar, PAN card, driving license, etc.
+          </p>
+          <p className="text-gray-600">
+            By connecting your DigiLocker, we can verify your identity quickly and securely without requiring you to
+            upload documents manually.
+          </p>
+        </div>
+      </div>
+
+      <div className="border rounded-lg p-6 mb-8">
+        <h3 className="font-semibold mb-4">Consent for Document Access</h3>
+
+        <div className="space-y-4">
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="access-documents"
+              checked={consents.accessDocuments}
+              onCheckedChange={(checked) => handleConsentChange("accessDocuments", checked as boolean)}
+              className="mt-1"
+            />
+            <label htmlFor="access-documents" className="text-sm">
+              I authorize Krutrim Cloud to access my DigiLocker account for the purpose of identity verification.
+            </label>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="share-aadhaar"
+              checked={consents.shareAadhaar}
+              onCheckedChange={(checked) => handleConsentChange("shareAadhaar", checked as boolean)}
+              className="mt-1"
+            />
+            <label htmlFor="share-aadhaar" className="text-sm">
+              I consent to share my Aadhaar details from DigiLocker for verification purposes.
+            </label>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="share-pan"
+              checked={consents.sharePan}
+              onCheckedChange={(checked) => handleConsentChange("sharePan", checked as boolean)}
+              className="mt-1"
+            />
+            <label htmlFor="share-pan" className="text-sm">
+              I consent to share my PAN card details from DigiLocker for verification purposes.
+            </label>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="terms"
+              checked={consents.termsAndConditions}
+              onCheckedChange={(checked) => handleConsentChange("termsAndConditions", checked as boolean)}
+              className="mt-1"
+            />
+            <label htmlFor="terms" className="text-sm">
+              I have read and agree to the{" "}
+              <a href="#" className="text-blue-600 hover:underline">
+                Terms and Conditions
+              </a>{" "}
+              and{" "}
+              <a href="#" className="text-blue-600 hover:underline">
+                Privacy Policy
+              </a>{" "}
+              regarding the use of my DigiLocker data.
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg border border-gray-200 mb-8">
+        <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
+        <p className="text-sm text-gray-600">
+          Your data is secure. We only access the documents needed for verification and do not store any sensitive
+          information.
+        </p>
+      </div>
+
+      <div className="flex justify-between">
+        <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+
+        <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
+          {isLoading ? "Processing..." : "Continue to DigiLocker"}
+        </Button>
+      </div>
+    </div>
+  )
+}
