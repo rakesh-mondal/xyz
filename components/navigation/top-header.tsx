@@ -140,6 +140,52 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* User profile */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-6 w-6">
+                    <AvatarFallback>SS</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm">Example Team</span>
+                </div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[240px]">
+              <div className="flex items-center gap-3 px-3 py-2 border-b">
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback>SS</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold">Sammy Shark</span>
+                  <span className="text-xs text-muted-foreground">Owner</span>
+                </div>
+              </div>
+              <div className="p-1">
+                <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">My Account</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Switch Teams</span>
+                  <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground" />
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer text-primary hover:text-primary hover:bg-primary/10">
+                  <Settings className="h-4 w-4" />
+                  <span className="text-sm font-medium">Create a Team</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="my-1" />
+                <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer text-red-600 hover:text-red-600 hover:bg-red-100/50 dark:hover:bg-red-900/50">
+                  <LogOut className="h-4 w-4" />
+                  <span className="text-sm">Sign Out</span>
+                </DropdownMenuItem>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -170,43 +216,6 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                 <Link href="/notifications" className="w-full cursor-pointer text-center text-sm">
                   View all notifications
                 </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* User profile */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-2 cursor-pointer">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="h-4 w-4 text-primary" />
-                </div>
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.name || "Krutrim User"}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user?.email || "user@krutrim.ai"}</p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/settings/profile" className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/settings" className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-red-600 hover:text-red-600 hover:bg-red-50">
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
