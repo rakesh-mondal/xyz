@@ -35,12 +35,12 @@ interface NavItemProps {
 const navigationConfig = {
   home: {
     href: "/",
-    icon: <Home className="h-5 w-5 text-foreground/80" />,
+    icon: <Home className="h-[18px] w-[18px] text-foreground/80" />,
     label: "Home",
   },
   coreInfrastructure: {
     href: "/core-infrastructure",
-    icon: <Server className="h-5 w-5 text-muted-foreground" />,
+    icon: <Server className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "Core Infrastructure",
     isCategory: true,
     subItems: [
@@ -131,7 +131,7 @@ const navigationConfig = {
   },
   aiStudio: {
     href: "/ai-studio",
-    icon: <Brain className="h-5 w-5 text-muted-foreground" />,
+    icon: <Brain className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "AI Studio",
     isCategory: true,
     subItems: [
@@ -154,7 +154,7 @@ const navigationConfig = {
   },
   aiSolutions: {
     href: "/ai-solutions",
-    icon: <Brain className="h-5 w-5 text-muted-foreground" />,
+    icon: <Brain className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "AI Solutions",
     isCategory: true,
     subItems: [
@@ -201,12 +201,12 @@ const navigationConfig = {
   },
   olaMaps: {
     href: "/ola-maps",
-    icon: <Map className="h-5 w-5 text-foreground/80" />,
+    icon: <Map className="h-[18px] w-[18px] text-foreground/80" />,
     label: "Ola Maps",
   },
   administration: {
     href: "/administration",
-    icon: <Settings className="h-5 w-5 text-muted-foreground" />,
+    icon: <Settings className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "Administration",
     isCategory: true,
     subItems: [
@@ -273,17 +273,17 @@ const navigationConfig = {
   },
   monitoring: {
     href: "/monitoring",
-    icon: <Activity className="h-5 w-5 text-foreground/80" />,
+    icon: <Activity className="h-[18px] w-[18px] text-foreground/80" />,
     label: "Monitoring",
   },
   support: {
     href: "/support",
-    icon: <HelpCircle className="h-5 w-5 text-foreground/80" />,
+    icon: <HelpCircle className="h-[18px] w-[18px] text-foreground/80" />,
     label: "Support",
   },
   documentation: {
     href: "/documentation",
-    icon: <BookOpen className="h-5 w-5 text-foreground/80" />,
+    icon: <BookOpen className="h-[18px] w-[18px] text-foreground/80" />,
     label: "Documentation",
   },
 }
@@ -566,7 +566,7 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             collapsed={collapsed}
           />
 
-          {!collapsed && <div className="my-1.5 border-t" />}
+          {!collapsed && <div className="my-1 border-t" />}
 
           {/* Core Infrastructure */}
           <NavItem
@@ -584,7 +584,7 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             onSubItemExpand={handleSubItemExpand}
           />
 
-          {!collapsed && <div className="my-1.5 border-t" />}
+          {!collapsed && <div className="my-1 border-t" />}
 
           {/* AI Studio */}
           <NavItem
@@ -628,7 +628,7 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             collapsed={collapsed}
           />
 
-          {!collapsed && <div className="my-1.5 border-t" />}
+          {!collapsed && <div className="my-1 border-t" />}
 
           {/* Administration */}
           <NavItem
