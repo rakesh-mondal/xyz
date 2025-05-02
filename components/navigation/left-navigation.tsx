@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Server, Brain, ChevronRight, ChevronLeft, Map, Settings, X, Home, BookOpen, HelpCircle } from "lucide-react"
+import { Server, Brain, ChevronRight, ChevronLeft, Map, Settings, X, Home, BookOpen, HelpCircle, Activity } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { KrutrimLogo } from "@/components/ui/krutrim-logo"
 import { Button } from "@/components/ui/button"
@@ -24,17 +24,279 @@ interface NavItemProps {
   active?: boolean
   exactActive?: boolean
   collapsed?: boolean
-  expanded?: boolean
+  expanded?: string | null
   onExpand?: (href: string) => void
   subItems?: { href: string; label: string; subItems?: { href: string; label: string }[] }[]
+  isCategory?: boolean
 }
 
-const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, onExpand, subItems }: NavItemProps) => {
+const navigationConfig = {
+  home: {
+    href: "/",
+    icon: <Home className="h-5 w-5" />,
+    label: "Home",
+  },
+  coreInfrastructure: {
+    href: "/core-infrastructure",
+    icon: <Server className="h-5 w-5" />,
+    label: "Core Infrastructure",
+    isCategory: true,
+    subItems: [
+      {
+        href: "/compute",
+        label: "Compute",
+        subItems: [
+          {
+            href: "/compute/vms",
+            label: "VMs",
+            subItems: [
+              { href: "/compute/vms/cpu", label: "CPU VM" },
+              { href: "/compute/vms/gpu", label: "GPU VM" },
+              { href: "/compute/vms/ai-pods", label: "AI Pods" },
+              { href: "/compute/vms/instances", label: "My Instances" },
+              { href: "/compute/vms/images", label: "Machine Images" },
+            ],
+          },
+          {
+            href: "/compute/hpc",
+            label: "HPC",
+            subItems: [
+              { href: "/compute/hpc/gpu-clusters", label: "GPU Clusters" },
+              { href: "/compute/hpc/cpu-clusters", label: "CPU Clusters" },
+              { href: "/compute/hpc/my-clusters", label: "My Clusters" },
+            ],
+          },
+          {
+            href: "/compute/auto-scaling",
+            label: "Auto Scaling",
+            subItems: [
+              { href: "/compute/auto-scaling/asg", label: "ASG" },
+              { href: "/compute/auto-scaling/templates", label: "Templates" },
+            ],
+          },
+        ],
+      },
+      {
+        href: "/networking",
+        label: "Networking",
+        subItems: [
+          { href: "/networking/vpc", label: "VPC" },
+          { href: "/networking/subnets", label: "Subnets" },
+          { href: "/networking/security-groups", label: "Security Groups" },
+          {
+            href: "/networking/load-balancing",
+            label: "Load Balancing",
+            subItems: [
+              { href: "/networking/load-balancing/load-balancer", label: "Load Balancer" },
+              { href: "/networking/load-balancing/target-groups", label: "Target Groups" },
+            ],
+          },
+          {
+            href: "/networking/dns",
+            label: "DNS Management",
+            subItems: [
+              { href: "/networking/dns/hosted-zones", label: "DNS Hosted Zones" },
+            ],
+          },
+          { href: "/networking/router", label: "Router" },
+        ],
+      },
+      {
+        href: "/storage",
+        label: "Storage",
+        subItems: [
+          {
+            href: "/storage/block",
+            label: "Block Storage",
+            subItems: [
+              { href: "/storage/block/volumes", label: "Volumes" },
+              { href: "/storage/block/snapshots", label: "Snapshots" },
+              { href: "/storage/block/backup", label: "Backup" },
+            ],
+          },
+          {
+            href: "/storage/object",
+            label: "Object Storage",
+            subItems: [
+              { href: "/storage/object/buckets", label: "Buckets" },
+              { href: "/storage/object/objects", label: "Objects" },
+              { href: "/storage/object/properties", label: "Properties" },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  aiStudio: {
+    href: "/ai-studio",
+    icon: <Brain className="h-5 w-5" />,
+    label: "AI Studio",
+    isCategory: true,
+    subItems: [
+      {
+        href: "/ai-studio/models",
+        label: "Models",
+        subItems: [
+          { href: "/ai-studio/models/catalog", label: "Model Catalogue" },
+          { href: "/ai-studio/models/fine-tuning", label: "Fine-Tuning" },
+          { href: "/ai-studio/models/evaluation", label: "Evaluation" },
+          { href: "/ai-studio/models/deployments", label: "Deployments" },
+          { href: "/ai-studio/models/rag", label: "RAG" },
+        ],
+      },
+      {
+        href: "/ai-studio/training",
+        label: "Training"
+      },
+    ],
+  },
+  aiSolutions: {
+    href: "/ai-solutions",
+    icon: <Brain className="h-5 w-5" />,
+    label: "AI Solutions",
+    isCategory: true,
+    subItems: [
+      {
+        href: "/ai-solutions/bhashik",
+        label: "Bhashik",
+        subItems: [
+          { href: "/ai-solutions/bhashik/all-services", label: "All Services" },
+          {
+            href: "/ai-solutions/bhashik/text-services",
+            label: "Text Services",
+            subItems: [
+              { href: "/ai-solutions/bhashik/text-services/translation", label: "Text Translation" },
+              { href: "/ai-solutions/bhashik/text-services/language-detection", label: "Language Detection" },
+            ],
+          },
+          {
+            href: "/ai-solutions/bhashik/speech",
+            label: "Speech",
+            subItems: [
+              { href: "/ai-solutions/bhashik/speech/tts", label: "TTS" },
+              { href: "/ai-solutions/bhashik/speech/stt", label: "STT" },
+            ],
+          },
+        ],
+      },
+      {
+        href: "/ai-solutions/document-intelligence",
+        label: "Document Intelligence",
+        subItems: [
+          { href: "/ai-solutions/document-intelligence/extract-text", label: "Extract Text" },
+          { href: "/ai-solutions/document-intelligence/extract-info", label: "Extract Info" },
+        ],
+      },
+      {
+        href: "/ai-solutions/industrial",
+        label: "Industrial Solutions",
+        subItems: [
+          { href: "/ai-solutions/industrial/manufacturing", label: "Industrial Manufacturing" },
+          { href: "/ai-solutions/industrial/medical", label: "Medical Imaging" },
+        ],
+      },
+    ],
+  },
+  olaMaps: {
+    href: "/ola-maps",
+    icon: <Map className="h-5 w-5" />,
+    label: "Ola Maps",
+  },
+  administration: {
+    href: "/administration",
+    icon: <Settings className="h-5 w-5" />,
+    label: "Administration",
+    isCategory: true,
+    subItems: [
+      {
+        href: "/administration/projects",
+        label: "Projects",
+        subItems: [
+          { href: "/administration/projects/list", label: "Projects List" },
+          { href: "/administration/projects/create", label: "Create New Project" },
+          { href: "/administration/projects/details", label: "Project Details" },
+        ],
+      },
+      {
+        href: "/administration/iam",
+        label: "Identity (IAM)",
+        subItems: [
+          {
+            href: "/administration/iam/users",
+            label: "Users",
+            subItems: [
+              { href: "/administration/iam/users/list", label: "Users List" },
+              { href: "/administration/iam/users/invite", label: "Invite New User" },
+              { href: "/administration/iam/users/edit", label: "Edit User" },
+            ],
+          },
+          { href: "/administration/iam/groups", label: "User Groups" },
+          {
+            href: "/administration/iam/roles",
+            label: "Roles",
+            subItems: [
+              { href: "/administration/iam/roles/predefined", label: "Pre-defined Roles" },
+              { href: "/administration/iam/roles/definitions", label: "View Role Definitions" },
+              { href: "/administration/iam/roles/policy-library", label: "Policy Library" },
+              { href: "/administration/iam/roles/custom-policies", label: "Attach Custom Policies" },
+            ],
+          },
+          { href: "/administration/iam/policies", label: "Policies" },
+          {
+            href: "/administration/iam/config",
+            label: "IAM Configurations",
+            subItems: [
+              { href: "/administration/iam/config/session-timeout", label: "Default Session Timeout" },
+              { href: "/administration/iam/config/invite-expiry", label: "Invite Expiry Settings" },
+              { href: "/administration/iam/config/password-policy", label: "Password Policy Settings" },
+              { href: "/administration/iam/config/mfa", label: "Enable/Disable MFA" },
+            ],
+          },
+        ],
+      },
+      {
+        href: "/administration/kms",
+        label: "Key Management System (KMS)",
+        subItems: [
+          { href: "/administration/kms/storage", label: "Storage" },
+          { href: "/administration/kms/models", label: "Models" },
+          { href: "/administration/kms/ssh", label: "SSH Key" },
+        ],
+      },
+      { href: "/administration/kcm", label: "KCM" },
+      {
+        href: "/administration/billing",
+        label: "Billing",
+        subItems: [
+          { href: "/administration/billing/usage", label: "Usage" },
+          { href: "/administration/billing/transactions", label: "Transactions" },
+        ],
+      },
+    ],
+  },
+  monitoring: {
+    href: "/monitoring",
+    icon: <Activity className="h-5 w-5" />,
+    label: "Monitoring",
+  },
+  support: {
+    href: "/support",
+    icon: <HelpCircle className="h-5 w-5" />,
+    label: "Support",
+  },
+  documentation: {
+    href: "/documentation",
+    icon: <BookOpen className="h-5 w-5" />,
+    label: "Documentation",
+  },
+}
+
+const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, onExpand, subItems, isCategory }: NavItemProps) => {
   const hasSubItems = subItems && subItems.length > 0
   const pathname = usePathname()
 
   const handleToggleExpand = (e: React.MouseEvent) => {
-    if (hasSubItems && onExpand) {
+    if (hasSubItems && onExpand && !isCategory) {
       e.preventDefault()
       onExpand(href)
     }
@@ -42,15 +304,73 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
 
   const itemContent = (
     <>
-      <div className="flex min-w-[24px] items-center">{icon}</div>
+      <div className="flex min-w-[24px] items-center text-foreground/80">{icon}</div>
       {!collapsed && (
         <>
-          <span className="flex-1 truncate">{label}</span>
-          {hasSubItems && <ChevronRight className={cn("h-4 w-4 transition-transform", expanded && "rotate-90")} />}
+          <span className={cn(
+            "flex-1 truncate",
+            isCategory 
+              ? "text-xs font-semibold uppercase tracking-wider text-muted-foreground/70" 
+              : "text-sm font-medium text-foreground/80"
+          )}>
+            {label}
+          </span>
+          {hasSubItems && !isCategory && <ChevronRight className={cn("h-4 w-4 transition-transform text-foreground/80", expanded === href && "rotate-90")} />}
         </>
       )}
     </>
   )
+
+  if (isCategory) {
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+          {itemContent}
+        </div>
+        {!collapsed && hasSubItems && (
+          <div className="ml-6 mt-1 flex flex-col gap-1 space-y-0.5 relative">
+            <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
+            {subItems.map((subItem, index) => (
+              <div key={index} className="flex flex-col pl-4">
+                <button
+                  onClick={() => onExpand?.(subItem.href)}
+                  className={cn(
+                    "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors text-left w-full",
+                    expanded === subItem.href
+                      ? "bg-accent text-accent-foreground"
+                      : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
+                  )}
+                >
+                  <span className="flex-1">{subItem.label}</span>
+                  {subItem.subItems && <ChevronRight className={cn("h-4 w-4 transition-transform text-foreground/80", expanded === subItem.href && "rotate-90")} />}
+                </button>
+
+                {subItem.subItems && subItem.subItems.length > 0 && expanded === subItem.href && (
+                  <div className="ml-2 mt-1 flex flex-col gap-1 space-y-0.5 relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
+                    {subItem.subItems.map((tertiaryItem, idx) => (
+                      <Link
+                        key={idx}
+                        href={tertiaryItem.href}
+                        className={cn(
+                          "rounded-md px-2 py-1 text-sm transition-colors ml-4",
+                          pathname === tertiaryItem.href
+                            ? "bg-accent text-accent-foreground"
+                            : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
+                        )}
+                      >
+                        {tertiaryItem.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   const item = hasSubItems ? (
     <button
@@ -58,8 +378,8 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
       className={cn(
         "flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-colors text-left",
         exactActive
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground",
+          ? "bg-accent text-accent-foreground"
+          : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
       )}
     >
       {itemContent}
@@ -70,8 +390,8 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
       className={cn(
         "flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
         exactActive
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground",
+          ? "bg-accent text-accent-foreground"
+          : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
       )}
     >
       {itemContent}
@@ -106,7 +426,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
                   "rounded-md px-2 py-1.5 text-sm transition-colors",
                   pathname === subItem.href
                     ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground",
+                    : "text-foreground hover:bg-accent/50 hover:text-accent-foreground",
                 )}
               >
                 {subItem.label}
@@ -125,7 +445,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
                         "rounded-md px-2 py-1 text-sm transition-colors ml-4",
                         pathname === tertiaryItem.href
                           ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground",
+                          : "text-foreground hover:bg-accent/50 hover:text-accent-foreground",
                       )}
                     >
                       {tertiaryItem.label}
@@ -147,29 +467,13 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
 
   // Determine which section should be expanded based on the current path
   useEffect(() => {
-    if (
-      pathname.startsWith("/compute") ||
-      pathname.startsWith("/storage") ||
-      pathname.startsWith("/network") ||
-      pathname.startsWith("/infrastructure")
-    ) {
-      setExpandedItem("/infrastructure")
-    } else if (
-      pathname.startsWith("/model-catalogue") ||
-      pathname.startsWith("/fine-tuning") ||
-      pathname.startsWith("/deployment") ||
-      pathname.startsWith("/evaluation") ||
-      pathname.startsWith("/bhashik") ||
-      pathname.startsWith("/dis") ||
-      pathname.startsWith("/ai-studio")
-    ) {
+    if (pathname.startsWith("/compute") || pathname.startsWith("/networking") || pathname.startsWith("/storage")) {
+      setExpandedItem("/core-infrastructure")
+    } else if (pathname.startsWith("/ai-studio")) {
       setExpandedItem("/ai-studio")
-    } else if (
-      pathname.startsWith("/billing") ||
-      pathname.startsWith("/key-management") ||
-      pathname.startsWith("/iam") ||
-      pathname.startsWith("/administration")
-    ) {
+    } else if (pathname.startsWith("/ai-solutions")) {
+      setExpandedItem("/ai-solutions")
+    } else if (pathname.startsWith("/administration")) {
       setExpandedItem("/administration")
     } else {
       setExpandedItem(null)
@@ -181,10 +485,18 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
   }
 
   const isActive = (path: string) => {
+    // For Home menu item, consider both root path and dashboard path as active
+    if (path === "/") {
+      return pathname === "/" || pathname === "/dashboard"
+    }
     return pathname === path
   }
 
   const isExactActive = (path: string) => {
+    // For Home menu item, consider both root path and dashboard path as active
+    if (path === "/") {
+      return pathname === "/" || pathname === "/dashboard"
+    }
     return pathname === path
   }
 
@@ -212,11 +524,11 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
         <div className="flex flex-col gap-2">
           {/* Home */}
           <NavItem
-            href="/dashboard"
-            icon={<Home className="h-5 w-5" />}
-            label="Home"
-            exactActive={isExactActive("/dashboard")}
-            active={isActive("/dashboard")}
+            href={navigationConfig.home.href}
+            icon={navigationConfig.home.icon}
+            label={navigationConfig.home.label}
+            exactActive={isExactActive(navigationConfig.home.href)}
+            active={isActive(navigationConfig.home.href)}
             collapsed={collapsed}
           />
 
@@ -224,69 +536,55 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
 
           {/* Core Infrastructure */}
           <NavItem
-            href="/infrastructure"
-            icon={<Server className="h-5 w-5" />}
-            label="Core Infrastructure"
-            exactActive={isExactActive("/infrastructure")}
-            active={isActive("/infrastructure")}
+            href={navigationConfig.coreInfrastructure.href}
+            icon={navigationConfig.coreInfrastructure.icon}
+            label={navigationConfig.coreInfrastructure.label}
+            exactActive={isExactActive(navigationConfig.coreInfrastructure.href)}
+            active={isActive(navigationConfig.coreInfrastructure.href)}
             collapsed={collapsed}
-            expanded={expandedItem === "/infrastructure"}
+            expanded={expandedItem}
             onExpand={handleExpand}
-            subItems={[
-              {
-                href: "/compute",
-                label: "Compute",
-                subItems: [
-                  { href: "/compute/machines", label: "Virtual Machines" },
-                  { href: "/compute/ai-pods", label: "AI Pods" },
-                ],
-              },
-              {
-                href: "/storage",
-                label: "Storage",
-                subItems: [
-                  { href: "/storage/block", label: "Block Storage" },
-                  { href: "/storage/object", label: "Object Storage" },
-                ],
-              },
-              {
-                href: "/network",
-                label: "Network",
-                subItems: [
-                  { href: "/network/vpc", label: "VPC" },
-                  { href: "/network/security-groups", label: "Security Groups" },
-                ],
-              },
-            ]}
+            subItems={navigationConfig.coreInfrastructure.subItems}
+            isCategory={navigationConfig.coreInfrastructure.isCategory}
           />
+
+          {!collapsed && <div className="my-2 border-t" />}
 
           {/* AI Studio */}
           <NavItem
-            href="/ai-studio"
-            icon={<Brain className="h-5 w-5" />}
-            label="AI Studio"
-            exactActive={isExactActive("/ai-studio")}
-            active={isActive("/ai-studio")}
+            href={navigationConfig.aiStudio.href}
+            icon={navigationConfig.aiStudio.icon}
+            label={navigationConfig.aiStudio.label}
+            exactActive={isExactActive(navigationConfig.aiStudio.href)}
+            active={isActive(navigationConfig.aiStudio.href)}
             collapsed={collapsed}
-            expanded={expandedItem === "/ai-studio"}
+            expanded={expandedItem}
             onExpand={handleExpand}
-            subItems={[
-              { href: "/model-catalogue", label: "Model Catalogue" },
-              { href: "/fine-tuning", label: "Fine-tuning" },
-              { href: "/deployment", label: "Deployment" },
-              { href: "/evaluation", label: "Evaluation" },
-              { href: "/bhashik", label: "Bhashik" },
-              { href: "/dis", label: "DIS" },
-            ]}
+            subItems={navigationConfig.aiStudio.subItems}
+            isCategory={navigationConfig.aiStudio.isCategory}
+          />
+
+          {/* AI Solutions */}
+          <NavItem
+            href={navigationConfig.aiSolutions.href}
+            icon={navigationConfig.aiSolutions.icon}
+            label={navigationConfig.aiSolutions.label}
+            exactActive={isExactActive(navigationConfig.aiSolutions.href)}
+            active={isActive(navigationConfig.aiSolutions.href)}
+            collapsed={collapsed}
+            expanded={expandedItem}
+            onExpand={handleExpand}
+            subItems={navigationConfig.aiSolutions.subItems}
+            isCategory={navigationConfig.aiSolutions.isCategory}
           />
 
           {/* Ola Maps */}
           <NavItem
-            href="/ola-maps"
-            icon={<Map className="h-5 w-5" />}
-            label="Ola Maps"
-            exactActive={isExactActive("/ola-maps")}
-            active={isActive("/ola-maps")}
+            href={navigationConfig.olaMaps.href}
+            icon={navigationConfig.olaMaps.icon}
+            label={navigationConfig.olaMaps.label}
+            exactActive={isExactActive(navigationConfig.olaMaps.href)}
+            active={isActive(navigationConfig.olaMaps.href)}
             collapsed={collapsed}
           />
 
@@ -294,19 +592,26 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
 
           {/* Administration */}
           <NavItem
-            href="/administration"
-            icon={<Settings className="h-5 w-5" />}
-            label="Administration"
-            exactActive={isExactActive("/administration")}
-            active={isActive("/administration")}
+            href={navigationConfig.administration.href}
+            icon={navigationConfig.administration.icon}
+            label={navigationConfig.administration.label}
+            exactActive={isExactActive(navigationConfig.administration.href)}
+            active={isActive(navigationConfig.administration.href)}
             collapsed={collapsed}
-            expanded={expandedItem === "/administration"}
+            expanded={expandedItem}
             onExpand={handleExpand}
-            subItems={[
-              { href: "/billing", label: "Billing and Usage" },
-              { href: "/key-management", label: "Key Management System" },
-              { href: "/iam", label: "IAM" },
-            ]}
+            subItems={navigationConfig.administration.subItems}
+            isCategory={navigationConfig.administration.isCategory}
+          />
+
+          {/* Monitoring */}
+          <NavItem
+            href={navigationConfig.monitoring.href}
+            icon={navigationConfig.monitoring.icon}
+            label={navigationConfig.monitoring.label}
+            exactActive={isExactActive(navigationConfig.monitoring.href)}
+            active={isActive(navigationConfig.monitoring.href)}
+            collapsed={collapsed}
           />
         </div>
       </div>
@@ -314,23 +619,23 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
       {/* Bottom navigation items */}
       <div className={cn("mt-auto border-t", collapsed ? "px-2" : "px-3")}>
         <div className="py-3 flex flex-col gap-2">
-          {/* Documentation */}
+          {/* Support */}
           <NavItem
-            href="/documentation"
-            icon={<BookOpen className="h-5 w-5" />}
-            label="Documentation"
-            exactActive={isExactActive("/documentation")}
-            active={isActive("/documentation")}
+            href={navigationConfig.support.href}
+            icon={navigationConfig.support.icon}
+            label={navigationConfig.support.label}
+            exactActive={isExactActive(navigationConfig.support.href)}
+            active={isActive(navigationConfig.support.href)}
             collapsed={collapsed}
           />
 
-          {/* Support */}
+          {/* Documentation */}
           <NavItem
-            href="/support"
-            icon={<HelpCircle className="h-5 w-5" />}
-            label="Support"
-            exactActive={isExactActive("/support")}
-            active={isActive("/support")}
+            href={navigationConfig.documentation.href}
+            icon={navigationConfig.documentation.icon}
+            label={navigationConfig.documentation.label}
+            exactActive={isExactActive(navigationConfig.documentation.href)}
+            active={isActive(navigationConfig.documentation.href)}
             collapsed={collapsed}
           />
         </div>
