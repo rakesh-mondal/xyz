@@ -4,20 +4,16 @@ export default function ComputePage() {
   return (
     <PageShell
       title="Compute"
-      description="Manage your compute resources and infrastructure"
+      description="Manage your compute resources and virtual machines"
       tabs={[
-        { title: "AI Pods", href: "/compute/ai-pods" },
-        { title: "Machines", href: "/compute/machines" },
+        { title: "VMs", href: "/compute/vms" },
+        { title: "HPC", href: "/compute/hpc" },
         { title: "Auto Scaling", href: "/compute/auto-scaling" },
-        { title: "Monitoring", href: "/compute/monitoring" },
-        { title: "Resources", href: "/compute/resources" }
       ]}
     >
-      <div className="flex items-center justify-center h-[400px] border rounded-lg">
-        <div className="text-center">
-          <h3 className="text-xl font-bold mb-2">Compute Overview</h3>
-          <p className="text-muted-foreground">This is a placeholder for the Compute resources overview content</p>
-        </div>
+      <div className="rounded-lg border border-dashed p-10 text-center">
+        <h3 className="text-lg font-medium">Compute Resources</h3>
+        <p className="text-sm text-muted-foreground mt-1">Select a tab to manage specific compute resources</p>
       </div>
     </PageShell>
   )

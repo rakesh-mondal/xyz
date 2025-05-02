@@ -28,6 +28,8 @@ interface NavItemProps {
   onExpand?: (href: string) => void
   subItems?: { href: string; label: string; subItems?: { href: string; label: string }[] }[]
   isCategory?: boolean
+  expandedSubItem?: string | null
+  onSubItemExpand?: (href: string) => void
 }
 
 const navigationConfig = {
@@ -291,7 +293,7 @@ const navigationConfig = {
   },
 }
 
-const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, onExpand, subItems, isCategory }: NavItemProps) => {
+const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, onExpand, subItems, isCategory, expandedSubItem, onSubItemExpand }: NavItemProps) => {
   const hasSubItems = subItems && subItems.length > 0
   const pathname = usePathname()
 
@@ -300,6 +302,10 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
       e.preventDefault()
       onExpand(href)
     }
+  }
+
+  const isSubItemActive = (subItemHref: string) => {
+    return pathname.startsWith(subItemHref)
   }
 
   const itemContent = (
@@ -333,19 +339,19 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
             {subItems.map((subItem, index) => (
               <div key={index} className="flex flex-col pl-4">
                 <button
-                  onClick={() => onExpand?.(subItem.href)}
+                  onClick={() => onSubItemExpand?.(subItem.href)}
                   className={cn(
                     "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors text-left w-full",
-                    expanded === subItem.href
+                    (expandedSubItem === subItem.href || isSubItemActive(subItem.href))
                       ? "bg-accent text-accent-foreground"
                       : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
                   )}
                 >
                   <span className="flex-1">{subItem.label}</span>
-                  {subItem.subItems && <ChevronRight className={cn("h-4 w-4 transition-transform text-foreground/80", expanded === subItem.href && "rotate-90")} />}
+                  {subItem.subItems && <ChevronRight className={cn("h-4 w-4 transition-transform text-foreground/80", expandedSubItem === subItem.href && "rotate-90")} />}
                 </button>
 
-                {subItem.subItems && subItem.subItems.length > 0 && expanded === subItem.href && (
+                {subItem.subItems && subItem.subItems.length > 0 && expandedSubItem === subItem.href && (
                   <div className="ml-2 mt-1 flex flex-col gap-1 space-y-0.5 relative">
                     <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
                     {subItem.subItems.map((tertiaryItem, idx) => (
@@ -464,30 +470,56 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
 export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNavigationProps) {
   const pathname = usePathname()
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
+  const [expandedSubItem, setExpandedSubItem] = useState<string | null>(null)
 
   // Determine which section should be expanded based on the current path
   useEffect(() => {
-    if (pathname.startsWith("/compute") || pathname.startsWith("/networking") || pathname.startsWith("/storage")) {
+    // Keep Core Infrastructure expanded for compute-related paths
+    if (pathname.startsWith("/compute")) {
       setExpandedItem("/core-infrastructure")
+      // Keep Compute expanded when in compute section
+      setExpandedSubItem("/compute")
     } else if (pathname.startsWith("/ai-studio")) {
       setExpandedItem("/ai-studio")
     } else if (pathname.startsWith("/ai-solutions")) {
       setExpandedItem("/ai-solutions")
     } else if (pathname.startsWith("/administration")) {
       setExpandedItem("/administration")
-    } else {
-      setExpandedItem(null)
     }
   }, [pathname])
 
   const handleExpand = (href: string) => {
+    // Don't collapse if we're in the compute section
+    if (pathname.startsWith("/compute") && href === "/core-infrastructure") {
+      return
+    }
     setExpandedItem(expandedItem === href ? null : href)
+  }
+
+  const handleSubItemExpand = (href: string) => {
+    // Toggle Compute submenu
+    if (href === "/compute") {
+      setExpandedSubItem(expandedSubItem === href ? null : href)
+      return
+    }
+    // Don't collapse VMs submenu when in VMs section
+    if (pathname.startsWith("/compute/vms") && href === "/compute/vms") {
+      return
+    }
+    setExpandedSubItem(expandedSubItem === href ? null : href)
   }
 
   const isActive = (path: string) => {
     // For Home menu item, consider both root path and dashboard path as active
     if (path === "/") {
       return pathname === "/" || pathname === "/dashboard"
+    }
+    // For compute section, check if path starts with the given path
+    if (path === "/compute") {
+      return pathname.startsWith("/compute")
+    }
+    if (path === "/compute/vms") {
+      return pathname.startsWith("/compute/vms")
     }
     return pathname === path
   }
@@ -496,6 +528,13 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
     // For Home menu item, consider both root path and dashboard path as active
     if (path === "/") {
       return pathname === "/" || pathname === "/dashboard"
+    }
+    // For compute section, check if path starts with the given path
+    if (path === "/compute") {
+      return pathname === "/compute"
+    }
+    if (path === "/compute/vms") {
+      return pathname === "/compute/vms"
     }
     return pathname === path
   }
@@ -546,6 +585,8 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             onExpand={handleExpand}
             subItems={navigationConfig.coreInfrastructure.subItems}
             isCategory={navigationConfig.coreInfrastructure.isCategory}
+            expandedSubItem={expandedSubItem}
+            onSubItemExpand={handleSubItemExpand}
           />
 
           {!collapsed && <div className="my-2 border-t" />}
