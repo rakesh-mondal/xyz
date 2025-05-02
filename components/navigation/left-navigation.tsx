@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Server, Brain, ChevronRight, ChevronLeft, Map, Settings, X, Home, BookOpen, HelpCircle, Activity } from "lucide-react"
+import { Server, Brain, ChevronRight, ChevronLeft, Map, Settings, X, Home, BookOpen, HelpCircle, Activity, Database, Network, Shield } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { KrutrimLogo } from "@/components/ui/krutrim-logo"
 import { Button } from "@/components/ui/button"
@@ -35,12 +35,12 @@ interface NavItemProps {
 const navigationConfig = {
   home: {
     href: "/",
-    icon: <Home className="h-5 w-5" />,
+    icon: <Home className="h-5 w-5 text-foreground/80" />,
     label: "Home",
   },
   coreInfrastructure: {
     href: "/core-infrastructure",
-    icon: <Server className="h-5 w-5" />,
+    icon: <Server className="h-5 w-5 text-muted-foreground" />,
     label: "Core Infrastructure",
     isCategory: true,
     subItems: [
@@ -131,7 +131,7 @@ const navigationConfig = {
   },
   aiStudio: {
     href: "/ai-studio",
-    icon: <Brain className="h-5 w-5" />,
+    icon: <Brain className="h-5 w-5 text-muted-foreground" />,
     label: "AI Studio",
     isCategory: true,
     subItems: [
@@ -154,7 +154,7 @@ const navigationConfig = {
   },
   aiSolutions: {
     href: "/ai-solutions",
-    icon: <Brain className="h-5 w-5" />,
+    icon: <Brain className="h-5 w-5 text-muted-foreground" />,
     label: "AI Solutions",
     isCategory: true,
     subItems: [
@@ -201,23 +201,18 @@ const navigationConfig = {
   },
   olaMaps: {
     href: "/ola-maps",
-    icon: <Map className="h-5 w-5" />,
+    icon: <Map className="h-5 w-5 text-foreground/80" />,
     label: "Ola Maps",
   },
   administration: {
     href: "/administration",
-    icon: <Settings className="h-5 w-5" />,
+    icon: <Settings className="h-5 w-5 text-muted-foreground" />,
     label: "Administration",
     isCategory: true,
     subItems: [
       {
         href: "/administration/projects",
-        label: "Projects",
-        subItems: [
-          { href: "/administration/projects/list", label: "Projects List" },
-          { href: "/administration/projects/create", label: "Create New Project" },
-          { href: "/administration/projects/details", label: "Project Details" },
-        ],
+        label: "Projects"
       },
       {
         href: "/administration/iam",
@@ -278,17 +273,17 @@ const navigationConfig = {
   },
   monitoring: {
     href: "/monitoring",
-    icon: <Activity className="h-5 w-5" />,
+    icon: <Activity className="h-5 w-5 text-foreground/80" />,
     label: "Monitoring",
   },
   support: {
     href: "/support",
-    icon: <HelpCircle className="h-5 w-5" />,
+    icon: <HelpCircle className="h-5 w-5 text-foreground/80" />,
     label: "Support",
   },
   documentation: {
     href: "/documentation",
-    icon: <BookOpen className="h-5 w-5" />,
+    icon: <BookOpen className="h-5 w-5 text-foreground/80" />,
     label: "Documentation",
   },
 }
@@ -359,7 +354,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
                         key={idx}
                         href={tertiaryItem.href}
                         className={cn(
-                          "rounded-md px-2 py-1 text-sm transition-colors ml-4",
+                          "rounded-md px-2 py-1.5 text-sm transition-colors ml-4",
                           pathname === tertiaryItem.href
                             ? "bg-accent text-accent-foreground"
                             : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
@@ -448,7 +443,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
                       key={idx}
                       href={tertiaryItem.href}
                       className={cn(
-                        "rounded-md px-2 py-1 text-sm transition-colors ml-4",
+                        "rounded-md px-2 py-1.5 text-sm transition-colors ml-4",
                         pathname === tertiaryItem.href
                           ? "bg-primary/10 text-primary"
                           : "text-foreground hover:bg-accent/50 hover:text-accent-foreground",
@@ -542,9 +537,9 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
   return (
     <div className="flex h-screen flex-col border-r bg-background">
       {/* Header with logo and collapse button */}
-      <div className={cn("flex h-16 items-center border-b px-4", collapsed ? "justify-center" : "justify-between")}>
+      <div className={cn("flex h-[64px] items-center border-b px-4", collapsed ? "justify-center" : "justify-between")}>
         <div className={collapsed ? "flex items-center justify-center" : "flex items-center gap-2"}>
-          <KrutrimLogo width={collapsed ? 40 : 120} height={40} />
+          <KrutrimLogo width={collapsed ? 40 : 120} height={64} />
         </div>
 
         <div className="flex items-center">
@@ -559,8 +554,8 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
       </div>
 
       {/* Main navigation items */}
-      <div className={cn("flex-1 overflow-y-auto py-4", collapsed ? "px-2" : "px-3")}>
-        <div className="flex flex-col gap-2">
+      <div className={cn("flex-1 overflow-y-auto py-3", collapsed ? "px-2" : "px-3")}>
+        <div className="flex flex-col gap-1.5">
           {/* Home */}
           <NavItem
             href={navigationConfig.home.href}
@@ -571,7 +566,7 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             collapsed={collapsed}
           />
 
-          {!collapsed && <div className="my-2 border-t" />}
+          {!collapsed && <div className="my-1.5 border-t" />}
 
           {/* Core Infrastructure */}
           <NavItem
@@ -589,7 +584,7 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             onSubItemExpand={handleSubItemExpand}
           />
 
-          {!collapsed && <div className="my-2 border-t" />}
+          {!collapsed && <div className="my-1.5 border-t" />}
 
           {/* AI Studio */}
           <NavItem
@@ -603,6 +598,8 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             onExpand={handleExpand}
             subItems={navigationConfig.aiStudio.subItems}
             isCategory={navigationConfig.aiStudio.isCategory}
+            expandedSubItem={expandedSubItem}
+            onSubItemExpand={handleSubItemExpand}
           />
 
           {/* AI Solutions */}
@@ -617,6 +614,8 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             onExpand={handleExpand}
             subItems={navigationConfig.aiSolutions.subItems}
             isCategory={navigationConfig.aiSolutions.isCategory}
+            expandedSubItem={expandedSubItem}
+            onSubItemExpand={handleSubItemExpand}
           />
 
           {/* Ola Maps */}
@@ -629,7 +628,7 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             collapsed={collapsed}
           />
 
-          {!collapsed && <div className="my-2 border-t" />}
+          {!collapsed && <div className="my-1.5 border-t" />}
 
           {/* Administration */}
           <NavItem
@@ -643,6 +642,8 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             onExpand={handleExpand}
             subItems={navigationConfig.administration.subItems}
             isCategory={navigationConfig.administration.isCategory}
+            expandedSubItem={expandedSubItem}
+            onSubItemExpand={handleSubItemExpand}
           />
 
           {/* Monitoring */}
@@ -659,7 +660,7 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
 
       {/* Bottom navigation items */}
       <div className={cn("mt-auto border-t", collapsed ? "px-2" : "px-3")}>
-        <div className="py-3 flex flex-col gap-2">
+        <div className="py-2.5 flex flex-col gap-1.5">
           {/* Support */}
           <NavItem
             href={navigationConfig.support.href}

@@ -1,6 +1,10 @@
 import { PageShell } from "@/components/page-shell"
+import { redirect } from "next/navigation"
 
 export default function HPCPage() {
+  // Redirect to the first tab by default
+  redirect("/compute/hpc/gpu-clusters")
+
   return (
     <PageShell
       title="High Performance Computing"
