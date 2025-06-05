@@ -50,14 +50,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Check for existing auth on mount
   useEffect(() => {
     const checkAuth = async () => {
-      // In a real app, validate the token with your backend
-      const hasToken = document.cookie.includes("auth-token")
+      console.log('AuthProvider: Checking authentication...')
+      
+      // Check multiple sources for authentication
+      const hasTokenCookie = document.cookie.includes("auth-token")
+      const hasTokenLocalStorage = !!localStorage.getItem('auth-token')
+      const isAuthenticatedFlag = localStorage.getItem('isAuthenticated') === 'true'
+      const hasFreshAuth = sessionStorage.getItem('freshAuth') === 'true'
+      
+      const hasToken = hasTokenCookie || hasTokenLocalStorage || isAuthenticatedFlag || hasFreshAuth
+      
+      console.log('AuthProvider: Authentication check results:', {
+        hasTokenCookie,
+        hasTokenLocalStorage,
+        isAuthenticatedFlag,
+        hasFreshAuth,
+        finalResult: hasToken
+      })
+      
       setIsAuthenticated(hasToken)
 
       // Try to get user data from localStorage
       if (hasToken) {
         try {
           const userData = localStorage.getItem("user_data")
+          console.log('AuthProvider: User data from localStorage:', userData)
+          
           if (userData) {
             const parsedUser = JSON.parse(userData)
             
@@ -77,10 +95,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
             
             setUser(userWithDefaults)
-            setAccessLevel(calculateAccessLevel(userWithDefaults.profileStatus))
+            const calculatedAccessLevel = calculateAccessLevel(userWithDefaults.profileStatus)
+            setAccessLevel(calculatedAccessLevel)
+            
+            console.log('AuthProvider: User set successfully:', userWithDefaults)
+            console.log('AuthProvider: Access level calculated:', calculatedAccessLevel)
           }
         } catch (e) {
-          console.error("Failed to parse user data", e)
+          console.error("AuthProvider: Failed to parse user data", e)
           // Set default limited access for authenticated users without valid data
           const defaultUser: User = {
             name: 'User',
@@ -92,15 +114,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
           setUser(defaultUser)
           setAccessLevel('limited')
+          console.log('AuthProvider: Set default user with limited access')
         }
       } else {
         setAccessLevel('none')
+        console.log('AuthProvider: No authentication found, setting access level to none')
+      }
+
+      // Clear fresh auth flag after first check
+      if (hasFreshAuth) {
+        sessionStorage.removeItem('freshAuth')
       }
 
       setIsLoading(false)
+      console.log('AuthProvider: Authentication check completed')
     }
 
+    // Initial check
     checkAuth()
+    
+    // Listen for custom auth update events
+    const handleAuthUpdate = () => {
+      console.log('AuthProvider: Received auth update event, re-checking...')
+      checkAuth()
+    }
+    
+    window.addEventListener('authUpdate', handleAuthUpdate)
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('authUpdate', handleAuthUpdate)
+    }
   }, [])
 
   const setUserData = (data: Partial<User>) => {

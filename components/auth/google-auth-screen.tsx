@@ -6,26 +6,7 @@
  * authenticating via Google OAuth. It displays a list of previously used Google
  * accounts and allows the user to select one or add a new account.
  *
- * @status Planned - Not currently in use
- * @plannedFor Authentication system upgrade (Q2 2023)
- *
- * @example
- * // Future implementation in the auth flow
- * import { GoogleAuthScreen } from "@/components/auth/google-auth-screen";
- *
- * // In a route handler or page component
- * export default function GoogleAuthPage() {
- *   return <GoogleAuthScreen />;
- * }
- *
- * @see Related components:
- * - SignInForm
- * - TwoFactorScreen
- * - AuthProvider
- *
- * @todo Integrate with actual Google OAuth API when authentication system is upgraded
- * @todo Implement actual account fetching instead of sample data
- * @todo Add proper error handling for OAuth failures
+ * @status Active - Mock Implementation for Prototype
  */
 "use client"
 
@@ -65,10 +46,21 @@ export function GoogleAuthScreen() {
         mobile: "",
         accountType: "individual",
         socialSignin: "google",
-        signinCompletedAt: new Date().toISOString()
+        signinCompletedAt: new Date().toISOString(),
+        profileStatus: {
+          basicInfoComplete: true,
+          identityVerified: true,
+          paymentSetupComplete: true
+        }
       }
-      document.cookie = `user_data=${JSON.stringify(userInfo)}; path=/; max-age=86400`
-      console.log('User auth data set successfully for Google sign-in')
+      
+      // Set cookies for middleware
+      document.cookie = `user_data=${JSON.stringify(userInfo)}; path=/; max-age=86400; SameSite=Lax`
+      
+      // Set localStorage for auth provider - this is critical!
+      localStorage.setItem("user_data", JSON.stringify(userInfo))
+      
+      console.log('User auth data set successfully for Google sign-in:', userInfo)
     } catch (error) {
       console.error('Error setting user auth data:', error)
     }
@@ -79,9 +71,15 @@ export function GoogleAuthScreen() {
       console.log('Setting access level for Google sign-in:', level)
       localStorage.setItem('accessLevel', level)
       
-      // Set authentication cookie for middleware
+      // Set authentication cookie for middleware - this is critical!
       const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      document.cookie = `auth-token=${authToken}; path=/; max-age=86400` // 24 hours
+      
+      // Try multiple cookie setting methods to ensure reliability
+      document.cookie = `auth-token=${authToken}; path=/; max-age=86400; SameSite=Lax`
+      
+      // Verify the cookie was set
+      const cookieSet = document.cookie.includes('auth-token')
+      console.log('Auth token set:', authToken, 'Cookie verification:', cookieSet)
       
       // Set user profile status cookie for middleware - assume full access for social signin
       const profileStatus = {
@@ -89,9 +87,18 @@ export function GoogleAuthScreen() {
         identityVerified: true,
         paymentSetupComplete: true
       }
-      document.cookie = `user_profile_status=${JSON.stringify(profileStatus)}; path=/; max-age=86400`
+      document.cookie = `user_profile_status=${JSON.stringify(profileStatus)}; path=/; max-age=86400; SameSite=Lax`
       
-      console.log('Access level set successfully for Google sign-in')
+      // Also set in localStorage for additional reliability
+      localStorage.setItem('auth-token', authToken)
+      localStorage.setItem('isAuthenticated', 'true')
+      
+      console.log('Profile status set:', profileStatus)
+      console.log('All authentication cookies and localStorage set successfully')
+      
+      // Log all cookies for debugging
+      console.log('All cookies:', document.cookie)
+      
     } catch (error) {
       console.error('Error setting access level:', error)
     }
@@ -106,18 +113,38 @@ export function GoogleAuthScreen() {
       // Simulate authentication process
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      // Set authentication data before navigation
-      console.log('Google sign-in successful, setting auth data')
+      console.log('Google sign-in successful, setting auth data synchronously')
+      
+      // Set authentication data synchronously (no async calls)
       setUserAuthData(selectedAccount)
       setAccessLevel('full')
       
-      // Navigate to dashboard
-      console.log('Navigating to dashboard...')
-      router.push("/dashboard")
+      // Set a flag in sessionStorage to indicate fresh authentication
+      sessionStorage.setItem('freshAuth', 'true')
+      
+      console.log('All authentication data set, preparing navigation...')
+      
+      // Use multiple setTimeout to ensure React state is fully updated
+      setTimeout(() => {
+        console.log('First timeout - triggering auth provider refresh...')
+        
+        // Dispatch a custom event to trigger auth provider re-check
+        window.dispatchEvent(new Event('authUpdate'))
+        
+        setTimeout(() => {
+          console.log('Second timeout - navigating to dashboard...')
+          
+          // Force a hard reload to ensure fresh state
+          window.location.href = "/dashboard"
+        }, 500)
+      }, 300)
+      
     } catch (error) {
       console.error('Google sign-in error:', error)
       // Fallback navigation
-      window.location.href = "/dashboard"
+      setTimeout(() => {
+        window.location.href = "/dashboard"
+      }, 100)
     } finally {
       setIsLoading(false)
     }

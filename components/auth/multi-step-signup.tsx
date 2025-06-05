@@ -423,21 +423,6 @@ export function MultiStepSignup() {
           <KrutrimLogo width={180} height={60} className="h-12" href={null} />
         </div>
 
-        {/* Enhanced Flow Phase Indicator with breadcrumb navigation */}
-        <div className="text-center mb-4">
-          <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${phaseInfo.color}`}>
-            <div className="flex items-center space-x-2">
-              <span>{phaseInfo.title}</span>
-              {flowPhase === "profile" && (
-                <>
-                  <span className="text-xs opacity-60">•</span>
-                  <span className="text-xs opacity-80">{phaseInfo.description}</span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* Progressive Stepper with maintained visual design */}
         <div className="w-full mb-6">
           <Stepper value={getStepperValue()} className="w-full">

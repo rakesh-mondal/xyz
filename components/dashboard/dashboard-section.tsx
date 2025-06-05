@@ -6,6 +6,7 @@ import { FeatureRestriction } from "@/components/access-control/feature-restrict
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import { useEffect } from "react"
 
 interface DashboardSectionProps {
   section: string
@@ -19,10 +20,10 @@ interface DashboardSectionProps {
 function RedirectToSignup() {
   const router = useRouter()
   
-  // Auto-redirect to signup for unauthenticated users
-  if (typeof window !== 'undefined') {
+  // Auto-redirect to signup for unauthenticated users using useEffect
+  useEffect(() => {
     router.push('/auth/signin')
-  }
+  }, [router])
   
   return (
     <div className="flex items-center justify-center p-8 bg-gray-50 rounded-lg border border-dashed">

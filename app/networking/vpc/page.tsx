@@ -93,6 +93,9 @@ export default function VPCListPage() {
         enableColumnVisibility={true}
         enablePagination={true}
         onRefresh={handleRefresh}
+        enableAutoRefresh={true}
+        enableNameFilter={true}
+        nameFilterColumn="name"
       />
     </PageShell>
   )

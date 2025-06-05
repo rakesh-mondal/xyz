@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw } from "lucide-react"
+import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Play, Pause } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -52,6 +52,9 @@ interface ShadcnDataTableProps<T = any> {
   enableColumnVisibility?: boolean
   enablePagination?: boolean
   onRefresh?: () => void
+  enableAutoRefresh?: boolean
+  enableNameFilter?: boolean
+  nameFilterColumn?: string
 }
 
 export function ShadcnDataTable<T = any>({ 
@@ -63,7 +66,10 @@ export function ShadcnDataTable<T = any>({
   enableSearch = true,
   enableColumnVisibility = true,
   enablePagination = true,
-  onRefresh
+  onRefresh,
+  enableAutoRefresh = false,
+  enableNameFilter = false,
+  nameFilterColumn
 }: ShadcnDataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>(
     defaultSort ? [{ id: defaultSort.column, desc: defaultSort.direction === "desc" }] : []
@@ -72,6 +78,71 @@ export function ShadcnDataTable<T = any>({
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [globalFilter, setGlobalFilter] = React.useState("")
   
+  // Auto-refresh state
+  const [isAutoRefreshActive, setIsAutoRefreshActive] = React.useState(false)
+  const [refreshInterval, setRefreshInterval] = React.useState("30")
+  const intervalRef = React.useRef<NodeJS.Timeout | null>(null)
+
+  // Name filter state
+  const [selectedNames, setSelectedNames] = React.useState<string[]>([])
+  
+  // Get unique names for the filter dropdown
+  const uniqueNames = React.useMemo(() => {
+    if (!enableNameFilter || !nameFilterColumn) return []
+    const names = Array.from(new Set(data.map(item => (item as any)[nameFilterColumn]).filter(Boolean)))
+    return names.sort()
+  }, [data, enableNameFilter, nameFilterColumn])
+
+  // Filter data based on selected names
+  const filteredData = React.useMemo(() => {
+    if (!enableNameFilter || !nameFilterColumn || selectedNames.length === 0) {
+      return data
+    }
+    return data.filter(item => selectedNames.includes((item as any)[nameFilterColumn]))
+  }, [data, selectedNames, enableNameFilter, nameFilterColumn])
+
+  // Auto-refresh logic
+  React.useEffect(() => {
+    if (isAutoRefreshActive && onRefresh && enableAutoRefresh) {
+      intervalRef.current = setInterval(() => {
+        onRefresh()
+      }, parseInt(refreshInterval) * 1000)
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [isAutoRefreshActive, refreshInterval, onRefresh, enableAutoRefresh])
+
+  // Clean up on unmount
+  React.useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [])
+
+  const handleAutoRefreshToggle = () => {
+    setIsAutoRefreshActive(!isAutoRefreshActive)
+  }
+
+  const handleIntervalChange = (value: string) => {
+    setRefreshInterval(value)
+    // If auto-refresh is active, restart with new interval
+    if (isAutoRefreshActive) {
+      setIsAutoRefreshActive(false)
+      setTimeout(() => setIsAutoRefreshActive(true), 100)
+    }
+  }
+
   // Convert our column format to TanStack column format
   const tanstackColumns: ColumnDef<T>[] = React.useMemo(() => {
     return columns.map((col) => ({
@@ -106,7 +177,7 @@ export function ShadcnDataTable<T = any>({
   }, [columns])
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns: tanstackColumns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -158,7 +229,7 @@ export function ShadcnDataTable<T = any>({
             {enableColumnVisibility && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
+                  <Button variant="outline" className="rounded-md">
                     <SlidersHorizontal className="mr-2 h-4 w-4" />
                     Columns
                     <ChevronDown className="ml-2 h-4 w-4" />
@@ -186,18 +257,111 @@ export function ShadcnDataTable<T = any>({
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
+
+            {enableNameFilter && nameFilterColumn && uniqueNames.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="rounded-md">
+                    <SlidersHorizontal className="mr-2 h-4 w-4" />
+                    Select {columns.find(col => col.key === nameFilterColumn)?.label || nameFilterColumn}
+                    {selectedNames.length > 0 && (
+                      <span className="ml-1 bg-primary text-primary-foreground text-xs px-1 rounded">
+                        {selectedNames.length}
+                      </span>
+                    )}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-[250px] max-h-[300px] overflow-y-auto">
+                  <DropdownMenuCheckboxItem
+                    className="font-medium"
+                    checked={selectedNames.length === uniqueNames.length}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedNames([...uniqueNames])
+                      } else {
+                        setSelectedNames([])
+                      }
+                    }}
+                  >
+                    Select All ({uniqueNames.length})
+                  </DropdownMenuCheckboxItem>
+                  <div className="border-t my-1" />
+                  {uniqueNames.map((name) => (
+                    <DropdownMenuCheckboxItem
+                      key={name}
+                      className="capitalize"
+                      checked={selectedNames.includes(name)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedNames([...selectedNames, name])
+                        } else {
+                          setSelectedNames(selectedNames.filter(n => n !== name))
+                        }
+                      }}
+                    >
+                      {name}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
           
-          {onRefresh && (
-            <Button 
-              variant="outline" 
-              onClick={onRefresh}
-              className="ml-auto"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
-            </Button>
-          )}
+          <div className="flex items-center space-x-2">
+            {enableAutoRefresh && onRefresh && (
+              <>
+                {/* Auto-refresh status indicator */}
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${isAutoRefreshActive ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {isAutoRefreshActive ? 'Auto Refresh Active' : 'Auto Refresh Paused'}
+                  </span>
+                </div>
+                
+                {/* Interval selector */}
+                <Select value={refreshInterval} onValueChange={handleIntervalChange}>
+                  <SelectTrigger className="h-9 w-[80px] rounded-md">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5s</SelectItem>
+                    <SelectItem value="10">10s</SelectItem>
+                    <SelectItem value="15">15s</SelectItem>
+                    <SelectItem value="30">30s</SelectItem>
+                    <SelectItem value="60">60s</SelectItem>
+                    <SelectItem value="120">2m</SelectItem>
+                    <SelectItem value="300">5m</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {/* Play/Pause button */}
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={handleAutoRefreshToggle}
+                  className={`rounded-md ${isAutoRefreshActive ? 'bg-green-50 border-green-200 hover:bg-green-100' : ''}`}
+                >
+                  {isAutoRefreshActive ? (
+                    <Pause className="h-4 w-4 text-gray-600" />
+                  ) : (
+                    <Play className="h-4 w-4 text-green-600" />
+                  )}
+                </Button>
+              </>
+            )}
+            
+            {onRefresh && (
+              <Button 
+                variant="outline" 
+                onClick={onRefresh}
+                className="rounded-md"
+                size="icon"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       )}
 
@@ -265,7 +429,7 @@ export function ShadcnDataTable<T = any>({
 
       {/* Pagination */}
       {enablePagination && table.getPageCount() > 1 && (
-        <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="flex items-center justify-between space-x-2 py-4 px-4">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
               <p className="text-sm font-medium">Rows per page</p>
