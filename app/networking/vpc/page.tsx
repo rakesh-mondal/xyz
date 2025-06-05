@@ -61,6 +61,17 @@ export default function VPCListPage() {
     },
   ]
 
+  const handleRefresh = () => {
+    // Add your refresh logic here
+    console.log("Refreshing VPC data...")
+    // In a real app, this would typically:
+    // - Refetch data from API
+    // - Update state
+    // - Show loading indicator
+    // For now, just reload the page as a simple refresh
+    window.location.reload()
+  }
+
   return (
     <PageShell
       title="Virtual Private Cloud"
@@ -81,6 +92,7 @@ export default function VPCListPage() {
         enableSearch={true}
         enableColumnVisibility={true}
         enablePagination={true}
+        onRefresh={handleRefresh}
       />
     </PageShell>
   )
