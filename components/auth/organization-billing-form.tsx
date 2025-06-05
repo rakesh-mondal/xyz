@@ -447,7 +447,7 @@ export function OrganizationBillingForm({ onBack, onNext }: OrganizationBillingF
           Back
         </Button>
 
-        <Button onClick={handleSubmit} className="bg-black hover:bg-gray-800 text-white">
+        <Button onClick={handleSubmit} variant="default">
           Next
         </Button>
       </div>

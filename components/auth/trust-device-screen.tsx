@@ -17,6 +17,48 @@ export function TrustDeviceScreen() {
     device: "Unknown Device",
   })
 
+  // Authentication helper functions
+  const setUserAuthData = () => {
+    try {
+      // For trust device screen, we assume user is already authenticated
+      // Get user info from URL params or session storage if available
+      const userInfo = {
+        name: "User", // Default fallback
+        email: sessionStorage.getItem('userEmail') || "user@example.com",
+        mobile: "",
+        accountType: "individual",
+        signinCompletedAt: new Date().toISOString()
+      }
+      document.cookie = `user_data=${JSON.stringify(userInfo)}; path=/; max-age=86400`
+      console.log('User auth data set successfully for trust device')
+    } catch (error) {
+      console.error('Error setting user auth data:', error)
+    }
+  }
+
+  const setAccessLevel = (level: 'full' = 'full') => {
+    try {
+      console.log('Setting access level for trust device:', level)
+      localStorage.setItem('accessLevel', level)
+      
+      // Set authentication cookie for middleware
+      const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      document.cookie = `auth-token=${authToken}; path=/; max-age=86400` // 24 hours
+      
+      // Set user profile status cookie for middleware - assume full access
+      const profileStatus = {
+        basicInfoComplete: true,
+        identityVerified: true,
+        paymentSetupComplete: true
+      }
+      document.cookie = `user_profile_status=${JSON.stringify(profileStatus)}; path=/; max-age=86400`
+      
+      console.log('Access level set successfully for trust device')
+    } catch (error) {
+      console.error('Error setting access level:', error)
+    }
+  }
+
   useEffect(() => {
     // Get basic browser and device info
     const userAgent = window.navigator.userAgent
@@ -54,16 +96,38 @@ export function TrustDeviceScreen() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Redirect to dashboard
+      // Set authentication data before navigation
+      console.log('Trust device selected, setting auth data')
+      setUserAuthData()
+      setAccessLevel('full')
+      
+      // Navigate to dashboard
+      console.log('Navigating to dashboard...')
       router.push("/dashboard")
+    } catch (error) {
+      console.error('Error trusting device:', error)
+      // Fallback navigation
+      window.location.href = "/dashboard"
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleDontTrust = () => {
-    // Redirect to dashboard without setting trust
-    router.push("/dashboard")
+    try {
+      // Set authentication data before navigation even when not trusting
+      console.log('Don\'t trust device selected, setting auth data')
+      setUserAuthData()
+      setAccessLevel('full')
+      
+      // Navigate to dashboard
+      console.log('Navigating to dashboard...')
+      router.push("/dashboard")
+    } catch (error) {
+      console.error('Error navigating without trust:', error)
+      // Fallback navigation
+      window.location.href = "/dashboard"
+    }
   }
 
   return (

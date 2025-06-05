@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Mock Data and Testing Rule
+
+- Use mock data files (e.g., [lib/data.ts](mdc:lib/data.ts)) for resource tables/lists in development and testing.
+- Mock data should match the structure of production data for easy replacement.
+- When writing tests, use the same data shape and UI components as in production code.
+- Do not hardcode test data in components; import from mock data files.

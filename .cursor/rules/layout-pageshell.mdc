@@ -1,0 +1,13 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Layout and PageShell Rule
+
+All main pages must use the [PageShell](mdc:components/page-shell.tsx) component to provide consistent layout, including title, description, and tab navigation. PageShell ensures adherence to the app's design system (Open Sauce One font, spacing, theming).
+
+- Always wrap page content in PageShell.
+- Use the `tabs` prop for tabbed navigation (see CPU Virtual Machines and Block Storage for reference).
+- Do not override global font, spacing, or theme.
+- See [components/page-shell.tsx](mdc:components/page-shell.tsx) for implementation.

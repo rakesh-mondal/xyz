@@ -1,0 +1,10 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Breadcrumb Rule
+
+- Use only the [shadcn/ui Breadcrumb component](mdc:components/ui/breadcrumb.tsx) for all breadcrumb navigation.
+- Do not use custom breadcrumb markup or third-party libraries.
+- Breadcrumbs must be accessible and follow shadcn/ui design standards.

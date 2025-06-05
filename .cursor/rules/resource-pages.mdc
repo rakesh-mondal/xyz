@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Resource Management Page Rule
+
+- All resource management pages (VPC, Subnets, Security Groups, Static IPs, Block Storage, etc.) must use PageShell for layout and tabs.
+- Use a table or list for resource display, matching the design of CPU Virtual Machines and Block Storage pages.
+- Use [CreateButton](mdc:components/create-button.tsx) for all 'Create' actions.
+- See [app/networking/vpc/page.tsx](mdc:app/networking/vpc/page.tsx) for a typical example.

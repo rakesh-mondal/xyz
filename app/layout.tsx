@@ -16,7 +16,7 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/marcologous/Open-Sauce-Fonts@master/css/opensauce.css"
         />
       </head>
-      <body className="font-opensauce">
+      <body className="font-opensauceOne">
         <CommandPaletteProvider>
           <ClientLayout>{children}</ClientLayout>
         </CommandPaletteProvider>

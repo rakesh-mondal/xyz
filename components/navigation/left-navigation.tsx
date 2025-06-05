@@ -5,11 +5,12 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Server, Brain, ChevronRight, ChevronLeft, Map, Settings, X, Home, BookOpen, HelpCircle, Activity, Database, Network, Shield } from "lucide-react"
+import { Server, Brain, ChevronRight, ChevronLeft, Map, Settings, X, Home, BookOpen, HelpCircle, Activity, Database, Network, Shield, HardDrive, Globe, Key, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { KrutrimLogo } from "@/components/ui/krutrim-logo"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 
 interface LeftNavigationProps {
   collapsed: boolean
@@ -85,22 +86,7 @@ const navigationConfig = {
           { href: "/networking/vpc", label: "VPC" },
           { href: "/networking/subnets", label: "Subnets" },
           { href: "/networking/security-groups", label: "Security Groups" },
-          {
-            href: "/networking/load-balancing",
-            label: "Load Balancing",
-            subItems: [
-              { href: "/networking/load-balancing/load-balancer", label: "Load Balancer" },
-              { href: "/networking/load-balancing/target-groups", label: "Target Groups" },
-            ],
-          },
-          {
-            href: "/networking/dns",
-            label: "DNS Management",
-            subItems: [
-              { href: "/networking/dns/hosted-zones", label: "DNS Hosted Zones" },
-            ],
-          },
-          { href: "/networking/router", label: "Router" },
+          { href: "/networking/static-ips", label: "Static IP Addresses" },
         ],
       },
       {
@@ -199,10 +185,10 @@ const navigationConfig = {
       },
     ],
   },
-  olaMaps: {
-    href: "/ola-maps",
+  maps: {
+    href: "/maps",
     icon: <Map className="h-[18px] w-[18px] text-foreground/80" />,
-    label: "Ola Maps",
+    label: "Maps",
   },
   administration: {
     href: "/administration",
@@ -262,11 +248,11 @@ const navigationConfig = {
       },
       { href: "/administration/kcm", label: "KCM" },
       {
-        href: "/administration/billing",
+        href: "/billing",
         label: "Billing",
         subItems: [
-          { href: "/administration/billing/usage", label: "Usage" },
-          { href: "/administration/billing/transactions", label: "Transactions" },
+          { href: "/billing/usage", label: "Usage" },
+          { href: "/billing/transactions", label: "Transactions" },
         ],
       },
     ],
@@ -462,6 +448,65 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
   )
 }
 
+const navConfig = [
+  {
+    label: "Networking",
+    icon: <Network className="mr-2 h-4 w-4" />,
+    items: [
+      { label: "VPC", href: "/networking/vpc" },
+      { label: "Subnets", href: "/networking/subnets" },
+      { label: "Security Groups", href: "/networking/security-groups" },
+      { label: "Static IP Addresses", href: "/networking/static-ips" },
+    ],
+  },
+  {
+    label: "Storage",
+    icon: <HardDrive className="mr-2 h-4 w-4" />,
+    items: [
+      { label: "Block Storage", href: "/storage/block/volumes" },
+      { label: "Snapshots", href: "/storage/block/snapshots" },
+      { label: "Backup", href: "/storage/block/backup" },
+    ],
+  },
+  {
+    label: "Maps",
+    icon: <Map className="mr-2 h-4 w-4" />,
+    items: [
+      { label: "Maps", href: "/maps" },
+    ],
+  },
+  // Add more sections as needed
+]
+
+export function Sidebar() {
+  return (
+    <aside className="w-64 bg-background border-r h-full">
+      <Accordion type="multiple" className="w-full">
+        {navConfig.map((section) => (
+          <AccordionItem value={section.label} key={section.label}>
+            <AccordionTrigger>
+              {section.icon}
+              {section.label}
+            </AccordionTrigger>
+            <AccordionContent>
+              {section.items.map((item) => (
+                <Button
+                  asChild
+                  key={item.href}
+                  variant="ghost"
+                  className="w-full justify-start mb-1"
+                >
+                  <Link href={item.href}>{item.label}</Link>
+                </Button>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </aside>
+  )
+}
+
 export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNavigationProps) {
   const pathname = usePathname()
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
@@ -618,13 +663,13 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             onSubItemExpand={handleSubItemExpand}
           />
 
-          {/* Ola Maps */}
+          {/* Maps */}
           <NavItem
-            href={navigationConfig.olaMaps.href}
-            icon={navigationConfig.olaMaps.icon}
-            label={navigationConfig.olaMaps.label}
-            exactActive={isExactActive(navigationConfig.olaMaps.href)}
-            active={isActive(navigationConfig.olaMaps.href)}
+            href={navigationConfig.maps.href}
+            icon={navigationConfig.maps.icon}
+            label={navigationConfig.maps.label}
+            exactActive={isExactActive(navigationConfig.maps.href)}
+            active={isActive(navigationConfig.maps.href)}
             collapsed={collapsed}
           />
 
@@ -685,3 +730,5 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
     </div>
   )
 }
+
+export default LeftNavigation;

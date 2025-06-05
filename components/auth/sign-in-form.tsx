@@ -30,6 +30,46 @@ export function SignInForm() {
     general?: string
   }>({})
 
+  // Authentication helper functions
+  const setUserAuthData = (email: string) => {
+    try {
+      const userInfo = {
+        name: email.split('@')[0], // Extract name from email as fallback
+        email: email,
+        mobile: "", // Will be empty for sign-in
+        accountType: "individual", // Default
+        signinCompletedAt: new Date().toISOString()
+      }
+      document.cookie = `user_data=${JSON.stringify(userInfo)}; path=/; max-age=86400`
+      console.log('User auth data set successfully for sign-in')
+    } catch (error) {
+      console.error('Error setting user auth data:', error)
+    }
+  }
+
+  const setAccessLevel = (level: 'full' = 'full') => {
+    try {
+      console.log('Setting access level for sign-in:', level)
+      localStorage.setItem('accessLevel', level)
+      
+      // Set authentication cookie for middleware
+      const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      document.cookie = `auth-token=${authToken}; path=/; max-age=86400` // 24 hours
+      
+      // Set user profile status cookie for middleware - assume full access for existing users
+      const profileStatus = {
+        basicInfoComplete: true,
+        identityVerified: true,
+        paymentSetupComplete: true
+      }
+      document.cookie = `user_profile_status=${JSON.stringify(profileStatus)}; path=/; max-age=86400`
+      
+      console.log('Access level set successfully for sign-in')
+    } catch (error) {
+      console.error('Error setting access level:', error)
+    }
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -77,9 +117,16 @@ export function SignInForm() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      // For demo purposes, we'll just redirect to dashboard
+      // Set authentication data before navigation
+      console.log('Sign-in successful, setting auth data')
+      setUserAuthData(formData.email)
+      setAccessLevel('full')
+      
+      // Navigate to dashboard
+      console.log('Navigating to dashboard...')
       router.push("/dashboard")
     } catch (error) {
+      console.error('Sign-in error:', error)
       setErrors({
         general: "Invalid email or password. Please try again.",
       })
@@ -164,7 +211,7 @@ export function SignInForm() {
                 </Label>
               </div>
 
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white" disabled={isLoading}>
+              <Button type="submit" className="w-full" variant="default" disabled={isLoading}>
                 {isLoading ? (
                   "Signing in..."
                 ) : (

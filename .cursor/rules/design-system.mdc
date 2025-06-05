@@ -1,0 +1,10 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Design System Rule
+
+- The global font is Open Sauce One (see [app/layout.tsx](mdc:app/layout.tsx)).
+- All spacing, colors, and theming should follow the design system and not be overridden at the page/component level.
+- Use only design system components for UI (Button, Input, Select, etc.).

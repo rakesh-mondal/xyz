@@ -1,0 +1,10 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Icon Rule
+
+- Use only the approved icon set (e.g., Lucide) for all icons.
+- Do not use custom SVGs or other icon libraries unless explicitly approved.
+- Icons must be accessible and follow design system sizing and color standards.

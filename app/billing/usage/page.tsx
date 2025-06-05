@@ -1,5 +1,6 @@
-import { PageShell } from "@/components/page-shell"
+import { redirect } from "next/navigation";
 
-export default function BillingUsagePage() {
-  return <PageShell title="Usage & Billing" description="Track resource usage and billing information" />
+export default function UsageRootRedirect() {
+  redirect("/billing/usage/summary");
+  return null;
 }

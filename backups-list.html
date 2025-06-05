@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backups List Screen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+        }
+        .vpc-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .tab.active {
+            border-bottom: 2px solid #000;
+            font-weight: bold;
+        }
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #f8f8f8;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f8f8;
+        }
+        .actions {
+            text-align: center;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Block Storage</h1>
+        <div class="vpc-filter">
+            <label for="vpc">VPC:</label>
+            <select id="vpc">
+                <option value="all">All VPCs</option>
+                <option value="vpc-1">VPC-1</option>
+                <option value="vpc-2">VPC-2</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="tabs">
+        <div class="tab">Volumes</div>
+        <div class="tab">Snapshots</div>
+        <div class="tab active">Backups</div>
+    </div>
+
+    <div class="action-bar">
+        <div class="filters">
+            <!-- Placeholder for additional filters -->
+        </div>
+        <button>Create Backup</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Backup Name</th>
+                <th>Size</th>
+                <th>Volume Name</th>
+                <th>Type</th>
+                <th>Created On</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>volume-001-backup-1</td>
+                <td>100 GB</td>
+                <td>volume-001</td>
+                <td><span class="tag">Primary</span></td>
+                <td>May 1, 2025 00:00:00</td>
+                <td class="actions">⋮</td>
+            </tr>
+            <tr>
+                <td>volume-001-backup-2</td>
+                <td>10 GB</td>
+                <td>volume-001</td>
+                <td><span class="tag">Delta</span></td>
+                <td>May 11, 2025 00:00:05</td>
+                <td class="actions">⋮</td>
+            </tr>
+            <tr>
+                <td>volume-002-backup-1</td>
+                <td>50 GB</td>
+                <td>volume-002</td>
+                <td><span class="tag">Primary</span></td>
+                <td>May 1, 2025 00:00:12</td>
+                <td class="actions">⋮</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Empty state (will be shown when no backups exist)
+    <div class="empty-state">
+        <p>No backups found. Click 'Create Backup' to add a new backup.</p>
+    </div>
+    -->
+</body>
+</html>

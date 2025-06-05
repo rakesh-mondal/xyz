@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Storage Main Screen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+        }
+        .vpc-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .tab.active {
+            border-bottom: 2px solid #000;
+            font-weight: bold;
+        }
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #f8f8f8;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f8f8;
+        }
+        .actions {
+            text-align: center;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Block Storage</h1>
+        <div class="vpc-filter">
+            <label for="vpc">VPC:</label>
+            <select id="vpc">
+                <option value="all">All VPCs</option>
+                <option value="vpc-1">VPC-1</option>
+                <option value="vpc-2">VPC-2</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="tabs">
+        <div class="tab active">Volumes</div>
+        <div class="tab">Snapshots</div>
+        <div class="tab">Backups</div>
+    </div>
+
+    <div class="action-bar">
+        <div class="filters">
+            <!-- Placeholder for additional filters -->
+        </div>
+        <button>Create Volume</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Volume Name</th>
+                <th>Volume Type</th>
+                <th>Size (GB)</th>
+                <th>Attached Instance</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><a href="#">volume-001</a></td>
+                <td>High-speed NVME SSD Storage</td>
+                <td>100</td>
+                <td>instance-001</td>
+                <td>Active</td>
+                <td class="actions">⋮</td>
+            </tr>
+            <tr>
+                <td><a href="#">volume-002</a></td>
+                <td>High-speed NVME SSD Storage</td>
+                <td>50</td>
+                <td>-</td>
+                <td>Available</td>
+                <td class="actions">⋮</td>
+            </tr>
+            <tr>
+                <td><a href="#">volume-003</a></td>
+                <td>High-speed NVME SSD Storage</td>
+                <td>200</td>
+                <td>instance-002</td>
+                <td>Active</td>
+                <td class="actions">⋮</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Empty state (will be shown when no volumes exist)
+    <div class="empty-state">
+        <p>No volumes found. Click 'Create Volume' to add a new volume.</p>
+    </div>
+    -->
+</body>
+</html>

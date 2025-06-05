@@ -1,0 +1,23 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# General Component Rule
+
+- All UI components must use shadcn/ui or the design system primitives unless there is a documented exception.
+- No custom or third-party UI components for standard elements (button, modal, table, dropdown, etc.).
+- Any exception must be documented and approved by the design team.
+
+---
+
+## Next.js App Router: Client/Server Component Rules
+
+- Default to Server Components for all files in the `app/` directory.
+- Use `"use client"` **only** when you need client-side interactivity (hooks, event handlers, browser APIs).
+- Isolate client-side logic (like sorting, modals, forms, etc.) into small, reusable Client Components (e.g., `DataTable`).
+- Page files (`page.tsx`) should be Server Components unless they need client-side features. Prefer importing Client Components for interactive parts.
+- Client Components must be placed in `components/` and marked with `"use client"` at the top.
+- Server Components can import other Server Components and Client Components, but Client Components can only import other Client Components.
+- For any UI pattern that needs state or interactivity (tables, modals, dropdowns, etc.), create a dedicated Client Component.
+- If you see the error about hooks in a Server Component, check your imports and hooks usage.

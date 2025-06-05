@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Navigation Rule
+
+- Use the left sidebar and top navigation as defined in [components/navigation/left-navigation.tsx](mdc:components/navigation/left-navigation.tsx) and [components/navigation/top-header.tsx](mdc:components/navigation/top-header.tsx).
+- Tab navigation within pages should use the `tabs` prop of PageShell and [ContentTabs](mdc:components/navigation/content-tabs.tsx).
+- Only include required submenu items (e.g., VPC, Subnets, Security Groups, Static IPs) as per product requirements.
+- Do not add or remove navigation items without product/design approval.

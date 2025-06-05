@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { LogOut, Settings, User } from "lucide-react"
+import { LogoutButton } from "@/components/auth/logout-button"
 
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false)
@@ -54,17 +55,9 @@ export function UserMenu() {
                 </span>
                 <span>Settings</span>
               </Link>
-              <Link
-                href="/auth/signin"
-                className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                role="menuitem"
-                onClick={() => setIsOpen(false)}
-              >
-                <span className="inline-flex items-center justify-center w-5 h-5 mr-3">
-                  <LogOut className="h-4 w-4" />
-                </span>
-                <span>Sign out</span>
-              </Link>
+              <div className="px-4 py-2">
+                <LogoutButton variant="ghost" showIcon={true} showConfirmation={false} />
+              </div>
             </div>
           </div>
         </>

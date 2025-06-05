@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Button and Form Rule
+
+- Use the design system's [Button](mdc:components/ui/button.tsx) for all actions. **Do not use custom className for color, background, or hover states** (e.g., `bg-*`, `hover:bg-*`, `text-*`).
+- Always use the `variant` prop (`default`, `outline`, `ghost`, `destructive`, etc.) for all Button styling.
+- All modal, form, and action buttons must use only the design system Button and its variants for all states (default, hover, active, disabled).
+- The [CreateButton](mdc:components/create-button.tsx) component is always based on the design system Button and must not override its style.
+- Use Input, Select, Textarea, RadioGroup, etc. from the design system for all forms.
+- Primary actions use default Button style; secondary/tertiary use variant as needed.
+- See [components/ui/button.tsx](mdc:components/ui/button.tsx) for implementation.

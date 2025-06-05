@@ -1,0 +1,10 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# StatusBadge and ActionMenu Rule
+
+- Use [StatusBadge](mdc:components/status-badge.tsx) to display resource status in tables/lists.
+- Use [ActionMenu](mdc:components/action-menu.tsx) for row actions (view, edit, delete, etc.).
+- Do not implement custom status or action UI; always use these components for consistency.

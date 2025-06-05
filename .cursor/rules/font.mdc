@@ -1,0 +1,10 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Font Rule
+
+- All text must use the 'Open Sauce One' font via the global utility class (e.g., `font-opensauceOne`).
+- Do not override font-family in any component or CSS file.
+- No other font-family values are allowed unless explicitly approved.

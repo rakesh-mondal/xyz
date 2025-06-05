@@ -23,9 +23,10 @@ interface PageShellProps {
     href: string
   }>
   children?: ReactNode
+  headerActions?: ReactNode
 }
 
-export function PageShell({ title, description, tabs, children }: PageShellProps) {
+export function PageShell({ title, description, tabs, children, headerActions }: PageShellProps) {
   const pathname = usePathname()
   const breadcrumbs = generateBreadcrumbs(pathname)
 
@@ -48,21 +49,16 @@ export function PageShell({ title, description, tabs, children }: PageShellProps
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-        {description && <p className="text-muted-foreground mt-2">{description}</p>}
-      </div>
-
-      {tabs && tabs.length > 0 && <ContentTabs tabs={tabs} />}
-
-      <div className="mt-6">
-        {children || (
-          <div className="rounded-lg border border-dashed p-10 text-center">
-            <h3 className="text-lg font-medium">Content Area</h3>
-            <p className="text-sm text-muted-foreground mt-1">This is a placeholder for the {title} content</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+            {description && <p className="text-muted-foreground mt-2">{description}</p>}
           </div>
-        )}
+          {headerActions && <div className="flex items-center gap-2 mt-2 sm:mt-0">{headerActions}</div>}
+        </div>
       </div>
+      {tabs && tabs.length > 0 && <ContentTabs tabs={tabs} />}
+      <div className="mt-6">{children}</div>
     </div>
   )
 }

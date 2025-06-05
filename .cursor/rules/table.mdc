@@ -1,0 +1,14 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Table Rule
+
+- Use only the [design system Table component](mdc:components/ui/table.tsx) for all tables.
+- Table row font size must be 14px (`text-[14px]` or `text-sm`).
+- **If you use a custom cell renderer (e.g., in DataTable), you must explicitly add `text-sm` to the rendered element to ensure consistency.**
+- Do not use custom table markup or styling outside the design system.
+- Table actions (edit, delete, etc.) must use design system Button and Dropdown components.
+- For interactive/sortable tables, use the client-side `DataTable` component as described in the general component rules for Next.js App Router.
+- No table cell should use a larger font size unless explicitly required by design. All tables, including Service Summary and all Usage Metrics tabs, must follow this rule.

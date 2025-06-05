@@ -1,0 +1,10 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Dropdown/Action Menu Rule
+
+- Use only [shadcn/ui Dropdown primitives](mdc:components/ui/dropdown-menu.tsx) for all action menus and dropdowns.
+- Do not use custom dropdown markup or third-party dropdown libraries.
+- Dropdown actions must use design system Button and Icon components.

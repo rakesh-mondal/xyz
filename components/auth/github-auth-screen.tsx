@@ -54,6 +54,47 @@ export function GitHubAuthScreen() {
     general?: string
   }>({})
 
+  // Authentication helper functions
+  const setUserAuthData = (username: string) => {
+    try {
+      const userInfo = {
+        name: username,
+        email: `${username}@github.local`, // Fake email for GitHub auth
+        mobile: "",
+        accountType: "individual",
+        socialSignin: "github",
+        signinCompletedAt: new Date().toISOString()
+      }
+      document.cookie = `user_data=${JSON.stringify(userInfo)}; path=/; max-age=86400`
+      console.log('User auth data set successfully for GitHub sign-in')
+    } catch (error) {
+      console.error('Error setting user auth data:', error)
+    }
+  }
+
+  const setAccessLevel = (level: 'full' = 'full') => {
+    try {
+      console.log('Setting access level for GitHub sign-in:', level)
+      localStorage.setItem('accessLevel', level)
+      
+      // Set authentication cookie for middleware
+      const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      document.cookie = `auth-token=${authToken}; path=/; max-age=86400` // 24 hours
+      
+      // Set user profile status cookie for middleware - assume full access for social signin
+      const profileStatus = {
+        basicInfoComplete: true,
+        identityVerified: true,
+        paymentSetupComplete: true
+      }
+      document.cookie = `user_profile_status=${JSON.stringify(profileStatus)}; path=/; max-age=86400`
+      
+      console.log('Access level set successfully for GitHub sign-in')
+    } catch (error) {
+      console.error('Error setting access level:', error)
+    }
+  }
+
   useEffect(() => {
     trackComponentRender("GitHubAuthScreen")
   }, [])
@@ -91,9 +132,16 @@ export function GitHubAuthScreen() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      // Redirect to dashboard or two-factor auth
+      // Set authentication data before navigation
+      console.log('GitHub sign-in successful, setting auth data')
+      setUserAuthData(username)
+      setAccessLevel('full')
+      
+      // Navigate to dashboard
+      console.log('Navigating to dashboard...')
       router.push("/dashboard")
     } catch (error) {
+      console.error('GitHub sign-in error:', error)
       setErrors({
         general: "Incorrect username or password. Please try again.",
       })

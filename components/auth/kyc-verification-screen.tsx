@@ -111,7 +111,7 @@ export function KYCVerificationScreen({ onNext, onBack }: KYCVerificationScreenP
           Back
         </Button>
 
-        <Button onClick={handleVerify} className="bg-blue-600 hover:bg-blue-700 text-white" disabled={isVerifying}>
+        <Button onClick={handleVerify} variant="default" disabled={isVerifying}>
           {isVerifying ? "Verifying..." : "Complete Verification"}
         </Button>
       </div>

@@ -86,9 +86,15 @@ export function TwoFactorScreen() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // For demo purposes, we'll just redirect to trust device
+      // Store user email for trust device screen
+      const userEmail = sessionStorage.getItem('userEmail') || 'user@example.com'
+      sessionStorage.setItem('userEmail', userEmail)
+      
+      console.log('2FA verification successful')
+      // Navigate to trust device
       router.push("/auth/trust-device")
     } catch (error) {
+      console.error('2FA verification error:', error)
       setError("Invalid verification code. Please try again.")
     } finally {
       setIsLoading(false)
@@ -152,7 +158,7 @@ export function TwoFactorScreen() {
                   {code.map((digit, index) => (
                     <Input
                       key={index}
-                      ref={(el) => (inputRefs.current[index] = el)}
+                      ref={() => {}}
                       id={`code-${index + 1}`}
                       type="text"
                       inputMode="numeric"
@@ -190,7 +196,8 @@ export function TwoFactorScreen() {
             <Button
               type="submit"
               onClick={handleSubmit}
-              className="w-full bg-[#212121] hover:bg-[#212121]/90"
+              className="w-full"
+              variant="default"
               disabled={isLoading}
             >
               {isLoading ? "Verifying..." : "Verify"}

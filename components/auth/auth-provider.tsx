@@ -4,15 +4,33 @@ import type React from "react"
 
 import { createContext, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { AccessLevel, getAccessLevelFromProfile } from "@/lib/access-control"
 
-// Update the AuthContextType to include user information
+// Extended user interface with access control
+interface User {
+  name: string
+  email?: string
+  mobile?: string
+  accountType?: "individual" | "organization"
+  companyName?: string
+  profileStatus: {
+    basicInfoComplete: boolean
+    identityVerified: boolean
+    paymentSetupComplete: boolean
+  }
+}
+
+// Update the AuthContextType to include access control
 type AuthContextType = {
   isAuthenticated: boolean
   isLoading: boolean
-  user: { name: string } | null
+  user: User | null
+  accessLevel: AccessLevel
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
-  setUserData: (data: { name: string }) => void
+  setUserData: (data: Partial<User>) => void
+  updateProfileStatus: (status: Partial<User['profileStatus']>) => void
+  refreshAccessLevel: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -21,7 +39,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [user, setUser] = useState<{ name: string } | null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [accessLevel, setAccessLevel] = useState<AccessLevel>('none')
+
+  // Calculate access level based on profile completion
+  const calculateAccessLevel = (profileStatus: User['profileStatus']): AccessLevel => {
+    return getAccessLevelFromProfile(profileStatus)
+  }
 
   // Check for existing auth on mount
   useEffect(() => {
@@ -35,11 +59,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const userData = localStorage.getItem("user_data")
           if (userData) {
-            setUser(JSON.parse(userData))
+            const parsedUser = JSON.parse(userData)
+            
+            // Ensure profile status exists with defaults
+            const userWithDefaults: User = {
+              name: parsedUser.name || '',
+              email: parsedUser.email || '',
+              mobile: parsedUser.mobile || '',
+              accountType: parsedUser.accountType || 'individual',
+              companyName: parsedUser.companyName,
+              profileStatus: {
+                basicInfoComplete: parsedUser.profileStatus?.basicInfoComplete ?? true, // From signup
+                identityVerified: parsedUser.profileStatus?.identityVerified ?? false,
+                paymentSetupComplete: parsedUser.profileStatus?.paymentSetupComplete ?? false,
+                ...parsedUser.profileStatus
+              }
+            }
+            
+            setUser(userWithDefaults)
+            setAccessLevel(calculateAccessLevel(userWithDefaults.profileStatus))
           }
         } catch (e) {
           console.error("Failed to parse user data", e)
+          // Set default limited access for authenticated users without valid data
+          const defaultUser: User = {
+            name: 'User',
+            profileStatus: {
+              basicInfoComplete: true,
+              identityVerified: false,
+              paymentSetupComplete: false
+            }
+          }
+          setUser(defaultUser)
+          setAccessLevel('limited')
         }
+      } else {
+        setAccessLevel('none')
       }
 
       setIsLoading(false)
@@ -48,9 +103,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth()
   }, [])
 
-  const setUserData = (data: { name: string }) => {
-    setUser(data)
-    localStorage.setItem("user_data", JSON.stringify(data))
+  const setUserData = (data: Partial<User>) => {
+    const updatedUser = user ? { ...user, ...data } : {
+      name: data.name || 'User',
+      profileStatus: {
+        basicInfoComplete: true,
+        identityVerified: false,
+        paymentSetupComplete: false
+      },
+      ...data
+    } as User
+
+    setUser(updatedUser)
+    localStorage.setItem("user_data", JSON.stringify(updatedUser))
+    
+    // Recalculate access level
+    const newAccessLevel = calculateAccessLevel(updatedUser.profileStatus)
+    setAccessLevel(newAccessLevel)
+  }
+
+  const updateProfileStatus = (status: Partial<User['profileStatus']>) => {
+    if (!user) return
+
+    const updatedUser: User = {
+      ...user,
+      profileStatus: {
+        ...user.profileStatus,
+        ...status
+      }
+    }
+
+    setUser(updatedUser)
+    localStorage.setItem("user_data", JSON.stringify(updatedUser))
+    
+    // Recalculate access level
+    const newAccessLevel = calculateAccessLevel(updatedUser.profileStatus)
+    setAccessLevel(newAccessLevel)
+    
+    // Update middleware cookies for immediate access control
+    document.cookie = `user_profile_status=${JSON.stringify(updatedUser.profileStatus)}; path=/; max-age=86400`
+  }
+
+  const refreshAccessLevel = () => {
+    if (user) {
+      const newAccessLevel = calculateAccessLevel(user.profileStatus)
+      setAccessLevel(newAccessLevel)
+    }
   }
 
   const login = async (email: string, password: string) => {
@@ -62,6 +160,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Set a cookie to simulate authentication
     document.cookie = "auth-token=authenticated; path=/; max-age=3600"
+    
+    // Set default user with limited access (after signup but before profile completion)
+    const defaultUser: User = {
+      name: 'User',
+      email: email,
+      profileStatus: {
+        basicInfoComplete: true, // Login implies basic info is complete
+        identityVerified: false,
+        paymentSetupComplete: false
+      }
+    }
+    
+    setUser(defaultUser)
+    setAccessLevel('limited')
+    localStorage.setItem("user_data", JSON.stringify(defaultUser))
+    
     setIsAuthenticated(true)
     setIsLoading(false)
     return true
@@ -73,6 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     document.cookie = "auth-token=; path=/; max-age=0"
     setIsAuthenticated(false)
     setUser(null)
+    setAccessLevel('none')
     localStorage.removeItem("user_data")
 
     // Add a small delay before redirecting to ensure state is updated
@@ -82,7 +197,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, user, login, logout, setUserData }}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated, 
+      isLoading, 
+      user, 
+      accessLevel,
+      login, 
+      logout, 
+      setUserData, 
+      updateProfileStatus,
+      refreshAccessLevel
+    }}>
       {children}
     </AuthContext.Provider>
   )

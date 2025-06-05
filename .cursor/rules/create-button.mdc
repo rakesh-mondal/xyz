@@ -1,0 +1,15 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# CreateButton Component Rule
+
+The [CreateButton](mdc:components/create-button.tsx) component is a reusable button for 'Create' actions across the app, especially in networking resource pages (VPC, Subnets, Security Groups, Static IPs, etc.).
+
+- It wraps the design system's default `<Button>` component with `asChild`, so the button always uses the default style (no custom colors or hover effects).
+- The button includes a Plus icon and a label, and navigates to the provided `href`.
+- Usage example: `<CreateButton href="/networking/vpc/create" label="Create VPC" />`
+- Do not override the button's style with custom className or variant props; always use the default.
+
+See the implementation in [components/create-button.tsx](mdc:components/create-button.tsx).

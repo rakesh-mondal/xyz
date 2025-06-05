@@ -34,7 +34,7 @@ export function ContentTabs({ tabs, maxVisibleTabs = 5 }: ContentTabsProps) {
             key={tab.href}
             href={tab.href}
             className={cn(
-              "px-4 py-2 text-sm font-medium border-b-2 -mb-px",
+              "px-4 py-2 text-base font-medium border-b-2 -mb-px",
               pathname === tab.href
                 ? "border-primary text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted",

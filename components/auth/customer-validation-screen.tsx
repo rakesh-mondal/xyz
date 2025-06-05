@@ -80,7 +80,7 @@ export function CustomerValidationScreen({ onBack, onNext, onSkip }: CustomerVal
           <Button variant="outline" onClick={onSkip}>
             Skip for now
           </Button>
-          <Button onClick={onNext} className="bg-black hover:bg-gray-800 text-white">
+          <Button onClick={onNext} variant="default">
             Continue with DigiLocker
           </Button>
         </div>

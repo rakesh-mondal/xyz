@@ -1,14 +1,6 @@
-import { PageLayout } from "@/components/page-layout"
+import { redirect } from "next/navigation"
 
-export default function BlockStoragePage() {
-  return (
-    <PageLayout title="Block Storage" description="Manage your block storage volumes">
-      <div className="flex items-center justify-center h-[400px] border rounded-lg">
-        <div className="text-center">
-          <h3 className="text-xl font-bold mb-2">Block Storage</h3>
-          <p className="text-muted-foreground">This is a placeholder for the Block Storage content</p>
-        </div>
-      </div>
-    </PageLayout>
-  )
+export default function BlockStorageRoot() {
+  redirect("/storage/block/volumes")
+  return null
 }

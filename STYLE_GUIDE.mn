@@ -1,0 +1,218 @@
+# Krutrim Cloud UI Style Guide (.mn)
+
+---
+
+## 1. Design System & Frameworks
+- **Tailwind CSS** for utility-first styling and theming.
+- **Open Sauce One** as the primary font family.
+- **shadcn/ui** and **lucide** for UI components and icons.
+
+---
+
+## 2. Color Palette
+
+### Light Theme
+- `--background`: #fff
+- `--foreground`: hsl(222.2, 84%, 4.9%)
+- `--primary`: #000
+- `--primary-foreground`: hsl(210, 40%, 98%)
+- `--secondary`: hsl(210, 40%, 96.1%)
+- `--secondary-foreground`: hsl(222.2, 47.4%, 11.2%)
+- `--muted`: hsl(210, 40%, 96.1%)
+- `--muted-foreground`: hsl(215.4, 16.3%, 46.9%)
+- `--accent`: hsl(210, 40%, 96.1%)
+- `--accent-foreground`: hsl(222.2, 47.4%, 11.2%)
+- `--destructive`: hsl(0, 84.2%, 60.2%)
+- `--destructive-foreground`: hsl(210, 40%, 98%)
+- `--border`: hsl(214.3, 31.8%, 91.4%)
+- `--input`: hsl(214.3, 31.8%, 91.4%)
+- `--ring`: hsl(222.2, 84%, 4.9%)
+- `--radius`: 0.5rem
+- `--link`: #4CAF50 (krutrim.green)
+
+### Dark Theme
+- `--background`: hsl(222.2, 84%, 4.9%)
+- `--foreground`: hsl(210, 40%, 98%)
+- `--primary`: #000
+- `--primary-foreground`: hsl(210, 40%, 98%)
+- `--secondary`: hsl(217.2, 32.6%, 17.5%)
+- `--secondary-foreground`: hsl(210, 40%, 98%)
+- `--muted`: hsl(217.2, 32.6%, 17.5%)
+- `--muted-foreground`: hsl(215, 20.2%, 65.1%)
+- `--accent`: hsl(217.2, 32.6%, 17.5%)
+- `--accent-foreground`: hsl(210, 40%, 98%)
+- `--destructive`: hsl(0, 62.8%, 30.6%)
+- `--destructive-foreground`: hsl(210, 40%, 98%)
+- `--border`: hsl(217.2, 32.6%, 17.5%)
+- `--input`: hsl(217.2, 32.6%, 17.5%)
+- `--ring`: hsl(212.7, 26.8%, 83.9%)
+- `--link`: #4CAF50 (krutrim.green)
+
+### Brand Colors
+- krutrim.green: #4CAF50
+- krutrim.dark: #212121
+- krutrim.light: #F5F5F5
+- krutrim.gray: #757575
+
+### Background Colors Table
+| Name                | Variable                | Example Class         | Usage Example                |
+|---------------------|------------------------|-----------------------|------------------------------|
+| Main Background     | --background           | bg-background         | App/page background          |
+| Card Background     | --card                 | bg-card               | Cards, panels                |
+| Popover Background  | --popover              | bg-popover            | Popovers, dropdowns          |
+| Muted Background    | --muted                | bg-muted              | Muted/secondary sections     |
+| Accent Background   | --accent               | bg-accent             | Highlighted/active elements  |
+| Destructive         | --destructive          | bg-destructive        | Error/alert backgrounds      |
+| Brand Green         | krutrim.green          | bg-krutrim-green      | Brand highlights             |
+| Brand Dark          | krutrim.dark           | bg-krutrim-dark       | Brand, dark sections         |
+| Brand Light         | krutrim.light          | bg-krutrim-light      | Brand, light sections        |
+| Brand Gray          | krutrim.gray           | bg-krutrim-gray       | Neutral/brand backgrounds    |
+
+---
+
+## 3. Typography
+- **Font Family:** Open Sauce One, sans-serif
+- **Font Weights:** 300–800 (see DESIGN_GUIDELINES.md for URLs)
+- **Headings:** 600
+- **Body:** 400
+- **Font Features:** rlig, calt enabled for body text
+- **Scale:**
+  - H1: 2.25rem/600/2.5rem
+  - H2: 1.875rem/600/2.25rem
+  - H3: 1.5rem/600/2rem
+  - H4: 1.25rem/600/1.75rem
+  - Body: 1rem/400/1.5rem
+  - Small: 0.875rem/400/1.25rem
+  - Caption: 0.75rem/400/1rem
+
+---
+
+## 4. Iconography
+- Use Lucide icons
+- Size: 20–24px (UI), 16px (inline)
+- Color: currentColor
+- Placement: align with text baseline or center in buttons
+- Consistency: use one icon style and size
+
+---
+
+## 5. Button Styles
+| Variant     | Example Classes                        | Usage                |
+|-------------|----------------------------------------|----------------------|
+| Primary     | bg-primary text-primary-foreground     | Main actions         |
+| Secondary   | bg-secondary text-secondary-foreground | Secondary actions    |
+| Destructive | bg-destructive text-destructive-foreground | Dangerous actions  |
+| Ghost       | bg-transparent hover:bg-muted          | Minimal, subtle      |
+| Disabled    | opacity-50 cursor-not-allowed          | Disabled state       |
+
+States: Default, Hover, Active, Focus, Disabled
+
+---
+
+## 6. Form Elements
+- Inputs: rounded-md, border, px-3 py-2, focus:ring
+- Labels: block text-sm font-medium mb-1
+- Validation: border-destructive/text-destructive (error), border-green-500/text-green-600 (success)
+- Helper Text: text-xs text-muted-foreground mt-1
+
+---
+
+## 7. Component Library
+- Use shadcn/ui for base components
+- Common: Button, Input, Select, Checkbox, Radio, Switch, Card, Modal, Alert, Table, Tabs, Tooltip, Avatar, Badge, Progress, Skeleton, Toast, etc.
+- **Documentation:**
+  - Each component must have JSDoc-style comments (see below)
+  - Include usage, props, and examples
+
+---
+
+## 8. Grid & Layout System
+- Container: Centered, 2rem padding, max width 1400px
+- Grid: Tailwind grid utilities
+- Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px), 2xl (1536px)
+- Spacing: Tailwind spacing scale
+
+---
+
+## 9. Elevation & Shadows
+- Box Shadow: shadow-sm (minimal)
+- Elevation: shadow-sm, shadow, shadow-md, shadow-lg
+- Use higher elevation for modals, dropdowns, tooltips
+
+---
+
+## 10. Motion & Animation
+- Tailwind transition utilities
+- Micro-interactions: hover:scale-105, modal fade/scale
+- Timing: 150–300ms for most transitions
+
+---
+
+## 11. Accessibility
+- Color contrast: WCAG AA
+- Keyboard navigation: all interactive elements focusable
+- ARIA: use for custom components
+- Focus styles: focus:ring-2 focus:ring-primary
+
+---
+
+## 12. Branding
+- Logo: only approved Krutrim Cloud logos
+- Clear space: 1x logo height
+- Minimum size: 32px
+- Colors: brand colors only
+- Voice & Tone: friendly, clear, professional
+
+---
+
+## 13. Do's and Don'ts
+### Do
+- Use consistent spacing and color
+- Write clear, concise UI text
+- Use icons to clarify actions
+- Ensure all components are accessible
+
+### Don't
+- Use unapproved colors or fonts
+- Overuse shadows or gradients
+- Add icons without meaning
+- Hide important actions behind icons only
+
+---
+
+## 14. Component Documentation Standards
+- Use JSDoc-style comments for all components
+- Include:
+  - @component name
+  - @description
+  - @status (Active, Planned, Deprecated)
+  - @plannedFor (if not yet implemented)
+  - @example usage
+  - @see related components
+  - @todo for future tasks
+- See docs/component-documentation-guide.md for full details
+
+---
+
+## 15. UI/UX Principles
+- Consistent use of color and spacing
+- Dark mode supported via .dark class
+- Accessible font sizes and contrast
+- Component-driven architecture
+- Lucide icons for clarity and consistency
+- Responsive design for all layouts
+
+---
+
+## 16. Utilities & Custom Classes
+- .text-balance for balanced text wrapping
+- Utility classes for border, background, and text color
+
+---
+
+## 17. References
+- Tailwind config: tailwind.config.ts
+- Global styles: app/globals.css, styles/globals.css
+- Component docs: docs/component-documentation-guide.md, docs/components.md
+- Icon library: https://lucide.dev/
+- UI library: https://ui.shadcn.com/ 

@@ -56,16 +56,71 @@ export function GoogleAuthScreen() {
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  // Authentication helper functions
+  const setUserAuthData = (email: string) => {
+    try {
+      const userInfo = {
+        name: email.split('@')[0], // Extract name from email
+        email: email,
+        mobile: "",
+        accountType: "individual",
+        socialSignin: "google",
+        signinCompletedAt: new Date().toISOString()
+      }
+      document.cookie = `user_data=${JSON.stringify(userInfo)}; path=/; max-age=86400`
+      console.log('User auth data set successfully for Google sign-in')
+    } catch (error) {
+      console.error('Error setting user auth data:', error)
+    }
+  }
+
+  const setAccessLevel = (level: 'full' = 'full') => {
+    try {
+      console.log('Setting access level for Google sign-in:', level)
+      localStorage.setItem('accessLevel', level)
+      
+      // Set authentication cookie for middleware
+      const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      document.cookie = `auth-token=${authToken}; path=/; max-age=86400` // 24 hours
+      
+      // Set user profile status cookie for middleware - assume full access for social signin
+      const profileStatus = {
+        basicInfoComplete: true,
+        identityVerified: true,
+        paymentSetupComplete: true
+      }
+      document.cookie = `user_profile_status=${JSON.stringify(profileStatus)}; path=/; max-age=86400`
+      
+      console.log('Access level set successfully for Google sign-in')
+    } catch (error) {
+      console.error('Error setting access level:', error)
+    }
+  }
+
   const handleContinue = async () => {
     if (!selectedAccount) return
 
     setIsLoading(true)
 
-    // Simulate authentication process
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      // Simulate authentication process
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    // Redirect to dashboard or two-factor auth
-    router.push("/dashboard")
+      // Set authentication data before navigation
+      console.log('Google sign-in successful, setting auth data')
+      setUserAuthData(selectedAccount)
+      setAccessLevel('full')
+      
+      // Navigate to dashboard
+      console.log('Navigating to dashboard...')
+      router.push("/dashboard")
+    } catch (error) {
+      console.error('Google sign-in error:', error)
+      // Fallback navigation
+      window.location.href = "/dashboard"
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleCancel = () => {

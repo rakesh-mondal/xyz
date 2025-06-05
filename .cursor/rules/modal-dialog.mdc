@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Modal/Dialog Rule
+
+- Use only [shadcn/ui Dialog primitives](mdc:components/ui/dialog.tsx) for all modal dialogs.
+- Do not use custom modal HTML or any third-party modal libraries.
+- All modal content and actions (buttons, forms) must use the design system components (Button, Input, etc.).
+- Modals must be accessible and follow shadcn/ui design standards.

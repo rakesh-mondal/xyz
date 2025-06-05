@@ -9,6 +9,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/administration/billing/usage',
+        destination: '/billing/usage',
+        permanent: true,
+      },
+    ];
+  },
 }
 
 export default nextConfig
