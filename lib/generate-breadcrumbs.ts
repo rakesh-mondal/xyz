@@ -14,7 +14,7 @@ export function generateBreadcrumbs(pathname: string): Breadcrumb[] {
   if (paths.length > 0 && paths[0] !== "dashboard") {
     breadcrumbs.push({
       href: "/dashboard",
-      title: "Dashboard",
+      title: "Home",
     })
   }
 

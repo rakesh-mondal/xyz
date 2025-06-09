@@ -73,6 +73,29 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
 
         {/* Right side - Region selector, notifications, help, and user profile */}
         <div className="flex items-center gap-3">
+          {/* Region selector */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                <span className="max-w-[120px] truncate text-sm">{regions[0].name}</span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[240px]">
+              <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">Select Region</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {regions.map((region) => (
+                <DropdownMenuItem key={region.id} className="cursor-pointer py-2">
+                  <div className="flex flex-col">
+                    <span className="text-sm">{region.name}</span>
+                    <span className="text-xs text-muted-foreground">{region.id}</span>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* Credits display */}
           <Popover>
             <PopoverTrigger asChild>
@@ -117,26 +140,37 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
             </PopoverContent>
           </Popover>
 
-          {/* Region selector */}
+          {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <span className="max-w-[120px] truncate text-sm">{regions[0].name}</span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">3</Badge>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[240px]">
-              <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">Select Region</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-[300px]">
+              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {regions.map((region) => (
-                <DropdownMenuItem key={region.id} className="cursor-pointer py-2">
-                  <div className="flex flex-col">
-                    <span className="text-sm">{region.name}</span>
-                    <span className="text-xs text-muted-foreground">{region.id}</span>
-                  </div>
+              <div className="max-h-[300px] overflow-auto">
+                <DropdownMenuItem className="cursor-pointer flex flex-col items-start">
+                  <div className="font-medium">VM Deployment Complete</div>
+                  <div className="text-xs text-muted-foreground">Your VM instance is now running</div>
                 </DropdownMenuItem>
-              ))}
+                <DropdownMenuItem className="cursor-pointer flex flex-col items-start">
+                  <div className="font-medium">Billing Alert</div>
+                  <div className="text-xs text-muted-foreground">You've used 80% of your credits</div>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer flex flex-col items-start">
+                  <div className="font-medium">Maintenance Scheduled</div>
+                  <div className="text-xs text-muted-foreground">Scheduled maintenance on June 15</div>
+                </DropdownMenuItem>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/notifications" className="w-full cursor-pointer text-center text-sm">
+                  View all notifications
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -182,40 +216,6 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                   <LogoutButton variant="ghost" showIcon={true} showConfirmation={false} />
                 </DropdownMenuItem>
               </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Notifications */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">3</Badge>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[300px]">
-              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <div className="max-h-[300px] overflow-auto">
-                <DropdownMenuItem className="cursor-pointer flex flex-col items-start">
-                  <div className="font-medium">VM Deployment Complete</div>
-                  <div className="text-xs text-muted-foreground">Your VM instance is now running</div>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer flex flex-col items-start">
-                  <div className="font-medium">Billing Alert</div>
-                  <div className="text-xs text-muted-foreground">You've used 80% of your credits</div>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer flex flex-col items-start">
-                  <div className="font-medium">Maintenance Scheduled</div>
-                  <div className="text-xs text-muted-foreground">Scheduled maintenance on June 15</div>
-                </DropdownMenuItem>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/notifications" className="w-full cursor-pointer text-center text-sm">
-                  View all notifications
-                </Link>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

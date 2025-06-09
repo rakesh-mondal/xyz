@@ -53,7 +53,7 @@ const navigationStructure: NavCategory[] = [
     title: "MAIN",
     items: [
       {
-        title: "Dashboard",
+        title: "Home",
         href: "/dashboard",
         icon: <LayoutDashboard className="h-5 w-5" />,
       },

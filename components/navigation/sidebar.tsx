@@ -64,7 +64,7 @@ const navigationStructure: NavigationCategory[] = [
     title: "CORE INFRASTRUCTURE",
     items: [
       {
-        title: "Dashboard",
+        title: "Home",
         href: "/dashboard",
         icon: <LayoutDashboard className="h-5 w-5" />,
       },
