@@ -18,15 +18,36 @@ export function generateBreadcrumbs(pathname: string): Breadcrumb[] {
     })
   }
 
+  // Special cases for capitalization
+  const specialCases: { [key: string]: string } = {
+    "vms": "VMs",
+    "cpu": "CPU",
+    "gpu": "GPU",
+    "tpu": "TPU",
+    "hpc": "HPC",
+    "ai": "AI",
+    "api": "API",
+    "iam": "IAM",
+    "vpc": "VPC",
+  }
+
   // Build the rest of the breadcrumbs
   paths.forEach((path, index) => {
     // Build the href for this breadcrumb
     const href = `/${paths.slice(0, index + 1).join("/")}`
 
-    // Format the title (convert kebab-case to Title Case)
+    // Format the title (convert kebab-case to Title Case with special cases)
     const title = path
       .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => {
+        // Check if the word is a special case
+        const lowerWord = word.toLowerCase()
+        if (specialCases[lowerWord]) {
+          return specialCases[lowerWord]
+        }
+        // Otherwise, convert to Title Case
+        return word.charAt(0).toUpperCase() + word.slice(1)
+      })
       .join(" ")
 
     breadcrumbs.push({ href, title })
