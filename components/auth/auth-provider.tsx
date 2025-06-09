@@ -98,6 +98,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const calculatedAccessLevel = calculateAccessLevel(userWithDefaults.profileStatus)
             setAccessLevel(calculatedAccessLevel)
             
+            // Set auth cookie for middleware
+            const authToken = localStorage.getItem('auth-token')
+            if (authToken) {
+              document.cookie = `auth-token=${authToken}; path=/; max-age=86400`
+            }
+            
             console.log('AuthProvider: User set successfully:', userWithDefaults)
             console.log('AuthProvider: Access level calculated:', calculatedAccessLevel)
           }

@@ -168,8 +168,7 @@ function FullAccessDashboard() {
 function LimitedAccessDashboard() {
   return (
     <>
-      {/* Profile Completion Card - Prominently displayed */}
-      <ProfileCompletionCard />
+      {/* ProfileCompletionCard removed for now */}
 
       {/* Basic Credits Card - Always accessible */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

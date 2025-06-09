@@ -6,31 +6,67 @@ import { StatusBadge } from "../../../components/status-badge"
 import { subnets } from "../../../lib/data"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { ActionMenu } from "../../../components/action-menu"
-import { ChevronUp, ChevronDown } from "lucide-react"
-import { useState } from "react"
+import { ShadcnDataTable } from "../../../components/ui/shadcn-data-table"
+import { RefreshCw } from "lucide-react"
 
 export default function SubnetListPage() {
-  const [sortBy, setSortBy] = useState<"name" | "createdOn">("name")
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
-  const handleSort = (col: "name" | "createdOn") => {
-    if (sortBy === col) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc")
-    } else {
-      setSortBy(col)
-      setSortDir("asc")
-    }
+  const columns = [
+    {
+      key: "name",
+      label: "Subnet Name",
+      sortable: true,
+      searchable: true,
+    },
+    {
+      key: "vpcName",
+      label: "VPC",
+      searchable: true,
+    },
+    {
+      key: "type",
+      label: "Type",
+      render: (value: string) => <StatusBadge status={value} />,
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (value: string) => <StatusBadge status={value} />,
+    },
+    {
+      key: "cidr",
+      label: "CIDR",
+    },
+    {
+      key: "gatewayIp",
+      label: "Gateway IP",
+    },
+    {
+      key: "createdOn",
+      label: "Created On",
+      sortable: true,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_: any, row: any) => (
+        <ActionMenu
+          viewHref={`/networking/subnets/${row.id}`}
+          editHref={`/networking/subnets/${row.id}/edit`}
+          deleteHref={`/networking/subnets/${row.id}/delete`}
+          resourceName={row.name}
+          resourceType="Subnet"
+        />
+      ),
+    },
+  ]
+
+  // Add actions property to each subnet row for DataTable
+  const dataWithActions = subnets.map((subnet) => ({ ...subnet, actions: null }))
+
+  const handleRefresh = () => {
+    window.location.reload()
   }
-  const sortedSubnets = [...subnets].sort((a, b) => {
-    let aVal: string | Date = a[sortBy]
-    let bVal: string | Date = b[sortBy]
-    if (sortBy === "createdOn") {
-      aVal = new Date(a.createdOn)
-      bVal = new Date(b.createdOn)
-    }
-    if (aVal < bVal) return sortDir === "asc" ? -1 : 1
-    if (aVal > bVal) return sortDir === "asc" ? 1 : -1
-    return 0
-  })
+
   return (
     <PageShell
       title="Subnets"
@@ -53,48 +89,17 @@ export default function SubnetListPage() {
         </div>
         <CreateButton href="/networking/subnets/create" label="Create Subnet" />
       </div>
-      <div className="overflow-hidden bg-card text-card-foreground border-border border rounded-lg">
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm cursor-pointer select-none" onClick={() => handleSort("name")}>Subnet Name {sortBy === "name" && (sortDir === "asc" ? <ChevronUp className="inline h-4 w-4 ml-1" /> : <ChevronDown className="inline h-4 w-4 ml-1" />)}</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">VPC</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">Type</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">Status</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">CIDR</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">Gateway IP</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm cursor-pointer select-none" onClick={() => handleSort("createdOn")}>Created On {sortBy === "createdOn" && (sortDir === "asc" ? <ChevronUp className="inline h-4 w-4 ml-1" /> : <ChevronDown className="inline h-4 w-4 ml-1" />)}</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedSubnets.map((subnet) => (
-              <tr key={subnet.id} className="hover:bg-muted/50 transition-colors">
-                <td className="px-5 py-2.5 border-b border-border">{subnet.name}</td>
-                <td className="px-5 py-2.5 border-b border-border">{subnet.vpcName}</td>
-                <td className="px-5 py-2.5 border-b border-border">
-                  <StatusBadge status={subnet.type} />
-                </td>
-                <td className="px-5 py-2.5 border-b border-border">
-                  <StatusBadge status={subnet.status} />
-                </td>
-                <td className="px-5 py-2.5 border-b border-border">{subnet.cidr}</td>
-                <td className="px-5 py-2.5 border-b border-border">{subnet.gatewayIp}</td>
-                <td className="px-5 py-2.5 border-b border-border">{subnet.createdOn}</td>
-                <td className="px-5 py-2.5 border-b border-border">
-                  <ActionMenu
-                    viewHref={`/networking/subnets/${subnet.id}`}
-                    editHref={`/networking/subnets/${subnet.id}/edit`}
-                    deleteHref={`/networking/subnets/${subnet.id}/delete`}
-                    resourceName={subnet.name}
-                    resourceType="Subnet"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ShadcnDataTable
+        columns={columns}
+        data={dataWithActions}
+        searchableColumns={["name", "vpcName"]}
+        defaultSort={{ column: "name", direction: "asc" }}
+        pageSize={10}
+        enableSearch={true}
+        enableColumnVisibility={true}
+        enablePagination={true}
+        onRefresh={handleRefresh}
+      />
     </PageShell>
   )
 }

@@ -1,43 +1,17 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Simple access level determination from cookies/headers
-// In a real app, this would validate JWT tokens and fetch user profile
+// Simple access level determination from headers
 function getAccessLevelFromRequest(request: NextRequest): 'none' | 'limited' | 'full' {
-  const authToken = request.cookies.get('auth-token')
+  // Check for auth token in cookies
+  const authToken = request.cookies.get('auth-token')?.value
   
   if (!authToken) {
     return 'none'
   }
 
-  // In a real implementation, you would:
-  // 1. Validate the JWT token
-  // 2. Fetch user profile completion status from your backend
-  // 3. Calculate access level based on profile status
-  
-  // For demo purposes, check if there's user data indicating completion status
-  const userData = request.cookies.get('user_profile_status')
-  
-  if (userData) {
-    try {
-      const profileStatus = JSON.parse(userData.value)
-      const { basicInfoComplete, identityVerified, paymentSetupComplete } = profileStatus
-      
-      if (basicInfoComplete && identityVerified && paymentSetupComplete) {
-        return 'full'
-      }
-      
-      if (basicInfoComplete) {
-        return 'limited'
-      }
-    } catch (error) {
-      // If parsing fails, default to limited for authenticated users
-      return 'limited'
-    }
-  }
-  
-  // Default to limited access for authenticated users without profile data
-  return 'limited'
+  // For demo purposes, if we have an auth token, grant full access
+  return 'full'
 }
 
 // Route access configuration
@@ -91,59 +65,36 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // TEMPORARY: Bypass auth for testing
-  // TODO: Remove this bypass after testing
-  if (pathname.startsWith('/dashboard')) {
-    const response = NextResponse.next()
-    response.headers.set('x-user-access-level', 'limited')
-    return response
-  }
-
+  // Get access level from request
   const accessLevel = getAccessLevelFromRequest(request)
+
+  // Check if user has access to the requested route
   const hasAccess = checkRouteAccess(pathname, accessLevel)
 
-  // If user doesn't have access to the route
   if (!hasAccess) {
-    // For unauthenticated users, redirect to signin
-    if (accessLevel === 'none') {
-      const signInUrl = new URL('/auth/signin', request.url)
-      signInUrl.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(signInUrl)
-    }
-    
-    // For limited access users trying to access restricted routes
-    if (accessLevel === 'limited') {
-      // Check if it's a compute/storage/billing route
-      const restrictedPaths = [
-        '/compute', '/storage', '/billing', '/api-keys', 
-        '/ssh-keys', '/kubernetes', '/networking', '/infrastructure'
-      ]
-      
-      const isRestrictedPath = restrictedPaths.some(path => pathname.startsWith(path))
-      
-      if (isRestrictedPath) {
-        // Redirect to profile completion with context
-        const profileUrl = new URL('/dashboard/profile-completion', request.url)
-        profileUrl.searchParams.set('redirect', pathname)
-        profileUrl.searchParams.set('feature', pathname.split('/')[1] || 'feature')
-        return NextResponse.redirect(profileUrl)
-      }
-      
-      // For other restricted routes, redirect to dashboard
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
+    // If no access, redirect to sign in page
+    const signInUrl = new URL('/auth/signin', request.url)
+    signInUrl.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(signInUrl)
   }
 
-  // For profile completion routes, ensure user is authenticated
-  if (pathname.startsWith('/dashboard/profile-completion') && accessLevel === 'none') {
-    return NextResponse.redirect(new URL('/auth/signin', request.url))
+  // If user is authenticated and trying to access auth pages, redirect to dashboard
+  if (accessLevel !== 'none' && pathname.startsWith('/auth')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // Add access level header for client-side components
-  const response = NextResponse.next()
-  response.headers.set('x-user-access-level', accessLevel)
-  
-  return response
+  // Clone the request headers and add the auth token
+  const requestHeaders = new Headers(request.headers)
+  if (accessLevel !== 'none') {
+    requestHeaders.set('x-auth-token', request.cookies.get('auth-token')?.value || '')
+  }
+
+  // Return response with modified headers
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
 }
 
 export const config = {

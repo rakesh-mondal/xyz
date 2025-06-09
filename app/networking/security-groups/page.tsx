@@ -6,31 +6,64 @@ import { StatusBadge } from "../../../components/status-badge"
 import { securityGroups } from "../../../lib/data"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { ActionMenu } from "../../../components/action-menu"
-import { ChevronUp, ChevronDown } from "lucide-react"
+import { ChevronUp, ChevronDown, RefreshCw } from "lucide-react"
 import { useState } from "react"
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
+import { Button } from "@/components/ui/button"
 
 export default function SecurityGroupListPage() {
-  const [sortBy, setSortBy] = useState<"name" | "createdOn">("name")
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
-  const handleSort = (col: "name" | "createdOn") => {
-    if (sortBy === col) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc")
-    } else {
-      setSortBy(col)
-      setSortDir("asc")
-    }
+  const columns = [
+    {
+      key: "name",
+      label: "Security Group Name",
+      sortable: true,
+      searchable: true,
+      render: (value: string, row: any) => (
+        <a
+          href={`/networking/security-groups/${row.id}`}
+          className="text-primary underline font-medium hover:no-underline"
+        >
+          {value}
+        </a>
+      ),
+    },
+    {
+      key: "vpcName",
+      label: "VPC",
+      searchable: true,
+    },
+    {
+      key: "createdOn",
+      label: "Created On",
+      sortable: true,
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (value: string) => <StatusBadge status={value} />,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_: any, row: any) => (
+        <ActionMenu
+          viewHref={`/networking/security-groups/${row.id}`}
+          editHref={`/networking/security-groups/${row.id}/edit`}
+          deleteHref={`/networking/security-groups/${row.id}/delete`}
+          resourceName={row.name}
+          resourceType="Security Group"
+        />
+      ),
+    },
+  ]
+
+  // Add actions property to each security group row for DataTable
+  const dataWithActions = securityGroups.map((sg) => ({ ...sg, actions: null }))
+
+  const handleRefresh = () => {
+    window.location.reload()
   }
-  const sortedSecurityGroups = [...securityGroups].sort((a, b) => {
-    let aVal: string | Date = a[sortBy]
-    let bVal: string | Date = b[sortBy]
-    if (sortBy === "createdOn") {
-      aVal = new Date(a.createdOn)
-      bVal = new Date(b.createdOn)
-    }
-    if (aVal < bVal) return sortDir === "asc" ? -1 : 1
-    if (aVal > bVal) return sortDir === "asc" ? 1 : -1
-    return 0
-  })
+
   return (
     <PageShell
       title="Security Groups"
@@ -53,47 +86,17 @@ export default function SecurityGroupListPage() {
         </div>
         <CreateButton href="/networking/security-groups/create" label="Create Security Group" />
       </div>
-      <div className="overflow-hidden bg-card text-card-foreground border-border border rounded-lg">
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm cursor-pointer select-none" onClick={() => handleSort("name")}>Security Group Name {sortBy === "name" && (sortDir === "asc" ? <ChevronUp className="inline h-4 w-4 ml-1" /> : <ChevronDown className="inline h-4 w-4 ml-1" />)}</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">VPC</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm cursor-pointer select-none" onClick={() => handleSort("createdOn")}>Created On {sortBy === "createdOn" && (sortDir === "asc" ? <ChevronUp className="inline h-4 w-4 ml-1" /> : <ChevronDown className="inline h-4 w-4 ml-1" />)}</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">Status</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedSecurityGroups.map((sg) => (
-              <tr key={sg.id} className="hover:bg-muted/50 transition-colors">
-                <td className="px-5 py-2.5 border-b border-border">
-                  <a
-                    href={`/networking/security-groups/${sg.id}`}
-                    className="text-primary underline font-medium hover:no-underline"
-                  >
-                    {sg.name}
-                  </a>
-                </td>
-                <td className="px-5 py-2.5 border-b border-border">{sg.vpcName}</td>
-                <td className="px-5 py-2.5 border-b border-border">{sg.createdOn}</td>
-                <td className="px-5 py-2.5 border-b border-border">
-                  <StatusBadge status={sg.status} />
-                </td>
-                <td className="px-5 py-2.5 border-b border-border">
-                  <ActionMenu
-                    viewHref={`/networking/security-groups/${sg.id}`}
-                    editHref={`/networking/security-groups/${sg.id}/edit`}
-                    deleteHref={`/networking/security-groups/${sg.id}/delete`}
-                    resourceName={sg.name}
-                    resourceType="Security Group"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ShadcnDataTable
+        columns={columns}
+        data={dataWithActions}
+        searchableColumns={["name", "vpcName"]}
+        defaultSort={{ column: "name", direction: "asc" }}
+        pageSize={10}
+        enableSearch={true}
+        enableColumnVisibility={true}
+        enablePagination={true}
+        onRefresh={handleRefresh}
+      />
     </PageShell>
   )
 }

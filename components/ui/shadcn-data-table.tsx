@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Play, Pause } from "lucide-react"
+import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Play, Pause, ArrowUp, ArrowDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -152,16 +152,34 @@ export function ShadcnDataTable<T = any>({
         if (!col.sortable) {
           return <div className="text-left font-medium">{col.label}</div>
         }
-        
+        // Determine sort state
+        const isSorted = column.getIsSorted();
+        const isActive = !!isSorted;
         return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="h-auto p-0 font-medium hover:bg-transparent"
+          <button
+            type="button"
+            onClick={() => column.toggleSorting(isSorted === "asc")}
+            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full text-left px-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
+            style={{ minWidth: 0 }}
           >
-            {col.label}
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
+            <span className="truncate flex-1">{col.label}</span>
+            {/* Only show arrow if this is the active sort column */}
+            {isActive && (
+              <span className="ml-2 inline-block transition-transform duration-200" style={{ transform: isSorted === "desc" ? "rotate(0deg)" : "rotate(180deg)" }}>
+                {isSorted === "desc" ? (
+                  <ArrowDown className="h-4 w-4 text-primary" />
+                ) : (
+                  <ArrowUp className="h-4 w-4 text-primary" />
+                )}
+              </span>
+            )}
+            {/* Show faded arrow on hover for sortable but inactive columns */}
+            {!isActive && (
+              <span className="ml-2 opacity-0 group-hover:opacity-40 transition-opacity duration-200">
+                <ArrowUp className="h-4 w-4" />
+              </span>
+            )}
+          </button>
         )
       },
       cell: ({ row, getValue }) => {

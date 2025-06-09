@@ -52,22 +52,36 @@ export function DataTable({ columns, data, defaultSort }: DataTableProps) {
       <table className="w-full">
         <thead>
           <tr>
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                className={`text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm ${
-                  column.sortable ? "cursor-pointer select-none" : ""
-                }`}
-                onClick={() => column.sortable && handleSort(column.key)}
-              >
-                {column.label}
-                {column.sortable && sortBy === column.key && (
-                  sortDir === "asc" 
-                    ? <ChevronUp className="inline h-4 w-4 ml-1" />
-                    : <ChevronDown className="inline h-4 w-4 ml-1" />
-                )}
-              </th>
-            ))}
+            {columns.map((column) => {
+              const isActive = column.sortable && sortBy === column.key;
+              return (
+                <th
+                  key={column.key}
+                  className={`text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm transition-colors duration-200 ${
+                    column.sortable ? "cursor-pointer select-none group" : ""
+                  } ${isActive ? "bg-muted font-bold" : ""}`}
+                  onClick={() => column.sortable && handleSort(column.key)}
+                >
+                  <span className="truncate flex-1">{column.label}</span>
+                  {/* Only show arrow if this is the active sort column */}
+                  {column.sortable && isActive && (
+                    <span className="ml-2 inline-block transition-transform duration-200" style={{ transform: sortDir === "desc" ? "rotate(0deg)" : "rotate(180deg)" }}>
+                      {sortDir === "desc" ? (
+                        <ChevronDown className="h-4 w-4 text-primary" />
+                      ) : (
+                        <ChevronUp className="h-4 w-4 text-primary" />
+                      )}
+                    </span>
+                  )}
+                  {/* Show faded arrow on hover for sortable but inactive columns */}
+                  {column.sortable && !isActive && (
+                    <span className="ml-2 opacity-0 group-hover:opacity-40 transition-opacity duration-200">
+                      <ChevronUp className="h-4 w-4" />
+                    </span>
+                  )}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>

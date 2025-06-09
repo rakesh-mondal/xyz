@@ -3,10 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { SignInForm } from "./sign-in-form"
-import { TwoFactorForm } from "./two-factor-form"
-import { TrustDeviceDialog } from "./trust-device-dialog"
 
-type AuthStep = "signin" | "2fa" | "trust-device" | "complete"
+type AuthStep = "signin" | "complete"
 
 export function SignInFlow() {
   const router = useRouter()
@@ -53,32 +51,17 @@ export function SignInFlow() {
 
   // Handle completion of the sign-in step
   const handleSignInComplete = (userEmail: string) => {
-    setEmail(userEmail)
-    setAuthStep("2fa")
-  }
-
-  // Handle completion of the 2FA step
-  const handleTwoFactorComplete = () => {
-    setAuthStep("trust-device")
-  }
-
-  // Handle the trust device decision
-  const handleTrustDevice = (trust: boolean) => {
     try {
-      // In a real app, you would save this preference to the user's account
-      console.log(`User chose to ${trust ? "trust" : "not trust"} this device`)
-      setAuthStep("complete")
-
       // Set authentication data before navigation
-      console.log('Setting authentication data for sign-in flow')
-      setUserAuthData(email)
+      console.log('Sign-in successful, setting auth data')
+      setUserAuthData(userEmail)
       setAccessLevel('full')
       
       // Navigate to dashboard
       console.log('Navigating to dashboard...')
       router.push("/dashboard")
     } catch (error) {
-      console.error('Error in trust device handler:', error)
+      console.error('Error in sign-in completion:', error)
       // Fallback navigation
       window.location.href = "/dashboard"
     }
@@ -86,13 +69,7 @@ export function SignInFlow() {
 
   return (
     <div>
-      {authStep === "signin" && <SignInForm />}
-
-      {authStep === "2fa" && (
-        <TwoFactorForm email={email} onComplete={handleTwoFactorComplete} onBack={() => setAuthStep("signin")} />
-      )}
-
-      {authStep === "trust-device" && <TrustDeviceDialog onConfirm={(trust) => handleTrustDevice(trust)} />}
+      {authStep === "signin" && <SignInForm onComplete={handleSignInComplete} />}
     </div>
   )
 }

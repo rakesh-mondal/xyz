@@ -15,7 +15,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { KrutrimLogo } from "@/components/ui/krutrim-logo"
 import { cn } from "@/lib/utils"
 
-export function SignInForm() {
+interface SignInFormProps extends React.HTMLAttributes<HTMLDivElement> {
+  onComplete: (email: string) => void
+}
+
+export function SignInForm({ className, onComplete, ...props }: SignInFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -86,50 +90,29 @@ export function SignInForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    // Reset errors
     setErrors({})
 
-    // Validate form
-    const newErrors: {
-      email?: string
-      password?: string
-      general?: string
-    } = {}
-
+    // Basic validation
     if (!formData.email) {
-      newErrors.email = "Email is required"
+      setErrors({ email: "Email is required" })
+      return
     }
-
     if (!formData.password) {
-      newErrors.password = "Password is required"
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
+      setErrors({ password: "Password is required" })
       return
     }
 
-    // Proceed with sign in
     setIsLoading(true)
 
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Set authentication data before navigation
-      console.log('Sign-in successful, setting auth data')
-      setUserAuthData(formData.email)
-      setAccessLevel('full')
-      
-      // Navigate to dashboard
-      console.log('Navigating to dashboard...')
-      router.push("/dashboard")
+      // Call onComplete with the email
+      onComplete(formData.email)
     } catch (error) {
       console.error('Sign-in error:', error)
-      setErrors({
-        general: "Invalid email or password. Please try again.",
-      })
+      setErrors({ general: "Invalid email or password. Please try again." })
     } finally {
       setIsLoading(false)
     }

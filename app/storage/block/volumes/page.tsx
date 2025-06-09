@@ -7,9 +7,11 @@ import { ActionMenu } from "@/components/action-menu"
 import { DeleteVolumeModal } from "@/components/modals/delete-volume-modal"
 import { ExtendVolumeModal } from "@/components/modals/extend-volume-modal"
 import { VMAttachmentWarningModal } from "@/components/modals/vm-attachment-warning-modal"
-import { Edit, ChevronUp, ChevronDown } from "lucide-react"
+import { Edit, ChevronUp, ChevronDown, RefreshCw } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const tabs = [
   { title: "Volumes", href: "/storage/block/volumes" },
@@ -55,50 +57,83 @@ export default function BlockStorageVolumesPage() {
   const [showWarningModal, setShowWarningModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedVolume, setSelectedVolume] = useState<any>(null)
-  const [sortBy, setSortBy] = useState<SortableColumn>("name")
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
 
   // Mock handlers
   const handleDelete = async () => {
-    // Simulate delete
     await new Promise((resolve) => setTimeout(resolve, 1000))
     setShowDeleteModal(false)
   }
   const handleExtend = async (newSize: number) => {
-    // Simulate extend
     await new Promise((resolve) => setTimeout(resolve, 1000))
     setShowExtendModal(false)
   }
   const handleEdit = async (updated: { name: string; description: string }) => {
-    // Simulate edit
     await new Promise((resolve) => setTimeout(resolve, 1000))
     setShowEditModal(false)
   }
 
-  const handleSort = (col: string) => {
-    if (sortBy === col) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc")
-    } else {
-      setSortBy(col as SortableColumn)
-      setSortDir("asc")
-    }
-  }
+  const columns = [
+    {
+      key: "name",
+      label: "Volume Name",
+      sortable: true,
+      searchable: true,
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (value: string) => <StatusBadge status={value} />,
+    },
+    {
+      key: "size",
+      label: "Size",
+      sortable: true,
+    },
+    {
+      key: "type",
+      label: "Type",
+      sortable: true,
+    },
+    {
+      key: "attachedTo",
+      label: "Attached To",
+    },
+    {
+      key: "createdOn",
+      label: "Created On",
+      sortable: true,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_: any, row: any) => (
+        <ActionMenu
+          viewHref="#"
+          onEdit={() => { setSelectedVolume(row); setShowEditModal(true) }}
+          deleteHref="#"
+          resourceName={row.name}
+          resourceType="Volume"
+          onExtend={() => { setSelectedVolume(row); setShowExtendModal(true) }}
+          onWarning={() => { setSelectedVolume(row); setShowWarningModal(true) }}
+        />
+      ),
+    },
+  ]
 
-  const sortedVolumes = [...mockVolumes].sort((a, b) => {
-    let aVal: string | number | Date = a[sortBy]
-    let bVal: string | number | Date = b[sortBy]
-    if (sortBy === "size") {
-      aVal = parseInt(a.size)
-      bVal = parseInt(b.size)
-    }
-    if (sortBy === "createdOn") {
-      aVal = new Date(a.createdOn)
-      bVal = new Date(b.createdOn)
-    }
-    if (aVal < bVal) return sortDir === "asc" ? -1 : 1
-    if (aVal > bVal) return sortDir === "asc" ? 1 : -1
-    return 0
-  })
+  // Add actions property to each volume row for DataTable
+  const dataWithActions = mockVolumes.map((vol) => ({ ...vol, actions: null }))
+
+  // Example VPC options (replace with real data if available)
+  const vpcOptions = [
+    { value: "all", label: "All VPCs" },
+    { value: "production-vpc", label: "production-vpc" },
+    { value: "development-vpc", label: "development-vpc" },
+    { value: "staging-vpc", label: "staging-vpc" },
+  ]
+
+  const handleRefresh = () => {
+    window.location.reload()
+  }
 
   return (
     <PageShell
@@ -106,49 +141,33 @@ export default function BlockStorageVolumesPage() {
       description="Provision, manage, and attach block storage volumes to your cloud resources."
       tabs={tabs}
     >
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center">
+          <span className="text-sm font-medium mr-2">VPC:</span>
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[200px] border-input">
+              <SelectValue placeholder="All VPCs" />
+            </SelectTrigger>
+            <SelectContent>
+              {vpcOptions.map((vpc) => (
+                <SelectItem key={vpc.value} value={vpc.value}>{vpc.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Button variant="default">Create Volume</Button>
       </div>
-      <div className="overflow-hidden bg-card text-card-foreground border-border border rounded-lg">
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm cursor-pointer select-none" onClick={() => handleSort("name")}>Volume Name {sortBy === "name" && (sortDir === "asc" ? <ChevronUp className="inline h-4 w-4 ml-1" /> : <ChevronDown className="inline h-4 w-4 ml-1" />)}</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">Status</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm cursor-pointer select-none" onClick={() => handleSort("size")}>Size {sortBy === "size" && (sortDir === "asc" ? <ChevronUp className="inline h-4 w-4 ml-1" /> : <ChevronDown className="inline h-4 w-4 ml-1" />)}</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm cursor-pointer select-none" onClick={() => handleSort("type")}>Type {sortBy === "type" && (sortDir === "asc" ? <ChevronUp className="inline h-4 w-4 ml-1" /> : <ChevronDown className="inline h-4 w-4 ml-1" />)}</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">Attached To</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm cursor-pointer select-none" onClick={() => handleSort("createdOn")}>Created On {sortBy === "createdOn" && (sortDir === "asc" ? <ChevronUp className="inline h-4 w-4 ml-1" /> : <ChevronDown className="inline h-4 w-4 ml-1" />)}</th>
-              <th className="text-left px-5 py-2.5 bg-muted border-b border-border font-semibold text-sm">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedVolumes.map((vol) => (
-              <tr key={vol.id} className="hover:bg-muted/50 transition-colors">
-                <td className="px-5 py-2.5 border-b border-border">{vol.name}</td>
-                <td className="px-5 py-2.5 border-b border-border">
-                  <StatusBadge status={vol.status} />
-                </td>
-                <td className="px-5 py-2.5 border-b border-border">{vol.size}</td>
-                <td className="px-5 py-2.5 border-b border-border">{vol.type}</td>
-                <td className="px-5 py-2.5 border-b border-border">{vol.attachedTo}</td>
-                <td className="px-5 py-2.5 border-b border-border">{vol.createdOn}</td>
-                <td className="px-5 py-2.5 border-b border-border">
-                  <ActionMenu
-                    viewHref="#"
-                    onEdit={() => { setSelectedVolume(vol); setShowEditModal(true) }}
-                    deleteHref="#"
-                    resourceName={vol.name}
-                    resourceType="Volume"
-                    onExtend={() => { setSelectedVolume(vol); setShowExtendModal(true) }}
-                    onWarning={() => { setSelectedVolume(vol); setShowWarningModal(true) }}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ShadcnDataTable
+        columns={columns}
+        data={dataWithActions}
+        searchableColumns={["name"]}
+        defaultSort={{ column: "name", direction: "asc" }}
+        pageSize={10}
+        enableSearch={true}
+        enableColumnVisibility={true}
+        enablePagination={true}
+        onRefresh={handleRefresh}
+      />
       {/* Modals */}
       <DeleteVolumeModal
         open={showDeleteModal}

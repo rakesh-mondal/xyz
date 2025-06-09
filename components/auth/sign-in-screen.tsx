@@ -21,7 +21,6 @@ export function SignInScreen() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [trustDevice, setTrustDevice] = useState(false)
   const [errors, setErrors] = useState<{
     email?: string
     password?: string
@@ -70,9 +69,44 @@ export function SignInScreen() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // For demo purposes, we'll just redirect to 2FA
-      router.push("/auth/two-factor")
+      // Set authentication data in localStorage
+      const userInfo = {
+        name: email.split('@')[0],
+        email: email,
+        mobile: "",
+        accountType: "individual",
+        signinCompletedAt: new Date().toISOString()
+      }
+      
+      // Set auth token
+      const authToken = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      localStorage.setItem('auth-token', authToken)
+      
+      // Set auth cookie for middleware
+      document.cookie = `auth-token=${authToken}; path=/; max-age=86400`
+      
+      // Set user data
+      localStorage.setItem('user_data', JSON.stringify(userInfo))
+      
+      // Set profile status
+      const profileStatus = {
+        basicInfoComplete: true,
+        identityVerified: true,
+        paymentSetupComplete: true
+      }
+      localStorage.setItem('user_profile_status', JSON.stringify(profileStatus))
+
+      // Set access level
+      localStorage.setItem('accessLevel', 'full')
+
+      // Get redirect URL from query params or default to dashboard
+      const searchParams = new URLSearchParams(window.location.search)
+      const redirectUrl = searchParams.get('redirect') || '/dashboard'
+      
+      // Use Next.js router for navigation
+      window.location.replace(redirectUrl)
     } catch (error) {
+      console.error('Sign-in error:', error)
       setErrors({
         general: "Invalid email or password. Please try again.",
       })
@@ -157,17 +191,6 @@ export function SignInScreen() {
                 </div>
                 {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
               </div>
-            </div>
-
-            <div className="flex items-center">
-              <Checkbox
-                id="trust-device"
-                checked={trustDevice}
-                onCheckedChange={(checked) => setTrustDevice(checked as boolean)}
-              />
-              <Label htmlFor="trust-device" className="ml-2 block text-sm text-gray-700">
-                Trust this device for 60 days
-              </Label>
             </div>
 
             <div>
