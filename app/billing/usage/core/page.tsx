@@ -3,13 +3,22 @@ import React, { useState } from "react";
 import { PageShell } from "@/components/page-shell";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, MoreHorizontal } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DataTable } from "@/components/ui/data-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { UsageActionBar } from "@/components/billing/usage-action-bar";
 import type { DateRange } from "react-day-picker";
 import Link from "next/link";
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ActionMenu } from "@/components/action-menu"
+import type { Column } from "@/components/ui/shadcn-data-table";
 
 const coreTabs = [
   { value: "all", label: "All Infrastructure" },
@@ -19,16 +28,25 @@ const coreTabs = [
 ];
 
 const mockCompute = [
-  { id: 1, name: "VM-1", type: "VM", status: "Running", credits: 120 },
-  { id: 2, name: "VM-2", type: "VM", status: "Stopped", credits: 80 },
+  { id: 1, name: "Production-VM-01", type: "VM", status: "Running", credits: 450 },
+  { id: 2, name: "Staging-VM-02", type: "VM", status: "Running", credits: 320 },
+  { id: 3, name: "Dev-VM-03", type: "VM", status: "Stopped", credits: 180 },
+  { id: 4, name: "GPU-VM-01", type: "GPU VM", status: "Running", credits: 750 },
+  { id: 5, name: "K8s-Node-01", type: "Kubernetes", status: "Running", credits: 280 },
 ];
 const mockStorage = [
-  { id: 1, name: "Volume-1", type: "SSD", status: "Attached", credits: 60 },
-  { id: 2, name: "Volume-2", type: "HDD", status: "Available", credits: 40 },
+  { id: 1, name: "Prod-Volume-01", type: "SSD", status: "Attached", credits: 120 },
+  { id: 2, name: "Backup-Volume-01", type: "HDD", status: "Available", credits: 80 },
+  { id: 3, name: "Data-Volume-01", type: "SSD", status: "Attached", credits: 150 },
+  { id: 4, name: "Cache-Volume-01", type: "NVMe", status: "Attached", credits: 200 },
+  { id: 5, name: "Archive-Volume-01", type: "HDD", status: "Available", credits: 60 },
 ];
 const mockNetwork = [
-  { id: 1, name: "VPC-1", type: "VPC", status: "Active", credits: 30 },
-  { id: 2, name: "Subnet-1", type: "Subnet", status: "Active", credits: 20 },
+  { id: 1, name: "Prod-VPC-01", type: "VPC", status: "Active", credits: 90 },
+  { id: 2, name: "Prod-Subnet-01", type: "Subnet", status: "Active", credits: 45 },
+  { id: 3, name: "Load-Balancer-01", type: "Load Balancer", status: "Active", credits: 120 },
+  { id: 4, name: "Security-Group-01", type: "Security Group", status: "Active", credits: 30 },
+  { id: 5, name: "VPN-Gateway-01", type: "VPN", status: "Active", credits: 75 },
 ];
 const allInfra = [...mockCompute, ...mockStorage, ...mockNetwork];
 
@@ -41,6 +59,43 @@ export default function BillingUsageCorePage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalResource, setModalResource] = useState<any>(null);
   const [date, setDate] = useState<DateRange | undefined>(undefined);
+
+  const columns: Column<CoreInfrastructureItem>[] = [
+    {
+      key: "name",
+      label: "Service",
+      sortable: true,
+      searchable: true,
+      render: (value: string) => (
+        <div className="font-medium text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "credits",
+      label: "Credits Used",
+      sortable: true,
+      searchable: true,
+      render: (value: number) => (
+        <div className="text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Action",
+      align: "right",
+      render: (_: unknown, row: CoreInfrastructureItem) => (
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref="#"
+            onEdit={() => { setModalResource(row); setModalOpen(true); }}
+            resourceName={row.name}
+            resourceType="Resource"
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <PageShell
       title="Usage Metrics"
@@ -81,80 +136,116 @@ export default function BillingUsageCorePage() {
               ))}
             </TabsList>
             <TabsContent value="all">
-              <DataTable
-                columns={[
-                  { key: "name", label: "Resource Name", sortable: true },
-                  { key: "type", label: "Type", sortable: true },
-                  { key: "status", label: "Status", sortable: true },
-                  { key: "credits", label: "Credits Used", sortable: true },
-                  {
-                    key: "actions",
-                    label: "",
-                    render: (_, row) => (
-                      <Button variant="link" size="sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
-                    ),
-                  },
-                ]}
+              <ShadcnDataTable
+                columns={columns}
                 data={allInfra}
-                defaultSort={{ column: "name", direction: "asc" }}
+                searchableColumns={["name"]}
+                defaultSort={{ column: "credits", direction: "desc" }}
+                pageSize={5}
+                enableSearch={true}
+                enableColumnVisibility={false}
+                enablePagination={false}
               />
+              <div className="text-right font-semibold px-2 py-2 text-sm">Total: {getTotalCredits(allInfra)} credits</div>
             </TabsContent>
             <TabsContent value="compute">
               <DataTable
                 columns={[
                   { key: "name", label: "Compute Name", sortable: true },
                   { key: "type", label: "Type", sortable: true },
-                  { key: "status", label: "Status", sortable: true },
+                  { key: "status", label: "Status", sortable: true, render: (value) => (
+                    <span className={
+                      value === "Running"
+                        ? "inline-flex items-center gap-1 text-green-600"
+                        : "inline-flex items-center gap-1 text-gray-500"
+                    }>
+                      <span className={
+                        value === "Running"
+                          ? "h-2 w-2 rounded-full bg-green-500"
+                          : "h-2 w-2 rounded-full bg-gray-400"
+                      }></span>
+                      {value}
+                    </span>
+                  ) },
                   { key: "credits", label: "Credits Used", sortable: true },
                   {
                     key: "actions",
                     label: "",
                     render: (_, row) => (
-                      <Button variant="link" size="sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
+                      <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
                     ),
                   },
                 ]}
                 data={mockCompute}
                 defaultSort={{ column: "name", direction: "asc" }}
               />
+              <div className="text-right font-semibold px-2 py-2 text-sm">Total: {getTotalCredits(mockCompute)} credits</div>
             </TabsContent>
             <TabsContent value="storage">
               <DataTable
                 columns={[
                   { key: "name", label: "Storage Name", sortable: true },
                   { key: "type", label: "Type", sortable: true },
-                  { key: "status", label: "Status", sortable: true },
+                  { key: "status", label: "Status", sortable: true, render: (value) => (
+                    <span className={
+                      value === "Attached"
+                        ? "inline-flex items-center gap-1 text-green-600"
+                        : "inline-flex items-center gap-1 text-gray-500"
+                    }>
+                      <span className={
+                        value === "Attached"
+                          ? "h-2 w-2 rounded-full bg-green-500"
+                          : "h-2 w-2 rounded-full bg-gray-400"
+                      }></span>
+                      {value}
+                    </span>
+                  ) },
                   { key: "credits", label: "Credits Used", sortable: true },
                   {
                     key: "actions",
                     label: "",
                     render: (_, row) => (
-                      <Button variant="link" size="sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
+                      <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
                     ),
                   },
                 ]}
                 data={mockStorage}
                 defaultSort={{ column: "name", direction: "asc" }}
               />
+              <div className="text-right font-semibold px-2 py-2 text-sm">Total: {getTotalCredits(mockStorage)} credits</div>
             </TabsContent>
             <TabsContent value="network">
               <DataTable
                 columns={[
                   { key: "name", label: "Network Name", sortable: true },
                   { key: "type", label: "Type", sortable: true },
-                  { key: "status", label: "Status", sortable: true },
+                  { key: "status", label: "Status", sortable: true, render: (value) => (
+                    <span className={
+                      value === "Active"
+                        ? "inline-flex items-center gap-1 text-green-600"
+                        : "inline-flex items-center gap-1 text-gray-500"
+                    }>
+                      <span className={
+                        value === "Active"
+                          ? "h-2 w-2 rounded-full bg-green-500"
+                          : "h-2 w-2 rounded-full bg-gray-400"
+                      }></span>
+                      {value}
+                    </span>
+                  ) },
                   { key: "credits", label: "Credits Used", sortable: true },
                   {
                     key: "actions",
                     label: "",
                     render: (_, row) => (
-                      <Button variant="link" size="sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
+                      <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
                     ),
                   },
                 ]}
                 data={mockNetwork}
                 defaultSort={{ column: "name", direction: "asc" }}
               />
+              <div className="text-right font-semibold px-2 py-2 text-sm">Total: {getTotalCredits(mockNetwork)} credits</div>
             </TabsContent>
           </Tabs>
           <Dialog open={modalOpen} onOpenChange={setModalOpen}>

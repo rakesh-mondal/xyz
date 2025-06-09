@@ -7,11 +7,19 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, RefreshCw, MoreHorizontal, Eye } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table";
+import type { Column } from "@/components/ui/shadcn-data-table";
 import { UsageActionBar } from "@/components/billing/usage-action-bar";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ActionMenu } from "@/components/action-menu";
 
 const pieData = [
   { name: "Compute", value: 400, color: "#6366f1" },
@@ -48,6 +56,12 @@ function renderCustomizedLabel({ cx, cy, midAngle, innerRadius, outerRadius, per
   );
 }
 
+interface ServiceSummaryItem {
+  name: string;
+  credits: number;
+  details: string;
+}
+
 const serviceSummary = [
   { name: "Compute", credits: 400, details: "View Details" },
   { name: "Storage", credits: 300, details: "View Details" },
@@ -57,6 +71,45 @@ const serviceSummary = [
 
 export default function BillingUsageSummaryPage() {
   const [date, setDate] = useState<DateRange | undefined>(undefined);
+  const [modalResource, setModalResource] = useState<ServiceSummaryItem | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const columns: Column<ServiceSummaryItem>[] = [
+    {
+      key: "name",
+      label: "Service",
+      sortable: true,
+      searchable: true,
+      render: (value: string) => (
+        <div className="font-medium text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "credits",
+      label: "Credits Used",
+      sortable: true,
+      searchable: true,
+      render: (value: number) => (
+        <div className="text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Action",
+      align: "right",
+      render: (_: unknown, row: ServiceSummaryItem) => (
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref="#"
+            onEdit={() => { setModalResource(row); setModalOpen(true); }}
+            resourceName={row.name}
+            resourceType="Resource"
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <PageShell
       title="Usage Metrics"
@@ -135,36 +188,18 @@ export default function BillingUsageSummaryPage() {
         </CardHeader>
         <CardContent>
           <ShadcnDataTable
-            columns={[
-              {
-                key: "name",
-                label: "Service",
-                sortable: true,
-                searchable: true,
-                render: (value) => (
-                  <span className="text-sm font-medium text-primary cursor-pointer hover:underline">{value}</span>
-                ),
-              },
-              {
-                key: "credits",
-                label: "Credits Used",
-                sortable: true,
-              },
-              {
-                key: "details",
-                label: "",
-                render: (value) => (
-                  <Button variant="link" size="sm">{value}</Button>
-                ),
-              },
-            ]}
+            columns={columns}
             data={serviceSummary}
             searchableColumns={["name"]}
             defaultSort={{ column: "credits", direction: "desc" }}
             pageSize={5}
-            enableSearch={false}
+            enableSearch={true}
             enableColumnVisibility={false}
             enablePagination={false}
+            onRefresh={() => {
+              window.location.reload()
+            }}
+            enableAutoRefresh={false}
           />
         </CardContent>
       </Card>

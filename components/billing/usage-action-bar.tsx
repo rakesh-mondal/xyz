@@ -15,7 +15,12 @@ interface UsageActionBarProps {
 export function UsageActionBar({ date, setDate }: UsageActionBarProps) {
   return (
     <div className="flex flex-wrap gap-2 justify-end mb-6">
-      <Button variant="outline">Export Report</Button>
+      <Button
+        variant="outline"
+        className="h-10 px-4 rounded-md"
+      >
+        Export Report
+      </Button>
       <Popover>
         <PopoverTrigger asChild>
           <Button
