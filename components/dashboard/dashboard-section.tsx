@@ -39,6 +39,20 @@ function RestrictedFeatureCard({ section }: { section: string }) {
     router.push('/dashboard/profile-completion')
   }
 
+  // Get section-specific description
+  const getDescription = (sectionName: string) => {
+    switch (sectionName) {
+      case 'Compute Resources':
+        return 'Finish setting up your profile to launch and scale servers.'
+      case 'Storage':
+        return 'Finish setting up your profile to save, back-up and access your data.'
+      case 'Infrastructure':
+        return 'Finish setting up your profile to manage networks, firewalls and monitoring tools.'
+      default:
+        return `Finish setting up your profile to unlock ${sectionName.toLowerCase()} features and access all services.`
+    }
+  }
+
   return (
     <div className="relative">
       <div className="absolute inset-0 bg-gray-50/80 backdrop-blur-[2px] z-10 rounded-md border border-gray-200 border-dashed">
@@ -53,7 +67,7 @@ function RestrictedFeatureCard({ section }: { section: string }) {
               {section}
             </h3>
             <p className="text-xs text-gray-600 mb-4 max-w-sm">
-              Complete your profile to unlock {section.toLowerCase()} features and access all services.
+              {getDescription(section)}
             </p>
             <Button 
               onClick={handleCompleteProfile}
@@ -61,8 +75,7 @@ function RestrictedFeatureCard({ section }: { section: string }) {
               size="sm"
               className="text-xs"
             >
-              Complete Profile
-              <ArrowRight className="w-3 h-3" />
+              Finish Setup →
             </Button>
           </div>
         </div>

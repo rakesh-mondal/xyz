@@ -176,7 +176,7 @@ export function ShadcnDataTable<T = any>({
           <button
             type="button"
             onClick={() => column.toggleSorting(isSorted === "asc")}
-            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === "right" ? "justify-end" : "text-left"} px-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
+            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === "right" ? "justify-end" : "text-left"} pr-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
             style={{ minWidth: 0 }}
           >
             <span className="truncate">{col.label}</span>
@@ -446,7 +446,7 @@ export function ShadcnDataTable<T = any>({
                     className="border-b transition-colors bg-white hover:bg-gray-50/40 data-[state=selected]:bg-blue-50/50 text-sm"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-3 text-sm align-middle">
+                      <td key={cell.id} className="px-4 py-2 text-sm align-middle">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()

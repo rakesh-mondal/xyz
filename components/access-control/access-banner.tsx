@@ -55,12 +55,9 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
   if (accessLevel === 'limited') {
     return (
       <Alert className={`mb-4 border-amber-200 bg-amber-50 ${className}`}>
-        <AlertCircle className="h-4 w-4 text-amber-600" />
+        <AlertCircle className="h-4 w-4" style={{ color: '#78350f' }} />
         <AlertTitle className="text-amber-900">
           Complete your profile to unlock all features
-          <Badge variant="outline" className="ml-2 text-xs bg-amber-100 text-amber-800">
-            {completionPercentage}% Complete
-          </Badge>
         </AlertTitle>
         <AlertDescription className="text-amber-800">
           <div className="mt-2">
@@ -69,7 +66,7 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
             </p>
             
             {requiredSteps.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
+              <div className="flex flex-wrap gap-2 mb-3 items-center">
                 <span className="text-xs font-medium text-amber-700">Remaining steps:</span>
                 {requiredSteps.map((step, index) => (
                   <Badge key={index} variant="outline" className="text-xs bg-white/50 text-amber-700 border-amber-300">

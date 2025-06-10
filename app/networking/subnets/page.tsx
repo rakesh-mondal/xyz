@@ -73,7 +73,7 @@ export default function SubnetListPage() {
   return (
     <PageShell
       title="Subnets"
-      description="Organize your network by creating and managing subnets within your VPCs. Subnets help segment your resources for better security and performance."
+      description="Create subnets inside your VPC to neatly separate resources—keeping them secure and helping your network run faster."
       headerActions={
         <CreateButton href="/networking/subnets/create" label="Create Subnet" />
       }
