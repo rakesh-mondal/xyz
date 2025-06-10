@@ -44,15 +44,18 @@ export default function SecurityGroupListPage() {
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "Action",
+      align: "right" as const,
       render: (_: any, row: any) => (
-        <ActionMenu
-          viewHref={`/networking/security-groups/${row.id}`}
-          editHref={`/networking/security-groups/${row.id}/edit`}
-          deleteHref={`/networking/security-groups/${row.id}/delete`}
-          resourceName={row.name}
-          resourceType="Security Group"
-        />
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref={`/networking/security-groups/${row.id}`}
+            editHref={`/networking/security-groups/${row.id}/edit`}
+            deleteHref={`/networking/security-groups/${row.id}/delete`}
+            resourceName={row.name}
+            resourceType="Security Group"
+          />
+        </div>
       ),
     },
   ]

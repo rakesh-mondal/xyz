@@ -105,17 +105,20 @@ export default function BlockStorageVolumesPage() {
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "Action",
+      align: "right" as const,
       render: (_: any, row: any) => (
-        <ActionMenu
-          viewHref="#"
-          onEdit={() => { setSelectedVolume(row); setShowEditModal(true) }}
-          deleteHref="#"
-          resourceName={row.name}
-          resourceType="Volume"
-          onExtend={() => { setSelectedVolume(row); setShowExtendModal(true) }}
-          onWarning={() => { setSelectedVolume(row); setShowWarningModal(true) }}
-        />
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref="#"
+            onEdit={() => { setSelectedVolume(row); setShowEditModal(true) }}
+            deleteHref="#"
+            resourceName={row.name}
+            resourceType="Volume"
+            onExtend={() => { setSelectedVolume(row); setShowExtendModal(true) }}
+            onWarning={() => { setSelectedVolume(row); setShowWarningModal(true) }}
+          />
+        </div>
       ),
     },
   ]

@@ -48,15 +48,18 @@ export default function VPCListPage() {
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "Action",
+      align: "right" as const,
       render: (value: any, row: any) => (
-        <ActionMenu
-          viewHref={`/networking/vpc/${row.id}`}
-          editHref={`/networking/vpc/${row.id}/edit`}
-          deleteHref={`/networking/vpc/${row.id}/delete`}
-          resourceName={row.name}
-          resourceType="VPC"
-        />
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref={`/networking/vpc/${row.id}`}
+            editHref={`/networking/vpc/${row.id}/edit`}
+            deleteHref={`/networking/vpc/${row.id}/delete`}
+            resourceName={row.name}
+            resourceType="VPC"
+          />
+        </div>
       ),
     },
   ]

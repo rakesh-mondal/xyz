@@ -72,15 +72,18 @@ export default function BlockStorageBackupPage() {
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "Action",
+      align: "right" as const,
       render: (_: any, row: any) => (
-        <ActionMenu
-          viewHref="#"
-          editHref="#"
-          deleteHref="#"
-          resourceName={row.name}
-          resourceType="Backup"
-        />
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref="#"
+            editHref="#"
+            deleteHref="#"
+            resourceName={row.name}
+            resourceType="Backup"
+          />
+        </div>
       ),
     },
   ]

@@ -443,7 +443,7 @@ export function ShadcnDataTable<T = any>({
                   <tr
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="border-b transition-colors bg-white hover:bg-gray-50/30 data-[state=selected]:bg-blue-50/50 text-sm"
+                    className="border-b transition-colors bg-white hover:bg-gray-50/40 data-[state=selected]:bg-blue-50/50 text-sm"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td key={cell.id} className="px-4 py-3 text-sm align-middle">

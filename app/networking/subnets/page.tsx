@@ -47,15 +47,18 @@ export default function SubnetListPage() {
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "Action",
+      align: "right" as const,
       render: (_: any, row: any) => (
-        <ActionMenu
-          viewHref={`/networking/subnets/${row.id}`}
-          editHref={`/networking/subnets/${row.id}/edit`}
-          deleteHref={`/networking/subnets/${row.id}/delete`}
-          resourceName={row.name}
-          resourceType="Subnet"
-        />
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref={`/networking/subnets/${row.id}`}
+            editHref={`/networking/subnets/${row.id}/edit`}
+            deleteHref={`/networking/subnets/${row.id}/delete`}
+            resourceName={row.name}
+            resourceType="Subnet"
+          />
+        </div>
       ),
     },
   ]

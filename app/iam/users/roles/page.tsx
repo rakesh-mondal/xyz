@@ -1,7 +1,8 @@
 import { PageShell } from "@/components/page-shell"
 import { Button } from "@/components/ui/button"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
-import { PlusCircle, MoreHorizontal } from "lucide-react"
+import { ActionMenu } from "@/components/action-menu"
+import { PlusCircle } from "lucide-react"
 
 // Mock data
 const mockRoles = [
@@ -58,12 +59,18 @@ export default function RolesPage() {
     },
     {
       key: "actions",
-      label: "",
+      label: "Action",
       align: "right" as const,
-      render: () => (
-        <Button variant="ghost" size="icon">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
+      render: (_: unknown, row: any) => (
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref="#"
+            editHref="#"
+            deleteHref="#"
+            resourceName={row.name}
+            resourceType="Role"
+          />
+        </div>
       ),
     },
   ]

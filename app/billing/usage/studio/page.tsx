@@ -148,11 +148,17 @@ export default function BillingUsageStudioPage() {
     },
     {
       key: "actions",
-      label: "",
+      label: "Action",
+      align: "right" as const,
       render: (_: unknown, row: StudioItem) => (
-        <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}>
-          <Eye className="mr-1 h-4 w-4" />View Details
-        </Button>
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref="#"
+            onEdit={() => { setModalResource(row); setModalOpen(true); }}
+            resourceName={row.name}
+            resourceType="Resource"
+          />
+        </div>
       ),
     },
   ];
@@ -190,11 +196,17 @@ export default function BillingUsageStudioPage() {
     },
     {
       key: "actions",
-      label: "",
+      label: "Action",
+      align: "right" as const,
       render: (_: unknown, row: StudioItem) => (
-        <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}>
-          <Eye className="mr-1 h-4 w-4" />View Details
-        </Button>
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref="#"
+            onEdit={() => { setModalResource(row); setModalOpen(true); }}
+            resourceName={row.name}
+            resourceType="Resource"
+          />
+        </div>
       ),
     },
   ];
@@ -232,11 +244,17 @@ export default function BillingUsageStudioPage() {
     },
     {
       key: "actions",
-      label: "",
+      label: "Action",
+      align: "right" as const,
       render: (_: unknown, row: StudioItem) => (
-        <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}>
-          <Eye className="mr-1 h-4 w-4" />View Details
-        </Button>
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref="#"
+            onEdit={() => { setModalResource(row); setModalOpen(true); }}
+            resourceName={row.name}
+            resourceType="Resource"
+          />
+        </div>
       ),
     },
   ];
@@ -274,11 +292,17 @@ export default function BillingUsageStudioPage() {
     },
     {
       key: "actions",
-      label: "",
+      label: "Action",
+      align: "right" as const,
       render: (_: unknown, row: StudioItem) => (
-        <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}>
-          <Eye className="mr-1 h-4 w-4" />View Details
-        </Button>
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref="#"
+            onEdit={() => { setModalResource(row); setModalOpen(true); }}
+            resourceName={row.name}
+            resourceType="Resource"
+          />
+        </div>
       ),
     },
   ];

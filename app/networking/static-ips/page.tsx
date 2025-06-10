@@ -42,15 +42,18 @@ export default function StaticIPListPage() {
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "Action",
+      align: "right" as const,
       render: (_: any, row: any) => (
-        <ActionMenu
-          viewHref={`/networking/static-ips/${row.id}`}
-          editHref={`/networking/static-ips/${row.id}/edit`}
-          deleteHref={`/networking/static-ips/${row.id}/delete`}
-          resourceName={row.address}
-          resourceType="Static IP"
-        />
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref={`/networking/static-ips/${row.id}`}
+            editHref={`/networking/static-ips/${row.id}/edit`}
+            deleteHref={`/networking/static-ips/${row.id}/delete`}
+            resourceName={row.address}
+            resourceType="Static IP"
+          />
+        </div>
       ),
     },
   ]
