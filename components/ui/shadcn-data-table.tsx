@@ -294,7 +294,7 @@ export function ShadcnDataTable<T = any>({
                   placeholder={`Search ${primarySearchColumn ? columns.find(c => c.key === primarySearchColumn)?.label?.toLowerCase() || 'items' : 'items'}...`}
                   value={globalFilter}
                   onChange={(event) => setGlobalFilter(event.target.value)}
-                  className="pl-8"
+                  className="pl-8 h-9"
                 />
               </div>
             )}
