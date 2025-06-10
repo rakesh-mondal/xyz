@@ -140,23 +140,11 @@ export default function BlockStorageVolumesPage() {
       title="Block Storage"
       description="Provision, manage, and attach block storage volumes to your cloud resources."
       tabs={tabs}
-    >
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <span className="text-sm font-medium mr-2">VPC:</span>
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[200px] border-input">
-              <SelectValue placeholder="All VPCs" />
-            </SelectTrigger>
-            <SelectContent>
-              {vpcOptions.map((vpc) => (
-                <SelectItem key={vpc.value} value={vpc.value}>{vpc.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      headerActions={
         <Button variant="default">Create Volume</Button>
-      </div>
+      }
+    >
+
       <ShadcnDataTable
         columns={columns}
         data={dataWithActions}
@@ -164,9 +152,11 @@ export default function BlockStorageVolumesPage() {
         defaultSort={{ column: "name", direction: "asc" }}
         pageSize={10}
         enableSearch={true}
-        enableColumnVisibility={true}
+        enableColumnVisibility={false}
         enablePagination={true}
         onRefresh={handleRefresh}
+        enableVpcFilter={true}
+        vpcOptions={vpcOptions}
       />
       {/* Modals */}
       <DeleteVolumeModal

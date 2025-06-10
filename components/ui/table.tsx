@@ -66,6 +66,21 @@ const TableRow = React.forwardRef<
 ))
 TableRow.displayName = "TableRow"
 
+const TableHeaderRow = React.forwardRef<
+  HTMLTableRowElement,
+  React.HTMLAttributes<HTMLTableRowElement>
+>(({ className, ...props }, ref) => (
+  <tr
+    ref={ref}
+    className={cn(
+      "border-b transition-colors bg-muted hover:bg-muted/80 text-[14px]",
+      className
+    )}
+    {...props}
+  />
+))
+TableHeaderRow.displayName = "TableHeaderRow"
+
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
   React.ThHTMLAttributes<HTMLTableCellElement>
@@ -73,7 +88,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+      "h-12 px-4 text-left align-middle font-medium text-muted-foreground bg-muted [&:has([role=checkbox])]:pr-0",
       className
     )}
     {...props}
@@ -112,6 +127,7 @@ export {
   TableFooter,
   TableHead,
   TableRow,
+  TableHeaderRow,
   TableCell,
   TableCaption,
 }

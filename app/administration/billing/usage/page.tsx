@@ -13,7 +13,7 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -133,32 +133,61 @@ export default function BillingUsagePage() {
                     <CardTitle>Service Summary</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Service Name</TableHead>
-                          <TableHead>Credits Used</TableHead>
-                          <TableHead>% of Total</TableHead>
-                          <TableHead>Change vs Previous</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {mockSummary.table.map((row) => (
-                          <TableRow key={row.name} className="cursor-pointer hover:bg-accent" onClick={() => setOpenAccordion([row.name.toLowerCase().replace(/ /g, "-")])}>
-                            <TableCell className="font-medium text-primary underline">{row.name}</TableCell>
-                            <TableCell>{row.credits}</TableCell>
-                            <TableCell>{row.percent}%</TableCell>
-                            <TableCell className="text-green-600 font-medium">+{row.change}%</TableCell>
-                          </TableRow>
-                        ))}
-                        <TableRow className="font-bold">
-                          <TableCell>Total</TableCell>
-                          <TableCell>{mockSummary.totalCredits.toLocaleString()}</TableCell>
-                          <TableCell>100%</TableCell>
-                          <TableCell className="text-green-600 font-medium">+{mockSummary.change}%</TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
+                    <ShadcnDataTable
+                      columns={[
+                        {
+                          key: "name",
+                          label: "Service Name",
+                          sortable: true,
+                          searchable: true,
+                          render: (value: string) => (
+                            <div 
+                              className="font-medium text-primary underline cursor-pointer text-sm"
+                              onClick={() => setOpenAccordion([value.toLowerCase().replace(/ /g, "-")])}
+                            >
+                              {value}
+                            </div>
+                          ),
+                        },
+                        {
+                          key: "credits",
+                          label: "Credits Used",
+                          sortable: true,
+                          render: (value: number) => (
+                            <div className="text-sm">{value}</div>
+                          ),
+                        },
+                        {
+                          key: "percent",
+                          label: "% of Total",
+                          sortable: true,
+                          render: (value: number) => (
+                            <div className="text-sm">{value}%</div>
+                          ),
+                        },
+                        {
+                          key: "change",
+                          label: "Change vs Previous",
+                          sortable: true,
+                          render: (value: number) => (
+                            <div className="text-green-600 font-medium text-sm">+{value}%</div>
+                          ),
+                        },
+                      ]}
+                      data={[
+                        ...mockSummary.table,
+                        {
+                          name: "Total",
+                          credits: mockSummary.totalCredits,
+                          percent: 100,
+                          change: mockSummary.change,
+                        }
+                      ]}
+                      pageSize={10}
+                      enableSearch={false}
+                      enableColumnVisibility={false}
+                      enablePagination={false}
+                    />
                   </CardContent>
                 </Card>
               </div>

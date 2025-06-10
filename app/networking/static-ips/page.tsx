@@ -74,23 +74,11 @@ export default function StaticIPListPage() {
     <PageShell
       title="Static IP Addresses"
       description="Reserve and manage static IP addresses for your cloud resources. Assign IPs to VMs and other services as needed."
-    >
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <span className="text-sm font-medium mr-2">VPC:</span>
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[200px] border-input">
-              <SelectValue placeholder="All VPCs" />
-            </SelectTrigger>
-            <SelectContent>
-              {vpcOptions.map((vpc) => (
-                <SelectItem key={vpc.value} value={vpc.value}>{vpc.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      headerActions={
         <CreateButton href="/networking/static-ips/create" label="Reserve IP Address" />
-      </div>
+      }
+    >
+
       <ShadcnDataTable
         columns={columns}
         data={dataWithActions}
@@ -98,9 +86,11 @@ export default function StaticIPListPage() {
         defaultSort={{ column: "address", direction: "asc" }}
         pageSize={10}
         enableSearch={true}
-        enableColumnVisibility={true}
+        enableColumnVisibility={false}
         enablePagination={true}
         onRefresh={handleRefresh}
+        enableVpcFilter={true}
+        vpcOptions={vpcOptions}
       />
     </PageShell>
   )

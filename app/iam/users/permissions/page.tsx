@@ -1,17 +1,73 @@
 import { PageShell } from "@/components/page-shell"
 import { Button } from "@/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { PlusCircle, MoreHorizontal, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
+import { PlusCircle, MoreHorizontal } from "lucide-react"
+
+// Mock data
+const mockPermissions = [
+  {
+    id: "1",
+    name: "manage_users",
+    description: "Create, edit, and delete users",
+    category: "User Management",
+    assignedTo: "Admin Role",
+  },
+  {
+    id: "2",
+    name: "view_analytics",
+    description: "Access to system analytics and reports",
+    category: "Analytics",
+    assignedTo: "All Roles",
+  },
+]
 
 export default function PermissionsPage() {
+  const columns = [
+    {
+      key: "name",
+      label: "Permission Name",
+      sortable: true,
+      searchable: true,
+      render: (value: string) => (
+        <div className="font-medium text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "description",
+      label: "Description",
+      sortable: true,
+      render: (value: string) => (
+        <div className="text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "category",
+      label: "Category",
+      sortable: true,
+      render: (value: string) => (
+        <div className="text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "assignedTo",
+      label: "Assigned To",
+      sortable: true,
+      render: (value: string) => (
+        <div className="text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "actions",
+      label: "",
+      align: "right" as const,
+      render: () => (
+        <Button variant="ghost" size="icon">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      ),
+    },
+  ]
+
   return (
     <PageShell
       title="Permissions"
@@ -23,53 +79,16 @@ export default function PermissionsPage() {
         </Button>
       }
     >
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search permissions..." className="pl-8" />
-          </div>
-          <Button variant="outline">Filter</Button>
-        </div>
-
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Permission Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Assigned To</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell className="font-medium">manage_users</TableCell>
-                <TableCell>Create, edit, and delete users</TableCell>
-                <TableCell>User Management</TableCell>
-                <TableCell>Admin Role</TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-medium">view_analytics</TableCell>
-                <TableCell>Access to system analytics and reports</TableCell>
-                <TableCell>Analytics</TableCell>
-                <TableCell>All Roles</TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+      <ShadcnDataTable
+        columns={columns}
+        data={mockPermissions}
+        searchableColumns={["name", "description", "category"]}
+        defaultSort={{ column: "name", direction: "asc" }}
+        pageSize={10}
+        enableSearch={true}
+        enableColumnVisibility={false}
+        enablePagination={true}
+      />
     </PageShell>
   )
 } 

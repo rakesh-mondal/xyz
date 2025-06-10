@@ -8,6 +8,7 @@ import { Button } from "../../../../components/ui/button"
 import { getSecurityGroup } from "../../../../lib/data"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../../components/ui/tabs"
 import { StatusBadge } from "../../../../components/status-badge"
+import { ShadcnDataTable } from "../../../../components/ui/shadcn-data-table"
 
 export default function SecurityGroupDetailsPage({ params }: { params: { id: string } }) {
   const sg = getSecurityGroup(params.id)
@@ -28,8 +29,7 @@ export default function SecurityGroupDetailsPage({ params }: { params: { id: str
 
       <PageHeader
         title={sg.name}
-        status={sg.status}
-        actions={
+        rightContent={
           <div className="flex gap-4">
             <Button variant="outline" className="border-input hover:bg-secondary transition-colors">
               Edit
@@ -72,73 +72,103 @@ export default function SecurityGroupDetailsPage({ params }: { params: { id: str
             </TabsList>
 
             <TabsContent value="inbound">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="text-left p-5 bg-muted border-b border-border font-semibold text-sm">Protocol</th>
-                    <th className="text-left p-5 bg-muted border-b border-border font-semibold text-sm">Port Range</th>
-                    <th className="text-left p-5 bg-muted border-b border-border font-semibold text-sm">
-                      Remote IP Prefix
-                    </th>
-                    <th className="text-left p-5 bg-muted border-b border-border font-semibold text-sm">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sg.inboundRules.length > 0 ? (
-                    sg.inboundRules.map((rule) => (
-                      <tr key={rule.id} className="hover:bg-muted/50 transition-colors">
-                        <td className="p-5 border-b border-border">
-                          <StatusBadge status={rule.protocol} />
-                        </td>
-                        <td className="p-5 border-b border-border">{rule.portRange}</td>
-                        <td className="p-5 border-b border-border">{rule.remoteIpPrefix}</td>
-                        <td className="p-5 border-b border-border">{rule.description || "-"}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={4} className="p-8 text-center text-muted-foreground italic">
-                        No rules defined. All traffic is blocked by default.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+              {sg.inboundRules.length > 0 ? (
+                <ShadcnDataTable
+                  columns={[
+                    {
+                      key: "protocol",
+                      label: "Protocol",
+                      sortable: true,
+                      render: (value: string) => (
+                        <StatusBadge status={value} />
+                      ),
+                    },
+                    {
+                      key: "portRange",
+                      label: "Port Range",
+                      sortable: true,
+                      render: (value: string) => (
+                        <div className="text-sm">{value}</div>
+                      ),
+                    },
+                    {
+                      key: "remoteIpPrefix",
+                      label: "Remote IP Prefix",
+                      sortable: true,
+                      render: (value: string) => (
+                        <div className="text-sm">{value}</div>
+                      ),
+                    },
+                    {
+                      key: "description",
+                      label: "Description",
+                      sortable: true,
+                      render: (value: string) => (
+                        <div className="text-sm">{value || "-"}</div>
+                      ),
+                    },
+                  ]}
+                  data={sg.inboundRules}
+                  pageSize={10}
+                  enableSearch={true}
+                  enableColumnVisibility={false}
+                  enablePagination={false}
+                />
+              ) : (
+                <div className="p-8 text-center text-muted-foreground italic text-sm">
+                  No rules defined. All traffic is blocked by default.
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="outbound">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="text-left p-5 bg-muted border-b border-border font-semibold text-sm">Protocol</th>
-                    <th className="text-left p-5 bg-muted border-b border-border font-semibold text-sm">Port Range</th>
-                    <th className="text-left p-5 bg-muted border-b border-border font-semibold text-sm">
-                      Remote IP Prefix
-                    </th>
-                    <th className="text-left p-5 bg-muted border-b border-border font-semibold text-sm">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sg.outboundRules.length > 0 ? (
-                    sg.outboundRules.map((rule) => (
-                      <tr key={rule.id} className="hover:bg-muted/50 transition-colors">
-                        <td className="p-5 border-b border-border">
-                          <StatusBadge status={rule.protocol} />
-                        </td>
-                        <td className="p-5 border-b border-border">{rule.portRange}</td>
-                        <td className="p-5 border-b border-border">{rule.remoteIpPrefix}</td>
-                        <td className="p-5 border-b border-border">{rule.description || "-"}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={4} className="p-8 text-center text-muted-foreground italic">
-                        No rules defined. All traffic is blocked by default.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+              {sg.outboundRules.length > 0 ? (
+                <ShadcnDataTable
+                  columns={[
+                    {
+                      key: "protocol",
+                      label: "Protocol",
+                      sortable: true,
+                      render: (value: string) => (
+                        <StatusBadge status={value} />
+                      ),
+                    },
+                    {
+                      key: "portRange",
+                      label: "Port Range",
+                      sortable: true,
+                      render: (value: string) => (
+                        <div className="text-sm">{value}</div>
+                      ),
+                    },
+                    {
+                      key: "remoteIpPrefix",
+                      label: "Remote IP Prefix",
+                      sortable: true,
+                      render: (value: string) => (
+                        <div className="text-sm">{value}</div>
+                      ),
+                    },
+                    {
+                      key: "description",
+                      label: "Description",
+                      sortable: true,
+                      render: (value: string) => (
+                        <div className="text-sm">{value || "-"}</div>
+                      ),
+                    },
+                  ]}
+                  data={sg.outboundRules}
+                  pageSize={10}
+                  enableSearch={true}
+                  enableColumnVisibility={false}
+                  enablePagination={false}
+                />
+              ) : (
+                <div className="p-8 text-center text-muted-foreground italic text-sm">
+                  No rules defined. All traffic is blocked by default.
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </DetailSection>

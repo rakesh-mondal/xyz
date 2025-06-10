@@ -1,17 +1,73 @@
 import { PageShell } from "@/components/page-shell"
 import { Button } from "@/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { PlusCircle, MoreHorizontal, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
+import { PlusCircle, MoreHorizontal } from "lucide-react"
+
+// Mock data
+const mockRoles = [
+  {
+    id: "1",
+    name: "Super Admin",
+    description: "Full system access and control",
+    users: "2 users",
+    permissions: "All permissions",
+  },
+  {
+    id: "2", 
+    name: "Developer",
+    description: "Development and testing access",
+    users: "8 users",
+    permissions: "Limited permissions",
+  },
+]
 
 export default function RolesPage() {
+  const columns = [
+    {
+      key: "name",
+      label: "Role Name",
+      sortable: true,
+      searchable: true,
+      render: (value: string) => (
+        <div className="font-medium text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "description",
+      label: "Description",
+      sortable: true,
+      render: (value: string) => (
+        <div className="text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "users",
+      label: "Users",
+      sortable: true,
+      render: (value: string) => (
+        <div className="text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "permissions",
+      label: "Permissions",
+      sortable: true,
+      render: (value: string) => (
+        <div className="text-sm">{value}</div>
+      ),
+    },
+    {
+      key: "actions",
+      label: "",
+      align: "right" as const,
+      render: () => (
+        <Button variant="ghost" size="icon">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      ),
+    },
+  ]
+
   return (
     <PageShell
       title="Roles"
@@ -23,53 +79,16 @@ export default function RolesPage() {
         </Button>
       }
     >
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search roles..." className="pl-8" />
-          </div>
-          <Button variant="outline">Filter</Button>
-        </div>
-
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Role Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Users</TableHead>
-                <TableHead>Permissions</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell className="font-medium">Super Admin</TableCell>
-                <TableCell>Full system access and control</TableCell>
-                <TableCell>2 users</TableCell>
-                <TableCell>All permissions</TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-medium">Developer</TableCell>
-                <TableCell>Development and testing access</TableCell>
-                <TableCell>8 users</TableCell>
-                <TableCell>Limited permissions</TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+      <ShadcnDataTable
+        columns={columns}
+        data={mockRoles}
+        searchableColumns={["name", "description"]}
+        defaultSort={{ column: "name", direction: "asc" }}
+        pageSize={10}
+        enableSearch={true}
+        enableColumnVisibility={false}
+        enablePagination={true}
+      />
     </PageShell>
   )
 } 

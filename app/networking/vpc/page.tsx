@@ -61,6 +61,16 @@ export default function VPCListPage() {
     },
   ]
 
+  // VPC filter options
+  const vpcOptions = [
+    { value: "all", label: "All VPCs" },
+    { value: "production-vpc", label: "production-vpc" },
+    { value: "development-vpc", label: "development-vpc" },
+    { value: "staging-vpc", label: "staging-vpc" },
+    { value: "testing-vpc", label: "testing-vpc" },
+    { value: "backup-vpc", label: "backup-vpc" },
+  ]
+
   const handleRefresh = () => {
     // Add your refresh logic here
     console.log("Refreshing VPC data...")
@@ -76,10 +86,10 @@ export default function VPCListPage() {
     <PageShell
       title="Virtual Private Cloud"
       description="Create and manage your Virtual Private Clouds (VPCs) to logically isolate and organize your cloud resources."
-    >
-      <div className="flex justify-end mb-4">
+      headerActions={
         <CreateButton href="/networking/vpc/create" label="Create VPC" />
-      </div>
+      }
+    >
       <ShadcnDataTable 
         columns={columns} 
         data={vpcs}
@@ -90,12 +100,12 @@ export default function VPCListPage() {
         }}
         pageSize={10}
         enableSearch={true}
-        enableColumnVisibility={true}
+        enableColumnVisibility={false}
         enablePagination={true}
         onRefresh={handleRefresh}
         enableAutoRefresh={true}
-        enableNameFilter={true}
-        nameFilterColumn="name"
+        enableVpcFilter={true}
+        vpcOptions={vpcOptions}
       />
     </PageShell>
   )

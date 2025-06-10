@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye, Filter, MoreHorizontal } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { DataTable } from "@/components/ui/data-table";
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { UsageActionBar } from "@/components/billing/usage-action-bar";
 import type { DateRange } from "react-day-picker";
@@ -115,10 +115,10 @@ export default function BillingUsageSolutionsPage() {
       ]}
       headerActions={
         <>
+          <Button variant="secondary">Billing Support</Button>
           <Link href="/billing/add-credits">
             <Button variant="default">Add Credits</Button>
           </Link>
-          <Button variant="secondary">Billing Support</Button>
         </>
       }
     >
@@ -162,100 +162,196 @@ export default function BillingUsageSolutionsPage() {
             </TabsContent>
             {/* Basic */}
             <TabsContent value="basic">
-              <DataTable
+              <ShadcnDataTable
                 columns={[
-                  { key: "name", label: "Service Name", sortable: true },
-                  { key: "status", label: "Status", sortable: true, render: (value) => (
-                    <span className={
-                      value === "Active"
-                        ? "inline-flex items-center gap-1 text-green-600"
-                        : "inline-flex items-center gap-1 text-gray-500"
-                    }>
+                  {
+                    key: "name",
+                    label: "Service Name",
+                    sortable: true,
+                    searchable: true,
+                    render: (value: string) => (
+                      <div className="text-sm">{value}</div>
+                    ),
+                  },
+                  {
+                    key: "status",
+                    label: "Status",
+                    sortable: true,
+                    render: (value: string) => (
                       <span className={
                         value === "Active"
-                          ? "h-2 w-2 rounded-full bg-green-500"
-                          : "h-2 w-2 rounded-full bg-gray-400"
-                      }></span>
-                      {value}
-                    </span>
-                  ) },
-                  { key: "credits", label: "Credits Used", sortable: true },
+                          ? "inline-flex items-center gap-1 text-green-600 text-sm"
+                          : "inline-flex items-center gap-1 text-gray-500 text-sm"
+                      }>
+                        <span className={
+                          value === "Active"
+                            ? "h-2 w-2 rounded-full bg-green-500"
+                            : "h-2 w-2 rounded-full bg-gray-400"
+                        }></span>
+                        {value}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "credits",
+                    label: "Credits Used",
+                    sortable: true,
+                    render: (value: number) => (
+                      <div className="text-sm">{value}</div>
+                    ),
+                  },
                   {
                     key: "actions",
                     label: "",
-                    render: (_, row) => (
-                      <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
+                    align: "right" as const,
+                    render: (_: any, row: any) => (
+                      <Button 
+                        variant="link" 
+                        size="sm" 
+                        className="text-sm" 
+                        onClick={() => { setModalResource(row); setModalOpen(true); }}
+                      >
+                        <Eye className="mr-1 h-4 w-4" />View Details
+                      </Button>
                     ),
                   },
                 ]}
                 data={mockBasic}
                 defaultSort={{ column: "name", direction: "asc" }}
+                pageSize={10}
+                enableSearch={true}
+                enableColumnVisibility={false}
+                enablePagination={false}
               />
               <div className="text-right font-semibold px-2 py-2 text-sm">Total: {getTotalCredits(mockBasic)} credits</div>
             </TabsContent>
             {/* Document Intelligence */}
             <TabsContent value="docint">
-              <DataTable
+              <ShadcnDataTable
                 columns={[
-                  { key: "name", label: "Service Name", sortable: true },
-                  { key: "status", label: "Status", sortable: true, render: (value) => (
-                    <span className={
-                      value === "Active"
-                        ? "inline-flex items-center gap-1 text-green-600"
-                        : "inline-flex items-center gap-1 text-gray-500"
-                    }>
+                  {
+                    key: "name",
+                    label: "Service Name",
+                    sortable: true,
+                    searchable: true,
+                    render: (value: string) => (
+                      <div className="text-sm">{value}</div>
+                    ),
+                  },
+                  {
+                    key: "status",
+                    label: "Status",
+                    sortable: true,
+                    render: (value: string) => (
                       <span className={
                         value === "Active"
-                          ? "h-2 w-2 rounded-full bg-green-500"
-                          : "h-2 w-2 rounded-full bg-gray-400"
-                      }></span>
-                      {value}
-                    </span>
-                  ) },
-                  { key: "credits", label: "Credits Used", sortable: true },
+                          ? "inline-flex items-center gap-1 text-green-600 text-sm"
+                          : "inline-flex items-center gap-1 text-gray-500 text-sm"
+                      }>
+                        <span className={
+                          value === "Active"
+                            ? "h-2 w-2 rounded-full bg-green-500"
+                            : "h-2 w-2 rounded-full bg-gray-400"
+                        }></span>
+                        {value}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "credits",
+                    label: "Credits Used",
+                    sortable: true,
+                    render: (value: number) => (
+                      <div className="text-sm">{value}</div>
+                    ),
+                  },
                   {
                     key: "actions",
                     label: "",
-                    render: (_, row) => (
-                      <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
+                    align: "right" as const,
+                    render: (_: any, row: any) => (
+                      <Button 
+                        variant="link" 
+                        size="sm" 
+                        className="text-sm" 
+                        onClick={() => { setModalResource(row); setModalOpen(true); }}
+                      >
+                        <Eye className="mr-1 h-4 w-4" />View Details
+                      </Button>
                     ),
                   },
                 ]}
                 data={mockDocInt}
                 defaultSort={{ column: "name", direction: "asc" }}
+                pageSize={10}
+                enableSearch={true}
+                enableColumnVisibility={false}
+                enablePagination={false}
               />
               <div className="text-right font-semibold px-2 py-2 text-sm">Total: {getTotalCredits(mockDocInt)} credits</div>
             </TabsContent>
             {/* Industrial Solutions */}
             <TabsContent value="industrial">
-              <DataTable
+              <ShadcnDataTable
                 columns={[
-                  { key: "name", label: "Service Name", sortable: true },
-                  { key: "status", label: "Status", sortable: true, render: (value) => (
-                    <span className={
-                      value === "Active"
-                        ? "inline-flex items-center gap-1 text-green-600"
-                        : "inline-flex items-center gap-1 text-gray-500"
-                    }>
+                  {
+                    key: "name",
+                    label: "Service Name",
+                    sortable: true,
+                    searchable: true,
+                    render: (value: string) => (
+                      <div className="text-sm">{value}</div>
+                    ),
+                  },
+                  {
+                    key: "status",
+                    label: "Status",
+                    sortable: true,
+                    render: (value: string) => (
                       <span className={
                         value === "Active"
-                          ? "h-2 w-2 rounded-full bg-green-500"
-                          : "h-2 w-2 rounded-full bg-gray-400"
-                      }></span>
-                      {value}
-                    </span>
-                  ) },
-                  { key: "credits", label: "Credits Used", sortable: true },
+                          ? "inline-flex items-center gap-1 text-green-600 text-sm"
+                          : "inline-flex items-center gap-1 text-gray-500 text-sm"
+                      }>
+                        <span className={
+                          value === "Active"
+                            ? "h-2 w-2 rounded-full bg-green-500"
+                            : "h-2 w-2 rounded-full bg-gray-400"
+                        }></span>
+                        {value}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "credits",
+                    label: "Credits Used",
+                    sortable: true,
+                    render: (value: number) => (
+                      <div className="text-sm">{value}</div>
+                    ),
+                  },
                   {
                     key: "actions",
                     label: "",
-                    render: (_, row) => (
-                      <Button variant="link" size="sm" className="text-sm" onClick={() => { setModalResource(row); setModalOpen(true); }}><Eye className="mr-1 h-4 w-4" />View Details</Button>
+                    align: "right" as const,
+                    render: (_: any, row: any) => (
+                      <Button 
+                        variant="link" 
+                        size="sm" 
+                        className="text-sm" 
+                        onClick={() => { setModalResource(row); setModalOpen(true); }}
+                      >
+                        <Eye className="mr-1 h-4 w-4" />View Details
+                      </Button>
                     ),
                   },
                 ]}
                 data={mockIndustrial}
                 defaultSort={{ column: "name", direction: "asc" }}
+                pageSize={10}
+                enableSearch={true}
+                enableColumnVisibility={false}
+                enablePagination={false}
               />
               <div className="text-right font-semibold px-2 py-2 text-sm">Total: {getTotalCredits(mockIndustrial)} credits</div>
             </TabsContent>

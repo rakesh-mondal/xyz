@@ -2,6 +2,7 @@
 
 import { PageShell } from "@/components/page-shell"
 import { StatusBadge } from "@/components/status-badge"
+import { ActionMenu } from "@/components/action-menu"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -18,9 +19,25 @@ const mockBackups = [
     id: "backup-1",
     name: "Backup 1",
     volume: "Dev Volume",
-    status: "available",
+    type: "incremental",
     size: "200 GB",
     createdOn: "2023-02-20",
+  },
+  {
+    id: "backup-2",
+    name: "Production Backup",
+    volume: "Production Volume",
+    type: "full",
+    size: "500 GB",
+    createdOn: "2023-02-18",
+  },
+  {
+    id: "backup-3",
+    name: "Weekly Backup",
+    volume: "Analytics Volume",
+    type: "incremental",
+    size: "300 GB",
+    createdOn: "2023-02-15",
   },
 ]
 
@@ -29,26 +46,42 @@ export default function BlockStorageBackupPage() {
     {
       key: "name",
       label: "Backup Name",
+      sortable: true,
       searchable: true,
     },
     {
       key: "volume",
-      label: "Volume",
+      label: "Source Volume",
+      sortable: true,
       searchable: true,
     },
     {
-      key: "status",
-      label: "Status",
+      key: "type",
+      label: "Type",
       render: (value: string) => <StatusBadge status={value} />,
     },
     {
       key: "size",
       label: "Size",
+      sortable: true,
     },
     {
       key: "createdOn",
       label: "Created On",
       sortable: true,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_: any, row: any) => (
+        <ActionMenu
+          viewHref="#"
+          editHref="#"
+          deleteHref="#"
+          resourceName={row.name}
+          resourceType="Backup"
+        />
+      ),
     },
   ]
 
@@ -69,23 +102,11 @@ export default function BlockStorageBackupPage() {
       title="Block Storage"
       description="Provision, manage, and attach block storage volumes to your cloud resources."
       tabs={tabs}
-    >
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <span className="text-sm font-medium mr-2">VPC:</span>
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[200px] border-input">
-              <SelectValue placeholder="All VPCs" />
-            </SelectTrigger>
-            <SelectContent>
-              {vpcOptions.map((vpc) => (
-                <SelectItem key={vpc.value} value={vpc.value}>{vpc.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      headerActions={
         <Button variant="default">Create Backup</Button>
-      </div>
+      }
+    >
+
       <ShadcnDataTable
         columns={columns}
         data={mockBackups}
@@ -93,9 +114,11 @@ export default function BlockStorageBackupPage() {
         defaultSort={{ column: "createdOn", direction: "desc" }}
         pageSize={10}
         enableSearch={true}
-        enableColumnVisibility={true}
+        enableColumnVisibility={false}
         enablePagination={true}
         onRefresh={handleRefresh}
+        enableVpcFilter={true}
+        vpcOptions={vpcOptions}
       />
     </PageShell>
   )

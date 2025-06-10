@@ -6,6 +6,7 @@ import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
+import { ActionMenu } from "@/components/action-menu"
 
 const tabs = [
   { title: "Volumes", href: "/storage/block/volumes" },
@@ -22,6 +23,22 @@ const mockSnapshots = [
     size: "500 GB",
     createdOn: "2023-01-15",
   },
+  {
+    id: "snap-2",
+    name: "Dev Snapshot",
+    volume: "Dev Volume",
+    status: "completed",
+    size: "200 GB",
+    createdOn: "2023-01-12",
+  },
+  {
+    id: "snap-3",
+    name: "Backup Snapshot",
+    volume: "Analytics Volume",
+    status: "in-progress",
+    size: "300 GB",
+    createdOn: "2023-01-10",
+  },
 ]
 
 export default function BlockStorageSnapshotsPage() {
@@ -29,11 +46,13 @@ export default function BlockStorageSnapshotsPage() {
     {
       key: "name",
       label: "Snapshot Name",
+      sortable: true,
       searchable: true,
     },
     {
       key: "volume",
-      label: "Volume",
+      label: "Source Volume",
+      sortable: true,
       searchable: true,
     },
     {
@@ -44,11 +63,25 @@ export default function BlockStorageSnapshotsPage() {
     {
       key: "size",
       label: "Size",
+      sortable: true,
     },
     {
       key: "createdOn",
       label: "Created On",
       sortable: true,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_: any, row: any) => (
+        <ActionMenu
+          viewHref="#"
+          editHref="#"
+          deleteHref="#"
+          resourceName={row.name}
+          resourceType="Snapshot"
+        />
+      ),
     },
   ]
 
@@ -69,23 +102,11 @@ export default function BlockStorageSnapshotsPage() {
       title="Block Storage"
       description="Provision, manage, and attach block storage volumes to your cloud resources."
       tabs={tabs}
-    >
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <span className="text-sm font-medium mr-2">VPC:</span>
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[200px] border-input">
-              <SelectValue placeholder="All VPCs" />
-            </SelectTrigger>
-            <SelectContent>
-              {vpcOptions.map((vpc) => (
-                <SelectItem key={vpc.value} value={vpc.value}>{vpc.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      headerActions={
         <Button variant="default">Create Snapshot</Button>
-      </div>
+      }
+    >
+
       <ShadcnDataTable
         columns={columns}
         data={mockSnapshots}
@@ -93,9 +114,11 @@ export default function BlockStorageSnapshotsPage() {
         defaultSort={{ column: "createdOn", direction: "desc" }}
         pageSize={10}
         enableSearch={true}
-        enableColumnVisibility={true}
+        enableColumnVisibility={false}
         enablePagination={true}
         onRefresh={handleRefresh}
+        enableVpcFilter={true}
+        vpcOptions={vpcOptions}
       />
     </PageShell>
   )

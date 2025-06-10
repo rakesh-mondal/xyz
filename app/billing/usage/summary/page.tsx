@@ -122,10 +122,10 @@ export default function BillingUsageSummaryPage() {
       ]}
       headerActions={
         <>
+          <Button variant="secondary">Billing Support</Button>
           <Link href="/billing/add-credits">
             <Button variant="default">Add Credits</Button>
           </Link>
-          <Button variant="secondary">Billing Support</Button>
         </>
       }
     >

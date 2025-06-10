@@ -68,24 +68,11 @@ export default function SecurityGroupListPage() {
     <PageShell
       title="Security Groups"
       description="Define and manage security groups to control inbound and outbound traffic for your cloud resources."
-    >
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <span className="text-sm font-medium mr-2">VPC:</span>
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[200px] border-input">
-              <SelectValue placeholder="All VPCs" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All VPCs</SelectItem>
-              <SelectItem value="production-vpc">production-vpc</SelectItem>
-              <SelectItem value="development-vpc">development-vpc</SelectItem>
-              <SelectItem value="staging-vpc">staging-vpc</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      headerActions={
         <CreateButton href="/networking/security-groups/create" label="Create Security Group" />
-      </div>
+      }
+    >
+
       <ShadcnDataTable
         columns={columns}
         data={dataWithActions}
@@ -93,9 +80,16 @@ export default function SecurityGroupListPage() {
         defaultSort={{ column: "name", direction: "asc" }}
         pageSize={10}
         enableSearch={true}
-        enableColumnVisibility={true}
+        enableColumnVisibility={false}
         enablePagination={true}
         onRefresh={handleRefresh}
+        enableVpcFilter={true}
+        vpcOptions={[
+          { value: "all", label: "All VPCs" },
+          { value: "production-vpc", label: "production-vpc" },
+          { value: "development-vpc", label: "development-vpc" },
+          { value: "staging-vpc", label: "staging-vpc" },
+        ]}
       />
     </PageShell>
   )

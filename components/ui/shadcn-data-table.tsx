@@ -56,6 +56,9 @@ interface ShadcnDataTableProps<T = any> {
   enableAutoRefresh?: boolean
   enableNameFilter?: boolean
   nameFilterColumn?: string
+  enableVpcFilter?: boolean
+  vpcOptions?: { value: string; label: string }[]
+  onVpcChange?: (vpc: string) => void
 }
 
 export function ShadcnDataTable<T = any>({ 
@@ -65,12 +68,15 @@ export function ShadcnDataTable<T = any>({
   defaultSort,
   pageSize = 10,
   enableSearch = true,
-  enableColumnVisibility = true,
+  enableColumnVisibility = false,
   enablePagination = true,
   onRefresh,
   enableAutoRefresh = false,
   enableNameFilter = false,
-  nameFilterColumn
+  nameFilterColumn,
+  enableVpcFilter = false,
+  vpcOptions = [],
+  onVpcChange
 }: ShadcnDataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>(
     defaultSort ? [{ id: defaultSort.column, desc: defaultSort.direction === "desc" }] : []
@@ -86,6 +92,9 @@ export function ShadcnDataTable<T = any>({
 
   // Name filter state
   const [selectedNames, setSelectedNames] = React.useState<string[]>([])
+  
+  // VPC filter state
+  const [selectedVpc, setSelectedVpc] = React.useState("all")
   
   // Get unique names for the filter dropdown
   const uniqueNames = React.useMemo(() => {
@@ -141,6 +150,13 @@ export function ShadcnDataTable<T = any>({
     if (isAutoRefreshActive) {
       setIsAutoRefreshActive(false)
       setTimeout(() => setIsAutoRefreshActive(true), 100)
+    }
+  }
+
+  const handleVpcChange = (value: string) => {
+    setSelectedVpc(value)
+    if (onVpcChange) {
+      onVpcChange(value)
     }
   }
 
@@ -328,6 +344,21 @@ export function ShadcnDataTable<T = any>({
           </div>
           
           <div className="flex items-center space-x-2">
+            {enableVpcFilter && vpcOptions.length > 0 && (
+              <Select value={selectedVpc} onValueChange={handleVpcChange}>
+                <SelectTrigger className="h-9 w-[150px] rounded-md">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {vpcOptions.map((vpc) => (
+                    <SelectItem key={vpc.value} value={vpc.value}>
+                      {vpc.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            
             {enableAutoRefresh && onRefresh && (
               <>
                 {/* Auto-refresh status indicator */}
@@ -390,7 +421,7 @@ export function ShadcnDataTable<T = any>({
           <table className="w-full caption-bottom text-sm">
             <thead className="[&_tr]:border-b">
               {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="border-b transition-colors hover:bg-gray-50/50 text-sm">
+                <tr key={headerGroup.id} className="border-b transition-colors bg-muted hover:bg-muted/80 text-sm">
                   {headerGroup.headers.map((header) => {
                     return (
                       <th key={header.id} className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">

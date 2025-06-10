@@ -49,7 +49,7 @@ export function PageShell({ title, description, tabs, children, headerActions }:
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
             {description && <p className="text-muted-foreground mt-2">{description}</p>}
