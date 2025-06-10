@@ -73,7 +73,8 @@ export function SignupSuccess({ onNext, onSkipToDashboard }: SignupSuccessProps)
         <div className="space-y-3">
           <Button
             onClick={onNext}
-            className="w-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center gap-2"
+            variant="secondary"
+            className="w-full flex items-center justify-center gap-2"
           >
             Complete Profile
             <ArrowRight className="h-4 w-4" />

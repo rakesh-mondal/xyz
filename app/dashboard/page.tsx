@@ -250,9 +250,7 @@ export default function DashboardPage() {
           <LimitedAccessDashboard />
         </DashboardSection>
 
-        <DashboardSection section="Full Dashboard" requiredAccess="full">
-          <FullAccessDashboard />
-        </DashboardSection>
+
       </div>
     </CommandPaletteProvider>
   )

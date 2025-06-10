@@ -104,7 +104,7 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
             </p>
             <Button 
               onClick={handleCompleteProfile}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              variant="secondary"
             >
               Complete Setup
               <ArrowRight className="ml-2 h-3 w-3" />
@@ -153,8 +153,9 @@ export function AccessBannerCompact({ onCompleteProfile, className }: AccessBann
         </div>
         <Button 
           onClick={handleCompleteProfile}
+          variant="secondary"
           size="sm"
-          className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
+          className="text-xs"
         >
           Complete
           <ArrowRight className="ml-1 h-3 w-3" />
@@ -171,8 +172,9 @@ export function AccessBannerCompact({ onCompleteProfile, className }: AccessBann
       </div>
       <Button 
         onClick={handleCompleteProfile}
+        variant="secondary"
         size="sm"
-        className="bg-red-600 hover:bg-red-700 text-white text-xs"
+        className="text-xs"
       >
         Setup
         <ArrowRight className="ml-1 h-3 w-3" />

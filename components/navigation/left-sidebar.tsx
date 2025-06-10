@@ -261,20 +261,27 @@ export function LeftSidebar({ collapsed = false, onToggle }: LeftSidebarProps) {
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex h-9 items-center px-4 text-sm font-medium rounded-none border-l-2",
+                        "flex h-9 items-center text-sm font-medium rounded-none relative",
                         isActive(item.href) &&
                           (!item.items ||
                             !item.items.some(
                               (subItem) => pathname.startsWith(subItem.href) && subItem.href !== item.href,
                             ))
-                          ? "border-l-krutrim-green bg-krutrim-green/10 text-krutrim-green"
-                          : "border-l-transparent hover:border-l-muted-foreground hover:bg-accent/20 text-foreground",
+                          ? "bg-krutrim-green/10 text-krutrim-green"
+                          : "hover:bg-accent/20 text-foreground",
                         collapsed && "justify-center px-0",
-                        "relative",
                       )}
                       onClick={(e) => item.items && !collapsed && toggleExpand(item.href, e)}
                     >
-                      <span className="flex h-5 w-5 items-center justify-center">{item.icon}</span>
+                      {/* Active indicator line positioned to align with icon center */}
+                      {isActive(item.href) && 
+                        (!item.items ||
+                          !item.items.some(
+                            (subItem) => pathname.startsWith(subItem.href) && subItem.href !== item.href,
+                          )) && (
+                        <div className="absolute left-[1.75rem] top-0 bottom-0 w-0.5 bg-krutrim-green -translate-x-1/2" />
+                      )}
+                      <span className="flex h-5 w-5 items-center justify-center ml-4">{item.icon}</span>
                       {!collapsed && (
                         <>
                           <span className="ml-3 truncate">{item.title}</span>
@@ -298,13 +305,17 @@ export function LeftSidebar({ collapsed = false, onToggle }: LeftSidebarProps) {
                             key={subItem.href}
                             href={subItem.href}
                             className={cn(
-                              "flex h-8 items-center text-sm rounded-none border-l-2 pl-4",
+                              "flex h-8 items-center text-sm rounded-none relative",
                               isActive(subItem.href)
-                                ? "border-l-primary text-primary font-medium"
-                                : "border-l-transparent text-muted-foreground hover:text-foreground hover:border-l-muted-foreground",
+                                ? "text-primary font-medium"
+                                : "text-muted-foreground hover:text-foreground",
                             )}
                           >
-                            {subItem.title}
+                            {/* Active indicator line positioned to align with text */}
+                            {isActive(subItem.href) && (
+                              <div className="absolute left-[2.75rem] top-0 bottom-0 w-0.5 bg-primary -translate-x-1/2" />
+                            )}
+                            <span className="pl-[2.5rem]">{subItem.title}</span>
                           </Link>
                         ))}
                       </div>

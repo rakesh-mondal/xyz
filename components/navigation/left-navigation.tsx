@@ -315,7 +315,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
           {itemContent}
         </div>
         {!collapsed && hasSubItems && (
-          <div className="ml-6 mt-1 flex flex-col gap-1 space-y-0.5 relative">
+          <div className="ml-[1.3rem] mt-1 flex flex-col gap-1 space-y-0.5 relative">
             <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
             {subItems.map((subItem, index) => (
               <div key={index} className="flex flex-col pl-4">
@@ -401,7 +401,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
       )}
 
       {!collapsed && expanded && hasSubItems && (
-        <div className="ml-6 mt-1 flex flex-col gap-1 space-y-0.5 relative">
+        <div className="ml-[1.3rem] mt-1 flex flex-col gap-1 space-y-0.5 relative">
           {/* Vertical line for tree structure */}
           <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
 

@@ -29,6 +29,7 @@ export function generateBreadcrumbs(pathname: string): Breadcrumb[] {
     "api": "API",
     "iam": "IAM",
     "vpc": "VPC",
+    "static-ips": "Static IP Addresses",
   }
 
   // Build the rest of the breadcrumbs
@@ -37,18 +38,26 @@ export function generateBreadcrumbs(pathname: string): Breadcrumb[] {
     const href = `/${paths.slice(0, index + 1).join("/")}`
 
     // Format the title (convert kebab-case to Title Case with special cases)
-    const title = path
-      .split("-")
-      .map((word) => {
-        // Check if the word is a special case
-        const lowerWord = word.toLowerCase()
-        if (specialCases[lowerWord]) {
-          return specialCases[lowerWord]
-        }
-        // Otherwise, convert to Title Case
-        return word.charAt(0).toUpperCase() + word.slice(1)
-      })
-      .join(" ")
+    let title: string
+    
+    // Check if the entire path segment is a special case first
+    if (specialCases[path.toLowerCase()]) {
+      title = specialCases[path.toLowerCase()]
+    } else {
+      // Otherwise, convert kebab-case to Title Case with word-level special cases
+      title = path
+        .split("-")
+        .map((word) => {
+          // Check if the word is a special case
+          const lowerWord = word.toLowerCase()
+          if (specialCases[lowerWord]) {
+            return specialCases[lowerWord]
+          }
+          // Otherwise, convert to Title Case
+          return word.charAt(0).toUpperCase() + word.slice(1)
+        })
+        .join(" ")
+    }
 
     breadcrumbs.push({ href, title })
   })

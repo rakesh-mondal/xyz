@@ -58,16 +58,11 @@ export function AllowedServicesSection() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">Available Services</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Services you can access with your current profile status
-          </p>
-        </div>
-        <Badge variant="secondary" className="bg-green-100 text-green-800">
-          Limited Access
-        </Badge>
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900">Available Services</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Services you can access with your current profile status
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
@@ -127,7 +122,7 @@ export function AllowedServicesSection() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 mb-8">
         <CardHeader>
           <CardTitle className="text-lg flex items-center">
             <Zap className="h-5 w-5 text-blue-600 mr-2" />
@@ -170,18 +165,7 @@ export function AllowedServicesSection() {
         </CardContent>
       </Card>
 
-      {/* Upgrade Prompt */}
-      <div className="text-center py-6">
-        <p className="text-sm text-muted-foreground mb-3">
-          Want access to compute resources, storage, and advanced features?
-        </p>
-        <Button asChild variant="default" className="bg-primary hover:bg-primary/90">
-          <Link href="/dashboard/profile-completion">
-            Complete Profile to Unlock All Features
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
+
     </div>
   )
 } 

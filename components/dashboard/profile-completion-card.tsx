@@ -168,7 +168,8 @@ export function ProfileCompletionCard() {
 
         {/* CTA Button */}
         <Button 
-          className="w-full mt-4 bg-primary hover:bg-primary/90 text-white"
+          variant="secondary"
+          className="w-full mt-4"
           onClick={handleCompleteProfile}
         >
           <span>{nextStep ? `Complete ${nextStep.label}` : 'Complete Profile'}</span>

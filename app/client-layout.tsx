@@ -71,7 +71,7 @@ export default function ClientLayout({
 
             <div className="flex flex-1 overflow-hidden">
               {/* Main Content */}
-              <main className="flex-1 overflow-y-auto bg-gray-50 relative z-0">
+              <main className="flex-1 overflow-y-auto relative z-0" style={{ backgroundColor: '#F2F5F9' }}>
                 <div className="h-[96%] mx-auto">
                   {children}
                 </div>

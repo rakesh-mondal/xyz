@@ -45,20 +45,21 @@ function RestrictedFeatureCard({ section }: { section: string }) {
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-6">
             <div className="w-12 h-12 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
               </svg>
             </div>
             <h3 className="text-sm font-semibold text-gray-900 mb-2">
-              {section} Requires Profile Completion
+              {section}
             </h3>
             <p className="text-xs text-gray-600 mb-4 max-w-sm">
               Complete your profile to unlock {section.toLowerCase()} features and access all services.
             </p>
             <Button 
               onClick={handleCompleteProfile}
+              variant="secondary"
               size="sm"
-              className="bg-primary hover:bg-primary/90 text-white text-xs"
+              className="text-xs"
             >
               Complete Profile
               <ArrowRight className="w-3 h-3" />
