@@ -179,7 +179,7 @@ export function ShadcnDataTable<T = any>({
             className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === "right" ? "justify-end" : "text-left"} px-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
             style={{ minWidth: 0 }}
           >
-            <span className="truncate flex-1">{col.label}</span>
+            <span className="truncate">{col.label}</span>
             {/* Only show arrow if this is the active sort column */}
             {isActive && (
               <span className="ml-2 inline-block transition-transform duration-200" style={{ transform: isSorted === "desc" ? "rotate(0deg)" : "rotate(180deg)" }}>
