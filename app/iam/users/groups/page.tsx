@@ -1,3 +1,5 @@
+"use client"
+
 import { PageShell } from "@/components/page-shell"
 import { Button } from "@/components/ui/button"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
