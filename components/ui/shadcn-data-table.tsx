@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Play, Pause, ArrowUp, ArrowDown } from "lucide-react"
+import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, ArrowUp, ArrowDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,6 +30,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export interface Column<T = any> {
   key: string
@@ -90,6 +96,9 @@ export function ShadcnDataTable<T = any>({
   const [refreshInterval, setRefreshInterval] = React.useState("30")
   const intervalRef = React.useRef<NodeJS.Timeout | null>(null)
 
+  // Last refreshed timestamp state
+  const [lastRefreshed, setLastRefreshed] = React.useState<Date | null>(null)
+
   // Name filter state
   const [selectedNames, setSelectedNames] = React.useState<string[]>([])
   
@@ -111,11 +120,38 @@ export function ShadcnDataTable<T = any>({
     return data.filter(item => selectedNames.includes((item as any)[nameFilterColumn]))
   }, [data, selectedNames, enableNameFilter, nameFilterColumn])
 
-  // Auto-refresh logic
+  // Helper function to format relative time
+  const formatRelativeTime = (date: Date): string => {
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+    
+    if (diffInSeconds < 10) return "just now"
+    if (diffInSeconds < 60) return `${diffInSeconds}s ago`
+    
+    const diffInMinutes = Math.floor(diffInSeconds / 60)
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+    
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `${diffInHours}h ago`
+    
+    const diffInDays = Math.floor(diffInHours / 24)
+    return `${diffInDays}d ago`
+  }
+
+  // Enhanced refresh handler that updates timestamp
+  const handleRefresh = React.useCallback(() => {
+    if (onRefresh) {
+      onRefresh()
+      setLastRefreshed(new Date())
+    }
+  }, [onRefresh])
+
+  // Auto-refresh logic with timestamp update
   React.useEffect(() => {
     if (isAutoRefreshActive && onRefresh && enableAutoRefresh) {
       intervalRef.current = setInterval(() => {
         onRefresh()
+        setLastRefreshed(new Date())
       }, parseInt(refreshInterval) * 1000)
     } else {
       if (intervalRef.current) {
@@ -131,6 +167,18 @@ export function ShadcnDataTable<T = any>({
     }
   }, [isAutoRefreshActive, refreshInterval, onRefresh, enableAutoRefresh])
 
+  // Auto-update the relative time display every 10 seconds
+  React.useEffect(() => {
+    if (!lastRefreshed) return
+    
+    const updateInterval = setInterval(() => {
+      // This will trigger a re-render to update the relative time display
+      setLastRefreshed(lastRefreshed)
+    }, 10000) // Update every 10 seconds
+    
+    return () => clearInterval(updateInterval)
+  }, [lastRefreshed])
+
   // Clean up on unmount
   React.useEffect(() => {
     return () => {
@@ -140,18 +188,7 @@ export function ShadcnDataTable<T = any>({
     }
   }, [])
 
-  const handleAutoRefreshToggle = () => {
-    setIsAutoRefreshActive(!isAutoRefreshActive)
-  }
 
-  const handleIntervalChange = (value: string) => {
-    setRefreshInterval(value)
-    // If auto-refresh is active, restart with new interval
-    if (isAutoRefreshActive) {
-      setIsAutoRefreshActive(false)
-      setTimeout(() => setIsAutoRefreshActive(true), 100)
-    }
-  }
 
   const handleVpcChange = (value: string) => {
     setSelectedVpc(value)
@@ -244,7 +281,8 @@ export function ShadcnDataTable<T = any>({
   const primarySearchColumn = searchableColumns[0] || columns.find(col => col.searchable)?.key
 
   return (
-    <div className="w-full space-y-4">
+    <TooltipProvider delayDuration={0}>
+      <div className="w-full space-y-4">
       {/* Search and Filter Controls */}
       {(enableSearch || enableColumnVisibility) && (
         <div className="flex items-center justify-between">
@@ -359,57 +397,36 @@ export function ShadcnDataTable<T = any>({
               </Select>
             )}
             
-            {enableAutoRefresh && onRefresh && (
-              <>
-                {/* Auto-refresh status indicator */}
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${isAutoRefreshActive ? 'bg-green-500' : 'bg-gray-400'}`} />
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {isAutoRefreshActive ? 'Auto Refresh Active' : 'Auto Refresh Paused'}
-                  </span>
-                </div>
-                
-                {/* Interval selector */}
-                <Select value={refreshInterval} onValueChange={handleIntervalChange}>
-                  <SelectTrigger className="h-9 w-[80px] rounded-md">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5s</SelectItem>
-                    <SelectItem value="10">10s</SelectItem>
-                    <SelectItem value="15">15s</SelectItem>
-                    <SelectItem value="30">30s</SelectItem>
-                    <SelectItem value="60">60s</SelectItem>
-                    <SelectItem value="120">2m</SelectItem>
-                    <SelectItem value="300">5m</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                {/* Play/Pause button */}
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  onClick={handleAutoRefreshToggle}
-                  className={`rounded-md ${isAutoRefreshActive ? 'bg-green-50 border-green-200 hover:bg-green-100' : ''}`}
-                >
-                  {isAutoRefreshActive ? (
-                    <Pause className="h-4 w-4 text-gray-600" />
-                  ) : (
-                    <Play className="h-4 w-4 text-green-600" />
-                  )}
-                </Button>
-              </>
-            )}
+
             
             {onRefresh && (
-              <Button 
-                variant="outline" 
-                onClick={onRefresh}
-                className="rounded-md"
-                size="icon"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleRefresh}
+                    className="rounded-md h-9"
+                    size="icon"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent 
+                  className="bg-black text-white border-black"
+                  sideOffset={8}
+                  side="top"
+                  align="center"
+                  avoidCollisions={true}
+                  collisionPadding={15}
+                >
+                  <p className="text-sm font-medium">
+                    {lastRefreshed 
+                      ? `Last refreshed: ${formatRelativeTime(lastRefreshed)}` 
+                      : 'Never refreshed'
+                    }
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             )}
           </div>
         </div>
@@ -570,6 +587,7 @@ export function ShadcnDataTable<T = any>({
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </TooltipProvider>
   )
 } 

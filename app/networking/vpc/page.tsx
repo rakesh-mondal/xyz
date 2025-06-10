@@ -76,13 +76,13 @@ export default function VPCListPage() {
 
   const handleRefresh = () => {
     // Add your refresh logic here
-    console.log("Refreshing VPC data...")
+    console.log("🔄 Refreshing VPC data at:", new Date().toLocaleTimeString())
     // In a real app, this would typically:
     // - Refetch data from API
     // - Update state
     // - Show loading indicator
-    // For now, just reload the page as a simple refresh
-    window.location.reload()
+    // For demo purposes, we'll just log instead of reloading
+    // window.location.reload()
   }
 
   return (
