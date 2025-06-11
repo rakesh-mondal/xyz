@@ -127,6 +127,13 @@ export function ShadcnDataTable<T = any>({
   // Last refreshed timestamp state
   const [lastRefreshed, setLastRefreshed] = React.useState<Date | null>(null)
 
+  // Set initial refresh timestamp when component mounts (initial data load)
+  React.useEffect(() => {
+    if (onRefresh && lastRefreshed === null) {
+      setLastRefreshed(new Date())
+    }
+  }, [onRefresh, lastRefreshed])
+
   // Name filter state
   const [selectedNames, setSelectedNames] = React.useState<string[]>([])
   
