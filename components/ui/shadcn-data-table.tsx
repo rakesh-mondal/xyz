@@ -13,7 +13,20 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, ArrowUp, ArrowDown } from "lucide-react"
+import { 
+  ArrowsUpDownIcon, 
+  ChevronDownIcon, 
+  MagnifyingGlassIcon, 
+  AdjustmentsHorizontalIcon, 
+  ChevronLeftIcon, 
+  ChevronRightIcon, 
+  ChevronDoubleLeftIcon, 
+  ChevronDoubleRightIcon, 
+  ArrowPathIcon, 
+  ArrowUpIcon, 
+  ArrowDownIcon 
+} from "@heroicons/react/24/outline"
+import { Search, SlidersHorizontal, ChevronDown, RefreshCw, ArrowDown, ArrowUp, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -313,6 +326,21 @@ export function ShadcnDataTable<T = any>({
                 />
               </div>
             )}
+
+            {enableVpcFilter && vpcOptions.length > 0 && (
+              <Select value={selectedVpc} onValueChange={handleVpcChange}>
+                <SelectTrigger className="h-9 w-[150px] rounded-md">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {vpcOptions.map((vpc) => (
+                    <SelectItem key={vpc.value} value={vpc.value}>
+                      {vpc.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             
             {enableColumnVisibility && (
               <DropdownMenu>
@@ -397,23 +425,6 @@ export function ShadcnDataTable<T = any>({
           </div>
           
           <div className="flex items-center space-x-2">
-            {enableVpcFilter && vpcOptions.length > 0 && (
-              <Select value={selectedVpc} onValueChange={handleVpcChange}>
-                <SelectTrigger className="h-9 w-[150px] rounded-md">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {vpcOptions.map((vpc) => (
-                    <SelectItem key={vpc.value} value={vpc.value}>
-                      {vpc.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            
-
-            
             {onRefresh && (
               <Tooltip>
                 <TooltipTrigger asChild>
