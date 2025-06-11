@@ -97,10 +97,6 @@ export default function VPCListPage() {
         columns={columns} 
         data={vpcs}
         searchableColumns={["name", "region", "networkName"]}
-        defaultSort={{
-          column: "name",
-          direction: "asc"
-        }}
         pageSize={10}
         enableSearch={true}
         enableColumnVisibility={false}

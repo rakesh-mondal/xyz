@@ -152,7 +152,6 @@ export default function BlockStorageVolumesPage() {
         columns={columns}
         data={dataWithActions}
         searchableColumns={["name"]}
-        defaultSort={{ column: "name", direction: "asc" }}
         pageSize={10}
         enableSearch={true}
         enableColumnVisibility={false}

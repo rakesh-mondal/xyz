@@ -80,7 +80,6 @@ export default function SecurityGroupListPage() {
         columns={columns}
         data={dataWithActions}
         searchableColumns={["name", "vpcName"]}
-        defaultSort={{ column: "name", direction: "asc" }}
         pageSize={10}
         enableSearch={true}
         enableColumnVisibility={false}

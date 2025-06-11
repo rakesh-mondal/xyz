@@ -86,6 +86,7 @@ export function ShadcnDataTable<T = any>({
 }: ShadcnDataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>(() => {
     if (defaultSort) {
+      console.log("🔄 Using explicit defaultSort:", defaultSort)
       return [{ id: defaultSort.column, desc: defaultSort.direction === "desc" }]
     }
     // Auto-sort by "Created On" column if it exists
@@ -95,8 +96,10 @@ export function ShadcnDataTable<T = any>({
       col.key.toLowerCase() === 'created_on'
     )
     if (createdOnColumn) {
+      console.log("🔄 Auto-sorting by Created On column:", createdOnColumn.key)
       return [{ id: createdOnColumn.key, desc: true }] // desc = newest first
     }
+    console.log("🔄 No Created On column found, no default sorting")
     return []
   })
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])

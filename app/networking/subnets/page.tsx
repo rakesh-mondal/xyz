@@ -83,7 +83,6 @@ export default function SubnetListPage() {
         columns={columns}
         data={dataWithActions}
         searchableColumns={["name", "vpcName"]}
-        defaultSort={{ column: "name", direction: "asc" }}
         pageSize={10}
         enableSearch={true}
         enableColumnVisibility={false}
