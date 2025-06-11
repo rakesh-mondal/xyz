@@ -5,13 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { 
   BookOpen, 
-  Calculator, 
-  Brain, 
-  ArrowRight, 
-  ExternalLink,
-  FileText,
-  Zap
+  ArrowRight,
+  Map
 } from "lucide-react"
+import { CpuChipIcon } from "@heroicons/react/24/outline"
 import Link from "next/link"
 import { useAuth } from "@/components/auth/auth-provider"
 
@@ -35,20 +32,20 @@ export function AllowedServicesSection() {
       features: ['API Guides', 'Tutorials', 'Best Practices', 'Examples']
     },
     {
-      id: 'cost-estimator',
-      title: 'Cost Estimator',
-      description: 'Calculate costs for your cloud infrastructure',
-      icon: Calculator,
-      href: '/cost-estimator',
-      color: 'bg-green-100 text-green-600',
+      id: 'maps',
+      title: 'Maps',
+      description: 'Access mapping services and location-based features',
+      icon: Map,
+      href: '/maps',
+      color: 'bg-orange-100 text-orange-600',
       available: true,
-      features: ['Resource Pricing', 'Cost Planning', 'Budget Estimation', 'Savings Calculator']
+      features: ['Map Studio', 'Location Services', 'Geocoding', 'Route Planning']
     },
     {
       id: 'ai-studio',
       title: 'AI Studio',
       description: 'Explore AI models and capabilities',
-      icon: Brain,
+      icon: CpuChipIcon,
       href: '/ai-studio',
       color: 'bg-purple-100 text-purple-600',
       available: true,
@@ -57,7 +54,7 @@ export function AllowedServicesSection() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-16">
       <div>
         <h2 className="text-xl font-semibold text-gray-900">Available Services</h2>
         <p className="text-sm text-muted-foreground mt-1">
@@ -74,16 +71,18 @@ export function AllowedServicesSection() {
               className="hover:shadow-md transition-all duration-200 border-l-4 border-l-transparent hover:border-l-primary group"
             >
               <CardHeader className="pb-4">
-                <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-lg ${service.color}`}>
-                    <Icon className="h-5 w-5" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${service.color} flex items-center justify-center`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex items-center">
+                      <CardTitle className="text-lg leading-none">{service.title}</CardTitle>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">{service.title}</CardTitle>
-                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                      Available
-                    </Badge>
-                  </div>
+                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                    Available
+                  </Badge>
                 </div>
                 <CardDescription className="text-sm text-gray-600">
                   {service.description}
@@ -120,52 +119,6 @@ export function AllowedServicesSection() {
           )
         })}
       </div>
-
-      {/* Quick Actions */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 mb-8">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <Zap className="h-5 w-5 text-blue-600 mr-2" />
-            Quick Actions
-          </CardTitle>
-          <CardDescription>
-            Common tasks you can perform right now
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Button variant="outline" size="sm" asChild className="h-auto p-3 flex-col space-y-1">
-              <Link href="/documentation/getting-started">
-                <FileText className="h-4 w-4" />
-                <span className="text-xs">Getting Started</span>
-              </Link>
-            </Button>
-            
-            <Button variant="outline" size="sm" asChild className="h-auto p-3 flex-col space-y-1">
-              <Link href="/cost-estimator">
-                <Calculator className="h-4 w-4" />
-                <span className="text-xs">Estimate Costs</span>
-              </Link>
-            </Button>
-            
-            <Button variant="outline" size="sm" asChild className="h-auto p-3 flex-col space-y-1">
-              <Link href="/ai-studio/models">
-                <Brain className="h-4 w-4" />
-                <span className="text-xs">Browse Models</span>
-              </Link>
-            </Button>
-            
-            <Button variant="outline" size="sm" asChild className="h-auto p-3 flex-col space-y-1">
-              <Link href="/documentation/api" target="_blank" className="flex flex-col items-center space-y-1">
-                <ExternalLink className="h-4 w-4" />
-                <span className="text-xs">API Docs</span>
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-
     </div>
   )
 } 

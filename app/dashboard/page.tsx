@@ -249,8 +249,6 @@ export default function DashboardPage() {
         <DashboardSection section="Dashboard Content" requiredAccess="limited">
           <LimitedAccessDashboard />
         </DashboardSection>
-
-
       </div>
     </CommandPaletteProvider>
   )

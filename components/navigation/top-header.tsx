@@ -24,7 +24,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/components/auth/auth-provider"
-import { LogoutButton } from "@/components/auth/logout-button"
 import { GlobalSearch } from "@/components/search/global-search"
 import {
   Popover,
@@ -44,7 +43,7 @@ interface User {
 }
 
 export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
-  const { user } = useAuth() as { user: User | null }
+  const { user, logout } = useAuth() as { user: User | null, logout: () => void }
 
   // Sample regions for the region selector
   const regions = [
@@ -212,18 +211,13 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                   <UserIcon className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">My Account</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer">
-                  <GlobeAltIcon className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Switch Teams</span>
-                  <ChevronDownIcon className="ml-auto h-4 w-4 text-muted-foreground" />
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer text-primary hover:text-primary hover:bg-primary/10">
-                  <CogIcon className="h-4 w-4" />
-                  <span className="text-sm font-medium">Create a Team</span>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator className="my-1" />
-                <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer text-red-600 hover:text-red-600 hover:bg-red-100/50 dark:hover:bg-red-900/50">
-                  <LogoutButton variant="ghost" showIcon={true} showConfirmation={false} />
+                <DropdownMenuItem 
+                  className="flex items-center gap-2 py-2 px-3 cursor-pointer text-red-600 hover:text-red-600 hover:bg-red-100/50 dark:hover:bg-red-900/50"
+                  onClick={logout}
+                >
+                  <ArrowLeftOnRectangleIcon className="h-4 w-4 text-red-600" />
+                  <span className="text-sm">Sign out</span>
                 </DropdownMenuItem>
               </div>
             </DropdownMenuContent>
