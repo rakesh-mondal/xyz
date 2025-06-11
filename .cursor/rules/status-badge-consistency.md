@@ -46,26 +46,37 @@ import { StatusBadge } from "@/components/status-badge"
 <div className="text-green-600">Active</div>
 ```
 
-## 🎨 **Supported Status Values**
+## 🎨 **Supported Status Values & Color Codes**
 
-The StatusBadge component automatically handles these status values:
+The StatusBadge component automatically handles these status values with their corresponding colors:
 
-### **Active/Positive States:**
-- `active`, `running`, `available`, `public`, `tcp` → Green badge
-- `completed`, `success`, `operational` → Green badge
+### **🟢 Active/Success States - Green**
+**Color Codes:** Background `#dcfce7` Text `#166534` (bg-green-100/text-green-800)
+- `active`, `running`, `available`, `completed`, `success`, `operational`, `attached`, `public`, `tcp`
 
-### **Pending/Warning States:**  
-- `pending`, `provisioning`, `updating` → Yellow badge
-- `degraded`, `warning` → Yellow badge
+### **🟡 Progress/Warning States - Yellow**  
+**Color Codes:** Background `#fef3c7` Text `#92400e` (bg-yellow-100/text-yellow-800)
+- `pending`, `provisioning`, `updating`, `in-progress`, `processing`, `deploying`, `warning`, `degraded`
 
-### **Inactive/Error States:**
-- `inactive`, `stopped`, `error` → Red badge  
-- `failed`, `terminated` → Red badge
+### **🔴 Error/Failed States - Red**
+**Color Codes:** Background `#fecaca` Text `#991b1b` (bg-red-100/text-red-800)
+- `inactive`, `stopped`, `error`, `failed`, `terminated`, `incomplete`, `incompleted`, `rejected`, `cancelled`
 
-### **Neutral States:**
-- `private` → Blue badge
-- `udp` → Purple badge  
-- `icmp` → Orange badge
+### **🔵 Info/Neutral States - Blue**
+**Color Codes:** Background `#dbeafe` Text `#1e40af` (bg-blue-100/text-blue-800)
+- `private`, `draft`, `scheduled`, `queued`, `created`, `full`
+
+### **🟣 Special/Protocol States - Purple**
+**Color Codes:** Background `#e9d5ff` Text `#6b21a8` (bg-purple-100/text-purple-800)
+- `udp`, `incremental`, `partial`, `limited`
+
+### **🟠 Maintenance/Paused States - Orange**
+**Color Codes:** Background `#fed7aa` Text `#c2410c` (bg-orange-100/text-orange-800)
+- `icmp`, `maintenance`, `paused`, `suspended`
+
+### **⚫ Default/Unknown States - Gray**
+**Color Codes:** Background `#f1f5f9` Text `#475569` (bg-secondary/text-secondary-foreground)
+- `all`, `unknown`, `unassigned`, `disabled`
 
 ## 🔧 **Design Specifications**
 
