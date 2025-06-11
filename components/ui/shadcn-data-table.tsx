@@ -419,7 +419,7 @@ export function ShadcnDataTable<T = any>({
                   avoidCollisions={true}
                   collisionPadding={15}
                 >
-                  <p className="text-sm font-medium">
+                  <p className="text-xs font-medium">
                     {lastRefreshed 
                       ? `Last refreshed: ${formatRelativeTime(lastRefreshed)}` 
                       : 'Never refreshed'
