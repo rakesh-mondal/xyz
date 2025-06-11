@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { StatusBadge } from "@/components/status-badge"
 import { 
   BookOpen, 
   ArrowRight,
@@ -80,9 +80,7 @@ export function AllowedServicesSection() {
                       <CardTitle className="text-lg leading-none">{service.title}</CardTitle>
                     </div>
                   </div>
-                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                    Available
-                  </Badge>
+                  <StatusBadge status="available" />
                 </div>
                 <CardDescription className="text-sm text-gray-600">
                   {service.description}

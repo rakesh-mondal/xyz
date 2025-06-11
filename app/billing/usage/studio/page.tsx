@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ActionMenu } from "@/components/action-menu"
+import { StatusBadge } from "@/components/status-badge"
 import type { Column } from "@/components/ui/shadcn-data-table";
 
 const studioTabs = [
@@ -126,20 +127,7 @@ export default function BillingUsageStudioPage() {
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value: string) => (
-        <span className={
-          value === "Active"
-            ? "inline-flex items-center gap-1 text-green-600"
-            : "inline-flex items-center gap-1 text-gray-500"
-        }>
-          <span className={
-            value === "Active"
-              ? "h-2 w-2 rounded-full bg-green-500"
-              : "h-2 w-2 rounded-full bg-gray-400"
-          }></span>
-          {value}
-        </span>
-      ),
+      render: (value: string) => <StatusBadge status={value} />,
     },
     {
       key: "credits",
@@ -174,20 +162,7 @@ export default function BillingUsageStudioPage() {
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value: string) => (
-        <span className={
-          value === "Active"
-            ? "inline-flex items-center gap-1 text-green-600"
-            : "inline-flex items-center gap-1 text-gray-500"
-        }>
-          <span className={
-            value === "Active"
-              ? "h-2 w-2 rounded-full bg-green-500"
-              : "h-2 w-2 rounded-full bg-gray-400"
-          }></span>
-          {value}
-        </span>
-      ),
+      render: (value: string) => <StatusBadge status={value} />,
     },
     {
       key: "credits",
@@ -222,20 +197,7 @@ export default function BillingUsageStudioPage() {
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value: string) => (
-        <span className={
-          value === "Active"
-            ? "inline-flex items-center gap-1 text-green-600"
-            : "inline-flex items-center gap-1 text-gray-500"
-        }>
-          <span className={
-            value === "Active"
-              ? "h-2 w-2 rounded-full bg-green-500"
-              : "h-2 w-2 rounded-full bg-gray-400"
-          }></span>
-          {value}
-        </span>
-      ),
+      render: (value: string) => <StatusBadge status={value} />,
     },
     {
       key: "credits",
@@ -270,20 +232,7 @@ export default function BillingUsageStudioPage() {
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value: string) => (
-        <span className={
-          value === "Active"
-            ? "inline-flex items-center gap-1 text-green-600"
-            : "inline-flex items-center gap-1 text-gray-500"
-        }>
-          <span className={
-            value === "Active"
-              ? "h-2 w-2 rounded-full bg-green-500"
-              : "h-2 w-2 rounded-full bg-gray-400"
-          }></span>
-          {value}
-        </span>
-      ),
+      render: (value: string) => <StatusBadge status={value} />,
     },
     {
       key: "credits",
