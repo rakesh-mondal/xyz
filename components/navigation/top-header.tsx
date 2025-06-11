@@ -153,8 +153,10 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
-                <BellIcon className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">3</Badge>
+                <div className="relative flex items-center justify-center w-10 h-10 bg-blue-500 rounded-full">
+                  <BellIcon className="h-5 w-5 text-white" />
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500 text-white border-2 border-white">3</Badge>
+                </div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[300px]">
