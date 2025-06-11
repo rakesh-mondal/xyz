@@ -5,7 +5,27 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Server, Brain, ChevronRight, ChevronLeft, Map, Settings, X, Home, BookOpen, HelpCircle, Activity, Database, Network, Shield, HardDrive, Globe, Key, Zap } from "lucide-react"
+import { 
+  ServerIcon, 
+  CpuChipIcon, 
+  ChevronRightIcon, 
+  ChevronLeftIcon, 
+  MapIcon, 
+  CogIcon, 
+  XMarkIcon, 
+  HomeIcon, 
+  BookOpenIcon, 
+  QuestionMarkCircleIcon, 
+  ChartBarIcon, 
+  CircleStackIcon, 
+  GlobeAltIcon, 
+  ShieldCheckIcon, 
+  CubeIcon, 
+  GlobeAmericasIcon, 
+  KeyIcon, 
+  BoltIcon 
+} from "@heroicons/react/24/outline"
+import { Settings, Activity, HelpCircle, BookOpen, ChevronRight, ChevronLeft, Network, HardDrive, Map, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { KrutrimLogo } from "@/components/ui/krutrim-logo"
 import { Button } from "@/components/ui/button"
@@ -36,12 +56,12 @@ interface NavItemProps {
 const navigationConfig = {
   home: {
     href: "/",
-    icon: <Home className="h-[18px] w-[18px] text-foreground/80" />,
+    icon: <HomeIcon className="h-[18px] w-[18px] text-foreground/80" />,
     label: "Home",
   },
   coreInfrastructure: {
     href: "/core-infrastructure",
-    icon: <Server className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: <ServerIcon className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "Core Infrastructure",
     isCategory: true,
     subItems: [
@@ -117,7 +137,7 @@ const navigationConfig = {
   },
   aiStudio: {
     href: "/ai-studio",
-    icon: <Brain className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: <CpuChipIcon className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "AI Studio",
     isCategory: true,
     subItems: [
@@ -140,7 +160,7 @@ const navigationConfig = {
   },
   aiSolutions: {
     href: "/ai-solutions",
-    icon: <Brain className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: <CpuChipIcon className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "AI Solutions",
     isCategory: true,
     subItems: [
@@ -187,7 +207,7 @@ const navigationConfig = {
   },
   maps: {
     href: "/maps",
-    icon: <Map className="h-[18px] w-[18px] text-foreground/80" />,
+    icon: <MapIcon className="h-[18px] w-[18px] text-foreground/80" />,
     label: "Maps",
   },
   administration: {

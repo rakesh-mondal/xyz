@@ -4,7 +4,7 @@ import type React from "react"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Server, Network, Shield, Globe } from "lucide-react"
+import { ServerIcon, GlobeAltIcon, ShieldCheckIcon, GlobeAmericasIcon } from "@heroicons/react/24/outline"
 
 interface NavItem {
   name: string

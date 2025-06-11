@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertTriangle, X } from "lucide-react"
+import { ExclamationTriangleIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
 import { AlertTriangle } from "lucide-react"
 import {
   Dialog,

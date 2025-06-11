@@ -1,7 +1,17 @@
 "use client"
 
 import Link from "next/link"
-import { Bell, User, Settings, Globe, CreditCard, Menu, ChevronDown, BarChart2, LogOut } from "lucide-react"
+import { 
+  BellIcon, 
+  UserIcon, 
+  CogIcon, 
+  GlobeAltIcon, 
+  CreditCardIcon, 
+  Bars3Icon, 
+  ChevronDownIcon, 
+  ChartBarIcon, 
+  ArrowLeftOnRectangleIcon 
+} from "@heroicons/react/24/outline"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -61,7 +71,7 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
         <div className="flex items-center gap-4">
           {isMobile && (
             <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden">
-              <Menu className="h-5 w-5" />
+              <Bars3Icon className="h-5 w-5" />
               <span className="sr-only">Toggle menu</span>
             </Button>
           )}
@@ -77,9 +87,9 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
-                <Globe className="h-4 w-4 text-muted-foreground" />
+                <GlobeAltIcon className="h-4 w-4 text-muted-foreground" />
                 <span className="max-w-[120px] truncate text-sm">{regions[0].name}</span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[240px]">
@@ -100,9 +110,9 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
-                <CreditCard className="h-4 w-4 text-muted-foreground" />
+                <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">₹5,000 credits</span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80" align="end">
@@ -132,7 +142,7 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                 </div>
                 <div className="pt-2">
                   <Button variant="outline" size="sm" className="w-full">
-                    <BarChart2 className="h-4 w-4 mr-2" />
+                    <ChartBarIcon className="h-4 w-4 mr-2" />
                     View Detailed Usage
                   </Button>
                 </div>
@@ -144,7 +154,7 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
+                <BellIcon className="h-5 w-5" />
                 <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">3</Badge>
               </Button>
             </DropdownMenuTrigger>
@@ -184,7 +194,7 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                   </Avatar>
                   <span className="text-sm">Example Team</span>
                 </div>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[240px]">
@@ -199,16 +209,16 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
               </div>
               <div className="p-1">
                 <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer">
-                  <User className="h-4 w-4 text-muted-foreground" />
+                  <UserIcon className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">My Account</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <GlobeAltIcon className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Switch Teams</span>
-                  <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground" />
+                  <ChevronDownIcon className="ml-auto h-4 w-4 text-muted-foreground" />
                 </DropdownMenuItem>
                 <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer text-primary hover:text-primary hover:bg-primary/10">
-                  <Settings className="h-4 w-4" />
+                  <CogIcon className="h-4 w-4" />
                   <span className="text-sm font-medium">Create a Team</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="my-1" />

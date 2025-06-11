@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "./ui/button"
-import { Plus } from "lucide-react"
+import { PlusIcon } from "@heroicons/react/24/outline"
 
 interface CreateButtonProps {
   href: string

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { LogOut } from "lucide-react"
+import { ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline"
 import { useAuth } from "./auth-provider"
 import { Button } from "@/components/ui/button"
 import {
@@ -39,7 +39,7 @@ export function LogoutButton({ variant = "ghost", showIcon = true, showConfirmat
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button variant={variant} className="w-full justify-start">
-            {showIcon && <LogOut className="mr-2 h-4 w-4" />}
+            {showIcon && <ArrowLeftOnRectangleIcon className="mr-2 h-4 w-4" />}
             Sign out
           </Button>
         </AlertDialogTrigger>
@@ -63,7 +63,7 @@ export function LogoutButton({ variant = "ghost", showIcon = true, showConfirmat
 
   return (
     <Button variant={variant} className="w-full justify-start" onClick={handleLogout} disabled={isLoading}>
-      {showIcon && <LogOut className="mr-2 h-4 w-4" />}
+      {showIcon && <ArrowLeftOnRectangleIcon className="mr-2 h-4 w-4" />}
       {isLoading ? "Signing out..." : "Sign out"}
     </Button>
   )

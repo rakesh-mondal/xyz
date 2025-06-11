@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useCommandPalette } from "@/components/command/command-palette-context"
 
@@ -18,7 +18,7 @@ export function GlobalSearch() {
             className="relative w-full border-gray-300 text-gray-700 flex items-center justify-between"
           >
             <span className="flex items-center gap-2">
-              <Search className="h-4 w-4" />
+              <MagnifyingGlassIcon className="h-4 w-4" />
               <span className="text-gray-500">Search</span>
             </span>
             <div className="flex items-center bg-gray-100 rounded px-1.5 py-0.5 border border-gray-200">
