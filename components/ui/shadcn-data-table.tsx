@@ -84,9 +84,21 @@ export function ShadcnDataTable<T = any>({
   vpcOptions = [],
   onVpcChange
 }: ShadcnDataTableProps<T>) {
-  const [sorting, setSorting] = React.useState<SortingState>(
-    defaultSort ? [{ id: defaultSort.column, desc: defaultSort.direction === "desc" }] : []
-  )
+  const [sorting, setSorting] = React.useState<SortingState>(() => {
+    if (defaultSort) {
+      return [{ id: defaultSort.column, desc: defaultSort.direction === "desc" }]
+    }
+    // Auto-sort by "Created On" column if it exists
+    const createdOnColumn = columns.find(col => 
+      col.key.toLowerCase().includes('created') && col.key.toLowerCase().includes('on') ||
+      col.key.toLowerCase() === 'createdon' ||
+      col.key.toLowerCase() === 'created_on'
+    )
+    if (createdOnColumn) {
+      return [{ id: createdOnColumn.key, desc: true }] // desc = newest first
+    }
+    return []
+  })
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [globalFilter, setGlobalFilter] = React.useState("")
@@ -439,9 +451,11 @@ export function ShadcnDataTable<T = any>({
             <thead className="[&_tr]:border-b">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id} className="border-b transition-colors bg-muted hover:bg-muted/80 text-sm">
-                  {headerGroup.headers.map((header) => {
+                  {headerGroup.headers.map((header, index) => {
+                    const isFirst = index === 0;
+                    const isLast = index === headerGroup.headers.length - 1;
                     return (
-                      <th key={header.id} className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
+                      <th key={header.id} className={`h-10 px-4 text-left align-middle font-medium text-muted-foreground ${isFirst ? 'rounded-tl-md' : ''} ${isLast ? 'rounded-tr-md' : ''}`}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -456,22 +470,29 @@ export function ShadcnDataTable<T = any>({
             </thead>
             <tbody className="[&_tr:last-child]:border-0">
               {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    className="border-b transition-colors bg-white hover:bg-gray-50/40 data-[state=selected]:bg-blue-50/50 text-sm"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-2 text-sm align-middle">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))
+                table.getRowModel().rows.map((row, rowIndex) => {
+                  const isLastRow = rowIndex === table.getRowModel().rows.length - 1;
+                  return (
+                    <tr
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                      className="border-b transition-colors bg-white hover:bg-gray-50/40 data-[state=selected]:bg-blue-50/50 text-sm"
+                    >
+                      {row.getVisibleCells().map((cell, cellIndex) => {
+                        const isFirst = cellIndex === 0;
+                        const isLast = cellIndex === row.getVisibleCells().length - 1;
+                        return (
+                          <td key={cell.id} className={`px-4 py-2 text-sm align-middle ${isLastRow && isFirst ? 'rounded-bl-md' : ''} ${isLastRow && isLast ? 'rounded-br-md' : ''}`}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  )
+                })
               ) : (
                 <tr className="bg-white">
                   <td
