@@ -496,7 +496,7 @@ export function ShadcnDataTable<T = any>({
 
       {/* Pagination */}
       {enablePagination && table.getPageCount() > 1 && (
-        <div className="flex items-center justify-between space-x-2 py-4 px-4">
+        <div className="flex items-center justify-between space-x-2 pb-4 px-4">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
               <p className="text-sm font-medium">Rows per page</p>
