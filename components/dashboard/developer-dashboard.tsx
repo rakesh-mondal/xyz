@@ -23,7 +23,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { VercelTabs } from "@/components/ui/vercel-tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 // Sample data for recently used services
@@ -133,6 +133,7 @@ const activityFeed = [
 
 export function DashboardContent() {
   const [pinnedResources, setPinnedResources] = useState<string[]>(["res-1", "res-3"])
+  const [activeResourceTab, setActiveResourceTab] = useState("pinned")
 
   const togglePin = (resourceId: string) => {
     setPinnedResources((prev) =>
@@ -214,14 +215,21 @@ export function DashboardContent() {
             <CardDescription>Monitor and manage your cloud resources</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="pinned">
-              <TabsList className="mb-4">
-                <TabsTrigger value="pinned">Pinned</TabsTrigger>
-                <TabsTrigger value="all">All Resources</TabsTrigger>
-                <TabsTrigger value="active">Active</TabsTrigger>
-              </TabsList>
+            <div>
+              <VercelTabs
+                tabs={[
+                  { id: "pinned", label: "Pinned" },
+                  { id: "all", label: "All Resources" },
+                  { id: "active", label: "Active" },
+                ]}
+                activeTab={activeResourceTab}
+                onTabChange={setActiveResourceTab}
+                size="md"
+                className="mb-4"
+              />
 
-              <TabsContent value="pinned" className="m-0">
+              {activeResourceTab === "pinned" && (
+                <div className="m-0">
                 {resources.filter((r) => pinnedResources.includes(r.id)).length > 0 ? (
                   <div className="space-y-2">
                     {resources
@@ -276,9 +284,10 @@ export function DashboardContent() {
                     <p className="text-sm">Pin resources from the "All Resources" tab.</p>
                   </div>
                 )}
-              </TabsContent>
+              )}
 
-              <TabsContent value="all" className="m-0">
+              {activeResourceTab === "all" && (
+                <div className="m-0">
                 <div className="space-y-2">
                   {resources.map((resource) => (
                     <div

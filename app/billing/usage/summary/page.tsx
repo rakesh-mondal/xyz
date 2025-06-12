@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ActionMenu } from "@/components/action-menu";
+import { redirect } from "next/navigation"
 
 const pieData = [
   { name: "Compute", value: 400, color: "#6366f1" },
@@ -70,139 +71,6 @@ const serviceSummary = [
 ];
 
 export default function BillingUsageSummaryPage() {
-  const [date, setDate] = useState<DateRange | undefined>(undefined);
-  const [modalResource, setModalResource] = useState<ServiceSummaryItem | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const columns: Column<ServiceSummaryItem>[] = [
-    {
-      key: "name",
-      label: "Service",
-      sortable: true,
-      searchable: true,
-      render: (value: string) => (
-        <div className="font-medium text-sm">{value}</div>
-      ),
-    },
-    {
-      key: "credits",
-      label: "Credits Used",
-      sortable: true,
-      searchable: true,
-      render: (value: number) => (
-        <div className="text-sm">{value}</div>
-      ),
-    },
-    {
-      key: "actions",
-      label: "Action",
-      align: "right",
-      render: (_: unknown, row: ServiceSummaryItem) => (
-        <div className="flex justify-end">
-          <ActionMenu
-            viewHref="#"
-            onEdit={() => { setModalResource(row); setModalOpen(true); }}
-            resourceName={row.name}
-            resourceType="Resource"
-          />
-        </div>
-      ),
-    },
-  ];
-
-  return (
-    <PageShell
-      title="Usage Metrics"
-      description="Track resource usage and billing information"
-      tabs={[
-        { title: "Summary", href: "/billing/usage/summary" },
-        { title: "Core Infrastructure", href: "/billing/usage/core" },
-        { title: "Studio", href: "/billing/usage/studio" },
-        { title: "Solutions", href: "/billing/usage/solutions" },
-      ]}
-      headerActions={
-        <>
-          <Button variant="secondary">Billing Support</Button>
-          <Link href="/billing/add-credits">
-            <Button variant="default">Add Credits</Button>
-          </Link>
-        </>
-      }
-    >
-      <UsageActionBar date={date} setDate={setDate} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Credits Used</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">1,200</div>
-            <div className="text-muted-foreground">in selected period</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center h-60">
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    innerRadius={50}
-                    labelLine={false}
-                    label={renderCustomizedLabel}
-                    stroke="none"
-                  >
-                    {pieData.map((entry, idx) => (
-                      <Cell key={`cell-${idx}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ borderRadius: 8, fontSize: 14 }}
-                    formatter={(value, name) => [value, name]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="flex flex-wrap justify-center gap-4 mt-4">
-                {pieData.map((entry, idx) => (
-                  <div key={entry.name} className="flex items-center gap-2">
-                    <span className="inline-block w-3 h-3 rounded-full" style={{ background: entry.color }}></span>
-                    <span className="text-sm font-medium text-muted-foreground">{entry.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Service Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ShadcnDataTable
-            columns={columns}
-            data={serviceSummary}
-            searchableColumns={["name"]}
-            defaultSort={{ column: "credits", direction: "desc" }}
-            pageSize={5}
-            enableSearch={true}
-            enableColumnVisibility={false}
-            enablePagination={false}
-            onRefresh={() => {
-              window.location.reload()
-            }}
-            enableAutoRefresh={false}
-          />
-        </CardContent>
-      </Card>
-    </PageShell>
-  );
+  // Redirect to main Usage page
+  redirect("/billing/usage")
 } 

@@ -1,4 +1,7 @@
+"use client"
+
 import { notFound } from "next/navigation"
+import { useState } from "react"
 import { Breadcrumbs } from "../../../../components/breadcrumbs"
 import { PageHeader } from "../../../../components/page-header"
 import { DetailSection } from "../../../../components/detail-section"
@@ -6,16 +9,22 @@ import { DetailGrid } from "../../../../components/detail-grid"
 import { DetailItem } from "../../../../components/detail-item"
 import { Button } from "../../../../components/ui/button"
 import { getSecurityGroup } from "../../../../lib/data"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../../components/ui/tabs"
+import { VercelTabs } from "../../../../components/ui/vercel-tabs"
 import { StatusBadge } from "../../../../components/status-badge"
 import { ShadcnDataTable } from "../../../../components/ui/shadcn-data-table"
 
 export default function SecurityGroupDetailsPage({ params }: { params: { id: string } }) {
   const sg = getSecurityGroup(params.id)
+  const [activeTab, setActiveTab] = useState("inbound")
 
   if (!sg) {
     notFound()
   }
+
+  const tabs = [
+    { id: "inbound", label: "Inbound Rules" },
+    { id: "outbound", label: "Outbound Rules" }
+  ]
 
   return (
     <div>
@@ -55,23 +64,15 @@ export default function SecurityGroupDetailsPage({ params }: { params: { id: str
 
       <div className="bg-card text-card-foreground border-border border rounded-lg shadow-sm p-6">
         <DetailSection title="">
-          <Tabs defaultValue="inbound">
-            <TabsList className="border-b border-border w-full justify-start mb-5">
-              <TabsTrigger
-                value="inbound"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:font-bold"
-              >
-                Inbound Rules
-              </TabsTrigger>
-              <TabsTrigger
-                value="outbound"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:font-bold"
-              >
-                Outbound Rules
-              </TabsTrigger>
-            </TabsList>
+          <VercelTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            size="md"
+          />
 
-            <TabsContent value="inbound">
+          {activeTab === "inbound" && (
+            <div className="mt-6">
               {sg.inboundRules.length > 0 ? (
                 <ShadcnDataTable
                   columns={[
@@ -119,9 +120,11 @@ export default function SecurityGroupDetailsPage({ params }: { params: { id: str
                   No rules defined. All traffic is blocked by default.
                 </div>
               )}
-            </TabsContent>
+            </div>
+          )}
 
-            <TabsContent value="outbound">
+          {activeTab === "outbound" && (
+            <div className="mt-6">
               {sg.outboundRules.length > 0 ? (
                 <ShadcnDataTable
                   columns={[
@@ -169,8 +172,8 @@ export default function SecurityGroupDetailsPage({ params }: { params: { id: str
                   No rules defined. All traffic is blocked by default.
                 </div>
               )}
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
         </DetailSection>
       </div>
     </div>

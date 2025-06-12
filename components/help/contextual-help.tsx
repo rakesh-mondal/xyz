@@ -19,7 +19,7 @@ import { usePathname } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { VercelTabs } from "@/components/ui/vercel-tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 
@@ -145,6 +145,7 @@ const documentationData = {
 export function ContextualHelp({ servicePath }: ContextualHelpProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("quickStart")
   const pathname = usePathname()
 
   // Determine which documentation to show based on the current path
@@ -215,124 +216,135 @@ export function ContextualHelp({ servicePath }: ContextualHelpProps) {
             </div>
           </div>
 
-          <Tabs defaultValue="quickStart" className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col">
             <div className="px-4 pt-2">
-              <TabsList className="w-full">
-                <TabsTrigger value="quickStart">Quick Start</TabsTrigger>
-                <TabsTrigger value="commonTasks">Common Tasks</TabsTrigger>
-                <TabsTrigger value="troubleshooting">Troubleshooting</TabsTrigger>
-              </TabsList>
+              <VercelTabs
+                tabs={[
+                  { id: "quickStart", label: "Quick Start" },
+                  { id: "commonTasks", label: "Common Tasks" },
+                  { id: "troubleshooting", label: "Troubleshooting" },
+                ]}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                size="sm"
+              />
             </div>
 
             <ScrollArea className="flex-1">
               <div className="p-4">
-                <TabsContent value="quickStart" className="m-0">
-                  <div className="mb-4">
-                    <h3 className="text-lg font-medium mb-1">{serviceName} Quick Start</h3>
-                    <p className="text-sm text-muted-foreground">Get started quickly with {serviceName}</p>
-                  </div>
-
-                  <div className="space-y-2">
-                    {documentation.quickStart.map((item) => (
-                      <Link
-                        key={item.id}
-                        href={item.href}
-                        className="flex items-center p-2 rounded-md hover:bg-accent/50 transition-colors"
-                      >
-                        <FileText className="h-4 w-4 mr-2 text-primary" />
-                        <span className="text-sm">{item.title}</span>
-                        <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
-                      </Link>
-                    ))}
-                  </div>
-
-                  {documentation.videos && (
-                    <div className="mt-6">
-                      <h4 className="text-sm font-medium mb-2">Quick Start Videos</h4>
-                      <div className="space-y-2">
-                        {documentation.videos.map((video) => (
-                          <Link
-                            key={video.id}
-                            href={video.href}
-                            className="flex items-center p-2 rounded-md hover:bg-accent/50 transition-colors"
-                          >
-                            <PlayCircle className="h-4 w-4 mr-2 text-primary" />
-                            <span className="text-sm">{video.title}</span>
-                            <Badge variant="outline" className="ml-auto text-xs">
-                              {video.duration}
-                            </Badge>
-                          </Link>
-                        ))}
-                      </div>
+                {activeTab === "quickStart" && (
+                  <div className="m-0">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-medium mb-1">{serviceName} Quick Start</h3>
+                      <p className="text-sm text-muted-foreground">Get started quickly with {serviceName}</p>
                     </div>
-                  )}
-                </TabsContent>
 
-                <TabsContent value="commonTasks" className="m-0">
-                  <div className="mb-4">
-                    <h3 className="text-lg font-medium mb-1">Common Tasks</h3>
-                    <p className="text-sm text-muted-foreground">Frequently performed operations with {serviceName}</p>
-                  </div>
+                    <div className="space-y-2">
+                      {documentation.quickStart.map((item: any) => (
+                        <Link
+                          key={item.id}
+                          href={item.href}
+                          className="flex items-center p-2 rounded-md hover:bg-accent/50 transition-colors"
+                        >
+                          <FileText className="h-4 w-4 mr-2 text-primary" />
+                          <span className="text-sm">{item.title}</span>
+                          <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
+                        </Link>
+                      ))}
+                    </div>
 
-                  <div className="space-y-2">
-                    {documentation.commonTasks.map((item) => (
-                      <Link
-                        key={item.id}
-                        href={item.href}
-                        className="flex items-center p-2 rounded-md hover:bg-accent/50 transition-colors"
-                      >
-                        <FileText className="h-4 w-4 mr-2 text-primary" />
-                        <span className="text-sm">{item.title}</span>
-                        <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
-                      </Link>
-                    ))}
+                    {documentation.videos && (
+                      <div className="mt-6">
+                        <h4 className="text-sm font-medium mb-2">Quick Start Videos</h4>
+                        <div className="space-y-2">
+                          {documentation.videos.map((video: any) => (
+                            <Link
+                              key={video.id}
+                              href={video.href}
+                              className="flex items-center p-2 rounded-md hover:bg-accent/50 transition-colors"
+                            >
+                              <PlayCircle className="h-4 w-4 mr-2 text-primary" />
+                              <span className="text-sm">{video.title}</span>
+                              <Badge variant="outline" className="ml-auto text-xs">
+                                {video.duration}
+                              </Badge>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
+                )}
 
-                  <div className="mt-6 p-4 bg-primary/5 rounded-md border">
-                    <h4 className="text-sm font-medium flex items-center mb-2">
-                      <Lightbulb className="h-4 w-4 mr-2 text-primary" />
-                      Pro Tips
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      Use keyboard shortcuts to navigate quickly. Press{" "}
-                      <kbd className="px-1 py-0.5 bg-muted border rounded text-xs">?</kbd> to see all shortcuts.
-                    </p>
-                  </div>
-                </TabsContent>
+                {activeTab === "commonTasks" && (
+                  <div className="m-0">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-medium mb-1">Common Tasks</h3>
+                      <p className="text-sm text-muted-foreground">Frequently performed operations with {serviceName}</p>
+                    </div>
 
-                <TabsContent value="troubleshooting" className="m-0">
-                  <div className="mb-4">
-                    <h3 className="text-lg font-medium mb-1">Troubleshooting</h3>
-                    <p className="text-sm text-muted-foreground">Solutions for common problems with {serviceName}</p>
-                  </div>
+                    <div className="space-y-2">
+                      {documentation.commonTasks.map((item: any) => (
+                        <Link
+                          key={item.id}
+                          href={item.href}
+                          className="flex items-center p-2 rounded-md hover:bg-accent/50 transition-colors"
+                        >
+                          <FileText className="h-4 w-4 mr-2 text-primary" />
+                          <span className="text-sm">{item.title}</span>
+                          <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
+                        </Link>
+                      ))}
+                    </div>
 
-                  <div className="space-y-2">
-                    {documentation.troubleshooting.map((item) => (
-                      <Link
-                        key={item.id}
-                        href={item.href}
-                        className="flex items-center p-2 rounded-md hover:bg-accent/50 transition-colors"
-                      >
-                        <AlertCircle className="h-4 w-4 mr-2 text-primary" />
-                        <span className="text-sm">{item.title}</span>
-                        <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
-                      </Link>
-                    ))}
+                    <div className="mt-6 p-4 bg-primary/5 rounded-md border">
+                      <h4 className="text-sm font-medium flex items-center mb-2">
+                        <Lightbulb className="h-4 w-4 mr-2 text-primary" />
+                        Pro Tips
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        Use keyboard shortcuts to navigate quickly. Press{" "}
+                        <kbd className="px-1 py-0.5 bg-muted border rounded text-xs">?</kbd> to see all shortcuts.
+                      </p>
+                    </div>
                   </div>
+                )}
 
-                  <div className="mt-6 p-4 bg-primary/5 rounded-md border">
-                    <h4 className="text-sm font-medium flex items-center mb-2">
-                      <CheckCircle className="h-4 w-4 mr-2 text-primary" />
-                      Common Solutions
-                    </h4>
-                    <ul className="text-sm text-muted-foreground space-y-2 ml-6 list-disc">
-                      <li>Check your network connection</li>
-                      <li>Verify your API keys are valid</li>
-                      <li>Ensure you have sufficient permissions</li>
-                      <li>Restart the service if it's unresponsive</li>
-                    </ul>
+                {activeTab === "troubleshooting" && (
+                  <div className="m-0">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-medium mb-1">Troubleshooting</h3>
+                      <p className="text-sm text-muted-foreground">Solutions for common problems with {serviceName}</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      {documentation.troubleshooting.map((item: any) => (
+                        <Link
+                          key={item.id}
+                          href={item.href}
+                          className="flex items-center p-2 rounded-md hover:bg-accent/50 transition-colors"
+                        >
+                          <AlertCircle className="h-4 w-4 mr-2 text-primary" />
+                          <span className="text-sm">{item.title}</span>
+                          <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
+                        </Link>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 p-4 bg-primary/5 rounded-md border">
+                      <h4 className="text-sm font-medium flex items-center mb-2">
+                        <CheckCircle className="h-4 w-4 mr-2 text-primary" />
+                        Common Solutions
+                      </h4>
+                      <ul className="text-sm text-muted-foreground space-y-2 ml-6 list-disc">
+                        <li>Check your network connection</li>
+                        <li>Verify your API keys are valid</li>
+                        <li>Ensure you have sufficient permissions</li>
+                        <li>Restart the service if it's unresponsive</li>
+                      </ul>
+                    </div>
                   </div>
-                </TabsContent>
+                )}
               </div>
             </ScrollArea>
 
@@ -359,7 +371,7 @@ export function ContextualHelp({ servicePath }: ContextualHelpProps) {
                 </Link>
               </Button>
             </div>
-          </Tabs>
+          </div>
         </div>
       )}
     </>

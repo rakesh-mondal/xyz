@@ -1,19 +1,29 @@
+"use client"
+
 import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { VercelTabs } from "@/components/ui/vercel-tabs"
+import { useState } from "react"
 
 export default function ComputeResourcesPage() {
-  return (
-    <PageLayout title="Compute Resources" description="Manage CPU, GPU and specialized AI hardware">
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="gpu">GPU Resources</TabsTrigger>
-          <TabsTrigger value="cpu">CPU Resources</TabsTrigger>
-          <TabsTrigger value="tpu">TPU Resources</TabsTrigger>
-        </TabsList>
+  const [activeTab, setActiveTab] = useState("overview")
+      return (
+      <PageLayout title="Compute Resources" description="Manage CPU, GPU and specialized AI hardware">
+        <div className="space-y-6">
+          <VercelTabs
+            tabs={[
+              { id: "overview", label: "Overview" },
+              { id: "gpu", label: "GPU Resources" },
+              { id: "cpu", label: "CPU Resources" },
+              { id: "tpu", label: "TPU Resources" },
+            ]}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            size="md"
+          />
 
-        <TabsContent value="overview" className="space-y-6">
+          {activeTab === "overview" && (
+            <div className="space-y-6">
           <div className="grid gap-6 md:grid-cols-3">
             <Card className="p-6">
               <h3 className="text-xl font-bold mb-2">GPU Resources</h3>
@@ -39,44 +49,45 @@ export default function ComputeResourcesPage() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
+        </div>
+      )}
 
-        <TabsContent value="gpu">
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-4">GPU Resources</h3>
-              <p className="text-muted-foreground mb-4">Manage your GPU resources for AI workloads</p>
-              <div className="min-h-[300px] flex items-center justify-center border rounded-md">
-                <p className="text-muted-foreground">GPU resource management interface would appear here</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          {activeTab === "gpu" && (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4">GPU Resources</h3>
+                <p className="text-muted-foreground mb-4">Manage your GPU resources for AI workloads</p>
+                <div className="min-h-[300px] flex items-center justify-center border rounded-md">
+                  <p className="text-muted-foreground">GPU resource management interface would appear here</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-        <TabsContent value="cpu">
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-4">CPU Resources</h3>
-              <p className="text-muted-foreground mb-4">Manage your CPU resources for general computing</p>
-              <div className="min-h-[300px] flex items-center justify-center border rounded-md">
-                <p className="text-muted-foreground">CPU resource management interface would appear here</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          {activeTab === "cpu" && (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4">CPU Resources</h3>
+                <p className="text-muted-foreground mb-4">Manage your CPU resources for general computing</p>
+                <div className="min-h-[300px] flex items-center justify-center border rounded-md">
+                  <p className="text-muted-foreground">CPU resource management interface would appear here</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-        <TabsContent value="tpu">
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-4">TPU Resources</h3>
-              <p className="text-muted-foreground mb-4">Manage your TPU resources for specialized AI workloads</p>
-              <div className="min-h-[300px] flex items-center justify-center border rounded-md">
-                <p className="text-muted-foreground">TPU resource management interface would appear here</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          {activeTab === "tpu" && (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4">TPU Resources</h3>
+                <p className="text-muted-foreground mb-4">Manage your TPU resources for specialized AI workloads</p>
+                <div className="min-h-[300px] flex items-center justify-center border rounded-md">
+                  <p className="text-muted-foreground">TPU resource management interface would appear here</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
     </PageLayout>
   )
 }
