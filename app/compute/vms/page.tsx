@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Server, Play, Square, RotateCcw, Settings, Monitor, Activity } from "lucide-react"
+import { CpuPricingCards } from "./cpu/components/pricing-cards"
 
 // VM Data and interfaces
 interface VirtualMachine {
@@ -77,9 +78,8 @@ const mockVMs: VirtualMachine[] = [
 // Tab content components - CPU VM with simple placeholder
 function CpuVmSection() {
   return (
-    <div className="rounded-lg border border-dashed p-10 text-center">
-      <h3 className="text-lg font-medium">CPU VM Content</h3>
-      <p className="text-sm text-muted-foreground mt-1">This is a placeholder for CPU VM management interface</p>
+    <div className="space-y-6">
+      <CpuPricingCards />
     </div>
   )
 }
@@ -93,11 +93,11 @@ function GpuVmSection() {
   )
 }
 
-function AiPodsSection() {
+function GpuBaremetalSection() {
   return (
     <div className="rounded-lg border border-dashed p-10 text-center">
-      <h3 className="text-lg font-medium">AI Pods Content</h3>
-      <p className="text-sm text-muted-foreground mt-1">This is a placeholder for AI Pods management interface</p>
+      <h3 className="text-lg font-medium">GPU Baremetal Content</h3>
+      <p className="text-sm text-muted-foreground mt-1">This is a placeholder for GPU Baremetal management interface</p>
     </div>
   )
 }
@@ -111,21 +111,11 @@ function MyInstancesSection() {
   )
 }
 
-function MachineImagesSection() {
-  return (
-    <div className="rounded-lg border border-dashed p-10 text-center">
-      <h3 className="text-lg font-medium">Machine Images Content</h3>
-      <p className="text-sm text-muted-foreground mt-1">This is a placeholder for machine images management interface</p>
-    </div>
-  )
-}
-
 const tabs = [
-  { id: "cpu", label: "CPU VM" },
-  { id: "gpu", label: "GPU VM" },
-  { id: "ai-pods", label: "AI Pods" },
+  { id: "cpu", label: "CPU VMs" },
+  { id: "gpu", label: "GPU VMs" },
+  { id: "gpu-baremetal", label: "GPU Baremetal" },
   { id: "instances", label: "My Instances" },
-  { id: "images", label: "Machine Images" },
 ]
 
 export default function VMsPage() {
@@ -136,9 +126,8 @@ export default function VMsPage() {
   const getActiveTabFromPath = () => {
     if (pathname.includes('/cpu')) return "cpu"
     if (pathname.includes('/gpu')) return "gpu" 
-    if (pathname.includes('/ai-pods')) return "ai-pods"
+    if (pathname.includes('/gpu-baremetal')) return "gpu-baremetal"
     if (pathname.includes('/instances')) return "instances"
-    if (pathname.includes('/images')) return "images"
     return "cpu" // default to cpu
   }
   
@@ -187,9 +176,8 @@ export default function VMsPage() {
 
         {activeTab === "cpu" && <CpuVmSection />}
         {activeTab === "gpu" && <GpuVmSection />}
-        {activeTab === "ai-pods" && <AiPodsSection />}
+        {activeTab === "gpu-baremetal" && <GpuBaremetalSection />}
         {activeTab === "instances" && <MyInstancesSection />}
-        {activeTab === "images" && <MachineImagesSection />}
       </div>
     </PageLayout>
   )
