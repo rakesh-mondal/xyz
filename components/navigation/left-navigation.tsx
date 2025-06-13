@@ -33,8 +33,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 
 interface LeftNavigationProps {
-  collapsed: boolean
-  onToggleCollapse: () => void
   onClose: () => void
 }
 
@@ -56,7 +54,7 @@ interface NavItemProps {
 const navigationConfig = {
   home: {
     href: "/",
-    icon: <HomeIcon className="h-[18px] w-[18px] text-foreground/80" />,
+    icon: <HomeIcon className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "Home",
   },
   coreInfrastructure: {
@@ -207,7 +205,7 @@ const navigationConfig = {
   },
   maps: {
     href: "/maps",
-    icon: <MapIcon className="h-[18px] w-[18px] text-foreground/80" />,
+    icon: <MapIcon className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "Maps",
   },
   administration: {
@@ -279,17 +277,17 @@ const navigationConfig = {
   },
   monitoring: {
     href: "/monitoring",
-    icon: <Activity className="h-[18px] w-[18px] text-foreground/80" />,
+    icon: <Activity className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "Monitoring",
   },
   support: {
     href: "/support",
-    icon: <HelpCircle className="h-[18px] w-[18px] text-foreground/80" />,
+    icon: <HelpCircle className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "Support",
   },
   documentation: {
     href: "/documentation",
-    icon: <BookOpen className="h-[18px] w-[18px] text-foreground/80" />,
+    icon: <BookOpen className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "Documentation",
   },
 }
@@ -527,7 +525,7 @@ export function Sidebar() {
   )
 }
 
-export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNavigationProps) {
+export function LeftNavigation({ onClose }: LeftNavigationProps) {
   const pathname = usePathname()
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const [expandedSubItem, setExpandedSubItem] = useState<string | null>(null)
@@ -601,17 +599,13 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
 
   return (
     <div className="flex h-screen flex-col border-r bg-background">
-      {/* Header with logo and collapse button */}
-      <div className={cn("flex h-[64px] items-center border-b px-4", collapsed ? "justify-center" : "justify-between")}>
-        <div className={collapsed ? "flex items-center justify-center" : "flex items-center gap-2"}>
-          <KrutrimLogo width={collapsed ? 40 : 120} height={64} />
+      {/* Header with logo */}
+      <div className="flex h-[64px] items-center border-b px-4 justify-between">
+        <div className="flex items-center gap-2">
+          <KrutrimLogo width={120} height={64} />
         </div>
 
         <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={onToggleCollapse} className="hidden lg:flex">
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </Button>
-
           <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden">
             <X className="h-4 w-4" />
           </Button>
@@ -619,7 +613,7 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
       </div>
 
       {/* Main navigation items */}
-      <div className={cn("flex-1 overflow-y-auto py-3", collapsed ? "px-2" : "px-3")}>
+      <div className="flex-1 overflow-y-auto py-3 px-3">
         <div className="flex flex-col gap-1.5">
           {/* Home */}
           <NavItem
@@ -628,10 +622,9 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             label={navigationConfig.home.label}
             exactActive={isExactActive(navigationConfig.home.href)}
             active={isActive(navigationConfig.home.href)}
-            collapsed={collapsed}
           />
 
-          {!collapsed && <div className="my-1 border-t" />}
+          <div className="my-1 border-t" />
 
           {/* Core Infrastructure */}
           <NavItem
@@ -640,7 +633,6 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             label={navigationConfig.coreInfrastructure.label}
             exactActive={isExactActive(navigationConfig.coreInfrastructure.href)}
             active={isActive(navigationConfig.coreInfrastructure.href)}
-            collapsed={collapsed}
             expanded={expandedItem}
             onExpand={handleExpand}
             subItems={navigationConfig.coreInfrastructure.subItems}
@@ -649,7 +641,7 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             onSubItemExpand={handleSubItemExpand}
           />
 
-          {!collapsed && <div className="my-1 border-t" />}
+          <div className="my-1 border-t" />
 
           {/* AI Studio */}
           <NavItem
@@ -658,7 +650,6 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             label={navigationConfig.aiStudio.label}
             exactActive={isExactActive(navigationConfig.aiStudio.href)}
             active={isActive(navigationConfig.aiStudio.href)}
-            collapsed={collapsed}
             expanded={expandedItem}
             onExpand={handleExpand}
             subItems={navigationConfig.aiStudio.subItems}
@@ -674,7 +665,6 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             label={navigationConfig.aiSolutions.label}
             exactActive={isExactActive(navigationConfig.aiSolutions.href)}
             active={isActive(navigationConfig.aiSolutions.href)}
-            collapsed={collapsed}
             expanded={expandedItem}
             onExpand={handleExpand}
             subItems={navigationConfig.aiSolutions.subItems}
@@ -690,10 +680,9 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             label={navigationConfig.maps.label}
             exactActive={isExactActive(navigationConfig.maps.href)}
             active={isActive(navigationConfig.maps.href)}
-            collapsed={collapsed}
           />
 
-          {!collapsed && <div className="my-1 border-t" />}
+          <div className="my-1 border-t" />
 
           {/* Administration */}
           <NavItem
@@ -702,7 +691,6 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             label={navigationConfig.administration.label}
             exactActive={isExactActive(navigationConfig.administration.href)}
             active={isActive(navigationConfig.administration.href)}
-            collapsed={collapsed}
             expanded={expandedItem}
             onExpand={handleExpand}
             subItems={navigationConfig.administration.subItems}
@@ -718,13 +706,12 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             label={navigationConfig.monitoring.label}
             exactActive={isExactActive(navigationConfig.monitoring.href)}
             active={isActive(navigationConfig.monitoring.href)}
-            collapsed={collapsed}
           />
         </div>
       </div>
 
       {/* Bottom navigation items */}
-      <div className={cn("mt-auto border-t", collapsed ? "px-2" : "px-3")}>
+      <div className="mt-auto border-t px-3">
         <div className="py-2.5 flex flex-col gap-1.5">
           {/* Support */}
           <NavItem
@@ -733,7 +720,6 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             label={navigationConfig.support.label}
             exactActive={isExactActive(navigationConfig.support.href)}
             active={isActive(navigationConfig.support.href)}
-            collapsed={collapsed}
           />
 
           {/* Documentation */}
@@ -743,7 +729,6 @@ export function LeftNavigation({ collapsed, onToggleCollapse, onClose }: LeftNav
             label={navigationConfig.documentation.label}
             exactActive={isExactActive(navigationConfig.documentation.href)}
             active={isActive(navigationConfig.documentation.href)}
-            collapsed={collapsed}
           />
         </div>
       </div>

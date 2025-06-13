@@ -55,7 +55,7 @@ export function ActionMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full">
+          <Button variant="ghost" size="icon" className="rounded-full">
             <MoreVertical className="h-5 w-5" />
             <span className="sr-only">Open menu</span>
           </Button>
