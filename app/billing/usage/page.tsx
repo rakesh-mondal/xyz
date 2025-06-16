@@ -205,15 +205,15 @@ export default function UsageMetricsPage() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Service Summary</CardTitle>
+          <CardTitle>Billing Overview by Service</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 w-full">
               {/* Total Credits Used */}
-              <div className="flex flex-col items-center md:items-start min-w-[220px]">
-                <div className="text-lg font-semibold mb-1">Total Credits Used</div>
-                <div className="text-4xl font-extrabold mb-2">₹{67093.659.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              <div className="flex flex-col items-end md:items-end min-w-[220px]">
+                <div className="text-lg font-semibold mb-1 text-right">Total Credits Used</div>
+                <div className="text-4xl font-extrabold mb-2 text-right">₹{67093.659.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
               </div>
               {/* Divider */}
               <div className="hidden md:block h-24 border-l border-gray-200 mx-6" />
@@ -244,9 +244,9 @@ export default function UsageMetricsPage() {
                 {/* Legend to the right of the chart, with two columns */}
                 <div className="ml-6 flex flex-col items-start gap-2 mt-0">
                   {pieData.map((entry) => (
-                    <div key={entry.name} className="flex items-center gap-6 min-w-[180px]">
+                    <div key={entry.name} className="flex items-center gap-6 min-w-[200px]">
                       <span className="inline-block w-3 h-3 rounded-full" style={{ background: entry.color }}></span>
-                      <span className="text-xs font-medium text-muted-foreground w-28">{entry.name}</span>
+                      <span className="text-xs font-medium text-muted-foreground w-36 whitespace-nowrap">{entry.name}</span>
                       <span className="text-xs font-semibold text-gray-900 text-right w-20">₹{entry.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   ))}
@@ -265,23 +265,23 @@ export default function UsageMetricsPage() {
       { id: "compute", label: "Compute" },
       { id: "storage", label: "Storage" },
       { id: "network", label: "Network" },
-    ]
+    ];
 
-    // Data for each tab (from screenshot)
+    // Data for each tab (updated to match VPC structure)
     const computeData = [
-      { name: "Machine1", type: "GPU VM", flavour: "A100-NVLINK-1x", time: "10 hrs 15 mins", rate: "₹105 per hour", credits: 1076.25 },
-      { name: "Machine2", type: "CPU VM", flavour: "CPU-2x-8GB", time: "10 hrs 15 mins", rate: "₹6.00 per hour", credits: 61.50 },
-      { name: "Machine3", type: "AI Pods", flavour: "A100-NVLINK-Tiny", time: "10 hrs 15 mins", rate: "₹15 per hour", credits: 153.75 },
+      { name: "Machine1", type: "GPU VM", time: "10 hrs 15 mins", rate: "₹105 per hour", credits: 1076.25 },
+      { name: "Machine2", type: "CPU VM", time: "10 hrs 15 mins", rate: "₹6.00 per hour", credits: 61.50 },
+      { name: "Machine3", type: "AI Pods", time: "10 hrs 15 mins", rate: "₹15 per hour", credits: 153.75 },
     ];
     const computeTotal = 1291.50;
 
     const storageData = [
-      { name: "Test 1", type: "Volume disk in Pods", time: "10 hrs 15mins", size: "10 GB", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
-      { name: "Test 2", type: "Container disk in Pods", time: "10 hrs 15mins", size: "10 GB", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
-      { name: "Test 3", type: "Object Storage", time: "10 hrs 15mins", size: "10 GB", rate: "₹1.61/GB/Month", credits: 0.2292 },
-      { name: "Test 4", type: "Volumes", time: "10 hrs 15mins", size: "10 GB", rate: "₹5.95/GB/Month", credits: 0.8470 },
-      { name: "Test 5", type: "Snapshot", time: "10 hrs 15mins", size: "10 GB", rate: "₹4.25/GB/Month", credits: 0.6050 },
-      { name: "Test 6", type: "Backup", time: "10 hrs 15mins", size: "10 GB", rate: "₹2.09/GB/Month", credits: 0.2975 },
+      { name: "Test 1", type: "Volume disk in Pods (10 GB)", time: "10 hrs 15mins", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
+      { name: "Test 2", type: "Container disk in Pods (10 GB)", time: "10 hrs 15mins", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
+      { name: "Test 3", type: "Object Storage (10 GB)", time: "10 hrs 15mins", rate: "₹1.61/GB/Month", credits: 0.2292 },
+      { name: "Test 4", type: "Volumes (10 GB)", time: "10 hrs 15mins", rate: "₹5.95/GB/Month", credits: 0.8470 },
+      { name: "Test 5", type: "Snapshot (10 GB)", time: "10 hrs 15mins", rate: "₹4.25/GB/Month", credits: 0.6050 },
+      { name: "Test 6", type: "Backup (10 GB)", time: "10 hrs 15mins", rate: "₹2.09/GB/Month", credits: 0.2975 },
     ];
     const storageTotal = 3.168;
 
@@ -295,96 +295,98 @@ export default function UsageMetricsPage() {
     const renderTable = () => {
       if (coreTab === "compute") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Machine name</th>
-                <th className="px-3 py-2 text-left">Type of service</th>
-                <th className="px-3 py-2 text-left">Flavour</th>
-                <th className="px-3 py-2 text-left">Total used time</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-right">Total credits used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {computeData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.name}</td>
-                  <td className="px-3 py-2">{row.type}</td>
-                  <td className="px-3 py-2">{row.flavour}</td>
-                  <td className="px-3 py-2">{row.time}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={5} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{computeTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {computeData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{computeTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       if (coreTab === "storage") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Name</th>
-                <th className="px-3 py-2 text-left">Storage Type</th>
-                <th className="px-3 py-2 text-left">Total used time</th>
-                <th className="px-3 py-2 text-left">Average Size</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-right">Total credits used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {storageData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.name}</td>
-                  <td className="px-3 py-2">{row.type}</td>
-                  <td className="px-3 py-2">{row.time}</td>
-                  <td className="px-3 py-2">{row.size}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={5} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{storageTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {storageData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{storageTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       if (coreTab === "network") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Name</th>
-                <th className="px-3 py-2 text-left">Service type</th>
-                <th className="px-3 py-2 text-left">Total used time</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-right">Total credits used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {networkData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.name}</td>
-                  <td className="px-3 py-2">{row.type}</td>
-                  <td className="px-3 py-2">{row.time}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={4} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{networkTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {networkData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{networkTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       return null;
@@ -393,7 +395,7 @@ export default function UsageMetricsPage() {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Core Infrastructure</CardTitle>
+          <CardTitle>Infrastructure Costs</CardTitle>
         </CardHeader>
         <CardContent>
           <VercelTabs
@@ -418,28 +420,28 @@ export default function UsageMetricsPage() {
       { id: "eval", label: "Evaluation" },
     ];
 
-    // Data for each tab (from screenshot)
+    // Data for each tab (updated to match VPC structure)
     const modelData = [
-      { model: "Phi 4 Reasoning plus", io: "Input", unit: "Token", used: 1000, rate: "₹5.00 per 1M token", credits: 0.01 },
-      { model: "Phi 4 Reasoning plus", io: "Output", unit: "Token", used: 1000000, rate: "₹29.00 per 1M token", credits: 29.00 },
-      { model: "Speecht5-TTS", io: "Output", unit: "Minute of output audio", used: 10, rate: "₹0.04 per minute of output audio", credits: 0.40 },
-      { model: "Whisper-large-v3", io: "Input", unit: "Minute of input audio", used: 10, rate: "₹0.04 per minute of input audio", credits: 0.40 },
+      { name: "Phi 4 Reasoning plus", type: "Input Tokens", time: "Usage session", rate: "₹5.00 per 1M token", credits: 0.01 },
+      { name: "Phi 4 Reasoning plus", type: "Output Tokens", time: "Usage session", rate: "₹29.00 per 1M token", credits: 29.00 },
+      { name: "Speecht5-TTS", type: "Audio Output", time: "10 minutes", rate: "₹0.04 per minute", credits: 0.40 },
+      { name: "Whisper-large-v3", type: "Audio Input", time: "10 minutes", rate: "₹0.04 per minute", credits: 0.40 },
     ];
     const modelTotal = 29.81;
 
     const finetuneData = [
-      { job: "Job 1", model: "Llama-3-70B", unit: "Token", used: 100000, rate: "₹207.50 per 1M Token", credits: 20.75 },
+      { name: "Job 1", type: "Fine-tuning", time: "Training session", rate: "₹207.50 per 1M Token", credits: 20.75 },
     ];
     const finetuneTotal = 20.75;
 
     const deployData = [
-      { name: "Model 1", flavour: "MaaS-H100-80GB-1-Node", time: "10 Hrs 15 mins", rate: "₹290.00 per hour", credits: 2972.50 },
+      { name: "Model 1", type: "Deployment", time: "10 Hrs 15 mins", rate: "₹290.00 per hour", credits: 2972.50 },
     ];
     const deployTotal = 2972.50;
 
     const evalData = [
-      { name: "Main", model: "Llama 3.1 70B", io: "Input", unit: "Token", used: 100000, rate: "₹73.04 per 1 M Token", credits: 7.304 },
-      { name: "Main", model: "Llama 3.1 70B", io: "Output", unit: "Token", used: 100000, rate: "₹73.04 per 1 M Token", credits: 7.304 },
+      { name: "Main - Input", type: "Evaluation", time: "Usage session", rate: "₹73.04 per 1 M Token", credits: 7.304 },
+      { name: "Main - Output", type: "Evaluation", time: "Usage session", rate: "₹73.04 per 1 M Token", credits: 7.304 },
     ];
     const evalTotal = 14.61;
 
@@ -447,130 +449,130 @@ export default function UsageMetricsPage() {
     const renderTable = () => {
       if (studioTab === "model") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Model</th>
-                <th className="px-3 py-2 text-left">Input/Output</th>
-                <th className="px-3 py-2 text-left">Unit</th>
-                <th className="px-3 py-2 text-left">Used Unit</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-right">Total Credit used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {modelData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.model}</td>
-                  <td className="px-3 py-2">{row.io}</td>
-                  <td className="px-3 py-2">{row.unit}</td>
-                  <td className="px-3 py-2">{row.used}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={5} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{modelTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {modelData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{modelTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       if (studioTab === "finetune") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Job name</th>
-                <th className="px-3 py-2 text-left">Model</th>
-                <th className="px-3 py-2 text-left">Unit</th>
-                <th className="px-3 py-2 text-left">Used Unit</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-right">Total Credit used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {finetuneData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.job}</td>
-                  <td className="px-3 py-2">{row.model}</td>
-                  <td className="px-3 py-2">{row.unit}</td>
-                  <td className="px-3 py-2">{row.used}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={5} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{finetuneTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {finetuneData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{finetuneTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       if (studioTab === "deploy") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Name</th>
-                <th className="px-3 py-2 text-left">Flavour</th>
-                <th className="px-3 py-2 text-left">Total used time</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-right">Total credits used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {deployData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.name}</td>
-                  <td className="px-3 py-2">{row.flavour}</td>
-                  <td className="px-3 py-2">{row.time}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={4} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{deployTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {deployData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{deployTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       if (studioTab === "eval") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Evaluation Name</th>
-                <th className="px-3 py-2 text-left">Model</th>
-                <th className="px-3 py-2 text-left">Input/Output</th>
-                <th className="px-3 py-2 text-left">Unit</th>
-                <th className="px-3 py-2 text-left">Used Unit</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-right">Total Credit used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {evalData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.name}</td>
-                  <td className="px-3 py-2">{row.model}</td>
-                  <td className="px-3 py-2">{row.io}</td>
-                  <td className="px-3 py-2">{row.unit}</td>
-                  <td className="px-3 py-2">{row.used}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={6} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{evalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {evalData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{evalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       return null;
@@ -579,7 +581,7 @@ export default function UsageMetricsPage() {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>AI Studio</CardTitle>
+          <CardTitle>Model Development Charges</CardTitle>
         </CardHeader>
         <CardContent>
           <VercelTabs
@@ -603,33 +605,33 @@ export default function UsageMetricsPage() {
       { id: "industrial", label: "Industrial Solution" },
     ];
 
-    // Data for each tab (from screenshot)
+    // Data for each tab (updated to match VPC structure)
     const bhashikData = [
-      { service: "Text to Speech", unit: "Per 1M input character", used: 10, rate: "₹266 Per 1M input character", credits: 2660.00 },
-      { service: "Text to Speech Translate", unit: "Per 1M input character", used: 10, rate: "₹1262 Per 1M input character", credits: 12620.00 },
-      { service: "Speech to text", unit: "per hour of input audio", used: 10, rate: "₹24 per hour of input audio", credits: 240.00 },
-      { service: "Speech to text long form", unit: "per hour of input audio", used: 10, rate: "₹24 per hour of input audio", credits: 240.00 },
-      { service: "Speech to text translate", unit: "per hour of input audio", used: 10, rate: "₹24 per hour of input audio", credits: 240.00 },
-      { service: "Speech to text translate long form", unit: "per hour of input audio", used: 10, rate: "₹24 per hour of input audio", credits: 240.00 },
-      { service: "Speech to speech translate", unit: "per hour of input audio", used: 10, rate: "₹166 per hour of input audio", credits: 1660.00 },
+      { name: "Text to Speech", type: "TTS Service", time: "Usage session", rate: "₹266 Per 1M input character", credits: 2660.00 },
+      { name: "Text to Speech Translate", type: "TTS Translate Service", time: "Usage session", rate: "₹1262 Per 1M input character", credits: 12620.00 },
+      { name: "Speech to text", type: "STT Service", time: "10 hours", rate: "₹24 per hour of input audio", credits: 240.00 },
+      { name: "Speech to text long form", type: "STT Long Service", time: "10 hours", rate: "₹24 per hour of input audio", credits: 240.00 },
+      { name: "Speech to text translate", type: "STT Translate Service", time: "10 hours", rate: "₹24 per hour of input audio", credits: 240.00 },
+      { name: "Speech to text translate long form", type: "STT Translate Long Service", time: "10 hours", rate: "₹24 per hour of input audio", credits: 240.00 },
+      { name: "Speech to speech translate", type: "STS Service", time: "10 hours", rate: "₹166 per hour of input audio", credits: 1660.00 },
     ];
     const bhashikTotal = 17900.00;
 
     const disData = [
-      { service: "DocIntelligenceText Extraction- document", unit: "per 1000 pages", used: 10, rate: "₹100 per 1000 pages", credits: 1000.00 },
-      { service: "DocIntelligenceText extraction- OCR", unit: "per 1000 pages", used: 10, rate: "₹398 per 1000 pages", credits: 3980.00 },
-      { service: "DocIntelligenceExtract information- document", unit: "per 1000 pages", used: 10, rate: "₹1726 per 1000 pages", credits: 17260.00 },
-      { service: "DocIntelligenceExtract information- OCR", unit: "per 1000 pages", used: 10, rate: "₹1726 per 1000 pages", credits: 17260.00 },
-      { service: "DocIntelligenceDocument Summarisation- document", unit: "per 1000 pages", used: 10, rate: "₹166 per 1000 pages", credits: 1660.00 },
-      { service: "DocIntelligenceDocument Summarisation- OCR", unit: "per 1000 pages", used: 10, rate: "₹531 per 1000 pages", credits: 5310.00 },
-      { service: "DocIntelligencePII Masking- document", unit: "per 1000 pages", used: 10, rate: "₹232 per 1000 pages", credits: 2320.00 },
+      { name: "DocIntelligenceText Extraction", type: "Document Processing", time: "Usage session", rate: "₹100 per 1000 pages", credits: 1000.00 },
+      { name: "DocIntelligenceText extraction", type: "OCR Processing", time: "Usage session", rate: "₹398 per 1000 pages", credits: 3980.00 },
+      { name: "DocIntelligenceExtract information", type: "Document Processing", time: "Usage session", rate: "₹1726 per 1000 pages", credits: 17260.00 },
+      { name: "DocIntelligenceExtract information", type: "OCR Processing", time: "Usage session", rate: "₹1726 per 1000 pages", credits: 17260.00 },
+      { name: "DocIntelligenceDocument Summarisation", type: "Document Processing", time: "Usage session", rate: "₹166 per 1000 pages", credits: 1660.00 },
+      { name: "DocIntelligenceDocument Summarisation", type: "OCR Processing", time: "Usage session", rate: "₹531 per 1000 pages", credits: 5310.00 },
+      { name: "DocIntelligencePII Masking", type: "Document Processing", time: "Usage session", rate: "₹232 per 1000 pages", credits: 2320.00 },
     ];
     const disTotal = 43810.00;
 
     const industrialData = [
-      { name: "Test 1", type: "Pod", flavour: "A100-NVLINK-Standard-1x", rate: "₹ 105 per hour", usedUnit: 1, usedTime: "10 hrs", credits: 1050.00 },
-      { name: "Test 1", type: "Storage", flavour: "Container Disk", rate: "₹ 0.006 Per GB Per Hour", usedUnit: "10 GB", usedTime: "10 hrs", credits: 0.60 },
-      { name: "Test 1", type: "Storage", flavour: "Volume Disk", rate: "₹ 0.006 Per GB Per Hour", usedUnit: "10 GB", usedTime: "12 hrs", credits: 0.72 },
+      { name: "Test 1", type: "Pod Service", time: "10 hrs", rate: "₹ 105 per hour", credits: 1050.00 },
+      { name: "Test 1", type: "Storage Service", time: "10 hrs", rate: "₹ 0.006 Per GB Per Hour", credits: 0.60 },
+      { name: "Test 1", type: "Storage Service", time: "12 hrs", rate: "₹ 0.006 Per GB Per Hour", credits: 0.72 },
     ];
     const industrialTotal = 1051.32;
 
@@ -637,96 +639,98 @@ export default function UsageMetricsPage() {
     const renderTable = () => {
       if (solutionsTab === "bhashik") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Service</th>
-                <th className="px-3 py-2 text-left">Unit</th>
-                <th className="px-3 py-2 text-left">Units used</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-right">Total credits used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bhashikData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.service}</td>
-                  <td className="px-3 py-2">{row.unit}</td>
-                  <td className="px-3 py-2">{row.used}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={4} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{bhashikTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {bhashikData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{bhashikTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       if (solutionsTab === "dis") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Service</th>
-                <th className="px-3 py-2 text-left">Unit</th>
-                <th className="px-3 py-2 text-left">Units used</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-right">Total credits used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {disData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.service}</td>
-                  <td className="px-3 py-2">{row.unit}</td>
-                  <td className="px-3 py-2">{row.used}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={4} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{disTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {disData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{disTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       if (solutionsTab === "industrial") {
         return (
-          <table className="min-w-full text-sm border mt-4">
-            <thead>
-              <tr className="bg-muted">
-                <th className="px-3 py-2 text-left">Notebook name</th>
-                <th className="px-3 py-2 text-left">Pod/Storage</th>
-                <th className="px-3 py-2 text-left">Flavour</th>
-                <th className="px-3 py-2 text-left">Rate</th>
-                <th className="px-3 py-2 text-left">Total used unit</th>
-                <th className="px-3 py-2 text-left">Total used time</th>
-                <th className="px-3 py-2 text-right">Total credits used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {industrialData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-3 py-2">{row.name}</td>
-                  <td className="px-3 py-2">{row.type}</td>
-                  <td className="px-3 py-2">{row.flavour}</td>
-                  <td className="px-3 py-2">{row.rate}</td>
-                  <td className="px-3 py-2">{row.usedUnit}</td>
-                  <td className="px-3 py-2">{row.usedTime}</td>
-                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <div className="rounded-md border mt-4">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={6} className="px-3 py-2 text-right">Total</td>
-                <td className="px-3 py-2 text-right">₹{industrialTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {industrialData.map((row, idx) => (
+                  <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
+                    <td className="px-3 py-2">{row.name}</td>
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{industrialTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
       return null;
@@ -736,7 +740,7 @@ export default function UsageMetricsPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-1">
-            <CardTitle>AI Solutions</CardTitle>
+            <CardTitle>Deployed AI Charges</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
