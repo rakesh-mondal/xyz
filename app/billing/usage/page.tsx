@@ -12,24 +12,40 @@ import { StatusBadge } from "@/components/status-badge"
 import { UsageActionBar } from "@/components/billing/usage-action-bar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
-import { Filter } from "lucide-react"
+import { ArrowDownTrayIcon, CalendarIcon, ChevronDownIcon, FunnelIcon } from "@heroicons/react/24/outline"
 import Link from "next/link"
 import type { DateRange } from "react-day-picker"
 import type { Column } from "@/components/ui/shadcn-data-table"
+import { format } from "date-fns"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 
 // Data for Summary section
 const pieData = [
-  { name: "Compute", value: 400, color: "#6366f1" },
-  { name: "Storage", value: 300, color: "#f59e42" },
-  { name: "Networking", value: 300, color: "#10b981" },
-  { name: "AI Studio", value: 200, color: "#f43f5e" },
+  { name: "Compute", value: 1291.5, color: "#6366f1" },
+  { name: "Storage", value: 3.168, color: "#f59e42" },
+  { name: "Network", value: 0.008, color: "#10b981" },
+  { name: "Model Catalogue", value: 29.805, color: "#f43f5e" },
+  { name: "Finetuning", value: 20.75, color: "#a21caf" },
+  { name: "Deployment", value: 2972.5, color: "#eab308" },
+  { name: "Evaluation", value: 14.608, color: "#0ea5e9" },
+  { name: "Bhashik", value: 17900, color: "#f87171" },
+  { name: "DIS", value: 43810, color: "#22d3ee" },
+  { name: "Industrial Solutions", value: 1051.32, color: "#a3e635" },
 ]
 
 const serviceSummary = [
-  { name: "Compute", credits: 400, details: "View Details" },
-  { name: "Storage", credits: 300, details: "View Details" },
-  { name: "Networking", credits: 300, details: "View Details" },
-  { name: "AI Studio", credits: 200, details: "View Details" },
+  { name: "Compute", credits: 1291.5 },
+  { name: "Storage", credits: 3.168 },
+  { name: "Network", credits: 0.008 },
+  { name: "Model Catalogue", credits: 29.805 },
+  { name: "Finetuning", credits: 20.75 },
+  { name: "Deployment", credits: 2972.5 },
+  { name: "Evaluation", credits: 14.608 },
+  { name: "Bhashik", credits: 17900 },
+  { name: "DIS", credits: 43810 },
+  { name: "Industrial Solutions", credits: 1051.32 },
+  { name: "Total", credits: 67093.659 },
 ]
 
 // Data for Core Infrastructure
@@ -128,9 +144,15 @@ function renderCustomizedLabel({ cx, cy, midAngle, innerRadius, outerRadius, per
 const tabs = [
   { id: "summary", label: "Summary" },
   { id: "core", label: "Core Infrastructure" },
-  { id: "studio", label: "Studio" },
-  { id: "solutions", label: "Solutions" },
+  { id: "studio", label: "AI Studio" },
+  { id: "solutions", label: "AI Solutions" },
 ]
+
+// Add default date range
+const defaultDateRange: DateRange = {
+  from: new Date(new Date().setDate(new Date().getDate() - 30)), // 30 days ago
+  to: new Date() // today
+}
 
 export default function UsageMetricsPage() {
   const pathname = usePathname()
@@ -145,14 +167,14 @@ export default function UsageMetricsPage() {
   }
   
   const [activeTab, setActiveTab] = useState(getActiveTabFromPath())
-  const [date, setDate] = useState<DateRange | undefined>(undefined)
+  const [date, setDate] = useState<DateRange | undefined>(defaultDateRange)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalResource, setModalResource] = useState<any>(null)
   
   // State for nested tabs
-  const [coreTab, setCoreTab] = useState("all")
-  const [studioTab, setStudioTab] = useState("all")
-  const [solutionsTab, setSolutionsTab] = useState("all")
+  const [coreTab, setCoreTab] = useState("compute")
+  const [studioTab, setStudioTab] = useState("model")
+  const [solutionsTab, setSolutionsTab] = useState("bhashik")
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId)
@@ -174,202 +196,62 @@ export default function UsageMetricsPage() {
       },
       {
         key: "credits",
-        label: "Credits Used",
+        label: "Total Credits used",
         sortable: true,
         searchable: true,
-        render: (value: number) => <div className="text-sm">{value}</div>,
-      },
-      {
-        key: "actions",
-        label: "Action",
-        align: "right" as const,
-        render: (_: unknown, row: any) => (
-          <div className="flex justify-end">
-            <ActionMenu
-              viewHref="#"
-              onEdit={() => { setModalResource(row); setModalOpen(true) }}
-              resourceName={row.name}
-              resourceType="Resource"
-            />
-          </div>
-        ),
+        render: (value: number) => <div className="text-sm">₹{value.toLocaleString(undefined, { minimumFractionDigits: 3 })}</div>,
       },
     ]
-
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Credits Used</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">1,200</div>
-              <div className="text-muted-foreground">in selected period</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Distribution</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center justify-center h-60">
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      innerRadius={50}
-                      labelLine={false}
-                      label={renderCustomizedLabel}
-                      stroke="none"
-                    >
-                      {pieData.map((entry, idx) => (
-                        <Cell key={`cell-${idx}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ borderRadius: 8, fontSize: 14 }}
-                      formatter={(value, name) => [value, name]}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="flex flex-wrap justify-center gap-4 mt-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Service Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 w-full">
+              {/* Total Credits Used */}
+              <div className="flex flex-col items-center md:items-start min-w-[220px]">
+                <div className="text-lg font-semibold mb-1">Total Credits Used</div>
+                <div className="text-4xl font-extrabold mb-2">₹{67093.659.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              </div>
+              {/* Divider */}
+              <div className="hidden md:block h-24 border-l border-gray-200 mx-6" />
+              {/* Distribution Pie Chart with legend on the right, including totals */}
+              <div className="flex flex-col md:flex-row items-center">
+                <div className="flex flex-col items-center">
+                  <div className="text-lg font-semibold mb-2">Distribution</div>
+                  <ResponsiveContainer width={200} height={200}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        label={false}
+                        stroke="none"
+                      >
+                        {pieData.map((entry, idx) => (
+                          <Cell key={`cell-${idx}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value: number, name: string) => [`₹${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, name]} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                {/* Legend to the right of the chart, with two columns */}
+                <div className="ml-6 flex flex-col items-start gap-2 mt-0">
                   {pieData.map((entry) => (
-                    <div key={entry.name} className="flex items-center gap-2">
+                    <div key={entry.name} className="flex items-center gap-6 min-w-[180px]">
                       <span className="inline-block w-3 h-3 rounded-full" style={{ background: entry.color }}></span>
-                      <span className="text-sm font-medium text-muted-foreground">{entry.name}</span>
+                      <span className="text-xs font-medium text-muted-foreground w-28">{entry.name}</span>
+                      <span className="text-xs font-semibold text-gray-900 text-right w-20">₹{entry.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Service Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ShadcnDataTable
-              columns={columns}
-              data={serviceSummary}
-              searchableColumns={["name"]}
-              defaultSort={{ column: "credits", direction: "desc" }}
-              pageSize={5}
-              enableSearch={true}
-              enableColumnVisibility={false}
-              enablePagination={false}
-              onRefresh={() => window.location.reload()}
-              enableAutoRefresh={false}
-            />
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Core Infrastructure Section Component
-  const CoreInfrastructureSection = () => {
-    const coreTabs = [
-      { id: "all", label: "All Infrastructure" },
-      { id: "compute", label: "Compute" },
-      { id: "storage", label: "Storage" },
-      { id: "network", label: "Network" },
-    ]
-
-    const columns: Column<any>[] = [
-      {
-        key: "name",
-        label: "Service",
-        sortable: true,
-        searchable: true,
-        render: (value: string) => <div className="font-medium text-sm">{value}</div>,
-      },
-      {
-        key: "credits",
-        label: "Credits Used",
-        sortable: true,
-        searchable: true,
-        render: (value: number) => <div className="text-sm">{value}</div>,
-      },
-      {
-        key: "actions",
-        label: "Action",
-        align: "right" as const,
-        render: (_: unknown, row: any) => (
-          <div className="flex justify-end">
-            <ActionMenu
-              viewHref="#"
-              onEdit={() => { setModalResource(row); setModalOpen(true) }}
-              resourceName={row.name}
-              resourceType="Resource"
-            />
-          </div>
-        ),
-      },
-    ]
-
-    const getDataForTab = () => {
-      switch (coreTab) {
-        case "compute": return mockCompute
-        case "storage": return mockStorage
-        case "network": return mockNetwork
-        default: return allInfra
-      }
-    }
-
-    return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Core Infrastructure</CardTitle>
-          <div className="bg-muted rounded-md px-4 py-2 font-medium text-sm">
-            {coreTab === "all" && <>Grand Total Credits Used: {getTotalCredits(allInfra)}</>}
-            {coreTab === "compute" && <>Total Compute Credits: {getTotalCredits(mockCompute)}</>}
-            {coreTab === "storage" && <>Total Storage Credits: {getTotalCredits(mockStorage)}</>}
-            {coreTab === "network" && <>Total Network Credits: {getTotalCredits(mockNetwork)}</>}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div>
-            <VercelTabs
-              tabs={coreTabs}
-              activeTab={coreTab}
-              onTabChange={setCoreTab}
-              size="md"
-              className="mb-4"
-            />
-            
-            <ShadcnDataTable
-              columns={[
-                ...columns.slice(0, 1),
-                ...(coreTab !== "all" ? [{
-                  key: "type",
-                  label: "Type",
-                  sortable: true,
-                  render: (value: string) => <div className="text-sm">{value}</div>,
-                }, {
-                  key: "status",
-                  label: "Status",
-                  sortable: true,
-                  render: (value: string) => <StatusBadge status={value} />,
-                }] : []),
-                ...columns.slice(1)
-              ]}
-              data={getDataForTab()}
-              searchableColumns={["name"]}
-              defaultSort={{ column: "credits", direction: "desc" }}
-              pageSize={5}
-              enableSearch={true}
-              enableColumnVisibility={false}
-              enablePagination={false}
-            />
-            <div className="text-right font-semibold px-2 py-2 text-sm">
-              Total: {getTotalCredits(getDataForTab())} credits
             </div>
           </div>
         </CardContent>
@@ -377,205 +259,536 @@ export default function UsageMetricsPage() {
     )
   }
 
-  // Studio Section Component
-  const StudioSection = () => {
-    const studioTabs = [
-      { id: "all", label: "All Studio" },
-      { id: "model", label: "Model Catalog" },
-      { id: "finetune", label: "Fine-tuning" },
-      { id: "deploy", label: "Deployment" },
-      { id: "eval", label: "Evaluation" },
+  // Core Infrastructure Section Component
+  const CoreInfrastructureSection = () => {
+    const coreTabs = [
+      { id: "compute", label: "Compute" },
+      { id: "storage", label: "Storage" },
+      { id: "network", label: "Network" },
     ]
 
-    const columns: Column<any>[] = [
-      {
-        key: "name",
-        label: "Service",
-        sortable: true,
-        searchable: true,
-        render: (value: string) => <div className="font-medium text-sm">{value}</div>,
-      },
-      {
-        key: "credits",
-        label: "Credits Used",
-        sortable: true,
-        searchable: true,
-        render: (value: number) => <div className="text-sm">{value}</div>,
-      },
-      {
-        key: "actions",
-        label: "Action",
-        align: "right" as const,
-        render: (_: unknown, row: any) => (
-          <div className="flex justify-end">
-            <ActionMenu
-              viewHref="#"
-              onEdit={() => { setModalResource(row); setModalOpen(true) }}
-              resourceName={row.name}
-              resourceType="Resource"
-            />
-          </div>
-        ),
-      },
-    ]
+    // Data for each tab (from screenshot)
+    const computeData = [
+      { name: "Machine1", type: "GPU VM", flavour: "A100-NVLINK-1x", time: "10 hrs 15 mins", rate: "₹105 per hour", credits: 1076.25 },
+      { name: "Machine2", type: "CPU VM", flavour: "CPU-2x-8GB", time: "10 hrs 15 mins", rate: "₹6.00 per hour", credits: 61.50 },
+      { name: "Machine3", type: "AI Pods", flavour: "A100-NVLINK-Tiny", time: "10 hrs 15 mins", rate: "₹15 per hour", credits: 153.75 },
+    ];
+    const computeTotal = 1291.50;
 
-    const getDataForTab = () => {
-      switch (studioTab) {
-        case "model": return mockModelCatalog
-        case "finetune": return mockFinetune
-        case "deploy": return mockDeploy
-        case "eval": return mockEval
-        default: return allStudio
+    const storageData = [
+      { name: "Test 1", type: "Volume disk in Pods", time: "10 hrs 15mins", size: "10 GB", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
+      { name: "Test 2", type: "Container disk in Pods", time: "10 hrs 15mins", size: "10 GB", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
+      { name: "Test 3", type: "Object Storage", time: "10 hrs 15mins", size: "10 GB", rate: "₹1.61/GB/Month", credits: 0.2292 },
+      { name: "Test 4", type: "Volumes", time: "10 hrs 15mins", size: "10 GB", rate: "₹5.95/GB/Month", credits: 0.8470 },
+      { name: "Test 5", type: "Snapshot", time: "10 hrs 15mins", size: "10 GB", rate: "₹4.25/GB/Month", credits: 0.6050 },
+      { name: "Test 6", type: "Backup", time: "10 hrs 15mins", size: "10 GB", rate: "₹2.09/GB/Month", credits: 0.2975 },
+    ];
+    const storageTotal = 3.168;
+
+    const networkData = [
+      { name: "VPC_1", type: "VPC", time: "10 hrs", rate: "₹0.28 /VPC/Month", credits: 0.004 },
+      { name: "192.1.1.1", type: "IP Address", time: "10 hrs", rate: "₹0.28 /IP Address/Month", credits: 0.004 },
+    ];
+    const networkTotal = 0.008;
+
+    // Render table for each tab
+    const renderTable = () => {
+      if (coreTab === "compute") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Machine name</th>
+                <th className="px-3 py-2 text-left">Type of service</th>
+                <th className="px-3 py-2 text-left">Flavour</th>
+                <th className="px-3 py-2 text-left">Total used time</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-right">Total credits used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {computeData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.name}</td>
+                  <td className="px-3 py-2">{row.type}</td>
+                  <td className="px-3 py-2">{row.flavour}</td>
+                  <td className="px-3 py-2">{row.time}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={5} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{computeTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
       }
-    }
+      if (coreTab === "storage") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Name</th>
+                <th className="px-3 py-2 text-left">Storage Type</th>
+                <th className="px-3 py-2 text-left">Total used time</th>
+                <th className="px-3 py-2 text-left">Average Size</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-right">Total credits used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {storageData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.name}</td>
+                  <td className="px-3 py-2">{row.type}</td>
+                  <td className="px-3 py-2">{row.time}</td>
+                  <td className="px-3 py-2">{row.size}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={5} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{storageTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
+      }
+      if (coreTab === "network") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Name</th>
+                <th className="px-3 py-2 text-left">Service type</th>
+                <th className="px-3 py-2 text-left">Total used time</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-right">Total credits used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {networkData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.name}</td>
+                  <td className="px-3 py-2">{row.type}</td>
+                  <td className="px-3 py-2">{row.time}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={4} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{networkTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
+      }
+      return null;
+    };
 
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Studio</CardTitle>
-          <div className="bg-muted rounded-md px-4 py-2 font-medium text-sm">
-            Grand Total Credits Used: {getTotalCredits(allStudio)}
-          </div>
+          <CardTitle>Core Infrastructure</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <VercelTabs
-              tabs={studioTabs}
-              activeTab={studioTab}
-              onTabChange={setStudioTab}
-              size="md"
-            />
-          </div>
-
-          <ShadcnDataTable
-            columns={[
-              ...columns.slice(0, 1),
-              ...(studioTab !== "all" ? [{
-                key: "status",
-                label: "Status",
-                sortable: true,
-                render: (value: string) => <StatusBadge status={value} />,
-              }] : []),
-              ...columns.slice(1)
-            ]}
-            data={getDataForTab()}
-            searchableColumns={["name"]}
-            defaultSort={{ column: "credits", direction: "desc" }}
-            pageSize={5}
-            enableSearch={true}
-            enableColumnVisibility={false}
-            enablePagination={false}
+          <VercelTabs
+            tabs={coreTabs}
+            activeTab={coreTab}
+            onTabChange={setCoreTab}
+            size="md"
+            className="mb-4"
           />
-          <div className="text-right font-semibold px-2 py-2 text-sm">
-            Total: {getTotalCredits(getDataForTab())} credits
-          </div>
+          {renderTable()}
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  // Solutions Section Component
+  // Studio Section Component
+  const StudioSection = () => {
+    const studioTabs = [
+      { id: "model", label: "Model Catalogue" },
+      { id: "finetune", label: "Fine tuning" },
+      { id: "deploy", label: "Deployment" },
+      { id: "eval", label: "Evaluation" },
+    ];
+
+    // Data for each tab (from screenshot)
+    const modelData = [
+      { model: "Phi 4 Reasoning plus", io: "Input", unit: "Token", used: 1000, rate: "₹5.00 per 1M token", credits: 0.01 },
+      { model: "Phi 4 Reasoning plus", io: "Output", unit: "Token", used: 1000000, rate: "₹29.00 per 1M token", credits: 29.00 },
+      { model: "Speecht5-TTS", io: "Output", unit: "Minute of output audio", used: 10, rate: "₹0.04 per minute of output audio", credits: 0.40 },
+      { model: "Whisper-large-v3", io: "Input", unit: "Minute of input audio", used: 10, rate: "₹0.04 per minute of input audio", credits: 0.40 },
+    ];
+    const modelTotal = 29.81;
+
+    const finetuneData = [
+      { job: "Job 1", model: "Llama-3-70B", unit: "Token", used: 100000, rate: "₹207.50 per 1M Token", credits: 20.75 },
+    ];
+    const finetuneTotal = 20.75;
+
+    const deployData = [
+      { name: "Model 1", flavour: "MaaS-H100-80GB-1-Node", time: "10 Hrs 15 mins", rate: "₹290.00 per hour", credits: 2972.50 },
+    ];
+    const deployTotal = 2972.50;
+
+    const evalData = [
+      { name: "Main", model: "Llama 3.1 70B", io: "Input", unit: "Token", used: 100000, rate: "₹73.04 per 1 M Token", credits: 7.304 },
+      { name: "Main", model: "Llama 3.1 70B", io: "Output", unit: "Token", used: 100000, rate: "₹73.04 per 1 M Token", credits: 7.304 },
+    ];
+    const evalTotal = 14.61;
+
+    // Render table for each tab
+    const renderTable = () => {
+      if (studioTab === "model") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Model</th>
+                <th className="px-3 py-2 text-left">Input/Output</th>
+                <th className="px-3 py-2 text-left">Unit</th>
+                <th className="px-3 py-2 text-left">Used Unit</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-right">Total Credit used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {modelData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.model}</td>
+                  <td className="px-3 py-2">{row.io}</td>
+                  <td className="px-3 py-2">{row.unit}</td>
+                  <td className="px-3 py-2">{row.used}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={5} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{modelTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
+      }
+      if (studioTab === "finetune") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Job name</th>
+                <th className="px-3 py-2 text-left">Model</th>
+                <th className="px-3 py-2 text-left">Unit</th>
+                <th className="px-3 py-2 text-left">Used Unit</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-right">Total Credit used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {finetuneData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.job}</td>
+                  <td className="px-3 py-2">{row.model}</td>
+                  <td className="px-3 py-2">{row.unit}</td>
+                  <td className="px-3 py-2">{row.used}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={5} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{finetuneTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
+      }
+      if (studioTab === "deploy") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Name</th>
+                <th className="px-3 py-2 text-left">Flavour</th>
+                <th className="px-3 py-2 text-left">Total used time</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-right">Total credits used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {deployData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.name}</td>
+                  <td className="px-3 py-2">{row.flavour}</td>
+                  <td className="px-3 py-2">{row.time}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={4} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{deployTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
+      }
+      if (studioTab === "eval") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Evaluation Name</th>
+                <th className="px-3 py-2 text-left">Model</th>
+                <th className="px-3 py-2 text-left">Input/Output</th>
+                <th className="px-3 py-2 text-left">Unit</th>
+                <th className="px-3 py-2 text-left">Used Unit</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-right">Total Credit used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {evalData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.name}</td>
+                  <td className="px-3 py-2">{row.model}</td>
+                  <td className="px-3 py-2">{row.io}</td>
+                  <td className="px-3 py-2">{row.unit}</td>
+                  <td className="px-3 py-2">{row.used}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={6} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{evalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
+      }
+      return null;
+    };
+
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>AI Studio</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <VercelTabs
+            tabs={studioTabs}
+            activeTab={studioTab}
+            onTabChange={setStudioTab}
+            size="md"
+            className="mb-4"
+          />
+          {renderTable()}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // AI Solutions Section Component
   const SolutionsSection = () => {
     const solutionsTabs = [
-      { id: "all", label: "All Solutions" },
-      { id: "basic", label: "Basic" },
-      { id: "docint", label: "Document Intelligence" },
-      { id: "industrial", label: "Industrial Solutions" },
-    ]
+      { id: "bhashik", label: "Bhashik" },
+      { id: "dis", label: "DIS" },
+      { id: "industrial", label: "Industrial Solution" },
+    ];
 
-    const columns: Column<any>[] = [
-      {
-        key: "name",
-        label: "Service",
-        sortable: true,
-        searchable: true,
-        render: (value: string) => <div className="font-medium text-sm">{value}</div>,
-      },
-      {
-        key: "credits",
-        label: "Credits Used",
-        sortable: true,
-        searchable: true,
-        render: (value: number) => <div className="text-sm">{value}</div>,
-      },
-      {
-        key: "actions",
-        label: "Action",
-        align: "right" as const,
-        render: (_: unknown, row: any) => (
-          <div className="flex justify-end">
-            <ActionMenu
-              viewHref="#"
-              onEdit={() => { setModalResource(row); setModalOpen(true) }}
-              resourceName={row.name}
-              resourceType="Resource"
-            />
-          </div>
-        ),
-      },
-    ]
+    // Data for each tab (from screenshot)
+    const bhashikData = [
+      { service: "Text to Speech", unit: "Per 1M input character", used: 10, rate: "₹266 Per 1M input character", credits: 2660.00 },
+      { service: "Text to Speech Translate", unit: "Per 1M input character", used: 10, rate: "₹1262 Per 1M input character", credits: 12620.00 },
+      { service: "Speech to text", unit: "per hour of input audio", used: 10, rate: "₹24 per hour of input audio", credits: 240.00 },
+      { service: "Speech to text long form", unit: "per hour of input audio", used: 10, rate: "₹24 per hour of input audio", credits: 240.00 },
+      { service: "Speech to text translate", unit: "per hour of input audio", used: 10, rate: "₹24 per hour of input audio", credits: 240.00 },
+      { service: "Speech to text translate long form", unit: "per hour of input audio", used: 10, rate: "₹24 per hour of input audio", credits: 240.00 },
+      { service: "Speech to speech translate", unit: "per hour of input audio", used: 10, rate: "₹166 per hour of input audio", credits: 1660.00 },
+    ];
+    const bhashikTotal = 17900.00;
 
-    const getDataForTab = () => {
-      switch (solutionsTab) {
-        case "basic": return mockBasic
-        case "docint": return mockDocInt
-        case "industrial": return mockIndustrial
-        default: return allSolutions
+    const disData = [
+      { service: "DocIntelligenceText Extraction- document", unit: "per 1000 pages", used: 10, rate: "₹100 per 1000 pages", credits: 1000.00 },
+      { service: "DocIntelligenceText extraction- OCR", unit: "per 1000 pages", used: 10, rate: "₹398 per 1000 pages", credits: 3980.00 },
+      { service: "DocIntelligenceExtract information- document", unit: "per 1000 pages", used: 10, rate: "₹1726 per 1000 pages", credits: 17260.00 },
+      { service: "DocIntelligenceExtract information- OCR", unit: "per 1000 pages", used: 10, rate: "₹1726 per 1000 pages", credits: 17260.00 },
+      { service: "DocIntelligenceDocument Summarisation- document", unit: "per 1000 pages", used: 10, rate: "₹166 per 1000 pages", credits: 1660.00 },
+      { service: "DocIntelligenceDocument Summarisation- OCR", unit: "per 1000 pages", used: 10, rate: "₹531 per 1000 pages", credits: 5310.00 },
+      { service: "DocIntelligencePII Masking- document", unit: "per 1000 pages", used: 10, rate: "₹232 per 1000 pages", credits: 2320.00 },
+    ];
+    const disTotal = 43810.00;
+
+    const industrialData = [
+      { name: "Test 1", type: "Pod", flavour: "A100-NVLINK-Standard-1x", rate: "₹ 105 per hour", usedUnit: 1, usedTime: "10 hrs", credits: 1050.00 },
+      { name: "Test 1", type: "Storage", flavour: "Container Disk", rate: "₹ 0.006 Per GB Per Hour", usedUnit: "10 GB", usedTime: "10 hrs", credits: 0.60 },
+      { name: "Test 1", type: "Storage", flavour: "Volume Disk", rate: "₹ 0.006 Per GB Per Hour", usedUnit: "10 GB", usedTime: "12 hrs", credits: 0.72 },
+    ];
+    const industrialTotal = 1051.32;
+
+    // Render table for each tab
+    const renderTable = () => {
+      if (solutionsTab === "bhashik") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Service</th>
+                <th className="px-3 py-2 text-left">Unit</th>
+                <th className="px-3 py-2 text-left">Units used</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-right">Total credits used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bhashikData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.service}</td>
+                  <td className="px-3 py-2">{row.unit}</td>
+                  <td className="px-3 py-2">{row.used}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={4} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{bhashikTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
       }
-    }
+      if (solutionsTab === "dis") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Service</th>
+                <th className="px-3 py-2 text-left">Unit</th>
+                <th className="px-3 py-2 text-left">Units used</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-right">Total credits used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {disData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.service}</td>
+                  <td className="px-3 py-2">{row.unit}</td>
+                  <td className="px-3 py-2">{row.used}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={4} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{disTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
+      }
+      if (solutionsTab === "industrial") {
+        return (
+          <table className="min-w-full text-sm border mt-4">
+            <thead>
+              <tr className="bg-muted">
+                <th className="px-3 py-2 text-left">Notebook name</th>
+                <th className="px-3 py-2 text-left">Pod/Storage</th>
+                <th className="px-3 py-2 text-left">Flavour</th>
+                <th className="px-3 py-2 text-left">Rate</th>
+                <th className="px-3 py-2 text-left">Total used unit</th>
+                <th className="px-3 py-2 text-left">Total used time</th>
+                <th className="px-3 py-2 text-right">Total credits used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {industrialData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-3 py-2">{row.name}</td>
+                  <td className="px-3 py-2">{row.type}</td>
+                  <td className="px-3 py-2">{row.flavour}</td>
+                  <td className="px-3 py-2">{row.rate}</td>
+                  <td className="px-3 py-2">{row.usedUnit}</td>
+                  <td className="px-3 py-2">{row.usedTime}</td>
+                  <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="font-bold">
+                <td colSpan={6} className="px-3 py-2 text-right">Total</td>
+                <td className="px-3 py-2 text-right">₹{industrialTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        );
+      }
+      return null;
+    };
 
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-1">
-            <CardTitle>Solutions</CardTitle>
-          </div>
-          <div className="bg-muted rounded-md px-4 py-2 font-medium text-sm ml-2">
-            Grand Total Credits Used: {getTotalCredits(allSolutions)}
+            <CardTitle>AI Solutions</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between mb-4">
-            <VercelTabs
-              tabs={solutionsTabs}
-              activeTab={solutionsTab}
-              onTabChange={setSolutionsTab}
-              size="md"
-            />
-            <Button variant="outline" size="sm"><Filter className="mr-1 h-4 w-4" />Filter</Button>
-          </div>
-          
-          <ShadcnDataTable
-            columns={[
-              ...columns.slice(0, 1),
-              ...(solutionsTab !== "all" ? [{
-                key: "status",
-                label: "Status",
-                sortable: true,
-                render: (value: string) => <StatusBadge status={value} />,
-              }] : []),
-              ...columns.slice(1)
-            ]}
-            data={getDataForTab()}
-            searchableColumns={["name"]}
-            defaultSort={{ column: "credits", direction: "desc" }}
-            pageSize={5}
-            enableSearch={true}
-            enableColumnVisibility={false}
-            enablePagination={false}
+          <VercelTabs
+            tabs={solutionsTabs}
+            activeTab={solutionsTab}
+            onTabChange={setSolutionsTab}
+            size="md"
+            className="mb-4"
           />
-          <div className="text-right font-semibold px-2 py-2 text-sm">
-            Total: {getTotalCredits(getDataForTab())} credits
-          </div>
+          {renderTable()}
         </CardContent>
       </Card>
-    )
+    );
   }
 
   // Header actions for billing
   const headerActions = (
     <>
-      <Button variant="secondary">Billing Support</Button>
+      <Button variant="outline">
+        <ArrowDownTrayIcon className="mr-1 h-4 w-4" />
+        Export
+      </Button>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="flex items-center gap-2">
+            <CalendarIcon className="h-4 w-4" />
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                </>
+              ) : (
+                format(date.from, "LLL dd, y")
+              )
+            ) : (
+              "Pick a date range"
+            )}
+            <ChevronDownIcon className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="end">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={setDate}
+            numberOfMonths={2}
+          />
+        </PopoverContent>
+      </Popover>
       <Link href="/billing/add-credits">
         <Button variant="default">Add Credits</Button>
       </Link>
@@ -583,16 +796,12 @@ export default function UsageMetricsPage() {
   )
 
   return (
-    <PageLayout title="Usage Metrics" description="Track resource usage and billing information">
+    <PageLayout 
+      title="Usage Metrics" 
+      description="Track resource usage and billing information"
+      headerActions={headerActions}
+    >
       <div className="space-y-6">
-        {/* Header Actions */}
-        <div className="flex justify-end gap-2">
-          {headerActions}
-        </div>
-        
-        {/* Usage Action Bar */}
-        <UsageActionBar date={date} setDate={setDate} />
-        
         <VercelTabs
           tabs={tabs}
           activeTab={activeTab}

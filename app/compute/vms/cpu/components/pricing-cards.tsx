@@ -69,23 +69,23 @@ function Spec({ icon: Icon, label, value }: { icon: any; label: string; value: s
 function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCardProps) {
   return (
     <Card className="relative w-full transition-all duration-200">
-      <CardHeader className="flex flex-row items-baseline justify-between pb-4">
-        <h3 className="text-lg font-medium text-foreground whitespace-nowrap">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between pb-4 gap-2 sm:gap-0">
+        <h3 className="text-lg font-medium text-foreground text-left sm:whitespace-nowrap">
           {`${vcpus} vCPU • ${memory} GB RAM`}
         </h3>
-        <div className="flex items-baseline gap-1">
-          <span className="text-lg font-extrabold leading-none">₹{price}</span>
+        <div className="flex items-baseline gap-1 sm:justify-end">
+          <span className="text-lg font-medium leading-none">₹{price}</span>
           <span className="text-lg text-muted-foreground">/hr</span>
         </div>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-foreground justify-start text-left">
-          <span>{vcpus} vCPUs</span>
-          <span className="hidden sm:inline">|</span>
-          <span>{memory} GB RAM</span>
-          <span className="hidden sm:inline">|</span>
-          <span>SSD {storage}</span>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium justify-start text-left">
+          <span><span className="text-foreground">{vcpus}</span> <span className="text-muted-foreground">vCPUs</span></span>
+          <span className="text-muted-foreground">•</span>
+          <span><span className="text-foreground">{memory}</span> <span className="text-muted-foreground">GB RAM</span></span>
+          <span className="text-muted-foreground">•</span>
+          <span><span className="text-foreground">{storage}</span> <span className="text-muted-foreground">SSD</span></span>
         </div>
         <div className="text-sm font-medium text-muted-foreground mt-2 break-words text-left">
           ARCHITECTURE: {architecture}

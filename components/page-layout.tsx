@@ -9,11 +9,12 @@ interface PageLayoutProps {
     href: string
   }>
   children?: ReactNode
+  headerActions?: ReactNode
 }
 
-export function PageLayout({ title, description, tabs, children }: PageLayoutProps) {
+export function PageLayout({ title, description, tabs, children, headerActions }: PageLayoutProps) {
   return (
-    <PageShell title={title} description={description} tabs={tabs}>
+    <PageShell title={title} description={description} tabs={tabs} headerActions={headerActions}>
       {children}
     </PageShell>
   )
