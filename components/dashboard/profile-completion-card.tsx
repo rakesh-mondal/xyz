@@ -28,7 +28,7 @@ export function ProfileCompletionCard() {
   }
 
   const getCompletionData = () => {
-    const { basicInfoComplete, identityVerified, paymentSetupComplete } = user.profileStatus
+    const { basicInfoComplete, identityVerified } = user.profileStatus
     
     const steps = [
       {
@@ -45,14 +45,6 @@ export function ProfileCompletionCard() {
         description: 'Verify your identity for security',
         completed: identityVerified,
         icon: Shield,
-        required: true
-      },
-      {
-        id: 'payment',
-        label: 'Payment Method',
-        description: 'Setup payment for paid services',
-        completed: paymentSetupComplete,
-        icon: CreditCard,
         required: true
       }
     ]

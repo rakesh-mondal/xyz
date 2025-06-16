@@ -75,7 +75,7 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
             </Button>
           )}
 
-          <div className="w-[500px]">
+          <div className="w-[500px] hidden">
             <GlobalSearch />
           </div>
         </div>
@@ -106,53 +106,55 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           </DropdownMenu>
 
           {/* Credits display */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
-                <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">₹5,000 credits</span>
-                <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80" align="end">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-medium">Credits Overview</h4>
-                    <span className="text-sm text-muted-foreground">₹{usageData.remaining} remaining</span>
-                  </div>
-                  <Progress value={(usageData.used / usageData.total) * 100} className="h-2" />
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Used: ₹{usageData.used}</span>
-                    <span className="text-muted-foreground">Total: ₹{usageData.total}</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Usage Breakdown</h4>
-                  {usageData.breakdown.map((item) => (
-                    <div key={item.name} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>{item.name}</span>
-                        <span className="text-muted-foreground">₹{item.used} / ₹{item.total}</span>
-                      </div>
-                      <Progress value={(item.used / item.total) * 100} className="h-1" />
+          <div className="hidden">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
+                  <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">₹5,000 credits</span>
+                  <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium">Credits Overview</h4>
+                      <span className="text-sm text-muted-foreground">₹{usageData.remaining} remaining</span>
                     </div>
-                  ))}
+                    <Progress value={(usageData.used / usageData.total) * 100} className="h-2" />
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Used: ₹{usageData.used}</span>
+                      <span className="text-muted-foreground">Total: ₹{usageData.total}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Usage Breakdown</h4>
+                    {usageData.breakdown.map((item) => (
+                      <div key={item.name} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span>{item.name}</span>
+                          <span className="text-muted-foreground">₹{item.used} / ₹{item.total}</span>
+                        </div>
+                        <Progress value={(item.used / item.total) * 100} className="h-1" />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" className="w-full">
+                      <ChartBarIcon className="h-4 w-4 mr-2" />
+                      View Detailed Usage
+                    </Button>
+                  </div>
                 </div>
-                <div className="pt-2">
-                  <Button variant="outline" size="sm" className="w-full">
-                    <ChartBarIcon className="h-4 w-4 mr-2" />
-                    View Detailed Usage
-                  </Button>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+              </PopoverContent>
+            </Popover>
+          </div>
 
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative hidden">
                 <div className="relative flex items-center justify-center w-9 h-9 border border-border rounded-full hover:bg-accent hover:text-accent-foreground transition-colors">
                   <BellIcon className="h-5 w-5" />
                   <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500 text-white border-2 border-white">3</Badge>

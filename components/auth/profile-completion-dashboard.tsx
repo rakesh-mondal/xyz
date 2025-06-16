@@ -12,7 +12,6 @@ import { useAuth } from "@/components/auth/auth-provider"
 // Import section components
 import { BasicInfoSection } from "./profile-sections/basic-info-section"
 import { IdentityVerificationSection } from "./profile-sections/identity-verification-section"
-import { PaymentSetupSection } from "./profile-sections/payment-setup-section"
 
 interface ProfileSection {
   id: string
@@ -46,7 +45,6 @@ export function ProfileCompletionDashboard({
   const [sectionsStatus, setSectionsStatus] = useState({
     'basic-info': 'completed' as const,
     'identity-verification': 'pending' as const,
-    'payment-setup': 'pending' as const,
   })
 
   const profileSections: ProfileSection[] = [
@@ -62,13 +60,6 @@ export function ProfileCompletionDashboard({
       title: 'Identity Verification',
       status: sectionsStatus['identity-verification'],
       component: IdentityVerificationSection,
-      required: true
-    },
-    {
-      id: 'payment-setup',
-      title: 'Payment Information',
-      status: sectionsStatus['payment-setup'],
-      component: PaymentSetupSection,
       required: true
     }
   ]
@@ -119,8 +110,6 @@ export function ProfileCompletionDashboard({
     // Update profile status in auth provider
     if (sectionId === 'identity-verification') {
       updateProfileStatus({ identityVerified: true })
-    } else if (sectionId === 'payment-setup') {
-      updateProfileStatus({ paymentSetupComplete: true })
     }
 
     // Check if all sections are completed
@@ -131,8 +120,7 @@ export function ProfileCompletionDashboard({
       // Update all profile completion status
       updateProfileStatus({ 
         basicInfoComplete: true,
-        identityVerified: true, 
-        paymentSetupComplete: true 
+        identityVerified: true
       })
       
       // Force refresh access level and add delay for state sync
@@ -214,7 +202,6 @@ export function ProfileCompletionDashboard({
                     <p className="text-sm text-gray-600">
                       {section.id === 'basic-info' && "Your account information from signup"}
                       {section.id === 'identity-verification' && "Verify your identity for enhanced security"}
-                      {section.id === 'payment-setup' && "Add payment method for paid services"}
                     </p>
                   </div>
                 </div>

@@ -31,9 +31,9 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
   const getProfileCompletionPercentage = () => {
     if (!user) return 0
     
-    const { basicInfoComplete, identityVerified, paymentSetupComplete } = user.profileStatus
-    const completed = [basicInfoComplete, identityVerified, paymentSetupComplete].filter(Boolean).length
-    return Math.round((completed / 3) * 100)
+    const { basicInfoComplete, identityVerified } = user.profileStatus
+    const completed = [basicInfoComplete, identityVerified].filter(Boolean).length
+    return Math.round((completed / 2) * 100)
   }
 
   const getRequiredSteps = () => {
@@ -42,9 +42,6 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
     const steps: string[] = []
     if (!user.profileStatus.identityVerified) {
       steps.push('Identity verification')
-    }
-    if (!user.profileStatus.paymentSetupComplete) {
-      steps.push('Payment setup')
     }
     return steps
   }
@@ -133,9 +130,9 @@ export function AccessBannerCompact({ onCompleteProfile, className }: AccessBann
   const getProfileCompletionPercentage = () => {
     if (!user) return 0
     
-    const { basicInfoComplete, identityVerified, paymentSetupComplete } = user.profileStatus
-    const completed = [basicInfoComplete, identityVerified, paymentSetupComplete].filter(Boolean).length
-    return Math.round((completed / 3) * 100)
+    const { basicInfoComplete, identityVerified } = user.profileStatus
+    const completed = [basicInfoComplete, identityVerified].filter(Boolean).length
+    return Math.round((completed / 2) * 100)
   }
 
   if (accessLevel === 'limited') {

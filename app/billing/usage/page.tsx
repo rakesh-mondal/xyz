@@ -203,11 +203,11 @@ export default function UsageMetricsPage() {
       },
     ]
     return (
-      <Card>
-        <CardHeader>
+          <Card>
+            <CardHeader>
           <CardTitle>Billing Overview by Service</CardTitle>
-        </CardHeader>
-        <CardContent>
+            </CardHeader>
+            <CardContent>
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 w-full">
               {/* Total Credits Used */}
@@ -222,24 +222,24 @@ export default function UsageMetricsPage() {
                 <div className="flex flex-col items-center">
                   <div className="text-lg font-semibold mb-2">Distribution</div>
                   <ResponsiveContainer width={200} height={200}>
-                    <PieChart>
-                      <Pie
-                        data={pieData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
                         label={false}
-                        stroke="none"
-                      >
-                        {pieData.map((entry, idx) => (
-                          <Cell key={`cell-${idx}`} fill={entry.color} />
-                        ))}
-                      </Pie>
+                      stroke="none"
+                    >
+                      {pieData.map((entry, idx) => (
+                        <Cell key={`cell-${idx}`} fill={entry.color} />
+                      ))}
+                    </Pie>
                       <Tooltip formatter={(value: number, name: string) => [`₹${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, name]} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  </PieChart>
+                </ResponsiveContainer>
                 </div>
                 {/* Legend to the right of the chart, with two columns */}
                 <div className="ml-6 flex flex-col items-start gap-2 mt-0">
@@ -253,9 +253,9 @@ export default function UsageMetricsPage() {
                 </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+          </CardContent>
+        </Card>
     )
   }
 
@@ -398,13 +398,13 @@ export default function UsageMetricsPage() {
           <CardTitle>Infrastructure Costs</CardTitle>
         </CardHeader>
         <CardContent>
-          <VercelTabs
-            tabs={coreTabs}
-            activeTab={coreTab}
-            onTabChange={setCoreTab}
-            size="md"
-            className="mb-4"
-          />
+            <VercelTabs
+              tabs={coreTabs}
+              activeTab={coreTab}
+              onTabChange={setCoreTab}
+              size="md"
+              className="mb-4"
+            />
           {renderTable()}
         </CardContent>
       </Card>
@@ -584,11 +584,11 @@ export default function UsageMetricsPage() {
           <CardTitle>Model Development Charges</CardTitle>
         </CardHeader>
         <CardContent>
-          <VercelTabs
-            tabs={studioTabs}
-            activeTab={studioTab}
-            onTabChange={setStudioTab}
-            size="md"
+            <VercelTabs
+              tabs={studioTabs}
+              activeTab={studioTab}
+              onTabChange={setStudioTab}
+              size="md"
             className="mb-4"
           />
           {renderTable()}
@@ -744,11 +744,11 @@ export default function UsageMetricsPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <VercelTabs
-            tabs={solutionsTabs}
-            activeTab={solutionsTab}
-            onTabChange={setSolutionsTab}
-            size="md"
+            <VercelTabs
+              tabs={solutionsTabs}
+              activeTab={solutionsTab}
+              onTabChange={setSolutionsTab}
+              size="md"
             className="mb-4"
           />
           {renderTable()}
