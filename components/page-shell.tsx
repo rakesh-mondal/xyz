@@ -14,6 +14,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { generateBreadcrumbs } from "@/lib/generate-breadcrumbs"
+import { DocumentTextIcon } from "@heroicons/react/24/outline"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 interface PageShellProps {
   title: string
@@ -33,22 +36,32 @@ export function PageShell({ title, description, tabs, children, headerActions }:
   return (
     <div className="space-y-6">
       <div>
-        <Breadcrumb className="mb-4">
-          <BreadcrumbList>
-            {breadcrumbs.map((crumb, index) => (
-              <React.Fragment key={crumb.href}>
-                {index > 0 && <BreadcrumbSeparator />}
-                <BreadcrumbItem>
-                  {index === breadcrumbs.length - 1 ? (
-                    <BreadcrumbPage>{crumb.title}</BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink href={crumb.href}>{crumb.title}</BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
-              </React.Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
+        <div className="flex items-center justify-between mb-4">
+          <Breadcrumb>
+            <BreadcrumbList>
+              {breadcrumbs.map((crumb, index) => (
+                <React.Fragment key={crumb.href}>
+                  {index > 0 && <BreadcrumbSeparator />}
+                  <BreadcrumbItem>
+                    {index === breadcrumbs.length - 1 ? (
+                      <BreadcrumbPage>{crumb.title}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={crumb.href}>{crumb.title}</BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+          
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/documentation" className="flex items-center gap-1 font-normal text-foreground">
+              <DocumentTextIcon className="h-4 w-4" />
+              View Docs
+            </Link>
+          </Button>
+        </div>
+        
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{title}</h1>

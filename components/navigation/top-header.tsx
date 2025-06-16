@@ -75,7 +75,14 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
             </Button>
           )}
 
-          <div className="w-[500px] hidden">
+          {/* Account ID Badge */}
+          <div className="flex items-center">
+            <Badge variant="outline" className="px-3 py-1.5 rounded-full bg-gray-50 border-gray-200 text-gray-700 font-medium">
+              Account Id - 7381739941
+            </Badge>
+          </div>
+
+          <div className="w-[300px] hidden">
             <GlobalSearch />
           </div>
         </div>
