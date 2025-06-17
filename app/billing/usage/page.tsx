@@ -213,54 +213,60 @@ export default function UsageMetricsPage() {
             </CardHeader>
             <CardContent>
           <div className="flex flex-col gap-8">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-8 w-full">
-              {/* Credits Information - Stacked Layout */}
-              <div className="flex flex-col items-end md:items-end min-w-[280px]">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8 w-full">
+              {/* Credits Information - Side by Side Layout */}
+              <div className="flex flex-col md:flex-row items-center gap-12 flex-1 justify-center">
                 {/* Total Credits Used */}
-                <div className="text-lg font-semibold mb-1 text-right">Total Credits Used</div>
-                <div className="text-4xl font-extrabold mb-4 text-right text-gray-400">₹{totalUsedCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-lg font-semibold mb-1">Total Credits Used</div>
+                  <div className="text-4xl font-medium text-gray-400">₹{totalUsedCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                </div>
                 
                 {/* Remaining Credits */}
-                <div className="text-lg font-semibold mb-1 text-right">Remaining Credits</div>
-                <div className="text-4xl font-extrabold mb-2 text-right text-black">
-                  ₹{remainingCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-lg font-semibold mb-1">Remaining Credits</div>
+                  <div className="text-4xl font-medium text-black">
+                    ₹{remainingCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
                 </div>
               </div>
               {/* Divider */}
               <div className="hidden md:block h-32 border-l border-gray-200 mx-6" />
               {/* Distribution Pie Chart with legend on the right, including totals */}
-              <div className="flex flex-col md:flex-row items-center">
-                <div className="flex flex-col items-center">
-                  <div className="text-lg font-semibold mb-2">Distribution</div>
-                  <ResponsiveContainer width={200} height={200}>
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                        label={false}
-                      stroke="none"
-                    >
-                      {pieData.map((entry, idx) => (
-                        <Cell key={`cell-${idx}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                      <Tooltip formatter={(value: number, name: string) => [`₹${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, name]} />
-                  </PieChart>
-                </ResponsiveContainer>
-                </div>
-                {/* Legend to the right of the chart, with two columns */}
-                <div className="ml-6 flex flex-col items-start gap-2 mt-0">
-                  {pieData.map((entry) => (
-                    <div key={entry.name} className="flex items-center gap-6 min-w-[200px]">
-                      <span className="inline-block w-3 h-3 rounded-full" style={{ background: entry.color }}></span>
-                      <span className="text-xs font-medium text-muted-foreground w-36 whitespace-nowrap">{entry.name}</span>
-                      <span className="text-xs font-semibold text-gray-900 text-right w-20">₹{entry.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </div>
-                  ))}
+              <div className="flex flex-1 justify-start items-center pl-8">
+                <div className="flex flex-col md:flex-row items-center">
+                  <div className="flex flex-col items-center">
+                    <div className="text-lg font-semibold mb-2">Distribution</div>
+                    <ResponsiveContainer width={200} height={200}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                          label={false}
+                        stroke="none"
+                      >
+                        {pieData.map((entry, idx) => (
+                          <Cell key={`cell-${idx}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                        <Tooltip formatter={(value: number, name: string) => [`₹${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, name]} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  </div>
+                  {/* Legend to the right of the chart, with two columns */}
+                  <div className="ml-6 flex flex-col items-start gap-2 mt-0">
+                    {pieData.map((entry) => (
+                      <div key={entry.name} className="flex items-center gap-6 min-w-[200px]">
+                        <span className="inline-block w-3 h-3 rounded-full" style={{ background: entry.color }}></span>
+                        <span className="text-xs font-medium text-muted-foreground w-36 whitespace-nowrap">{entry.name}</span>
+                        <span className="text-xs font-semibold text-gray-900 text-right w-20">₹{entry.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
