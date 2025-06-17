@@ -16,7 +16,6 @@ export default function ClientLayout({
 }) {
   const pathname = usePathname()
   const [isMounted, setIsMounted] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   useEffect(() => {
@@ -40,44 +39,40 @@ export default function ClientLayout({
       {isAuthPage ? (
         <>{children}</>
       ) : (
-        <div className="flex h-screen w-full overflow-hidden">
-          {/* Left Navigation Sidebar */}
-          <div
-            className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:static ${
-              mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-            }`}
-            style={{ width: sidebarCollapsed ? "5rem" : "16rem" }}
-          >
-            <LeftNavigation
-              collapsed={sidebarCollapsed}
-              onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-              onClose={() => setMobileSidebarOpen(false)}
-            />
-          </div>
+        <div className="flex h-screen w-full overflow-hidden flex-col">
+          {/* Full width Top Header */}
+          <TopHeader
+            onMenuClick={() => setMobileSidebarOpen(true)}
+            isMobile={!isMounted ? false : window.innerWidth < 1024}
+          />
 
-          {/* Mobile sidebar backdrop */}
-          {mobileSidebarOpen && (
-            <div
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
-              onClick={() => setMobileSidebarOpen(false)}
-            />
-          )}
+          <div className="flex flex-1 overflow-hidden">
+                         {/* Left Navigation Sidebar */}
+             <div
+               className={`fixed inset-y-0 left-0 top-[64px] z-50 transform transition-transform duration-300 ease-in-out lg:static lg:w-64 ${
+                 mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+               }`}
+               style={{ width: "16rem" }}
+             >
+               <LeftNavigation
+                 onClose={() => setMobileSidebarOpen(false)}
+               />
+             </div>
 
-          <div className="flex flex-col flex-1 overflow-hidden">
-            {/* Simplified Top Header */}
-            <TopHeader
-              onMenuClick={() => setMobileSidebarOpen(true)}
-              isMobile={!isMounted ? false : window.innerWidth < 1024}
-            />
+             {/* Mobile sidebar backdrop */}
+             {mobileSidebarOpen && (
+               <div
+                 className="fixed inset-0 top-[64px] z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+                 onClick={() => setMobileSidebarOpen(false)}
+               />
+             )}
 
-            <div className="flex flex-1 overflow-hidden">
-              {/* Main Content */}
-              <main className="flex-1 overflow-y-auto relative z-0" style={{ backgroundColor: '#fafafa' }}>
-                <div className="h-[96%] mx-auto">
-                  {children}
-                </div>
-              </main>
-            </div>
+             {/* Main Content */}
+             <main className="flex-1 overflow-y-auto relative z-0" style={{ backgroundColor: '#fafafa' }}>
+               <div className="h-full w-full">
+                 {children}
+               </div>
+             </main>
           </div>
         </div>
       )}

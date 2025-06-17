@@ -27,7 +27,6 @@ import {
 } from "@heroicons/react/24/outline"
 import { Settings, Activity, HelpCircle, BookOpen, ChevronRight, ChevronLeft, Network, HardDrive, Map, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { KrutrimLogo } from "@/components/ui/krutrim-logo"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
@@ -599,17 +598,11 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
 
   return (
     <div className="flex h-screen flex-col border-r bg-background">
-      {/* Header with logo */}
-      <div className="flex h-[64px] items-center border-b px-4 justify-between">
-        <div className="flex items-center gap-2">
-          <KrutrimLogo width={120} height={64} />
-        </div>
-
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden">
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+      {/* Mobile close button - only visible on mobile */}
+      <div className="flex items-center justify-end px-4 py-2 lg:hidden">
+        <Button variant="ghost" size="icon" onClick={onClose}>
+          <X className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Main navigation items */}

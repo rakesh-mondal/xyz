@@ -12,6 +12,7 @@ import {
   ChartBarIcon, 
   ArrowLeftOnRectangleIcon 
 } from "@heroicons/react/24/outline"
+import { KrutrimLogo } from "@/components/ui/krutrim-logo"
 import { Button } from "@/components/ui/button"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import {
@@ -66,9 +67,14 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-[62px] items-center justify-between px-4">
-        {/* Left side - Mobile menu button and search */}
+      <div className="flex h-[64px] items-center justify-between px-4">
+        {/* Left side - Logo, mobile menu button and search */}
         <div className="flex items-center gap-4">
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <KrutrimLogo width={120} height={40} />
+          </Link>
+
           {isMobile && (
             <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden">
               <Bars3Icon className="h-5 w-5" />
