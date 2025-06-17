@@ -214,10 +214,6 @@ const navigationConfig = {
     isCategory: true,
     subItems: [
       {
-        href: "/administration/projects",
-        label: "Projects"
-      },
-      {
         href: "/administration/iam",
         label: "Identity (IAM)",
         subItems: [
@@ -705,16 +701,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
 
       {/* Bottom navigation items */}
       <div className="mt-auto border-t px-3">
-        <div className="py-2.5 flex flex-col gap-1.5">
-          {/* Support */}
-          <NavItem
-            href={navigationConfig.support.href}
-            icon={navigationConfig.support.icon}
-            label={navigationConfig.support.label}
-            exactActive={isExactActive(navigationConfig.support.href)}
-            active={isActive(navigationConfig.support.href)}
-          />
-
+        <div className="py-3 flex flex-col gap-2">
           {/* Documentation */}
           <NavItem
             href={navigationConfig.documentation.href}
@@ -723,7 +710,18 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             exactActive={isExactActive(navigationConfig.documentation.href)}
             active={isActive(navigationConfig.documentation.href)}
           />
+
+          {/* Support */}
+          <NavItem
+            href={navigationConfig.support.href}
+            icon={navigationConfig.support.icon}
+            label={navigationConfig.support.label}
+            exactActive={isExactActive(navigationConfig.support.href)}
+            active={isActive(navigationConfig.support.href)}
+          />
         </div>
+        {/* Extra spacing at bottom */}
+        <div className="pb-2"></div>
       </div>
     </div>
   )

@@ -68,7 +68,14 @@ export default function ClientLayout({
              )}
 
              {/* Main Content */}
-             <main className="flex-1 overflow-y-auto relative z-0" style={{ backgroundColor: '#fafafa' }}>
+             <main 
+               className="flex-1 overflow-y-auto relative z-0 smooth-scroll" 
+               style={{ 
+                 backgroundColor: '#fafafa',
+                 scrollBehavior: 'smooth',
+                 WebkitOverflowScrolling: 'touch'
+               }}
+             >
                <div className="h-full w-full">
                  {children}
                </div>
