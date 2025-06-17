@@ -137,15 +137,13 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                   </div>
                   <div className="space-y-2">
                     <Button variant="default" size="sm" className="w-full" asChild>
-                      <Link href="/billing/usage">
-                        <ChartBarIcon className="h-4 w-4 mr-2" />
-                        View Usage
+                      <Link href="/billing/add-credits">
+                        Add Credits
                       </Link>
                     </Button>
                     <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href="/billing/add-credits">
-                        <CreditCardIcon className="h-4 w-4 mr-2" />
-                        Add Credits
+                      <Link href="/billing/usage">
+                        View Usage
                       </Link>
                     </Button>
                   </div>
