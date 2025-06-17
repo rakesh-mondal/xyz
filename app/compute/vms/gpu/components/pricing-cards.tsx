@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 // NVIDIA Logo Component
 function NvidiaLogo({ className }: { className?: string }) {
@@ -120,13 +121,20 @@ function getAvailabilityColor(availability: string) {
 }
 
 function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availability, gpuType }: GpuPricingCardProps) {
+  const { toast } = useToast();
+
+  const handleNotifyMe = () => {
+    toast({
+      title: "Notification Set",
+      description: "You will be notified over email once this GPU is available.",
+    });
+  };
+
   return (
     <Card className="relative w-full transition-all duration-200">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-2 mb-2">
-          <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-            <NvidiaLogo className="h-5 w-5" />
-          </div>
+          <NvidiaLogo className="h-5 w-5" />
           <h3 className="text-base font-medium text-foreground">
             {gpuType}
           </h3>
@@ -180,7 +188,8 @@ function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availabil
         <Button
           className="w-full text-sm font-semibold transition-all duration-200"
           size="sm"
-          variant="outline"
+          variant="secondary"
+          onClick={handleNotifyMe}
         >
           Notify Me
         </Button>
