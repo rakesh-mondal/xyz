@@ -113,7 +113,7 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           </DropdownMenu>
 
           {/* Credits display */}
-          <div className="hidden">
+          <div>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
@@ -148,9 +148,11 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                     ))}
                   </div>
                   <div className="pt-2">
-                    <Button variant="outline" size="sm" className="w-full">
-                      <ChartBarIcon className="h-4 w-4 mr-2" />
-                      View Detailed Usage
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href="/billing/usage">
+                        <ChartBarIcon className="h-4 w-4 mr-2" />
+                        View Detailed Usage
+                      </Link>
                     </Button>
                   </div>
                 </div>
