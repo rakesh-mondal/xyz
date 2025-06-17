@@ -92,7 +92,7 @@ function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCar
         </div>
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="justify-end">
         <Button
           className="text-sm font-semibold transition-all duration-200"
           size="sm"
