@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input"
 import { VercelTabs } from "@/components/ui/vercel-tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 
 interface ContextualHelpProps {
   servicePath?: string
@@ -185,14 +186,16 @@ export function ContextualHelp({ servicePath }: ContextualHelpProps) {
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="icon"
-        className="fixed bottom-4 right-4 h-10 w-10 rounded-full shadow-lg z-50"
-        onClick={() => setIsOpen(true)}
-      >
-        <HelpCircle className="h-5 w-5" />
-      </Button>
+      <TooltipWrapper content="Get help and support for this page">
+        <Button
+          variant="outline"
+          size="icon"
+          className="fixed bottom-4 right-4 h-10 w-10 rounded-full shadow-lg z-50"
+          onClick={() => setIsOpen(true)}
+        >
+          <HelpCircle className="h-5 w-5" />
+        </Button>
+      </TooltipWrapper>
 
       {isOpen && (
         <div className="fixed inset-y-0 right-0 w-80 md:w-96 bg-background border-l shadow-lg z-50 flex flex-col">

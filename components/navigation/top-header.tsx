@@ -13,6 +13,7 @@ import {
   ArrowLeftOnRectangleIcon 
 } from "@heroicons/react/24/outline"
 import { Button } from "@/components/ui/button"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,13 +92,15 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
         <div className="flex items-center gap-3">
           {/* Region selector */}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
-                <GlobeAltIcon className="h-4 w-4 text-muted-foreground" />
-                <span className="max-w-[120px] truncate text-sm">{regions[0].name}</span>
-                <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
+            <TooltipWrapper content="Select your preferred region for resources">
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
+                  <GlobeAltIcon className="h-4 w-4 text-muted-foreground" />
+                  <span className="max-w-[120px] truncate text-sm">{regions[0].name}</span>
+                  <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipWrapper>
             <DropdownMenuContent align="end" className="w-[240px]">
               <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">Select Region</DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -115,13 +118,15 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           {/* Credits display */}
           <div>
             <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
-                  <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">₹5,000 credits</span>
-                  <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
-                </Button>
-              </PopoverTrigger>
+              <TooltipWrapper content="View credit balance and usage details">
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
+                    <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">₹5,000 credits</span>
+                    <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </PopoverTrigger>
+              </TooltipWrapper>
               <PopoverContent className="w-80" align="end">
                 <div className="space-y-4">
                   <div className="space-y-2">

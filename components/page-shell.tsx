@@ -16,6 +16,8 @@ import {
 import { generateBreadcrumbs } from "@/lib/generate-breadcrumbs"
 import { DocumentTextIcon } from "@heroicons/react/24/outline"
 import { Button } from "@/components/ui/button"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
+import { getContextualTooltip } from "@/lib/tooltip-content"
 import Link from "next/link"
 
 interface PageShellProps {
@@ -54,12 +56,18 @@ export function PageShell({ title, description, tabs, children, headerActions }:
             </BreadcrumbList>
           </Breadcrumb>
           
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/documentation" className="flex items-center gap-1 font-normal text-foreground">
-              <DocumentTextIcon className="h-4 w-4" />
-              View Docs
-            </Link>
-          </Button>
+          <TooltipWrapper 
+            content={getContextualTooltip(pathname, 'viewDocs')}
+            side="bottom"
+            align="end"
+          >
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/documentation" className="flex items-center gap-1 font-normal text-foreground">
+                <DocumentTextIcon className="h-4 w-4" />
+                View Docs
+              </Link>
+            </Button>
+          </TooltipWrapper>
         </div>
         
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">

@@ -1,5 +1,9 @@
+import { TooltipWrapper } from "./ui/tooltip-wrapper"
+import { getTooltipContent } from "@/lib/tooltip-content"
+
 interface StatusBadgeProps {
   status: string
+  tooltip?: string
 }
 
 /**
@@ -14,7 +18,7 @@ interface StatusBadgeProps {
  * <StatusBadge status="incremental" /> // Purple badge
  * <StatusBadge status="full" />        // Blue badge
  */
-export function StatusBadge({ status }: StatusBadgeProps) {
+export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
   let bgColor = "bg-secondary"
   let textColor = "text-secondary-foreground"
 
@@ -110,9 +114,17 @@ export function StatusBadge({ status }: StatusBadgeProps) {
       break
   }
 
-  return (
+  const badge = (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
       {status}
     </span>
+  )
+
+  const tooltipContent = tooltip || getTooltipContent('status', status.toLowerCase())
+
+  return (
+    <TooltipWrapper content={tooltipContent}>
+      {badge}
+    </TooltipWrapper>
   )
 }

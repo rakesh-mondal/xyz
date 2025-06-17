@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle } from "lucide-react"
 import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { TooltipWrapper } from "./ui/tooltip-wrapper"
 import Link from "next/link"
 import { DeleteConfirmationModal } from "./delete-confirmation-modal"
 
@@ -54,12 +55,14 @@ export function ActionMenu({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <MoreVertical className="h-5 w-5" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
+        <TooltipWrapper content={`More actions for ${resourceName}`}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <MoreVertical className="h-5 w-5" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipWrapper>
         <DropdownMenuContent align="end" className="border-border min-w-[180px]">
           {viewHref && (
             <DropdownMenuItem asChild>
