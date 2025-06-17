@@ -87,7 +87,7 @@ function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCar
           <span className="text-muted-foreground">•</span>
           <span><span className="text-foreground">{storage}</span> <span className="text-muted-foreground">SSD</span></span>
         </div>
-        <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center justify-between mt-1">
           <div className="text-sm font-medium break-words text-left">
             <span className="text-muted-foreground">ARCHITECTURE: </span>
             <span className="text-black">{architecture}</span>
