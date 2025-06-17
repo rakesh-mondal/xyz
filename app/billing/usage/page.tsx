@@ -186,6 +186,10 @@ export default function UsageMetricsPage() {
 
   // Summary Section Component
   const SummarySection = () => {
+    const totalAvailableCredits = 69187.32; // Updated to show desired remaining credits
+    const totalUsedCredits = 67093.659;
+    const remainingCredits = totalAvailableCredits - totalUsedCredits;
+    
     const columns: Column<any>[] = [
       {
         key: "name",
@@ -210,13 +214,20 @@ export default function UsageMetricsPage() {
             <CardContent>
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 w-full">
-              {/* Total Credits Used */}
-              <div className="flex flex-col items-end md:items-end min-w-[220px]">
+              {/* Credits Information - Stacked Layout */}
+              <div className="flex flex-col items-end md:items-end min-w-[280px]">
+                {/* Total Credits Used */}
                 <div className="text-lg font-semibold mb-1 text-right">Total Credits Used</div>
-                <div className="text-4xl font-extrabold mb-2 text-right">₹{67093.659.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="text-4xl font-extrabold mb-4 text-right text-gray-400">₹{totalUsedCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                
+                {/* Remaining Credits */}
+                <div className="text-lg font-semibold mb-1 text-right">Remaining Credits</div>
+                <div className="text-4xl font-extrabold mb-2 text-right text-black">
+                  ₹{remainingCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
               </div>
               {/* Divider */}
-              <div className="hidden md:block h-24 border-l border-gray-200 mx-6" />
+              <div className="hidden md:block h-32 border-l border-gray-200 mx-6" />
               {/* Distribution Pie Chart with legend on the right, including totals */}
               <div className="flex flex-col md:flex-row items-center">
                 <div className="flex flex-col items-center">
