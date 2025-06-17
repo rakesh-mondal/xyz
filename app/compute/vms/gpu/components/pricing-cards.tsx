@@ -188,7 +188,7 @@ function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availabil
         <Button
           className="w-full text-sm font-semibold transition-all duration-200"
           size="sm"
-          variant="secondary"
+          variant="outline"
           onClick={handleNotifyMe}
         >
           Notify Me

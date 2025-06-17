@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { AuthProvider } from "@/components/auth/auth-provider"
 import { TopHeader } from "@/components/navigation/top-header"
 import { LeftNavigation } from "@/components/navigation/left-navigation"
+import { Toaster } from "@/components/ui/toaster"
 
 export default function ClientLayout({
   children,
@@ -80,6 +81,7 @@ export default function ClientLayout({
           </div>
         </div>
       )}
+      <Toaster />
     </AuthProvider>
   )
 }
