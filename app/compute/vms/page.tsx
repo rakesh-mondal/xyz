@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Server, Play, Square, RotateCcw, Settings, Monitor, Activity } from "lucide-react"
 import { CpuPricingCards } from "./cpu/components/pricing-cards"
+import { GpuPricingCards } from "./gpu/components/pricing-cards"
 
 // VM Data and interfaces
 interface VirtualMachine {
@@ -86,9 +87,8 @@ function CpuVmSection() {
 
 function GpuVmSection() {
   return (
-    <div className="rounded-lg border border-dashed p-10 text-center">
-      <h3 className="text-lg font-medium">GPU VM Content</h3>
-      <p className="text-sm text-muted-foreground mt-1">This is a placeholder for GPU VM management interface</p>
+    <div className="space-y-6">
+      <GpuPricingCards />
     </div>
   )
 }
