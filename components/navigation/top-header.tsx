@@ -122,29 +122,30 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
                     <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">₹5,000 credits</span>
+                    <span className="text-sm">₹{usageData.remaining} remaining</span>
                     <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </PopoverTrigger>
               </TooltipWrapper>
-              <PopoverContent className="w-80" align="end">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium">Credits Overview</h4>
-                      <span className="text-sm text-muted-foreground">₹{usageData.remaining} remaining</span>
-                    </div>
-                    <Progress value={(usageData.used / usageData.total) * 100} className="h-2" />
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Used: ₹{usageData.used}</span>
-                      <span className="text-muted-foreground">Total: ₹{usageData.total}</span>
-                    </div>
+              <PopoverContent className="w-60" align="end">
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-medium">Credits</h4>
+                    <p className="text-sm text-muted-foreground">
+                      ₹{usageData.remaining} of ₹{usageData.total} remaining
+                    </p>
                   </div>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" className="w-full" asChild>
+                  <div className="space-y-2">
+                    <Button variant="default" size="sm" className="w-full" asChild>
                       <Link href="/billing/usage">
                         <ChartBarIcon className="h-4 w-4 mr-2" />
-                        View Detailed Usage
+                        View Usage
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href="/billing/add-credits">
+                        <CreditCardIcon className="h-4 w-4 mr-2" />
+                        Add Credits
                       </Link>
                     </Button>
                   </div>
