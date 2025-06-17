@@ -135,18 +135,6 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                       <span className="text-muted-foreground">Total: ₹{usageData.total}</span>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Usage Breakdown</h4>
-                    {usageData.breakdown.map((item) => (
-                      <div key={item.name} className="space-y-1">
-                        <div className="flex items-center justify-between text-sm">
-                          <span>{item.name}</span>
-                          <span className="text-muted-foreground">₹{item.used} / ₹{item.total}</span>
-                        </div>
-                        <Progress value={(item.used / item.total) * 100} className="h-1" />
-                      </div>
-                    ))}
-                  </div>
                   <div className="pt-2">
                     <Button variant="outline" size="sm" className="w-full" asChild>
                       <Link href="/billing/usage">
