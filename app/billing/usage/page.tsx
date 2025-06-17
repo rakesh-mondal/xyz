@@ -280,19 +280,19 @@ export default function UsageMetricsPage() {
 
     // Data for each tab (updated to match VPC structure)
     const computeData = [
-      { name: "Machine1", type: "GPU VM", time: "10 hrs 15 mins", rate: "₹105 per hour", credits: 1076.25 },
-      { name: "Machine2", type: "CPU VM", time: "10 hrs 15 mins", rate: "₹6.00 per hour", credits: 61.50 },
-      { name: "Machine3", type: "AI Pods", time: "10 hrs 15 mins", rate: "₹15 per hour", credits: 153.75 },
+      { name: "Machine1", type: "GPU VM", flavor: "A100-NVLINK-1x", time: "10 hrs 15 mins", rate: "₹105 per hour", credits: 1076.25 },
+      { name: "Machine2", type: "CPU VM", flavor: "CPU-2x-8GB", time: "10 hrs 15 mins", rate: "₹6.00 per hour", credits: 61.50 },
+      { name: "Machine3", type: "AI Pods", flavor: "A100-NVLINK-Tiny", time: "10 hrs 15 mins", rate: "₹15 per hour", credits: 153.75 },
     ];
     const computeTotal = 1291.50;
 
     const storageData = [
-      { name: "Test 1", type: "Volume disk in Pods (10 GB)", time: "10 hrs 15mins", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
-      { name: "Test 2", type: "Container disk in Pods (10 GB)", time: "10 hrs 15mins", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
-      { name: "Test 3", type: "Object Storage (10 GB)", time: "10 hrs 15mins", rate: "₹1.61/GB/Month", credits: 0.2292 },
-      { name: "Test 4", type: "Volumes (10 GB)", time: "10 hrs 15mins", rate: "₹5.95/GB/Month", credits: 0.8470 },
-      { name: "Test 5", type: "Snapshot (10 GB)", time: "10 hrs 15mins", rate: "₹4.25/GB/Month", credits: 0.6050 },
-      { name: "Test 6", type: "Backup (10 GB)", time: "10 hrs 15mins", rate: "₹2.09/GB/Month", credits: 0.2975 },
+      { name: "Test 1", type: "Volume disk in Pods", time: "10 hrs 15mins", size: "10 GB", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
+      { name: "Test 2", type: "Container disk in Pods", time: "10 hrs 15mins", size: "10 GB", rate: "₹ 0.0058/GB/Hr", credits: 0.5945 },
+      { name: "Test 3", type: "Object Storage", time: "10 hrs 15mins", size: "10 GB", rate: "₹1.61/GB/Month", credits: 0.2292 },
+      { name: "Test 4", type: "Volumes", time: "10 hrs 15mins", size: "10 GB", rate: "₹5.95/GB/Month", credits: 0.8470 },
+      { name: "Test 5", type: "Snapshot", time: "10 hrs 15mins", size: "10 GB", rate: "₹4.25/GB/Month", credits: 0.6050 },
+      { name: "Test 6", type: "Backup", time: "10 hrs 15mins", size: "10 GB", rate: "₹2.09/GB/Month", credits: 0.2975 },
     ];
     const storageTotal = 3.168;
 
@@ -310,8 +310,9 @@ export default function UsageMetricsPage() {
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="bg-muted">
-                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
-                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Machine name</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Type of service</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Flavour</th>
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
                   <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
@@ -322,13 +323,14 @@ export default function UsageMetricsPage() {
                   <tr key={idx} className="border-b transition-colors hover:bg-gray-50/40">
                     <td className="px-3 py-2">{row.name}</td>
                     <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.flavor}</td>
                     <td className="px-3 py-2">{row.time}</td>
                     <td className="px-3 py-2">{row.rate}</td>
                     <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td><td></td>
                   <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{computeTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
               </tbody>
@@ -343,8 +345,9 @@ export default function UsageMetricsPage() {
               <thead>
                 <tr className="bg-muted">
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium rounded-tl-md">Name</th>
-                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Service type</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Storage Type</th>
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Total used time</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Average Size</th>
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
                   <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
@@ -355,12 +358,13 @@ export default function UsageMetricsPage() {
                     <td className="px-3 py-2">{row.name}</td>
                     <td className="px-3 py-2">{row.type}</td>
                     <td className="px-3 py-2">{row.time}</td>
+                    <td className="px-3 py-2">{row.size}</td>
                     <td className="px-3 py-2">{row.rate}</td>
                     <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td><td></td>
                   <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{storageTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
               </tbody>
