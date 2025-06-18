@@ -676,6 +676,7 @@ export default function UsageMetricsPage() {
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Unit</th>
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Units used</th>
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Units</th>
                   <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
               </thead>
@@ -686,11 +687,12 @@ export default function UsageMetricsPage() {
                     <td className="px-3 py-2">{row.unit}</td>
                     <td className="px-3 py-2">{row.unitsUsed}</td>
                     <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2">{row.unit}</td>
                     <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td><td></td>
                   <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{bhashikTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
               </tbody>
@@ -708,6 +710,7 @@ export default function UsageMetricsPage() {
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Unit</th>
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Units used</th>
                   <th className="px-3 py-2 text-left text-muted-foreground font-medium">Rate</th>
+                  <th className="px-3 py-2 text-left text-muted-foreground font-medium">Units</th>
                   <th className="px-3 py-2 text-right text-muted-foreground font-medium rounded-tr-md">Total credits used</th>
                 </tr>
               </thead>
@@ -718,11 +721,12 @@ export default function UsageMetricsPage() {
                     <td className="px-3 py-2">{row.unit}</td>
                     <td className="px-3 py-2">{row.unitsUsed}</td>
                     <td className="px-3 py-2">{row.rate}</td>
+                    <td className="px-3 py-2">{row.unit}</td>
                     <td className="px-3 py-2 text-right">₹{row.credits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="rounded-bl-md"></td><td></td><td></td><td></td>
+                  <td className="rounded-bl-md"></td><td></td><td></td><td></td><td></td>
                   <td className="px-3 py-2 text-right align-middle font-bold rounded-br-md">Total&nbsp;&nbsp;&nbsp;₹{disTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
               </tbody>
