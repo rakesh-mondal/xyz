@@ -128,19 +128,13 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
                     <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">₹{usageData.remaining} remaining</span>
+                    <span className="text-sm">Balance ₹{usageData.remaining}</span>
                     <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </PopoverTrigger>
               </TooltipWrapper>
               <PopoverContent className="w-60" align="end">
                 <div className="space-y-3">
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-medium">Credits</h4>
-                    <p className="text-sm text-muted-foreground">
-                      ₹{usageData.remaining} of ₹{usageData.total} remaining
-                    </p>
-                  </div>
                   <div className="space-y-2">
                     <Button variant="default" size="sm" className="w-full" asChild>
                       <Link href="/billing/add-credits">
