@@ -49,6 +49,7 @@ interface NavItemProps {
   expandedSubItem?: string | null
   onSubItemExpand?: (href: string) => void
   expandedTertiaryItem?: string | null
+  isExternal?: boolean
 }
 
 const navigationConfig = {
@@ -239,13 +240,14 @@ const navigationConfig = {
     label: "Support",
   },
   documentation: {
-    href: "/documentation",
+    href: "https://krutrim-cloud.gitbook.io/krutrim-cloud-docs",
     icon: <BookOpen className="h-[18px] w-[18px] text-muted-foreground" />,
     label: "Documentation",
+    isExternal: true,
   },
 }
 
-const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, onExpand, subItems, isCategory, expandedSubItem, onSubItemExpand, expandedTertiaryItem }: NavItemProps) => {
+const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, onExpand, subItems, isCategory, expandedSubItem, onSubItemExpand, expandedTertiaryItem, isExternal }: NavItemProps) => {
   const hasSubItems = subItems && subItems.length > 0
   const pathname = usePathname()
 
@@ -356,6 +358,20 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
     >
       {itemContent}
     </button>
+  ) : isExternal ? (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(
+        "group flex items-center gap-2 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors",
+        exactActive
+          ? "text-foreground/90"
+          : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
+      )}
+    >
+      {itemContent}
+    </a>
   ) : (
     <Link
       href={href}
@@ -749,6 +765,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             label={navigationConfig.documentation.label}
             exactActive={isExactActive(navigationConfig.documentation.href)}
             active={isActive(navigationConfig.documentation.href)}
+            isExternal={navigationConfig.documentation.isExternal}
           />
 
           {/* Support */}
