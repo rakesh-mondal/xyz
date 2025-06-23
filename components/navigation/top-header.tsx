@@ -66,8 +66,8 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-[64px] items-center justify-between px-4">
+    <header className="sticky top-0 z-40 w-full">
+      <div className="flex h-[56px] items-center justify-between px-4">
         {/* Left side - Logo, mobile menu button and search */}
         <div className="flex items-center gap-4">
           {/* Logo */}
@@ -82,13 +82,6 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
             </Button>
           )}
 
-          {/* Account ID Badge */}
-          <div className="flex items-center">
-            <Badge variant="outline" className="px-3 py-1.5 rounded-full bg-gray-50 border-gray-200 text-gray-700 font-medium">
-              Account Id - 7381739941
-            </Badge>
-          </div>
-
           <div className="w-[300px] hidden">
             <GlobalSearch />
           </div>
@@ -100,7 +93,7 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           <DropdownMenu>
             <TooltipWrapper content="Select your preferred region for resources">
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
+                <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3 hover:bg-[#1f22250f]">
                   <GlobeAltIcon className="h-4 w-4 text-muted-foreground" />
                   <span className="max-w-[120px] truncate text-sm">{regions[0].name}</span>
                   <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
@@ -126,7 +119,7 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
             <Popover>
               <TooltipWrapper content="View credit balance and usage details">
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
+                  <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3 hover:bg-[#1f22250f]">
                     <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">Balance ₹{usageData.remaining}</span>
                     <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
@@ -191,20 +184,23 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           {/* User profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback>SS</AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm">Example Team</span>
-                </div>
+              <Button variant="ghost" className="flex items-center gap-2 h-9 px-2">
+                <Avatar className="h-7 w-7">
+                  <AvatarImage src="/placeholder-user.jpg" alt="User avatar" />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    <UserIcon className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
                 <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[240px]">
               <div className="flex items-center gap-3 px-3 py-2 border-b">
                 <Avatar className="h-9 w-9">
-                  <AvatarFallback>SS</AvatarFallback>
+                  <AvatarImage src="/placeholder-user.jpg" alt="User avatar" />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    <UserIcon className="h-5 w-5" />
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
                   <span className="text-sm font-semibold">Sammy Shark</span>
@@ -212,6 +208,12 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                 </div>
               </div>
               <div className="p-1">
+                <div className="flex items-center px-3 py-2">
+                  <Badge variant="outline" className="px-3 py-1.5 rounded-full bg-gray-50 border-gray-200 text-gray-700 font-medium text-xs">
+                    Account Id - 7381739941
+                  </Badge>
+                </div>
+                <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer">
                   <UserIcon className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">My Account</span>

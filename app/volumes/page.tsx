@@ -12,8 +12,8 @@ export default function VolumesPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Volumes</h1>
-            <p className="text-gray-600">Create and manage your block storage volumes</p>
+                    <h1 className="text-2xl font-medium">Volumes</h1>
+        <p className="text-gray-600">Create and manage your block storage volumes</p>
           </div>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
@@ -34,8 +34,8 @@ export default function VolumesPage() {
           <CardContent>
             <div className="text-center py-8">
               <HardDrive className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-lg font-medium">No volumes found</h3>
-              <p className="text-gray-500 mt-2">Get started by creating a new volume.</p>
+                        <h3 className="mt-4 text-lg font-semibold">No volumes found</h3>
+          <p className="text-gray-500 mt-2">Get started by creating a new volume.</p>
               <Button className="mt-4">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Volume

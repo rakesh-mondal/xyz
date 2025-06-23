@@ -72,8 +72,8 @@ export function PageShell({ title, description, tabs, children, headerActions }:
         
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-            {description && <p className="text-muted-foreground mt-2">{description}</p>}
+            <h1 className="text-2xl font-medium tracking-tight">{title}</h1>
+            {description && <p className="text-sm text-muted-foreground mt-2">{description}</p>}
           </div>
           {headerActions && <div className="flex items-center gap-2 mt-2 sm:mt-0">{headerActions}</div>}
         </div>

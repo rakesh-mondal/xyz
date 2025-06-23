@@ -238,7 +238,7 @@ export function ContextualHelp({ servicePath }: ContextualHelpProps) {
                 {activeTab === "quickStart" && (
                   <div className="m-0">
                     <div className="mb-4">
-                      <h3 className="text-lg font-medium mb-1">{serviceName} Quick Start</h3>
+                      <h3 className="text-lg font-semibold mb-1">{serviceName} Quick Start</h3>
                       <p className="text-sm text-muted-foreground">Get started quickly with {serviceName}</p>
                     </div>
 
@@ -258,7 +258,7 @@ export function ContextualHelp({ servicePath }: ContextualHelpProps) {
 
                     {documentation.videos && (
                       <div className="mt-6">
-                        <h4 className="text-sm font-medium mb-2">Quick Start Videos</h4>
+                        <h4 className="text-base font-semibold mb-2">Quick Start Videos</h4>
                         <div className="space-y-2">
                           {documentation.videos.map((video: any) => (
                             <Link
@@ -282,7 +282,7 @@ export function ContextualHelp({ servicePath }: ContextualHelpProps) {
                 {activeTab === "commonTasks" && (
                   <div className="m-0">
                     <div className="mb-4">
-                      <h3 className="text-lg font-medium mb-1">Common Tasks</h3>
+                      <h3 className="text-lg font-semibold mb-1">Common Tasks</h3>
                       <p className="text-sm text-muted-foreground">Frequently performed operations with {serviceName}</p>
                     </div>
 
@@ -301,7 +301,7 @@ export function ContextualHelp({ servicePath }: ContextualHelpProps) {
                     </div>
 
                     <div className="mt-6 p-4 bg-primary/5 rounded-md border">
-                      <h4 className="text-sm font-medium flex items-center mb-2">
+                      <h4 className="text-base font-semibold flex items-center mb-2">
                         <Lightbulb className="h-4 w-4 mr-2 text-primary" />
                         Pro Tips
                       </h4>
@@ -316,7 +316,7 @@ export function ContextualHelp({ servicePath }: ContextualHelpProps) {
                 {activeTab === "troubleshooting" && (
                   <div className="m-0">
                     <div className="mb-4">
-                      <h3 className="text-lg font-medium mb-1">Troubleshooting</h3>
+                      <h3 className="text-lg font-semibold mb-1">Troubleshooting</h3>
                       <p className="text-sm text-muted-foreground">Solutions for common problems with {serviceName}</p>
                     </div>
 
@@ -335,7 +335,7 @@ export function ContextualHelp({ servicePath }: ContextualHelpProps) {
                     </div>
 
                     <div className="mt-6 p-4 bg-primary/5 rounded-md border">
-                      <h4 className="text-sm font-medium flex items-center mb-2">
+                      <h4 className="text-base font-semibold flex items-center mb-2">
                         <CheckCircle className="h-4 w-4 mr-2 text-primary" />
                         Common Solutions
                       </h4>

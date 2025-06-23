@@ -39,7 +39,7 @@ export default function ClientLayout({
       {isAuthPage ? (
         <>{children}</>
       ) : (
-        <div className="flex h-screen w-full overflow-hidden flex-col">
+        <div className="flex h-screen w-full overflow-hidden flex-col" style={{ backgroundColor: '#F2F2F7' }}>
           {/* Full width Top Header */}
           <TopHeader
             onMenuClick={() => setMobileSidebarOpen(true)}
@@ -49,7 +49,7 @@ export default function ClientLayout({
           <div className="flex flex-1 overflow-hidden">
                          {/* Left Navigation Sidebar */}
              <div
-               className={`fixed inset-y-0 left-0 top-[64px] z-50 transform transition-transform duration-300 ease-in-out lg:static lg:w-64 ${
+               className={`fixed inset-y-0 left-0 top-[56px] z-50 transform transition-transform duration-300 ease-in-out lg:static lg:w-64 ${
                  mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
                }`}
                style={{ width: "16rem" }}
@@ -62,21 +62,21 @@ export default function ClientLayout({
              {/* Mobile sidebar backdrop */}
              {mobileSidebarOpen && (
                <div
-                 className="fixed inset-0 top-[64px] z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+                 className="fixed inset-0 top-[56px] z-40 bg-black/50 backdrop-blur-sm lg:hidden"
                  onClick={() => setMobileSidebarOpen(false)}
                />
              )}
 
              {/* Main Content */}
              <main 
-               className="flex-1 overflow-y-auto relative z-0 smooth-scroll" 
+               className="flex-1 overflow-y-auto relative z-0 smooth-scroll mx-4 mb-2 rounded-2xl" 
                style={{ 
-                 backgroundColor: '#fafafa',
+                 backgroundColor: '#ffffff',
                  scrollBehavior: 'smooth',
                  WebkitOverflowScrolling: 'touch'
                }}
              >
-               <div className="h-full w-full">
+               <div className="h-full w-full p-4">
                  {children}
                </div>
              </main>

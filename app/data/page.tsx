@@ -13,9 +13,9 @@ export default function DataPage() {
       ]}
     >
       <div className="flex items-center justify-center h-[400px] border rounded-lg">
-        <div className="text-center">
-          <h3 className="text-xl font-bold mb-2">Data Overview</h3>
-          <p className="text-muted-foreground">This is a placeholder for the Data management overview content</p>
+              <div className="text-center">
+        <h3 className="text-lg font-semibold mb-2">Data Overview</h3>
+        <p className="text-muted-foreground">This is a placeholder for the Data management overview content</p>
         </div>
       </div>
     </PageShell>

@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { 
   ServerIcon, 
   CpuChipIcon, 
@@ -25,7 +25,7 @@ import {
   KeyIcon, 
   BoltIcon 
 } from "@heroicons/react/24/outline"
-import { Settings, Activity, HelpCircle, BookOpen, ChevronRight, ChevronLeft, Network, HardDrive, Map, X } from "lucide-react"
+import { Settings, HelpCircle, BookOpen, ChevronRight, ChevronLeft, Network, HardDrive, Map, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -48,6 +48,7 @@ interface NavItemProps {
   isCategory?: boolean
   expandedSubItem?: string | null
   onSubItemExpand?: (href: string) => void
+  expandedTertiaryItem?: string | null
 }
 
 const navigationConfig = {
@@ -214,53 +215,6 @@ const navigationConfig = {
     isCategory: true,
     subItems: [
       {
-        href: "/administration/iam",
-        label: "Identity (IAM)",
-        subItems: [
-          {
-            href: "/administration/iam/users",
-            label: "Users",
-            subItems: [
-              { href: "/administration/iam/users/list", label: "Users List" },
-              { href: "/administration/iam/users/invite", label: "Invite New User" },
-              { href: "/administration/iam/users/edit", label: "Edit User" },
-            ],
-          },
-          { href: "/administration/iam/groups", label: "User Groups" },
-          {
-            href: "/administration/iam/roles",
-            label: "Roles",
-            subItems: [
-              { href: "/administration/iam/roles/predefined", label: "Pre-defined Roles" },
-              { href: "/administration/iam/roles/definitions", label: "View Role Definitions" },
-              { href: "/administration/iam/roles/policy-library", label: "Policy Library" },
-              { href: "/administration/iam/roles/custom-policies", label: "Attach Custom Policies" },
-            ],
-          },
-          { href: "/administration/iam/policies", label: "Policies" },
-          {
-            href: "/administration/iam/config",
-            label: "IAM Configurations",
-            subItems: [
-              { href: "/administration/iam/config/session-timeout", label: "Default Session Timeout" },
-              { href: "/administration/iam/config/invite-expiry", label: "Invite Expiry Settings" },
-              { href: "/administration/iam/config/password-policy", label: "Password Policy Settings" },
-              { href: "/administration/iam/config/mfa", label: "Enable/Disable MFA" },
-            ],
-          },
-        ],
-      },
-      {
-        href: "/administration/kms",
-        label: "Key Management System (KMS)",
-        subItems: [
-          { href: "/administration/kms/storage", label: "Storage" },
-          { href: "/administration/kms/models", label: "Models" },
-          { href: "/administration/kms/ssh", label: "SSH Key" },
-        ],
-      },
-      { href: "/administration/kcm", label: "KCM" },
-      {
         href: "/billing",
         label: "Billing",
         subItems: [
@@ -268,12 +222,16 @@ const navigationConfig = {
           { href: "/billing/transactions", label: "Transactions" },
         ],
       },
+      {
+        href: "/administration/kms",
+        label: "Key Management System",
+        subItems: [
+          { href: "/administration/kms/storage", label: "Storage" },
+          { href: "/administration/kms/models", label: "Models" },
+          { href: "/administration/kms/ssh", label: "SSH Key" },
+        ],
+      },
     ],
-  },
-  monitoring: {
-    href: "/monitoring",
-    icon: <Activity className="h-[18px] w-[18px] text-muted-foreground" />,
-    label: "Monitoring",
   },
   support: {
     href: "/support",
@@ -287,7 +245,7 @@ const navigationConfig = {
   },
 }
 
-const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, onExpand, subItems, isCategory, expandedSubItem, onSubItemExpand }: NavItemProps) => {
+const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, onExpand, subItems, isCategory, expandedSubItem, onSubItemExpand, expandedTertiaryItem }: NavItemProps) => {
   const hasSubItems = subItems && subItems.length > 0
   const pathname = usePathname()
 
@@ -310,12 +268,14 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
           <span className={cn(
             "flex-1 truncate",
             isCategory 
-              ? "text-xs font-semibold uppercase tracking-wider text-muted-foreground/70" 
-              : "text-sm font-medium text-foreground/80"
+              ? "text-[11px] font-semibold text-muted-foreground/70" 
+              : exactActive 
+                ? "text-[13px] font-medium text-foreground/90"
+                : "text-[13px] font-medium text-foreground/60"
           )}>
             {label}
           </span>
-          {hasSubItems && !isCategory && <ChevronRight className={cn("h-4 w-4 transition-transform text-foreground/80", expanded === href && "rotate-90")} />}
+          {hasSubItems && !isCategory && <ChevronRight className={cn("h-4 w-4 transition-transform opacity-0 group-hover:opacity-100 text-foreground/60", expanded === href && "rotate-90")} />}
         </>
       )}
     </>
@@ -324,39 +284,51 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
   if (isCategory) {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+        <div className="flex items-center gap-2 px-3 py-2 text-[11px] font-semibold text-muted-foreground/70">
           {itemContent}
         </div>
         {!collapsed && hasSubItems && (
-          <div className="ml-[1.3rem] mt-1 flex flex-col gap-1 space-y-0.5 relative">
-            <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
+          <div className="ml-[1.3rem] mt-1 flex flex-col gap-0.5 space-y-0.5 relative">
             {subItems.map((subItem, index) => (
               <div key={index} className="flex flex-col pl-4">
-                <button
-                  onClick={() => onSubItemExpand?.(subItem.href)}
-                  className={cn(
-                    "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors text-left w-full",
-                    (expandedSubItem === subItem.href || isSubItemActive(subItem.href))
-                      ? "bg-accent text-accent-foreground"
-                      : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
-                  )}
-                >
-                  <span className="flex-1">{subItem.label}</span>
-                  {subItem.subItems && <ChevronRight className={cn("h-4 w-4 transition-transform text-foreground/80", expandedSubItem === subItem.href && "rotate-90")} />}
-                </button>
+                {subItem.subItems ? (
+                  <button
+                    onClick={() => onSubItemExpand?.(subItem.href)}
+                    className={cn(
+                      "group flex items-center gap-2 rounded-md px-2 py-1 text-[13px] transition-colors text-left w-full",
+                      (expandedSubItem === subItem.href || isSubItemActive(subItem.href))
+                        ? "text-foreground/90"
+                        : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
+                    )}
+                  >
+                    <span className="flex-1">{subItem.label}</span>
+                    <ChevronRight className={cn("h-4 w-4 transition-transform opacity-0 group-hover:opacity-100 text-foreground/60", expandedSubItem === subItem.href && "rotate-90")} />
+                  </button>
+                ) : (
+                  <Link
+                    href={subItem.href}
+                    className={cn(
+                      "group flex items-center gap-2 rounded-md px-2 py-1 text-[13px] transition-colors text-left w-full",
+                      (expandedSubItem === subItem.href || isSubItemActive(subItem.href))
+                        ? "text-foreground/90"
+                        : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
+                    )}
+                  >
+                    <span className="flex-1">{subItem.label}</span>
+                  </Link>
+                )}
 
                 {subItem.subItems && subItem.subItems.length > 0 && expandedSubItem === subItem.href && (
-                  <div className="ml-2 mt-1 flex flex-col gap-1 space-y-0.5 relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
+                  <div className="ml-2 mt-1 flex flex-col gap-0.5 space-y-0.5 relative">
                     {subItem.subItems.map((tertiaryItem, idx) => (
                       <Link
                         key={idx}
                         href={tertiaryItem.href}
                         className={cn(
-                          "rounded-md px-2 py-1.5 text-sm transition-colors ml-4",
+                          "rounded-md px-2 py-1 text-[13px] transition-colors ml-4",
                           pathname === tertiaryItem.href
-                            ? "bg-accent text-accent-foreground"
-                            : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
+                            ? "text-foreground/90"
+                            : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
                         )}
                       >
                         {tertiaryItem.label}
@@ -376,10 +348,10 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
     <button
       onClick={handleToggleExpand}
       className={cn(
-        "flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-colors text-left",
+        "group flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors text-left",
         exactActive
-          ? "bg-accent text-accent-foreground"
-          : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
+          ? "text-foreground/90"
+          : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
       )}
     >
       {itemContent}
@@ -388,10 +360,10 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+        "group flex items-center gap-2 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors",
         exactActive
-          ? "bg-accent text-accent-foreground"
-          : "text-foreground/80 hover:bg-accent/50 hover:text-accent-foreground",
+          ? "text-foreground/90"
+          : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
       )}
     >
       {itemContent}
@@ -414,38 +386,32 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
       )}
 
       {!collapsed && expanded && hasSubItems && (
-        <div className="ml-[1.3rem] mt-1 flex flex-col gap-1 space-y-0.5 relative">
-          {/* Vertical line for tree structure */}
-          <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
-
+        <div className="ml-[1.3rem] mt-1 flex flex-col gap-0.5 space-y-0.5 relative">
           {subItems.map((subItem, index) => (
             <div key={index} className="flex flex-col pl-4">
               <Link
                 href={subItem.href}
                 className={cn(
-                  "rounded-md px-2 py-1.5 text-sm transition-colors",
+                  "rounded-md px-2 py-1 text-[13px] transition-colors",
                   pathname === subItem.href
-                    ? "bg-primary/10 text-primary"
-                    : "text-foreground hover:bg-accent/50 hover:text-accent-foreground",
+                    ? "text-foreground/90"
+                    : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
                 )}
               >
                 {subItem.label}
               </Link>
 
-              {subItem.subItems && subItem.subItems.length > 0 && (
-                <div className="ml-2 mt-1 flex flex-col gap-1 space-y-0.5 relative">
-                  {/* Vertical line for nested tree structure */}
-                  <div className="absolute left-0 top-0 bottom-0 w-px bg-border" />
-
+              {subItem.subItems && subItem.subItems.length > 0 && (expandedTertiaryItem === subItem.href) && (
+                <div className="ml-2 mt-1 flex flex-col gap-0.5 space-y-0.5 relative">
                   {subItem.subItems.map((tertiaryItem, idx) => (
                     <Link
                       key={idx}
                       href={tertiaryItem.href}
                       className={cn(
-                        "rounded-md px-2 py-1.5 text-sm transition-colors ml-4",
+                        "rounded-md px-2 py-1 text-[13px] transition-colors ml-4",
                         pathname === tertiaryItem.href
-                          ? "bg-primary/10 text-primary"
-                          : "text-foreground hover:bg-accent/50 hover:text-accent-foreground",
+                          ? "text-foreground/90"
+                          : "text-foreground/60 hover:text-foreground/80",
                       )}
                     >
                       {tertiaryItem.label}
@@ -522,16 +488,34 @@ export function Sidebar() {
 
 export function LeftNavigation({ onClose }: LeftNavigationProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const [expandedSubItem, setExpandedSubItem] = useState<string | null>(null)
+  const [expandedTertiaryItem, setExpandedTertiaryItem] = useState<string | null>(null)
 
   // Determine which section should be expanded based on the current path
   useEffect(() => {
     // Keep Core Infrastructure expanded for compute-related paths
     if (pathname.startsWith("/compute")) {
       setExpandedItem("/core-infrastructure")
-      // Keep Compute expanded when in compute section
       setExpandedSubItem("/compute")
+      if (pathname.startsWith("/compute/vms")) {
+        setExpandedTertiaryItem("/compute/vms")
+      }
+    } else if (pathname.startsWith("/networking")) {
+      setExpandedItem("/core-infrastructure")
+      setExpandedSubItem("/networking")
+    } else if (pathname.startsWith("/storage")) {
+      setExpandedItem("/core-infrastructure")
+      setExpandedSubItem("/storage")
+      if (pathname.startsWith("/storage/block")) {
+        setExpandedTertiaryItem("/storage/block")
+      } else if (pathname.startsWith("/storage/object")) {
+        setExpandedTertiaryItem("/storage/object")
+      }
+    } else if (pathname.startsWith("/billing")) {
+      setExpandedItem("/administration")
+      setExpandedSubItem("/billing")
     } else if (pathname.startsWith("/ai-studio")) {
       setExpandedItem("/ai-studio")
     } else if (pathname.startsWith("/ai-solutions")) {
@@ -546,20 +530,70 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     if (pathname.startsWith("/compute") && href === "/core-infrastructure") {
       return
     }
-    setExpandedItem(expandedItem === href ? null : href)
+    
+    const newExpandedItem = expandedItem === href ? null : href
+    setExpandedItem(newExpandedItem)
+    
+    // Auto-select first sub-item when expanding a main menu and navigate to its page
+    if (newExpandedItem && href === "/core-infrastructure") {
+      setExpandedSubItem("/compute")
+      setExpandedTertiaryItem("/compute/vms")
+      router.push("/compute/vms")
+    } else if (newExpandedItem && href === "/ai-studio") {
+      setExpandedSubItem("/ai-studio/models")
+      router.push("/models")
+    } else if (newExpandedItem && href === "/ai-solutions") {
+      setExpandedSubItem("/ai-solutions/bhashik")
+      router.push("/bhashik/text")
+    } else if (newExpandedItem && href === "/administration") {
+      setExpandedSubItem("/billing")
+      router.push("/billing")
+    } else if (!newExpandedItem) {
+      setExpandedSubItem(null)
+      setExpandedTertiaryItem(null)
+    }
   }
 
   const handleSubItemExpand = (href: string) => {
-    // Toggle Compute submenu
-    if (href === "/compute") {
-      setExpandedSubItem(expandedSubItem === href ? null : href)
-      return
+    // Handle navigation for submenus with their own sub-items
+    const wasExpanded = expandedSubItem === href
+    setExpandedSubItem(wasExpanded ? null : href)
+    
+    // If expanding (not collapsing), navigate to the first sub-item
+    if (!wasExpanded) {
+      if (href === "/compute") {
+        setExpandedTertiaryItem("/compute/vms")
+        router.push("/compute/vms")
+      } else if (href === "/networking") {
+        router.push("/networking/vpc")
+      } else if (href === "/storage") {
+        setExpandedTertiaryItem("/storage/block")
+        router.push("/storage/block")
+      } else if (href === "/billing") {
+        router.push("/billing/usage")
+      } else if (href === "/ai-studio/models") {
+        router.push("/model-hub/catalog")
+      } else if (href === "/ai-solutions/bhashik") {
+        router.push("/bhashik/text")
+      } else if (href === "/administration/kms") {
+        router.push("/administration/kms/storage")
+      }
+    } else {
+      // If collapsing, clear tertiary expansion
+      setExpandedTertiaryItem(null)
     }
+    
     // Don't collapse VMs submenu when in VMs section
     if (pathname.startsWith("/compute/vms") && href === "/compute/vms") {
+      setExpandedSubItem("/compute")
+      setExpandedTertiaryItem("/compute/vms")
       return
     }
-    setExpandedSubItem(expandedSubItem === href ? null : href)
+    // Don't collapse storage submenu when in storage section
+    if (pathname.startsWith("/storage") && href === "/storage") {
+      setExpandedSubItem("/storage")
+      return
+    }
   }
 
   const isActive = (path: string) => {
@@ -567,12 +601,27 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     if (path === "/") {
       return pathname === "/" || pathname === "/dashboard"
     }
-    // For compute section, check if path starts with the given path
+    // For sections, check if path starts with the given path
     if (path === "/compute") {
       return pathname.startsWith("/compute")
     }
+    if (path === "/networking") {
+      return pathname.startsWith("/networking")
+    }
+    if (path === "/storage") {
+      return pathname.startsWith("/storage")
+    }
+    if (path === "/billing") {
+      return pathname.startsWith("/billing")
+    }
     if (path === "/compute/vms") {
       return pathname.startsWith("/compute/vms")
+    }
+    if (path === "/storage/block") {
+      return pathname.startsWith("/storage/block")
+    }
+    if (path === "/storage/object") {
+      return pathname.startsWith("/storage/object")
     }
     return pathname === path
   }
@@ -593,7 +642,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
   }
 
   return (
-    <div className="flex h-screen flex-col border-r bg-background">
+    <div className="flex h-screen flex-col">
       {/* Mobile close button - only visible on mobile */}
       <div className="flex items-center justify-end px-4 py-2 lg:hidden">
         <Button variant="ghost" size="icon" onClick={onClose}>
@@ -602,8 +651,8 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
       </div>
 
       {/* Main navigation items */}
-      <div className="flex-1 overflow-y-auto py-3 px-3">
-        <div className="flex flex-col gap-1.5">
+      <div className="flex-1 overflow-y-auto pb-3 px-3">
+        <div className="flex flex-col gap-[1px]">
           {/* Home */}
           <NavItem
             href={navigationConfig.home.href}
@@ -612,8 +661,6 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             exactActive={isExactActive(navigationConfig.home.href)}
             active={isActive(navigationConfig.home.href)}
           />
-
-          <div className="my-1 border-t" />
 
           {/* Core Infrastructure */}
           <NavItem
@@ -628,9 +675,8 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             isCategory={navigationConfig.coreInfrastructure.isCategory}
             expandedSubItem={expandedSubItem}
             onSubItemExpand={handleSubItemExpand}
+            expandedTertiaryItem={expandedTertiaryItem}
           />
-
-          <div className="my-1 border-t" />
 
           {/* AI Studio */}
           <NavItem
@@ -645,6 +691,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             isCategory={navigationConfig.aiStudio.isCategory}
             expandedSubItem={expandedSubItem}
             onSubItemExpand={handleSubItemExpand}
+            expandedTertiaryItem={expandedTertiaryItem}
           />
 
           {/* AI Solutions */}
@@ -660,6 +707,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             isCategory={navigationConfig.aiSolutions.isCategory}
             expandedSubItem={expandedSubItem}
             onSubItemExpand={handleSubItemExpand}
+            expandedTertiaryItem={expandedTertiaryItem}
           />
 
           {/* Maps */}
@@ -670,8 +718,6 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             exactActive={isExactActive(navigationConfig.maps.href)}
             active={isActive(navigationConfig.maps.href)}
           />
-
-          <div className="my-1 border-t" />
 
           {/* Administration */}
           <NavItem
@@ -686,21 +732,15 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             isCategory={navigationConfig.administration.isCategory}
             expandedSubItem={expandedSubItem}
             onSubItemExpand={handleSubItemExpand}
+            expandedTertiaryItem={expandedTertiaryItem}
           />
 
-          {/* Monitoring */}
-          <NavItem
-            href={navigationConfig.monitoring.href}
-            icon={navigationConfig.monitoring.icon}
-            label={navigationConfig.monitoring.label}
-            exactActive={isExactActive(navigationConfig.monitoring.href)}
-            active={isActive(navigationConfig.monitoring.href)}
-          />
+
         </div>
       </div>
 
       {/* Bottom navigation items */}
-      <div className="mt-auto border-t px-3">
+      <div className="mt-auto px-3">
         <div className="py-3 flex flex-col gap-2">
           {/* Documentation */}
           <NavItem

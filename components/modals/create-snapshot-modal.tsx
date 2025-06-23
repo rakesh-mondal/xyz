@@ -1,8 +1,11 @@
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { CameraIcon } from "@heroicons/react/24/outline"
 
 interface CreateSnapshotModalProps {
   open: boolean
@@ -18,45 +21,89 @@ export function CreateSnapshotModal({ open, onClose, volumes, onCreate }: Create
   const [loading, setLoading] = useState(false)
 
   const handleCreate = async () => {
+    if (!volume || !name) return
+    
     setLoading(true)
-    await onCreate({ volume, name, description })
-    setLoading(false)
-    onClose()
+    try {
+      await onCreate({ volume, name, description })
+      onClose()
+      // Reset form
+      setVolume("")
+      setName("")
+      setDescription("")
+    } catch (error) {
+      console.error("Error creating snapshot:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Instant Snapshot</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <CameraIcon className="h-5 w-5" />
+            Create Instant Snapshot
+          </DialogTitle>
+          <DialogDescription>
+            Create a point-in-time snapshot of your volume for backup or cloning purposes.
+          </DialogDescription>
         </DialogHeader>
-        <div className="py-4 space-y-4">
-          <div>
-            <label className="block font-bold mb-1" htmlFor="volume">Volume*</label>
-            <select
-              id="volume"
-              className="w-full border rounded p-2"
-              value={volume}
-              onChange={e => setVolume(e.target.value)}
-            >
-              <option value="">Select Volume</option>
-              {volumes.map(v => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
+        
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="volume">Volume *</Label>
+            <Select value={volume} onValueChange={setVolume}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select volume" />
+              </SelectTrigger>
+              <SelectContent>
+                {volumes.map((v) => (
+                  <SelectItem key={v} value={v}>
+                    {v}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div>
-            <label className="block font-bold mb-1" htmlFor="name">Snapshot Name*</label>
-            <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter snapshot name" />
+          
+          <div className="space-y-2">
+            <Label htmlFor="name">Snapshot Name *</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter snapshot name"
+            />
           </div>
-          <div>
-            <label className="block font-bold mb-1" htmlFor="description">Description</label>
-            <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Enter description" />
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter snapshot description (optional)"
+              rows={3}
+            />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={loading || !volume || !name}>
+        
+        <DialogFooter className="flex gap-2 sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={handleCreate}
+            disabled={loading || !volume || !name}
+          >
             {loading ? "Creating..." : "Create Snapshot"}
           </Button>
         </DialogFooter>

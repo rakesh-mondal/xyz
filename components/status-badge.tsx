@@ -116,7 +116,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
 
   const badge = (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
-      {status}
+      {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
     </span>
   )
 

@@ -468,10 +468,10 @@ export function ShadcnDataTable<T = any>({
       {/* Data Table */}
       <div className="rounded-md border">
         <div className="relative w-full">
-          <table className="w-full caption-bottom text-sm">
+          <table className="w-full caption-bottom" style={{ fontSize: '13px' }}>
             <thead className="[&_tr]:border-b">
               {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="border-b transition-colors bg-muted hover:bg-muted/80 text-sm">
+                <tr key={headerGroup.id} className="border-b transition-colors bg-muted hover:bg-muted/80">
                   {headerGroup.headers.map((header, index) => {
                     const isFirst = index === 0;
                     const isLast = index === headerGroup.headers.length - 1;
@@ -497,13 +497,13 @@ export function ShadcnDataTable<T = any>({
                     <tr
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
-                      className="border-b transition-colors bg-white hover:bg-gray-50/40 data-[state=selected]:bg-blue-50/50 text-sm"
+                      className="border-b transition-colors bg-white hover:bg-gray-50/40 data-[state=selected]:bg-blue-50/50"
                     >
                       {row.getVisibleCells().map((cell, cellIndex) => {
                         const isFirst = cellIndex === 0;
                         const isLast = cellIndex === row.getVisibleCells().length - 1;
                         return (
-                          <td key={cell.id} className={`px-4 py-2 text-sm align-middle ${isLastRow && isFirst ? 'rounded-bl-md' : ''} ${isLastRow && isLast ? 'rounded-br-md' : ''}`}>
+                          <td key={cell.id} className={`px-4 py-2 align-middle ${isLastRow && isFirst ? 'rounded-bl-md' : ''} ${isLastRow && isLast ? 'rounded-br-md' : ''}`}>
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext()

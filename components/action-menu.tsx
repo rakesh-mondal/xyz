@@ -18,6 +18,7 @@ interface ActionMenuProps {
   onExtend?: () => void
   onWarning?: () => void
   onEdit?: () => void
+  onCustomDelete?: () => void  // New prop for custom delete handling
 }
 
 /**
@@ -42,6 +43,7 @@ export function ActionMenu({
   onExtend,
   onWarning,
   onEdit,
+  onCustomDelete,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -98,9 +100,15 @@ export function ActionMenu({
               <span>Edit</span>
             </DropdownMenuItem>
           )}
-          {deleteHref && (
+          {(deleteHref || onCustomDelete) && (
             <DropdownMenuItem
-              onClick={() => setIsDeleteModalOpen(true)}
+              onClick={() => {
+                if (onCustomDelete) {
+                  onCustomDelete()
+                } else {
+                  setIsDeleteModalOpen(true)
+                }
+              }}
               className="flex items-center text-destructive focus:text-destructive cursor-pointer"
             >
               <Trash2 className="mr-2 h-4 w-4" />
@@ -110,13 +118,15 @@ export function ActionMenu({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        resourceName={resourceName}
-        resourceType={resourceType}
-        onConfirm={handleDelete}
-      />
+      {deleteHref && (
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          resourceName={resourceName}
+          resourceType={resourceType}
+          onConfirm={handleDelete}
+        />
+      )}
     </>
   )
 }

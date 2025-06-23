@@ -1,0 +1,18 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Design Mode Rule
+
+We are in design mode. We're not going to be building any backend functionality. We're just going to use dummy JSON in order to mock up the prototype of our application.
+
+## Guidelines:
+- Focus on UI/UX prototype development only
+- Use dummy JSON data for all data requirements
+- Mock all API responses and backend interactions
+- Prioritize visual design and user experience over functional implementation
+- Create realistic but static data representations
+- Use mock data files (e.g., [lib/data.ts](mdc:lib/data.ts)) for consistent data structure
+- Avoid implementing actual database connections, API calls, or server-side logic
+- Simulate user flows and interactions with static responses

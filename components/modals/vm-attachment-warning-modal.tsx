@@ -1,5 +1,7 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
 
 interface VMAttachmentWarningModalProps {
   open: boolean
@@ -11,19 +13,31 @@ interface VMAttachmentWarningModalProps {
 export function VMAttachmentWarningModal({ open, onClose, volumeName, instanceName }: VMAttachmentWarningModalProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-red-700">Volume is associated with a VM</DialogTitle>
+          <DialogTitle className="flex items-center gap-2 text-amber-600">
+            <ExclamationTriangleIcon className="h-5 w-5" />
+            Volume Attached to VM
+          </DialogTitle>
+          <DialogDescription>
+            This volume is currently attached to a running virtual machine.
+          </DialogDescription>
         </DialogHeader>
-        <div className="py-4 text-center">
-          <div className="text-4xl mb-2">⚠️</div>
-          <div>
-            The volume <span className="font-bold">{volumeName}</span> is attached with a VM <span className="font-bold">{instanceName}</span>.<br />
-            Please detach the volume from the VM before proceeding with this action.
-          </div>
+        
+        <div className="space-y-4 py-4">
+          <Alert>
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertDescription>
+              Volume <strong>{volumeName}</strong> is currently attached to VM instance <strong>{instanceName}</strong>.
+              Please detach the volume from the VM before performing this operation.
+            </AlertDescription>
+          </Alert>
         </div>
+        
         <DialogFooter>
-          <Button onClick={onClose}>OK</Button>
+          <Button type="button" onClick={onClose}>
+            Understood
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

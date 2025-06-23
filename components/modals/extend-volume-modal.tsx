@@ -1,7 +1,10 @@
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowUpIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline"
 
 interface ExtendVolumeModalProps {
   open: boolean
@@ -15,45 +18,77 @@ export function ExtendVolumeModal({ open, onClose, currentSize, onExtend }: Exte
   const [loading, setLoading] = useState(false)
 
   const handleExtend = async () => {
+    if (newSize <= currentSize) return
+    
     setLoading(true)
-    await onExtend(newSize)
-    setLoading(false)
-    onClose()
+    try {
+      await onExtend(newSize)
+      onClose()
+    } catch (error) {
+      console.error("Error extending volume:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Extend Volume</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <ArrowUpIcon className="h-5 w-5" />
+            Extend Volume
+          </DialogTitle>
+          <DialogDescription>
+            Increase the size of your volume. This operation cannot be reversed.
+          </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <div className="mb-4">
-            <label className="block font-bold mb-1">Current Size</label>
-            <div>{currentSize} GB</div>
+        
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label>Current Size</Label>
+            <div className="text-sm font-medium text-muted-foreground">
+              {currentSize} GB
+            </div>
           </div>
-          <div className="mb-4">
-            <label className="block font-bold mb-1" htmlFor="new-size">New Size (GB)*</label>
+          
+          <div className="space-y-2">
+            <Label htmlFor="new-size">New Size (GB) *</Label>
             <Input
               id="new-size"
               type="number"
               min={currentSize + 1}
               max={2048}
               value={newSize}
-              onChange={e => setNewSize(Number(e.target.value))}
+              onChange={(e) => setNewSize(Number(e.target.value))}
             />
-            <div className="text-xs text-muted-foreground mt-1">
-              New size must be greater than the current size ({currentSize} GB)
+            <div className="text-xs text-muted-foreground">
+              Must be greater than current size ({currentSize} GB). Maximum: 2048 GB
             </div>
           </div>
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded mb-4">
-            <div className="font-bold mb-1">Warning</div>
-            <div>Once you extend the volume, you can't decrease the size later.</div>
-          </div>
+          
+          <Alert>
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Warning:</strong> Once you extend the volume, you cannot decrease the size later.
+            </AlertDescription>
+          </Alert>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
-          <Button onClick={handleExtend} disabled={loading || newSize <= currentSize}>
+        
+        <DialogFooter className="flex gap-2 sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={handleExtend}
+            disabled={loading || newSize <= currentSize}
+          >
             {loading ? "Extending..." : "Extend Volume"}
           </Button>
         </DialogFooter>

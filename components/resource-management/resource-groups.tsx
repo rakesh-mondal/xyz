@@ -185,7 +185,7 @@ export function ResourceGroups() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Resource Groups</h2>
+          <h2 className="text-xl font-semibold tracking-tight">Resource Groups</h2>
           <p className="text-muted-foreground">Organize and manage your resources in logical groups</p>
         </div>
 
