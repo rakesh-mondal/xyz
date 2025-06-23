@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter as DialogFooterUI } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { PageShell } from "@/components/page-shell";
+import { CreditCard, Receipt } from "lucide-react";
 
 
 
@@ -34,16 +34,24 @@ export default function AddCreditsPage() {
   const [customAmount, setCustomAmount] = useState("");
   const [address, setAddress] = useState(mockAddress);
   const [editAddress, setEditAddress] = useState(false);
-  const [orderSummary, setOrderSummary] = useState({ credits: 0, price: 0 });
+  const [orderSummary, setOrderSummary] = useState({ credits: 0, subtotal: 0, tax: 0, total: 0 });
   const router = useRouter();
 
   // Update order summary when custom amount changes
   React.useEffect(() => {
     if (customAmount) {
       const amount = parseInt(customAmount, 10) || 0;
-      setOrderSummary({ credits: amount, price: amount });
+      const subtotal = amount;
+      const tax = Math.round(subtotal * 0.18); // 18% GST
+      const total = subtotal + tax;
+      setOrderSummary({ 
+        credits: amount, 
+        subtotal: subtotal,
+        tax: tax,
+        total: total
+      });
     } else {
-      setOrderSummary({ credits: 0, price: 0 });
+      setOrderSummary({ credits: 0, subtotal: 0, tax: 0, total: 0 });
     }
   }, [customAmount]);
 
@@ -51,52 +59,84 @@ export default function AddCreditsPage() {
     <PageShell
       title="Add Credits"
       description="Purchase additional credits to continue using Krutrim Cloud services."
+      hideViewDocs={true}
     >
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* Main Content */}
         <div className="flex-1 space-y-6">
           <Card>
-            <CardHeader>
-              {/* Removed CardTitle here, as PageShell provides the title */}
-            </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-6">
 
-              {/* Custom Amount */}
-              <div>
-                <div className="font-medium mb-2">Enter amount</div>
-                <Input
-                  type="number"
-                  min={1}
-                  placeholder="₹1000"
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
-                  className="max-w-xs"
-                />
-              </div>
+              {/* Amount and Billing Address Row */}
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Billing Address */}
+                <div className="flex-1 md:order-2 md:text-right">
+                  <div className="flex items-center gap-2 mb-2 md:justify-end">
+                    <span className="font-medium">Billing Address</span>
+                    <Button variant="link" size="sm" onClick={() => setEditAddress(true)}>Edit</Button>
+                  </div>
+                  <div className="text-sm text-muted-foreground md:text-right">
+                    <div>{address.name}</div>
+                    <div>{address.line1}{address.line2 ? ", " + address.line2 : ""}</div>
+                    <div>{address.city}, {address.state} {address.zip}</div>
+                    <div>{address.country}</div>
+                  </div>
+                </div>
 
-              {/* Billing Address */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">Billing Address</span>
-                  <Button variant="link" size="sm" onClick={() => setEditAddress(true)}>Edit</Button>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  <div>{address.name}</div>
-                  <div>{address.line1}{address.line2 ? ", " + address.line2 : ""}</div>
-                  <div>{address.city}, {address.state} {address.zip}</div>
-                  <div>{address.country}</div>
+                {/* Custom Amount */}
+                <div className="flex-1 md:order-1">
+                  <div className="font-medium mb-2">Enter amount</div>
+                  <Input
+                    type="number"
+                    min={1}
+                    placeholder="₹1000"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    className="max-w-xs"
+                  />
                 </div>
               </div>
-              {/* Order Summary */}
+              {/* Enhanced Order Summary */}
               <div className="border-t pt-4 mt-4">
-                <div className="font-semibold mb-2">Order Summary</div>
-                <div className="flex justify-between">
-                  <span>Credits</span>
-                  <span>{orderSummary.credits}</span>
+                <div className="font-medium mb-3 text-muted-foreground">Order Summary</div>
+                
+                {/* Credits Line Item */}
+                <div className="flex items-start gap-3 py-2">
+                  <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium">Krutrim Cloud Credits - {orderSummary.credits} Credits</div>
+                    <div className="text-sm text-muted-foreground">
+                      Pay as you go credits for cloud services
+                    </div>
+                  </div>
+                  <div className="font-semibold">₹{orderSummary.subtotal}.00</div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Total Cost</span>
-                  <span className="font-bold text-primary">₹{orderSummary.price}</span>
+
+                {/* Dashed Separator */}
+                <div className="border-b border-dashed border-gray-300 my-2"></div>
+
+                {/* Tax Line Item */}
+                <div className="flex items-start gap-3 py-2">
+                  <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                    <Receipt className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium">Taxes and Fees</div>
+                    <div className="text-sm text-muted-foreground">
+                      GST (18%)
+                    </div>
+                  </div>
+                  <div className="font-semibold">₹{orderSummary.tax}.00</div>
+                </div>
+
+                {/* Total */}
+                <div className="mt-4 pt-3 border-t">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-bold">Total</span>
+                    <span className="text-2xl font-bold text-green-600">₹{orderSummary.total}.00</span>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -108,6 +148,21 @@ export default function AddCreditsPage() {
         </div>
         {/* Side Panel */}
         <div className="w-full md:w-80 space-y-6">
+          {/* Help Documentation */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Billing documentation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-3">
+                Learn about billing, credit management, and payment options to optimize your cloud spending.
+              </p>
+              <Button variant="link" size="sm" className="px-0 h-auto text-sm" onClick={() => router.push("/documentation")}>
+                Learn more →
+              </Button>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Recent Transactions</CardTitle>
@@ -122,7 +177,7 @@ export default function AddCreditsPage() {
                   </li>
                 ))}
               </ul>
-              <Button variant="link" size="sm" className="mt-2 px-0" onClick={() => router.push("/billing/transactions")}>View all transactions</Button>
+              <Button variant="link" size="sm" className="mt-2 px-0" onClick={() => router.push("/billing/transactions")}>View all transactions →</Button>
             </CardContent>
           </Card>
         </div>

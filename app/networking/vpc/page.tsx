@@ -114,16 +114,6 @@ export default function VPCListPage() {
     },
   ]
 
-  // VPC filter options
-  const vpcOptions = [
-    { value: "all", label: "All VPCs" },
-    { value: "production-vpc", label: "production-vpc" },
-    { value: "development-vpc", label: "development-vpc" },
-    { value: "staging-vpc", label: "staging-vpc" },
-    { value: "testing-vpc", label: "testing-vpc" },
-    { value: "backup-vpc", label: "backup-vpc" },
-  ]
-
   const handleRefresh = () => {
     // Add your refresh logic here
     console.log("🔄 Refreshing VPC data at:", new Date().toLocaleTimeString())
@@ -153,8 +143,7 @@ export default function VPCListPage() {
         enablePagination={true}
         onRefresh={handleRefresh}
         enableAutoRefresh={true}
-        enableVpcFilter={true}
-        vpcOptions={vpcOptions}
+        enableVpcFilter={false}
       />
 
       {/* Step 1: Resource Warning Modal */}

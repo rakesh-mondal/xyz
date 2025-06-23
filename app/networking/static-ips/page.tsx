@@ -14,31 +14,36 @@ import { Button } from "@/components/ui/button"
 export default function StaticIPListPage() {
   const columns = [
     {
-      key: "address",
+      key: "ipAddress",
       label: "IP Address",
       sortable: true,
       searchable: true,
     },
     {
-      key: "subnetName",
-      label: "Subnet Name",
+      key: "vpcName",
+      label: "VPC Name",
       sortable: true,
       searchable: true,
     },
     {
-      key: "type",
-      label: "Type",
+      key: "status",
+      label: "Status",
       render: (value: string) => <StatusBadge status={value} />,
     },
     {
-      key: "accessType",
-      label: "Access Type",
-      render: (value: string) => <StatusBadge status={value} />,
-    },
-    {
-      key: "assignedVM",
-      label: "Assigned VM",
+      key: "associatedResource",
+      label: "Associated Resource",
       render: (value: string) => value || <span className="italic text-muted-foreground">Not assigned</span>,
+    },
+    {
+      key: "description",
+      label: "Description",
+      searchable: true,
+      render: (value: string) => (
+        <div className="max-w-xs truncate" title={value}>
+          {value || <span className="italic text-muted-foreground">No description</span>}
+        </div>
+      ),
     },
     {
       key: "actions",
@@ -50,7 +55,7 @@ export default function StaticIPListPage() {
             viewHref={`/networking/static-ips/${row.id}`}
             editHref={`/networking/static-ips/${row.id}/edit`}
             deleteHref={`/networking/static-ips/${row.id}/delete`}
-            resourceName={row.address}
+            resourceName={row.ipAddress}
             resourceType="Static IP"
           />
         </div>
@@ -85,8 +90,8 @@ export default function StaticIPListPage() {
       <ShadcnDataTable
         columns={columns}
         data={dataWithActions}
-        searchableColumns={["address", "subnetName"]}
-        defaultSort={{ column: "address", direction: "asc" }}
+        searchableColumns={["ipAddress", "vpcName", "description"]}
+        defaultSort={{ column: "ipAddress", direction: "asc" }}
         pageSize={10}
         enableSearch={true}
         enableColumnVisibility={false}

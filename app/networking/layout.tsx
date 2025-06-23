@@ -6,7 +6,7 @@ export default function NetworkingLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="h-[calc(100vh-4rem)] overflow-auto">
+    <div className="h-full">
       <div className="p-4">{children}</div>
     </div>
   )

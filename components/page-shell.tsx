@@ -29,9 +29,10 @@ interface PageShellProps {
   }>
   children?: ReactNode
   headerActions?: ReactNode
+  hideViewDocs?: boolean
 }
 
-export function PageShell({ title, description, tabs, children, headerActions }: PageShellProps) {
+export function PageShell({ title, description, tabs, children, headerActions, hideViewDocs }: PageShellProps) {
   const pathname = usePathname()
   const breadcrumbs = generateBreadcrumbs(pathname)
 
@@ -56,18 +57,20 @@ export function PageShell({ title, description, tabs, children, headerActions }:
             </BreadcrumbList>
           </Breadcrumb>
           
-          <TooltipWrapper 
-            content={getContextualTooltip(pathname, 'viewDocs')}
-            side="bottom"
-            align="end"
-          >
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/documentation" className="flex items-center gap-1 font-normal text-foreground">
-                <DocumentTextIcon className="h-4 w-4" />
-                View Docs
-              </Link>
-            </Button>
-          </TooltipWrapper>
+{!hideViewDocs && (
+            <TooltipWrapper 
+              content={getContextualTooltip(pathname, 'viewDocs')}
+              side="bottom"
+              align="end"
+            >
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/documentation" className="flex items-center gap-1 font-normal text-foreground">
+                  <DocumentTextIcon className="h-4 w-4" />
+                  View Docs
+                </Link>
+              </Button>
+            </TooltipWrapper>
+          )}
         </div>
         
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">

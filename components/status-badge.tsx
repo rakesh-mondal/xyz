@@ -19,6 +19,15 @@ interface StatusBadgeProps {
  * <StatusBadge status="full" />        // Blue badge
  */
 export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
+  // Handle undefined/null status values
+  if (!status) {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
+        Unknown
+      </span>
+    )
+  }
+
   let bgColor = "bg-secondary"
   let textColor = "text-secondary-foreground"
 
