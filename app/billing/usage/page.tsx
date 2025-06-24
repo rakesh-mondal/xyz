@@ -209,24 +209,40 @@ export default function UsageMetricsPage() {
     return (
           <Card>
             <CardHeader>
-          <CardTitle>Billing Overview by Service</CardTitle>
+          <h3 className="text-xl font-semibold leading-none tracking-tight">Billing Overview by Service</h3>
             </CardHeader>
             <CardContent>
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-8 w-full">
-              {/* Credits Information - Side by Side Layout */}
-              <div className="flex flex-col md:flex-row items-center gap-12 flex-1 justify-center">
+              {/* Credits Information - Enhanced Cards Layout */}
+              <div className="flex flex-col md:flex-row items-center gap-8 flex-1 justify-center">
                 {/* Total Credits Used */}
-                <div className="flex flex-col items-center text-center">
-                  <div className="text-lg font-semibold mb-1">Total Credits Used</div>
-                  <div className="text-4xl font-medium text-gray-400">₹{totalUsedCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-6 w-full md:w-auto min-w-[280px] text-center hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">↗</span>
+                    </div>
+                    <div className="text-lg font-semibold text-black">Total Credits Used</div>
+                  </div>
+                  <div className="text-3xl font-bold text-black mb-2">₹{totalUsedCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <div className="text-sm text-black bg-red-100 rounded-full px-3 py-1 inline-block">
+                    {((totalUsedCredits / (totalUsedCredits + remainingCredits)) * 100).toFixed(1)}% of total credits
+                  </div>
                 </div>
                 
                 {/* Remaining Balance */}
-                <div className="flex flex-col items-center text-center">
-                  <div className="text-lg font-semibold mb-1">Remaining Balance</div>
-                  <div className="text-4xl font-medium text-black">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-6 w-full md:w-auto min-w-[280px] text-center hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">₹</span>
+                    </div>
+                    <div className="text-lg font-semibold text-black">Remaining Balance</div>
+                  </div>
+                  <div className="text-3xl font-bold text-black mb-2">
                     ₹{remainingCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                  <div className="text-sm text-black bg-green-100 rounded-full px-3 py-1 inline-block">
+                    Available for use
                   </div>
                 </div>
               </div>
