@@ -107,6 +107,14 @@ const VercelTabs = React.forwardRef<HTMLDivElement, VercelTabsProps>(
         {...props}
       >
         <div className="relative">
+          {/* Hover Background Indicator */}
+          {hoveredIndex !== null && hoveredIndex !== activeIndex && (
+            <div
+              className="absolute bottom-1 top-1 transition-all duration-200 ease-out bg-[#1f22250f] rounded-md"
+              style={hoverStyle}
+            />
+          )}
+
           {/* Active Indicator - horizontal line style like ContentTabs */}
           <div
             className="absolute bottom-0 h-0.5 transition-all duration-300 ease-out bg-primary"
