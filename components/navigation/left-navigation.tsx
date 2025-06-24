@@ -286,7 +286,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
   if (isCategory) {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 px-3 py-2 text-[11px] font-semibold text-muted-foreground/70">
+        <div className="flex items-center gap-2 px-3 pt-5 text-[11px] font-semibold text-muted-foreground/70">
           {itemContent}
         </div>
         {!collapsed && hasSubItems && (
