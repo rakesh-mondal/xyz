@@ -241,7 +241,21 @@ const navigationConfig = {
   },
   documentation: {
     href: "https://krutrim-cloud.gitbook.io/krutrim-cloud-docs",
-    icon: <BookOpen className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: (
+      <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        viewBox="-0.5 -0.5 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        className="h-[18px] w-[18px] text-muted-foreground"
+        strokeWidth="1"
+      >
+        <path d="M14.375 1.9166666666666667H5.75a1.9166666666666667 1.9166666666666667 0 0 0 -1.9166666666666667 1.9166666666666667v15.333333333333334a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 1.9166666666666667h11.5a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 -1.9166666666666667V6.708333333333334Z"></path>
+        <path d="M13.416666666666668 1.9166666666666667v3.8333333333333335a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 1.9166666666666667h3.8333333333333335"></path>
+      </svg>
+    ),
     label: "Documentation",
     isExternal: true,
   },
@@ -286,7 +300,10 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
   if (isCategory) {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 px-3 pt-5 text-[11px] font-semibold text-muted-foreground/70">
+        <div className={cn(
+          "flex items-center gap-1 px-3 text-[11px] font-semibold text-muted-foreground/70",
+          label === "Administration" ? "pt-[18px]" : "pt-5"
+        )}>
           {itemContent}
         </div>
         {!collapsed && hasSubItems && (
@@ -297,7 +314,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
                   <button
                     onClick={() => onSubItemExpand?.(subItem.href)}
                     className={cn(
-                      "group flex items-center gap-2 rounded-md px-2 py-1 text-[13px] transition-colors text-left w-full",
+                      "group flex items-center gap-1 rounded-md px-2 py-1 text-[13px] transition-colors text-left w-full",
                       (expandedSubItem === subItem.href || isSubItemActive(subItem.href))
                         ? "text-foreground/90"
                         : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
@@ -310,7 +327,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
                   <Link
                     href={subItem.href}
                     className={cn(
-                      "group flex items-center gap-2 rounded-md px-2 py-1 text-[13px] transition-colors text-left w-full",
+                      "group flex items-center gap-1 rounded-md px-2 py-1 text-[13px] transition-colors text-left w-full",
                       (expandedSubItem === subItem.href || isSubItemActive(subItem.href))
                         ? "text-foreground/90"
                         : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
@@ -350,7 +367,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
     <button
       onClick={handleToggleExpand}
       className={cn(
-        "group flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors text-left",
+        "group flex w-full items-center gap-1 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors text-left",
         exactActive
           ? "text-foreground/90"
           : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
@@ -364,7 +381,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group flex items-center gap-2 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors",
+        "group flex items-center gap-1 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors",
         exactActive
           ? "text-foreground/90"
           : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
@@ -376,7 +393,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
     <Link
       href={href}
       className={cn(
-        "group flex items-center gap-2 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors",
+        "group flex items-center gap-1 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors",
         exactActive
           ? "text-foreground/90"
           : "text-foreground/60 hover:text-foreground/80 hover:bg-[#1f22250f]",
@@ -392,7 +409,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
         <TooltipProvider>
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>{item}</TooltipTrigger>
-            <TooltipContent side="right" className="flex items-center gap-2">
+            <TooltipContent side="right" className="flex items-center gap-1">
               {label}
             </TooltipContent>
           </Tooltip>
@@ -727,13 +744,15 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
           />
 
           {/* Maps */}
-          <NavItem
-            href={navigationConfig.maps.href}
-            icon={navigationConfig.maps.icon}
-            label={navigationConfig.maps.label}
-            exactActive={isExactActive(navigationConfig.maps.href)}
-            active={isActive(navigationConfig.maps.href)}
-          />
+          <div className="mt-[10px]">
+            <NavItem
+              href={navigationConfig.maps.href}
+              icon={navigationConfig.maps.icon}
+              label={navigationConfig.maps.label}
+              exactActive={isExactActive(navigationConfig.maps.href)}
+              active={isActive(navigationConfig.maps.href)}
+            />
+          </div>
 
           {/* Administration */}
           <NavItem
@@ -757,7 +776,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
 
       {/* Bottom navigation items */}
       <div className="mt-auto px-3">
-        <div className="py-3 flex flex-col gap-2">
+        <div className="py-3 flex flex-col gap-1">
           {/* Documentation */}
           <NavItem
             href={navigationConfig.documentation.href}
