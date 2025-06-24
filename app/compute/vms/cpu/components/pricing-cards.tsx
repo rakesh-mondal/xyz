@@ -68,8 +68,17 @@ function Spec({ icon: Icon, label, value }: { icon: any; label: string; value: s
 
 function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCardProps) {
   return (
-    <Card className="relative w-full transition-all duration-200">
-      <CardHeader className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between pb-4 gap-2 sm:gap-0">
+    <div 
+      className="relative w-full transition-all duration-200"
+      style={{
+        borderRadius: '16px',
+        border: '4px solid #FFF',
+        background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+        boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+        padding: '1.5rem'
+      }}
+    >
+      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between pb-4 gap-2 sm:gap-0">
         <h3 className="text-lg font-medium text-foreground text-left sm:whitespace-nowrap">
           {`${vcpus} vCPU • ${memory} GB RAM`}
         </h3>
@@ -77,9 +86,9 @@ function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCar
           <span className="text-lg font-medium leading-none">₹{price}</span>
           <span className="text-lg text-muted-foreground">/hr</span>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium justify-start text-left">
           <span><span className="text-foreground">{vcpus}</span> <span className="text-muted-foreground">vCPUs</span></span>
           <span className="text-muted-foreground">•</span>
@@ -100,8 +109,8 @@ function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCar
             Reserve Now
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
