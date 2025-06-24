@@ -228,7 +228,7 @@ export default function UsageMetricsPage() {
                   padding: '1.5rem'
                 }}>
                   <div className="mb-3">
-                    <div className="text-lg text-muted-foreground">Remaining Balance</div>
+                    <div className="text-lg font-semibold text-muted-foreground">Remaining Balance</div>
                   </div>
                   <div className="text-3xl font-bold text-black mb-2">
                     ₹{remainingCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -242,26 +242,26 @@ export default function UsageMetricsPage() {
               {/* Divider */}
               <div className="hidden lg:block h-80 border-l border-gray-200 mx-4" />
               
-              {/* Clean Horizontal Bar Chart Section */}
+              {/* Horizontal Bar Chart Section */}
               <div className="flex-1 w-full">
                 <div>
-                  <div className="flex items-start justify-start">
-                    <div className="flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-muted-foreground">Credits Distribution</h3>
+                    <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground">Total Credits Used</span>
                       <span className="text-lg font-semibold text-gray-900">₹{totalUsedCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   </div>
                   
-                  {/* Clean Highcharts Horizontal Bar Chart */}
-                  <div className="h-[350px] w-full bg-white rounded-lg p-4">
+                  {/* Highcharts Horizontal Bar Chart */}
+                  <div className="h-[400px] w-full">
                     <HighchartsReact
                       highcharts={Highcharts}
                       options={{
                         chart: {
                           type: 'bar',
-                          height: 300,
+                          height: 400,
                           backgroundColor: 'transparent',
-                          margin: [20, 80, 50, 160],
                           style: {
                             fontFamily: 'inherit'
                           }
@@ -276,71 +276,50 @@ export default function UsageMetricsPage() {
                           },
                           labels: {
                             style: {
-                              color: '#374151',
-                              fontSize: '13px',
-                              fontWeight: 'normal'
+                              color: '#6b7280',
+                              fontSize: '12px'
                             }
                           },
                           lineWidth: 0,
-                          tickWidth: 0,
-                          gridLineWidth: 0
+                          tickWidth: 0
                         },
                         yAxis: {
                           min: 0,
-                          max: Math.max(...barChartData.map(item => item.value)) * 1.1,
                           title: {
                             text: null
                           },
-                                                     labels: {
-                             enabled: true,
-                             style: {
-                               color: '#9ca3af',
-                               fontSize: '11px'
-                             },
-                             formatter: function(this: any): string {
-                               return '₹' + (this.value >= 1000 ? Math.round(this.value/1000) + 'k' : this.value);
-                             }
-                           },
-                          gridLineWidth: 1,
-                          gridLineColor: '#f3f4f6',
-                          tickInterval: Math.max(...barChartData.map(item => item.value)) / 4
+                          labels: {
+                            enabled: false
+                          },
+                          gridLineWidth: 0
                         },
-                                                 tooltip: {
-                           pointFormat: '<b>{point.category}</b><br/>Credits Used: <b>₹{point.y:,.0f}</b>',
-                           backgroundColor: '#000000',
-                           borderColor: '#000000',
-                           borderRadius: 6,
-                           shadow: false,
-                           style: {
-                             fontSize: '12px',
-                             color: '#ffffff'
-                           }
-                         },
-                        plotOptions: {
-                          bar: {
-                            dataLabels: {
-                              enabled: true,
-                              format: '₹{point.y:,.0f}',
-                              align: 'left',
-                              inside: false,
-                              x: 8,
-                              crop: false,
-                              overflow: 'allow',
-                              style: {
-                                color: '#374151',
-                                fontSize: '12px',
-                                fontWeight: 'normal'
-                              }
-                            },
-                            borderRadius: {
-                              radius: 4,
-                              scope: 'point'
-                            },
-                            pointPadding: 0.08,
-                            groupPadding: 0.1,
-                            borderWidth: 0
+                        tooltip: {
+                          pointFormat: '<b>{point.category}</b><br/>Credits Used: <b>₹{point.y:,.2f}</b>',
+                          backgroundColor: '#000000',
+                          borderColor: '#000000',
+                          borderRadius: 8,
+                          shadow: false,
+                          style: {
+                            fontSize: '12px',
+                            color: '#ffffff'
                           }
                         },
+                                                 plotOptions: {
+                           bar: {
+                             dataLabels: {
+                               enabled: true,
+                               format: '₹{point.y:,.0f}',
+                               style: {
+                                 color: '#374151',
+                                 fontSize: '11px',
+                                 fontWeight: '500'
+                               }
+                             },
+                             borderRadius: 4,
+                             pointPadding: 0.05,
+                             groupPadding: 0.05
+                           }
+                         },
                         legend: {
                           enabled: false
                         },
@@ -349,9 +328,9 @@ export default function UsageMetricsPage() {
                         },
                         series: [{
                           name: 'Credits Used',
-                          data: barChartData.map((item) => ({
+                          data: barChartData.map(item => ({
                             y: item.value,
-                            color: '#3b82f6', // All bars blue
+                            color: item.color,
                             name: item.name
                           })),
                           showInLegend: false

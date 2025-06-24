@@ -302,7 +302,7 @@ const NavItem = ({ href, icon, label, active, exactActive, collapsed, expanded, 
       <div className="flex flex-col">
         <div className={cn(
           "flex items-center gap-1 px-3 text-[11px] font-semibold text-muted-foreground/70",
-          label === "Administration" ? "pt-[18px]" : "pt-5"
+          label === "Administration" ? "pt-[18px]" : label === "Core Infrastructure" ? "pt-3" : "pt-5"
         )}>
           {itemContent}
         </div>

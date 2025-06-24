@@ -68,14 +68,27 @@ export default function AddCreditsPage() {
             <CardContent className="space-y-6 pt-6">
 
               {/* Amount and Billing Address Row */}
-              <div className="flex flex-col md:flex-row gap-6">
+              <div className="flex flex-col md:flex-row gap-6" style={{
+                borderRadius: '16px',
+                border: '4px solid #FFF',
+                background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+                boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+                padding: '1.5rem'
+              }}>
                 {/* Billing Address */}
-                <div className="flex-1 md:order-2 md:text-right">
-                  <div className="flex items-center gap-2 mb-2 md:justify-end">
-                    <span className="font-medium">Billing Address</span>
-                    <Button variant="link" size="sm" onClick={() => setEditAddress(true)}>Edit</Button>
+                <div className="flex-1 md:order-2 text-right group cursor-pointer">
+                  <div className="mb-2 text-right">
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      onClick={() => setEditAddress(true)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mr-2"
+                    >
+                      Edit
+                    </Button>
+                    <span className="font-medium text-muted-foreground">Billing Address</span>
                   </div>
-                  <div className="text-sm text-muted-foreground md:text-right">
+                  <div className="text-sm text-muted-foreground text-right">
                     <div>{address.name}</div>
                     <div>{address.line1}{address.line2 ? ", " + address.line2 : ""}</div>
                     <div>{address.city}, {address.state} {address.zip}</div>
@@ -85,19 +98,19 @@ export default function AddCreditsPage() {
 
                 {/* Custom Amount */}
                 <div className="flex-1 md:order-1">
-                  <div className="font-medium mb-2">Enter amount</div>
+                  <div className="font-medium mb-2 text-2xl">Enter amount</div>
                   <Input
                     type="number"
                     min={1}
                     placeholder="₹1000"
                     value={customAmount}
                     onChange={(e) => setCustomAmount(e.target.value)}
-                    className="max-w-xs"
+                    className="max-w-xs h-12 text-lg"
                   />
                 </div>
               </div>
               {/* Enhanced Order Summary */}
-              <div className="border-t pt-4 mt-4">
+              <div className="pt-4 mt-4 px-6">
                 <div className="font-medium mb-3 text-muted-foreground">Order Summary</div>
                 
                 {/* Credits Line Item */}
@@ -133,14 +146,14 @@ export default function AddCreditsPage() {
 
                 {/* Total */}
                 <div className="mt-4 pt-3 border-t">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-end gap-2">
                     <span className="text-xl font-bold">Total</span>
-                    <span className="text-2xl font-bold text-green-600">₹{orderSummary.total}.00</span>
+                    <span className="text-2xl font-bold text-black">₹{orderSummary.total}.00</span>
                   </div>
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end gap-2">
+            <CardFooter className="flex justify-end gap-2 px-6">
               <Button variant="outline" onClick={() => router.back()}>Cancel</Button>
               <Button variant="default">Purchase Credits</Button>
             </CardFooter>
