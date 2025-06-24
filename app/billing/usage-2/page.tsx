@@ -486,7 +486,7 @@ export default function UsageMetricsPage() {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Infrastructure Costs</CardTitle>
+                          <CardTitle className="text-lg font-normal">Infrastructure Costs</CardTitle>
         </CardHeader>
         <CardContent>
             <VercelTabs
@@ -680,7 +680,7 @@ export default function UsageMetricsPage() {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Model Development Charges</CardTitle>
+                          <CardTitle className="text-lg font-normal">Model Development Charges</CardTitle>
         </CardHeader>
         <CardContent>
             <VercelTabs
@@ -843,7 +843,7 @@ export default function UsageMetricsPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-1">
-            <CardTitle>Deployed AI Charges</CardTitle>
+                            <CardTitle className="text-lg font-normal">Deployed AI Charges</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
