@@ -32,6 +32,83 @@ export default function CreateVPCPage() {
   // Mock data to check if this is the first VPC
   const [isFirstVPC] = useState(true) // This would come from your data/API
 
+  // Mock region availability data
+  const regionAvailability = {
+    "us-east-1": {
+      name: "US East (N. Virginia)",
+      resources: [
+        { type: "CPU Instances", availability: "high" },
+        { type: "GPU A40", availability: "high" },
+        { type: "GPU RTX A5000", availability: "medium" },
+        { type: "GPU RTX A6000", availability: "medium" },
+        { type: "Storage", availability: "high" },
+      ]
+    },
+    "us-west-2": {
+      name: "US West (Oregon)",
+      resources: [
+        { type: "CPU Instances", availability: "high" },
+        { type: "GPU A40", availability: "medium" },
+        { type: "GPU RTX A5000", availability: "low" },
+        { type: "GPU RTX A6000", availability: "low" },
+        { type: "Storage", availability: "high" },
+      ]
+    },
+    "eu-west-1": {
+      name: "EU (Ireland)",
+      resources: [
+        { type: "CPU Instances", availability: "high" },
+        { type: "GPU A40", availability: "high" },
+        { type: "GPU RTX A5000", availability: "medium" },
+        { type: "GPU RTX A6000", availability: "medium" },
+        { type: "Storage", availability: "high" },
+      ]
+    },
+    "ap-south-1": {
+      name: "Asia Pacific (Mumbai)",
+      resources: [
+        { type: "CPU Instances", availability: "medium" },
+        { type: "GPU A40", availability: "medium" },
+        { type: "GPU RTX A5000", availability: "high" },
+        { type: "GPU RTX A6000", availability: "high" },
+        { type: "Storage", availability: "medium" },
+      ]
+    },
+    "ap-southeast-1": {
+      name: "Asia Pacific (Singapore)",
+      resources: [
+        { type: "CPU Instances", availability: "high" },
+        { type: "GPU A40", availability: "low" },
+        { type: "GPU RTX A5000", availability: "medium" },
+        { type: "GPU RTX A6000", availability: "medium" },
+        { type: "Storage", availability: "high" },
+      ]
+    }
+  }
+
+  const getAvailabilityColor = (availability: string) => {
+    switch (availability) {
+      case "high": return "bg-green-500"
+      case "medium": return "bg-yellow-500"
+      case "low": return "bg-gray-400"
+      default: return "bg-gray-300"
+    }
+  }
+
+  const getAvailabilityBars = (availability: string) => {
+    const totalBars = 3
+    const activeBars = availability === "high" ? 3 : availability === "medium" ? 2 : 1
+    
+    return Array.from({ length: totalBars }, (_, index) => (
+      <div
+        key={index}
+        className={`h-1.5 w-6 rounded-sm ${
+          index < activeBars ? getAvailabilityColor(availability) : "bg-gray-300"
+        }`}
+      />
+    ))
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
     setFormData((prev) => ({ ...prev, [id]: value }))
@@ -94,6 +171,51 @@ export default function CreateVPCPage() {
                         <SelectItem value="ap-southeast-1">Asia Pacific (Singapore)</SelectItem>
                       </SelectContent>
                     </Select>
+                    
+                    {/* Region Availability Display */}
+                    {formData.region && regionAvailability[formData.region as keyof typeof regionAvailability] && (
+                      <div className="mt-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs text-gray-900">
+                            Resource Availability
+                          </h4>
+                          <span className="text-xs text-gray-500">
+                            {regionAvailability[formData.region as keyof typeof regionAvailability].name}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {regionAvailability[formData.region as keyof typeof regionAvailability].resources.map((resource, index) => (
+                            <div key={index} className="flex items-center justify-between">
+                              <span className="text-xs text-gray-700">
+                                {resource.type}
+                              </span>
+                              <div className="flex items-center gap-0.5">
+                                {getAvailabilityBars(resource.availability)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 bg-green-500 rounded-sm"></div>
+                                <span>High</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 bg-yellow-500 rounded-sm"></div>
+                                <span>Medium</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 bg-gray-400 rounded-sm"></div>
+                                <span>Low</span>
+                              </div>
+                            </div>
+                            <span>Updated 5 min ago</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mb-5">
@@ -242,7 +364,7 @@ export default function CreateVPCPage() {
                 </div>
               </form>
             </CardContent>
-            <CardFooter className="flex justify-end gap-4 px-6">
+            <div className="flex justify-end gap-4 px-6 pb-6">
               <Button
                 type="button"
                 variant="outline"
@@ -258,7 +380,7 @@ export default function CreateVPCPage() {
               >
                 Create VPC
               </Button>
-            </CardFooter>
+            </div>
           </Card>
         </div>
 
