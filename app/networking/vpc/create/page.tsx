@@ -232,7 +232,7 @@ export default function CreateVPCPage() {
                   </div>
 
                   <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-gray-600" style={{ fontSize: '13px' }}>
                       You can configure specific settings such as the Subnet, CIDR block, and Gateway IP in the advanced settings.
                     </p>
                   </div>
