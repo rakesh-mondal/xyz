@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle } from "lucide-react"
+import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network } from "lucide-react"
 import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { TooltipWrapper } from "./ui/tooltip-wrapper"
@@ -19,6 +19,7 @@ interface ActionMenuProps {
   onWarning?: () => void
   onEdit?: () => void
   onCustomDelete?: () => void  // New prop for custom delete handling
+  onConnectSubnet?: () => void  // New prop for subnet connections
 }
 
 /**
@@ -44,6 +45,7 @@ export function ActionMenu({
   onWarning,
   onEdit,
   onCustomDelete,
+  onConnectSubnet,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -98,6 +100,12 @@ export function ActionMenu({
             <DropdownMenuItem onClick={onEdit} className="flex items-center cursor-pointer">
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
+            </DropdownMenuItem>
+          )}
+          {onConnectSubnet && (
+            <DropdownMenuItem onClick={onConnectSubnet} className="flex items-center cursor-pointer">
+              <Network className="mr-2 h-4 w-4" />
+              <span>Connect/Disconnect Subnet</span>
             </DropdownMenuItem>
           )}
           {(deleteHref || onCustomDelete) && (

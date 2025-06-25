@@ -370,6 +370,66 @@ export const subnets = [
     availabilityZone: "us-east-1a",
     description: "ML private subnet for training and inference",
   },
+  {
+    id: "subnet-11",
+    name: "cdn-subnet-public",
+    vpcName: "cdn-vpc",
+    type: "Public",
+    status: "Active",
+    cidr: "10.8.1.0/24",
+    gatewayIp: "10.8.1.1",
+    createdOn: "2023-11-10T10:50:00Z",
+    availabilityZone: "eu-west-2a",
+    description: "CDN public subnet for edge servers",
+  },
+  {
+    id: "subnet-12",
+    name: "iot-subnet-private",
+    vpcName: "iot-vpc",
+    type: "Private",
+    status: "Active",
+    cidr: "10.9.1.0/24",
+    gatewayIp: "10.9.1.1",
+    createdOn: "2023-12-01T17:15:00Z",
+    availabilityZone: "ap-northeast-1a",
+    description: "IoT private subnet for device connectivity",
+  },
+  {
+    id: "subnet-13",
+    name: "gaming-subnet-public",
+    vpcName: "gaming-vpc",
+    type: "Public",
+    status: "Active",
+    cidr: "10.10.1.0/24",
+    gatewayIp: "10.10.1.1",
+    createdOn: "2024-01-15T09:25:00Z",
+    availabilityZone: "us-central-1a",
+    description: "Gaming public subnet for game servers",
+  },
+  {
+    id: "subnet-14",
+    name: "blockchain-subnet-private",
+    vpcName: "blockchain-vpc",
+    type: "Private",
+    status: "Active",
+    cidr: "10.11.1.0/24",
+    gatewayIp: "10.11.1.1",
+    createdOn: "2024-02-01T14:40:00Z",
+    availabilityZone: "eu-south-1a",
+    description: "Blockchain private subnet for nodes",
+  },
+  {
+    id: "subnet-15",
+    name: "research-subnet-public",
+    vpcName: "research-vpc",
+    type: "Public",
+    status: "Active",
+    cidr: "10.12.1.0/24",
+    gatewayIp: "10.12.1.1",
+    createdOn: "2023-08-20T15:55:00Z",
+    availabilityZone: "eu-central-1a",
+    description: "Research public subnet for experimental projects",
+  },
 ]
 
 export const staticIPs = [
@@ -413,6 +473,10 @@ export const getSecurityGroup = (id: string) => {
   return securityGroups.find((sg) => sg.id === id)
 }
 
+export const getSubnet = (id: string) => {
+  return subnets.find((subnet) => subnet.id === id)
+}
+
 // Mock VM attachments to subnets for demo purposes
 export const subnetVMAttachments = [
   {
@@ -429,4 +493,100 @@ export const subnetVMAttachments = [
 export const getVMAttachedToSubnet = (subnetId: string) => {
   const attachment = subnetVMAttachments.find(att => att.subnetId === subnetId)
   return attachment?.vmName || null
+}
+
+// Subnet to Subnet connections
+export const subnetConnections = [
+  {
+    subnetId: "subnet-1", // production-subnet-public
+    connectedSubnets: ["subnet-2"] // connected to production-subnet-private
+  },
+  {
+    subnetId: "subnet-2", // production-subnet-private  
+    connectedSubnets: ["subnet-1"] // connected to production-subnet-public
+  },
+  {
+    subnetId: "subnet-3", // development-subnet-public
+    connectedSubnets: ["subnet-6"] // connected to analytics-subnet-public
+  },
+  {
+    subnetId: "subnet-4", // staging-subnet-public
+    connectedSubnets: ["subnet-5"] // connected to staging-subnet-private
+  },
+  {
+    subnetId: "subnet-5", // staging-subnet-private
+    connectedSubnets: ["subnet-4"] // connected to staging-subnet-public
+  },
+  {
+    subnetId: "subnet-6", // analytics-subnet-public
+    connectedSubnets: ["subnet-3", "subnet-7"] // connected to development-subnet-public and security-subnet-private
+  },
+  {
+    subnetId: "subnet-7", // security-subnet-private
+    connectedSubnets: ["subnet-6", "subnet-8"] // connected to analytics-subnet-public and ml-subnet-public
+  },
+  {
+    subnetId: "subnet-8", // ml-subnet-public
+    connectedSubnets: ["subnet-7", "subnet-9"] // connected to security-subnet-private and backup-subnet-private
+  },
+  {
+    subnetId: "subnet-9", // backup-subnet-private
+    connectedSubnets: ["subnet-8"] // connected to ml-subnet-public
+  },
+  {
+    subnetId: "subnet-11", // cdn-subnet-public
+    connectedSubnets: ["subnet-12", "subnet-13"] // connected to iot-subnet-private and gaming-subnet-public
+  },
+  {
+    subnetId: "subnet-12", // iot-subnet-private
+    connectedSubnets: ["subnet-11"] // connected to cdn-subnet-public
+  },
+  {
+    subnetId: "subnet-13", // gaming-subnet-public
+    connectedSubnets: ["subnet-11", "subnet-14"] // connected to cdn-subnet-public and blockchain-subnet-private
+  },
+  {
+    subnetId: "subnet-14", // blockchain-subnet-private
+    connectedSubnets: ["subnet-13"] // connected to gaming-subnet-public
+  }
+  // subnet-10 (testing-subnet-public) and subnet-15 (research-subnet-public) have no connections
+]
+
+export const getConnectedSubnets = (subnetId: string) => {
+  const connection = subnetConnections.find(conn => conn.subnetId === subnetId)
+  return connection?.connectedSubnets || []
+}
+
+export const addSubnetConnection = (subnetId: string, targetSubnetId: string) => {
+  // Add connection both ways
+  let sourceConnection = subnetConnections.find(conn => conn.subnetId === subnetId)
+  if (!sourceConnection) {
+    sourceConnection = { subnetId, connectedSubnets: [] }
+    subnetConnections.push(sourceConnection)
+  }
+  if (!sourceConnection.connectedSubnets.includes(targetSubnetId)) {
+    sourceConnection.connectedSubnets.push(targetSubnetId)
+  }
+
+  let targetConnection = subnetConnections.find(conn => conn.subnetId === targetSubnetId)
+  if (!targetConnection) {
+    targetConnection = { subnetId: targetSubnetId, connectedSubnets: [] }
+    subnetConnections.push(targetConnection)
+  }
+  if (!targetConnection.connectedSubnets.includes(subnetId)) {
+    targetConnection.connectedSubnets.push(subnetId)
+  }
+}
+
+export const removeSubnetConnection = (subnetId: string, targetSubnetId: string) => {
+  // Remove connection both ways
+  const sourceConnection = subnetConnections.find(conn => conn.subnetId === subnetId)
+  if (sourceConnection) {
+    sourceConnection.connectedSubnets = sourceConnection.connectedSubnets.filter(id => id !== targetSubnetId)
+  }
+
+  const targetConnection = subnetConnections.find(conn => conn.subnetId === targetSubnetId)
+  if (targetConnection) {
+    targetConnection.connectedSubnets = targetConnection.connectedSubnets.filter(id => id !== subnetId)
+  }
 }

@@ -12,7 +12,7 @@ import { getVPC, subnets } from "../../../../lib/data"
 import { DeleteConfirmationModal } from "../../../../components/delete-confirmation-modal"
 import { ShadcnDataTable } from "../../../../components/ui/shadcn-data-table"
 import { StatusBadge } from "../../../../components/status-badge"
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline"
+import { Edit, Trash2 } from "lucide-react"
 
 export default function VPCDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -53,6 +53,14 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
       label: "Subnet Name",
       sortable: true,
       searchable: true,
+      render: (value: string, row: any) => (
+        <a
+          href={`/networking/subnets/${row.id}`}
+          className="text-primary font-medium hover:underline"
+        >
+          {value}
+        </a>
+      ),
     },
     {
       key: "availabilityZone",
@@ -92,34 +100,33 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
   return (
     <PageLayout title={vpc.name} customBreadcrumbs={customBreadcrumbs} hideViewDocs={true}>
       {/* VPC Basic Information */}
-      <div className="mb-6 group" style={{
+      <div className="mb-6 group relative" style={{
         borderRadius: '16px',
         border: '4px solid #FFF',
         background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
         boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
         padding: '1.5rem'
       }}>
-        <div className="flex items-center justify-end mb-2">
-          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        {/* Overlay Edit/Delete Buttons */}
+        <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleEdit}
+            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          {vpc.name !== "production-vpc" && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleEdit}
-              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
             >
-              <PencilIcon className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" />
             </Button>
-            {vpc.name !== "production-vpc" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsDeleteModalOpen(true)}
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600"
-              >
-                <TrashIcon className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+          )}
         </div>
         
         <DetailGrid>
@@ -157,7 +164,7 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
 
       {/* Subnets Section */}
       <div className="bg-card text-card-foreground border-border border rounded-lg p-6">
-        {vpcSubnets.length > 0 ? (
+        {vpcSubnets.length > 0 && vpc.name !== "blockchain-vpc" ? (
           <DetailSection title={`Subnets (${vpcSubnets.length})`}>
             <ShadcnDataTable
               columns={subnetColumns}

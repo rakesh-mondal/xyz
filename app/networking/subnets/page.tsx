@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { PageShell } from "@/components/page-shell"
 import { CreateButton } from "../../../components/create-button"
 import { StatusBadge } from "../../../components/status-badge"
@@ -14,11 +15,15 @@ import {
   DeleteSubnetConfirmationModal, 
   DeleteSubnetNameConfirmationModal 
 } from "../../../components/modals/delete-subnet-modals"
+import { SubnetConnectionModal } from "../../../components/modals/subnet-connection-modal"
 
 export default function SubnetListPage() {
+  const router = useRouter()
   const [deleteStep, setDeleteStep] = useState<"vm-warning" | "confirmation" | "name-confirmation" | null>(null)
   const [selectedSubnet, setSelectedSubnet] = useState<any>(null)
   const [attachedVM, setAttachedVM] = useState<string | null>(null)
+  const [connectionModalOpen, setConnectionModalOpen] = useState(false)
+  const [connectionSubnet, setConnectionSubnet] = useState<any>(null)
 
   const handleDeleteClick = (subnet: any) => {
     const vmName = getVMAttachedToSubnet(subnet.id)
@@ -55,12 +60,25 @@ export default function SubnetListPage() {
     setAttachedVM(null)
   }
 
+  const handleConnectSubnet = (subnet: any) => {
+    setConnectionSubnet(subnet)
+    setConnectionModalOpen(true)
+  }
+
   const columns = [
     {
       key: "name",
       label: "Subnet Name",
       sortable: true,
       searchable: true,
+      render: (value: string, row: any) => (
+        <a
+          href={`/networking/subnets/${row.id}`}
+          className="text-primary font-medium hover:underline"
+        >
+          {value}
+        </a>
+      ),
     },
     {
       key: "vpcName",
@@ -108,6 +126,7 @@ export default function SubnetListPage() {
         <div className="flex justify-end">
           <ActionMenu
             onCustomDelete={() => handleDeleteClick(row)}
+            onConnectSubnet={() => handleConnectSubnet(row)}
             resourceName={row.name}
             resourceType="Subnet"
           />
@@ -120,7 +139,14 @@ export default function SubnetListPage() {
   const dataWithActions = subnets.map((subnet) => ({ ...subnet, actions: null }))
 
   const handleRefresh = () => {
-    window.location.reload()
+    // Add your refresh logic here
+    console.log("🔄 Refreshing Subnet data at:", new Date().toLocaleTimeString())
+    // In a real app, this would typically:
+    // - Refetch data from API
+    // - Update state
+    // - Show loading indicator
+    // For demo purposes, we'll just log instead of reloading
+    // window.location.reload()
   }
 
   return (
@@ -141,6 +167,7 @@ export default function SubnetListPage() {
         enableColumnVisibility={false}
         enablePagination={true}
         onRefresh={handleRefresh}
+        enableAutoRefresh={true}
         enableVpcFilter={true}
         vpcOptions={[
           { value: "all", label: "All VPCs" },
@@ -152,6 +179,11 @@ export default function SubnetListPage() {
           { value: "analytics-vpc", label: "analytics-vpc" },
           { value: "security-vpc", label: "security-vpc" },
           { value: "ml-vpc", label: "ml-vpc" },
+          { value: "cdn-vpc", label: "cdn-vpc" },
+          { value: "iot-vpc", label: "iot-vpc" },
+          { value: "gaming-vpc", label: "gaming-vpc" },
+          { value: "blockchain-vpc", label: "blockchain-vpc" },
+          { value: "research-vpc", label: "research-vpc" },
         ]}
       />
 
@@ -184,6 +216,16 @@ export default function SubnetListPage() {
           onConfirm={handleFinalDelete}
         />
       )}
+
+      {/* Subnet Connection Modal */}
+      <SubnetConnectionModal
+        isOpen={connectionModalOpen}
+        onClose={() => {
+          setConnectionModalOpen(false)
+          setConnectionSubnet(null)
+        }}
+        subnet={connectionSubnet}
+      />
     </PageShell>
   )
 }
