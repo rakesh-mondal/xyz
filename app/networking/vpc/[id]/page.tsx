@@ -99,7 +99,7 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
         boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
         padding: '1.5rem'
       }}>
-        <div className="flex items-center justify-end mb-4">
+        <div className="flex items-center justify-end mb-2">
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               variant="ghost"
@@ -127,11 +127,11 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
           <div className="col-span-full grid grid-cols-4 gap-4">
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VPC ID</label>
-              <div className="font-normal" style={{ fontSize: '14px' }}>{vpc.id}</div>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{vpc.id}</div>
             </div>
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Region</label>
-              <div className="font-normal" style={{ fontSize: '14px' }}>{vpc.region}</div>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{vpc.region}</div>
             </div>
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
@@ -141,7 +141,7 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
             </div>
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Created On</label>
-              <div className="font-normal" style={{ fontSize: '14px' }}>{formatDate(vpc.createdOn)}</div>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{formatDate(vpc.createdOn)}</div>
             </div>
           </div>
           
@@ -149,7 +149,7 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
           <div className="col-span-full">
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Description</label>
-              <div className="font-normal" style={{ fontSize: '14px' }}>{vpc.description}</div>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{vpc.description}</div>
             </div>
           </div>
         </DetailGrid>
