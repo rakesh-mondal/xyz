@@ -126,7 +126,7 @@ export default function CreateSubnetPage() {
 
                     {formData.accessType === "public" && (
                       <div className="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                        <p className="text-sm text-gray-600">
+                        <p className="text-gray-600" style={{ fontSize: '13px' }}>
                           Public subnets can be accessed through the internet. Public IP addresses which you want to assign to
                           your publicly accessible VMs can only be assigned to this type of subnet.
                         </p>
@@ -135,7 +135,7 @@ export default function CreateSubnetPage() {
 
                     {formData.accessType === "private" && (
                       <div className="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                        <p className="text-sm text-gray-600">
+                        <p className="text-gray-600" style={{ fontSize: '13px' }}>
                           Private subnets cannot be accessed through the internet. Only private IP addresses will be created
                           inside this subnet and you can only add privately accessible VMs inside this subnet.
                         </p>
@@ -566,7 +566,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                       </div>
 
                       <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                        <p className="text-sm text-gray-600">
+                        <p className="text-gray-600" style={{ fontSize: '13px' }}>
                           You can configure specific settings such as the Subnet, CIDR block, and Gateway IP in the advanced settings.
                         </p>
                       </div>
