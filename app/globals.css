@@ -106,17 +106,18 @@ h6 {
 }
 
 .smooth-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
   border-radius: 10px;
 }
 
 .smooth-scroll::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #e1e1e1;
   border-radius: 10px;
+  transition: background-color 0.2s ease;
 }
 
 .smooth-scroll::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #c1c1c1;
 }
 
 /* Custom animations for horizontal bar chart */
