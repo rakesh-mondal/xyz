@@ -252,33 +252,123 @@ export const securityGroups = [
 export const subnets = [
   {
     id: "subnet-1",
-    name: "production-subnet-1",
+    name: "production-subnet-public",
     vpcName: "production-vpc",
+    type: "Public",
+    status: "Active",
+    cidr: "10.0.1.0/24",
+    gatewayIp: "10.0.1.1",
+    createdOn: "2023-01-05T10:30:00Z",
     availabilityZone: "us-east-1a",
-    cidrBlock: "10.0.1.0/24",
-    createdOn: "2023-01-05",
-    status: "active",
-    description: "Production subnet for web servers",
+    description: "Production public subnet for web servers",
   },
   {
     id: "subnet-2",
-    name: "production-subnet-2",
+    name: "production-subnet-private",
     vpcName: "production-vpc",
+    type: "Private",
+    status: "Active",
+    cidr: "10.0.2.0/24",
+    gatewayIp: "10.0.2.1",
+    createdOn: "2023-01-05T10:45:00Z",
     availabilityZone: "us-east-1b",
-    cidrBlock: "10.0.2.0/24",
-    createdOn: "2023-01-05",
-    status: "active",
-    description: "Production subnet for database servers",
+    description: "Production private subnet for database servers",
   },
   {
     id: "subnet-3",
-    name: "development-subnet",
+    name: "development-subnet-public",
     vpcName: "development-vpc",
+    type: "Public",
+    status: "Active",
+    cidr: "10.1.1.0/24",
+    gatewayIp: "10.1.1.1",
+    createdOn: "2023-02-20T14:20:00Z",
     availabilityZone: "us-west-2a",
-    cidrBlock: "10.1.1.0/24",
-    createdOn: "2023-02-20",
-    status: "active",
-    description: "Development subnet for testing",
+    description: "Development public subnet for testing",
+  },
+  {
+    id: "subnet-4",
+    name: "staging-subnet-public",
+    vpcName: "staging-vpc",
+    type: "Public",
+    status: "Active",
+    cidr: "10.2.1.0/24",
+    gatewayIp: "10.2.1.1",
+    createdOn: "2023-03-20T09:15:00Z",
+    availabilityZone: "eu-west-1a",
+    description: "Staging public subnet for pre-production testing",
+  },
+  {
+    id: "subnet-5",
+    name: "staging-subnet-private",
+    vpcName: "staging-vpc",
+    type: "Private",
+    status: "Active",
+    cidr: "10.2.2.0/24",
+    gatewayIp: "10.2.2.1",
+    createdOn: "2023-03-20T09:30:00Z",
+    availabilityZone: "eu-west-1b",
+    description: "Staging private subnet for backend services",
+  },
+  {
+    id: "subnet-6",
+    name: "testing-subnet-public",
+    vpcName: "testing-vpc",
+    type: "Public",
+    status: "Inactive",
+    cidr: "10.3.1.0/24",
+    gatewayIp: "10.3.1.1",
+    createdOn: "2023-04-10T16:45:00Z",
+    availabilityZone: "us-central-1a",
+    description: "Testing public subnet for QA",
+  },
+  {
+    id: "subnet-7",
+    name: "backup-subnet-private",
+    vpcName: "backup-vpc",
+    type: "Private",
+    status: "Active",
+    cidr: "10.4.1.0/24",
+    gatewayIp: "10.4.1.1",
+    createdOn: "2023-05-05T11:30:00Z",
+    availabilityZone: "eu-north-1a",
+    description: "Backup private subnet for disaster recovery",
+  },
+  {
+    id: "subnet-8",
+    name: "analytics-subnet-private",
+    vpcName: "analytics-vpc",
+    type: "Private",
+    status: "Active",
+    cidr: "10.5.1.0/24",
+    gatewayIp: "10.5.1.1",
+    createdOn: "2023-06-12T13:25:00Z",
+    availabilityZone: "ap-south-1a",
+    description: "Analytics private subnet for data processing",
+  },
+  {
+    id: "subnet-9",
+    name: "security-subnet-public",
+    vpcName: "security-vpc",
+    type: "Public",
+    status: "Active",
+    cidr: "10.6.1.0/24",
+    gatewayIp: "10.6.1.1",
+    createdOn: "2023-07-08T08:40:00Z",
+    availabilityZone: "us-east-2a",
+    description: "Security public subnet for monitoring tools",
+  },
+  {
+    id: "subnet-10",
+    name: "ml-subnet-private",
+    vpcName: "ml-vpc",
+    type: "Private",
+    status: "Active",
+    cidr: "10.7.1.0/24",
+    gatewayIp: "10.7.1.1",
+    createdOn: "2023-10-05T14:35:00Z",
+    availabilityZone: "us-east-1a",
+    description: "ML private subnet for training and inference",
   },
 ]
 
@@ -321,4 +411,22 @@ export const getVPC = (id: string) => {
 
 export const getSecurityGroup = (id: string) => {
   return securityGroups.find((sg) => sg.id === id)
+}
+
+// Mock VM attachments to subnets for demo purposes
+export const subnetVMAttachments = [
+  {
+    subnetId: "subnet-1",
+    vmName: "web-server-01"
+  },
+  {
+    subnetId: "subnet-2", 
+    vmName: "db-server-01"
+  },
+  // subnet-3 and others are not attached to any VM
+]
+
+export const getVMAttachedToSubnet = (subnetId: string) => {
+  const attachment = subnetVMAttachments.find(att => att.subnetId === subnetId)
+  return attachment?.vmName || null
 }

@@ -1,15 +1,60 @@
 "use client"
 
+import { useState } from "react"
 import { PageShell } from "@/components/page-shell"
 import { CreateButton } from "../../../components/create-button"
 import { StatusBadge } from "../../../components/status-badge"
-import { subnets } from "../../../lib/data"
+import { subnets, getVMAttachedToSubnet } from "../../../lib/data"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { ActionMenu } from "../../../components/action-menu"
 import { ShadcnDataTable } from "../../../components/ui/shadcn-data-table"
 import { RefreshCw } from "lucide-react"
+import { 
+  DeleteSubnetVMWarningModal, 
+  DeleteSubnetConfirmationModal, 
+  DeleteSubnetNameConfirmationModal 
+} from "../../../components/modals/delete-subnet-modals"
 
 export default function SubnetListPage() {
+  const [deleteStep, setDeleteStep] = useState<"vm-warning" | "confirmation" | "name-confirmation" | null>(null)
+  const [selectedSubnet, setSelectedSubnet] = useState<any>(null)
+  const [attachedVM, setAttachedVM] = useState<string | null>(null)
+
+  const handleDeleteClick = (subnet: any) => {
+    const vmName = getVMAttachedToSubnet(subnet.id)
+    setSelectedSubnet(subnet)
+    
+    if (vmName) {
+      // Subnet is attached to a VM - show warning
+      setAttachedVM(vmName)
+      setDeleteStep("vm-warning")
+    } else {
+      // Subnet is not attached - show confirmation
+      setDeleteStep("confirmation")
+    }
+  }
+
+  const handleConfirmationProceed = () => {
+    setDeleteStep("name-confirmation")
+  }
+
+  const handleFinalDelete = async () => {
+    // Simulate delete API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    console.log("Subnet deleted:", selectedSubnet.name)
+    
+    // Close modals
+    setDeleteStep(null)
+    setSelectedSubnet(null)
+    setAttachedVM(null)
+  }
+
+  const handleCloseModals = () => {
+    setDeleteStep(null)
+    setSelectedSubnet(null)
+    setAttachedVM(null)
+  }
+
   const columns = [
     {
       key: "name",
@@ -25,11 +70,13 @@ export default function SubnetListPage() {
     {
       key: "type",
       label: "Type",
+      sortable: true,
       render: (value: string) => <StatusBadge status={value} />,
     },
     {
       key: "status",
       label: "Status",
+      sortable: true,
       render: (value: string) => <StatusBadge status={value} />,
     },
     {
@@ -44,6 +91,14 @@ export default function SubnetListPage() {
       key: "createdOn",
       label: "Created On",
       sortable: true,
+      render: (value: string) => {
+        const date = new Date(value);
+        return (
+          <span className="text-muted-foreground">
+            {date.toLocaleDateString()} {date.toLocaleTimeString()}
+          </span>
+        );
+      },
     },
     {
       key: "actions",
@@ -52,9 +107,7 @@ export default function SubnetListPage() {
       render: (_: any, row: any) => (
         <div className="flex justify-end">
           <ActionMenu
-            viewHref={`/networking/subnets/${row.id}`}
-            editHref={`/networking/subnets/${row.id}/edit`}
-            deleteHref={`/networking/subnets/${row.id}/delete`}
+            onCustomDelete={() => handleDeleteClick(row)}
             resourceName={row.name}
             resourceType="Subnet"
           />
@@ -94,8 +147,43 @@ export default function SubnetListPage() {
           { value: "production-vpc", label: "production-vpc" },
           { value: "development-vpc", label: "development-vpc" },
           { value: "staging-vpc", label: "staging-vpc" },
+          { value: "testing-vpc", label: "testing-vpc" },
+          { value: "backup-vpc", label: "backup-vpc" },
+          { value: "analytics-vpc", label: "analytics-vpc" },
+          { value: "security-vpc", label: "security-vpc" },
+          { value: "ml-vpc", label: "ml-vpc" },
         ]}
       />
+
+      {/* Step 1: VM Attachment Warning Modal */}
+      {selectedSubnet && attachedVM && (
+        <DeleteSubnetVMWarningModal
+          open={deleteStep === "vm-warning"}
+          onClose={handleCloseModals}
+          subnet={selectedSubnet}
+          vmName={attachedVM}
+        />
+      )}
+
+      {/* Step 2: Initial Confirmation Modal */}
+      {selectedSubnet && (
+        <DeleteSubnetConfirmationModal
+          open={deleteStep === "confirmation"}
+          onClose={handleCloseModals}
+          subnet={selectedSubnet}
+          onConfirm={handleConfirmationProceed}
+        />
+      )}
+
+      {/* Step 3: Name Confirmation Modal */}
+      {selectedSubnet && (
+        <DeleteSubnetNameConfirmationModal
+          open={deleteStep === "name-confirmation"}
+          onClose={handleCloseModals}
+          subnet={selectedSubnet}
+          onConfirm={handleFinalDelete}
+        />
+      )}
     </PageShell>
   )
 }
