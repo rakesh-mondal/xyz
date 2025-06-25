@@ -99,8 +99,7 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
         boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
         padding: '1.5rem'
       }}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-normal text-muted-foreground">VPC Information</h3>
+        <div className="flex items-center justify-end mb-4">
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               variant="ghost"
