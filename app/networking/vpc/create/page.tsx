@@ -433,25 +433,25 @@ export default function CreateVPCPage() {
           {/* Configuration Tips */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Configuration Tips</CardTitle>
+              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3 text-sm">
+              <ul className="space-y-3">
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground">Choose a descriptive VPC name for easy identification</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose a descriptive VPC name for easy identification</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground">Select the region closest to your users for better performance</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select the region closest to your users for better performance</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground">Use private networks for better security</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use private networks for better security</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground">Plan your CIDR blocks to avoid IP conflicts</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Plan your CIDR blocks to avoid IP conflicts</span>
                 </li>
               </ul>
             </CardContent>
