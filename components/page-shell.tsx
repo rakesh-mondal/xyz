@@ -13,7 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { generateBreadcrumbs } from "@/lib/generate-breadcrumbs"
+import { generateBreadcrumbs, type Breadcrumb as BreadcrumbType } from "@/lib/generate-breadcrumbs"
 
 import { Button } from "@/components/ui/button"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
@@ -30,11 +30,12 @@ interface PageShellProps {
   children?: ReactNode
   headerActions?: ReactNode
   hideViewDocs?: boolean
+  customBreadcrumbs?: BreadcrumbType[]
 }
 
-export function PageShell({ title, description, tabs, children, headerActions, hideViewDocs }: PageShellProps) {
+export function PageShell({ title, description, tabs, children, headerActions, hideViewDocs, customBreadcrumbs }: PageShellProps) {
   const pathname = usePathname()
-  const breadcrumbs = generateBreadcrumbs(pathname)
+  const breadcrumbs = customBreadcrumbs || generateBreadcrumbs(pathname)
 
   return (
     <div className="space-y-6">
