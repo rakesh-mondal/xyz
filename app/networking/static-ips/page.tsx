@@ -57,30 +57,44 @@ export default function StaticIPListPage() {
       searchable: true,
     },
     {
-      key: "vpcName",
-      label: "VPC Name",
+      key: "subnetName",
+      label: "Subnet Name",
       sortable: true,
       searchable: true,
     },
     {
-      key: "status",
-      label: "Status",
-      render: (value: string) => <StatusBadge status={value} />,
-    },
-    {
-      key: "associatedResource",
-      label: "Associated Resource",
-      render: (value: string) => value || <span className="italic text-muted-foreground">Not assigned</span>,
-    },
-    {
-      key: "description",
-      label: "Description",
-      searchable: true,
+      key: "type",
+      label: "Type",
+      sortable: true,
       render: (value: string) => (
-        <div className="max-w-xs truncate" title={value}>
-          {value || <span className="italic text-muted-foreground">No description</span>}
-        </div>
+        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+          value === 'IPv4' 
+            ? 'bg-blue-100 text-blue-800' 
+            : 'bg-purple-100 text-purple-800'
+        }`}>
+          {value}
+        </span>
       ),
+    },
+    {
+      key: "accessType",
+      label: "Access Type",
+      sortable: true,
+      render: (value: string) => (
+        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+          value === 'Public' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-gray-100 text-gray-800'
+        }`}>
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: "assignedVMName",
+      label: "Assigned VM",
+      searchable: true,
+      render: (value: string) => value || <span className="italic text-muted-foreground">Not assigned</span>,
     },
     {
       key: "actions",
@@ -103,12 +117,17 @@ export default function StaticIPListPage() {
   // Add actions property to each static IP row for DataTable
   const dataWithActions = staticIPs.map((ip) => ({ ...ip, actions: null }))
 
-  // Example VPC options (replace with real data if available)
+  // VPC options for filtering
   const vpcOptions = [
     { value: "all", label: "All VPCs" },
     { value: "production-vpc", label: "production-vpc" },
     { value: "development-vpc", label: "development-vpc" },
     { value: "staging-vpc", label: "staging-vpc" },
+    { value: "ml-vpc", label: "ml-vpc" },
+    { value: "cdn-vpc", label: "cdn-vpc" },
+    { value: "gaming-vpc", label: "gaming-vpc" },
+    { value: "analytics-vpc", label: "analytics-vpc" },
+    { value: "backup-vpc", label: "backup-vpc" },
   ]
 
   const handleRefresh = () => {
@@ -127,7 +146,7 @@ export default function StaticIPListPage() {
       <ShadcnDataTable
         columns={columns}
         data={dataWithActions}
-        searchableColumns={["ipAddress", "vpcName", "description"]}
+        searchableColumns={["ipAddress", "subnetName", "assignedVMName"]}
         defaultSort={{ column: "ipAddress", direction: "asc" }}
         pageSize={10}
         enableSearch={true}
