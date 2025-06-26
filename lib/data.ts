@@ -406,18 +406,7 @@ export const subnets = [
     availabilityZone: "us-central-1a",
     description: "Gaming public subnet for game servers",
   },
-  {
-    id: "subnet-14",
-    name: "blockchain-subnet-private",
-    vpcName: "blockchain-vpc",
-    type: "Private",
-    status: "Active",
-    cidr: "10.11.1.0/24",
-    gatewayIp: "10.11.1.1",
-    createdOn: "2024-02-01T14:40:00Z",
-    availabilityZone: "eu-south-1a",
-    description: "Blockchain private subnet for nodes",
-  },
+
   {
     id: "subnet-15",
     name: "research-subnet-public",
