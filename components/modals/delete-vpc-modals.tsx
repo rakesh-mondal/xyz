@@ -45,6 +45,15 @@ export function DeleteVPCResourceWarningModal({
 }: DeleteVPCResourceWarningModalProps) {
   const hasResources = vpc.resources && vpc.resources.length > 0
   const isFirstVPC = vpc.type === "Free VPC"
+  
+  // Check for VMs and Volumes specifically for gaming-vpc
+  const isGamingVPC = vpc.name === "gaming-vpc"
+  const vmCount = vpc.resources?.filter(r => r.type === "VM").reduce((sum, r) => sum + r.count, 0) || 0
+  const volumeCount = vpc.resources?.filter(r => r.type === "Storage").reduce((sum, r) => sum + r.count, 0) || 0
+  const hasCriticalResources = isGamingVPC && (vmCount > 0 || volumeCount > 0)
+
+  // Determine if deletion should be blocked
+  const shouldBlockDeletion = isGamingVPC ? hasCriticalResources : hasResources
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -70,7 +79,51 @@ export function DeleteVPCResourceWarningModal({
             </Alert>
           )}
 
-          {hasResources ? (
+          {/* Special logic for gaming-vpc */}
+          {isGamingVPC && hasCriticalResources ? (
+            <div>
+              <Alert variant="destructive" className="mb-4">
+                <ExclamationTriangleIcon className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Cannot delete VPC "{vpc.name}"</strong><br/>
+                  This VPC has associated resources that must be deleted first.
+                </AlertDescription>
+              </Alert>
+              
+              <p className="text-sm font-medium mb-3">
+                You must delete the following associated resources before deleting this VPC:
+              </p>
+              
+              <div className="border rounded-md p-4 bg-red-50 border-red-200">
+                <div className="space-y-2">
+                  {vmCount > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-red-800">
+                        Virtual Machines (VMs)
+                      </span>
+                      <span className="text-sm font-bold text-red-600">
+                        {vmCount} VM{vmCount !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  )}
+                  {volumeCount > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-red-800">
+                        Storage Volumes
+                      </span>
+                      <span className="text-sm font-bold text-red-600">
+                        {volumeCount} Volume{volumeCount !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <p className="text-xs text-muted-foreground mt-3">
+                Please navigate to the Compute section to delete VMs and Storage section to delete volumes before attempting to delete this VPC.
+              </p>
+            </div>
+          ) : hasResources ? (
             <div>
               <p className="text-sm font-medium mb-3">
                 The following resources are present in the VPC which will also get deleted. 
@@ -110,7 +163,7 @@ export function DeleteVPCResourceWarningModal({
             type="button"
             variant="destructive"
             onClick={onConfirm}
-            disabled={hasResources}
+            disabled={shouldBlockDeletion}
             className="min-w-20"
           >
             Confirm
