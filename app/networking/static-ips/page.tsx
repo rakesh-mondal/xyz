@@ -11,33 +11,42 @@ import { useRouter } from "next/navigation"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { Button } from "@/components/ui/button"
-import { DeleteConfirmationModal } from "../../../components/delete-confirmation-modal"
 import { useToast } from "../../../hooks/use-toast"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../components/ui/dialog"
 
 export default function StaticIPListPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isVMAttachedModalOpen, setIsVMAttachedModalOpen] = useState(false)
   const [selectedStaticIP, setSelectedStaticIP] = useState<any>(null)
 
   const handleDeleteClick = (staticIP: any) => {
     setSelectedStaticIP(staticIP)
-    setIsDeleteModalOpen(true)
+    
+    // Check if IP is attached to a VM
+    if (staticIP.assignedVMName && staticIP.assignedVMName !== null) {
+      // Show VM attached modal
+      setIsVMAttachedModalOpen(true)
+    } else {
+      // Show normal delete confirmation modal
+      setIsDeleteModalOpen(true)
+    }
   }
 
   const handleDeleteConfirm = async () => {
     if (!selectedStaticIP) return
     
     // In a real app, this would delete the static IP via API
-    console.log("Deleting Static IP:", selectedStaticIP.ipAddress)
+    console.log("Unreserving Static IP:", selectedStaticIP.ipAddress)
     
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000))
     
     // Show success toast
     toast({
-      title: "Static IP deleted successfully",
-      description: `Static IP "${selectedStaticIP.ipAddress}" deleted successfully`,
+      title: "IP address unreserved successfully",
+      description: `IP address "${selectedStaticIP.ipAddress}" has been unreserved successfully`,
     })
     
     // Close modal and clear selection
@@ -47,6 +56,11 @@ export default function StaticIPListPage() {
     // In a real app, you would refresh the data here
     // For now, we'll just reload the page
     window.location.reload()
+  }
+
+  const handleVMAttachedModalClose = () => {
+    setIsVMAttachedModalOpen(false)
+    setSelectedStaticIP(null)
   }
 
   const columns = [
@@ -103,8 +117,6 @@ export default function StaticIPListPage() {
       render: (_: any, row: any) => (
         <div className="flex justify-end">
           <ActionMenu
-            viewHref={`/networking/static-ips/${row.id}`}
-            editHref={`/networking/static-ips/${row.id}/edit`}
             onCustomDelete={() => handleDeleteClick(row)}
             resourceName={row.ipAddress}
             resourceType="Static IP"
@@ -157,17 +169,55 @@ export default function StaticIPListPage() {
         vpcOptions={vpcOptions}
       />
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false)
-          setSelectedStaticIP(null)
-        }}
-        resourceName={selectedStaticIP?.ipAddress || ""}
-        resourceType="Static IP"
-        onConfirm={handleDeleteConfirm}
-      />
+      {/* Unreserve IP Confirmation Modal */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Are you sure you want to unreserve the IP address?</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              Please note once the IP address is deleted, it is not sure that you will get the same IP address again when you try to reserve a IP address
+            </p>
+          </div>
+          <DialogFooter className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteModalOpen(false)
+                setSelectedStaticIP(null)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+            >
+              Confirm deletion
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* VM Attached Alert Modal */}
+      <Dialog open={isVMAttachedModalOpen} onOpenChange={setIsVMAttachedModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>IP address is associated with a VM</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              The <span className="font-medium text-foreground">{selectedStaticIP?.ipAddress}</span> is attached with a VM <span className="font-medium text-foreground">{selectedStaticIP?.assignedVMName}</span>. Please detach the IP address from the VM before deletion.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleVMAttachedModalClose}>
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   )
 }
