@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network } from "lucide-react"
+import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus } from "lucide-react"
 import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { TooltipWrapper } from "./ui/tooltip-wrapper"
@@ -21,6 +21,9 @@ interface ActionMenuProps {
   onCustomDelete?: () => void  // New prop for custom delete handling
   onConnectSubnet?: () => void  // New prop for subnet connections
   deleteLabel?: string  // Custom label for delete action
+  onCopyURL?: () => void  // New prop for copy URL action
+  onEditBucket?: () => void  // New prop for edit bucket action
+  onAddRule?: () => void  // New prop for add rule action
 }
 
 /**
@@ -48,6 +51,9 @@ export function ActionMenu({
   onCustomDelete,
   onConnectSubnet,
   deleteLabel = "Delete",
+  onCopyURL,
+  onEditBucket,
+  onAddRule,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -78,12 +84,30 @@ export function ActionMenu({
               </Link>
             </DropdownMenuItem>
           )}
+          {onCopyURL && (
+            <DropdownMenuItem onClick={onCopyURL} className="flex items-center cursor-pointer">
+              <Copy className="mr-2 h-4 w-4" />
+              <span>Copy URL</span>
+            </DropdownMenuItem>
+          )}
           {editHref && (
             <DropdownMenuItem asChild>
               <Link href={editHref} className="flex items-center cursor-pointer">
                 <Edit className="mr-2 h-4 w-4" />
                 <span>Edit</span>
               </Link>
+            </DropdownMenuItem>
+          )}
+          {onEditBucket && (
+            <DropdownMenuItem onClick={onEditBucket} className="flex items-center cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Edit Bucket</span>
+            </DropdownMenuItem>
+          )}
+          {onAddRule && (
+            <DropdownMenuItem onClick={onAddRule} className="flex items-center cursor-pointer">
+              <Plus className="mr-2 h-4 w-4" />
+              <span>Add Rule</span>
             </DropdownMenuItem>
           )}
           {onExtend && (
