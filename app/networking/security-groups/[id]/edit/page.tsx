@@ -2,21 +2,22 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { notFound } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../../../components/ui/card"
-import { Button } from "../../../../components/ui/button"
-import { Input } from "../../../../components/ui/input"
-import { Textarea } from "../../../../components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../components/ui/select"
-import { Label } from "../../../../components/ui/label"
-import { Badge } from "../../../../components/ui/badge"
-import { Dialog, DialogContent } from "../../../../components/ui/dialog"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../components/ui/accordion"
-import { TooltipWrapper } from "../../../../components/ui/tooltip-wrapper"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../../../../components/ui/card"
+import { Button } from "../../../../../components/ui/button"
+import { Input } from "../../../../../components/ui/input"
+import { Textarea } from "../../../../../components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../components/ui/select"
+import { Label } from "../../../../../components/ui/label"
+import { Badge } from "../../../../../components/ui/badge"
+import { Dialog, DialogContent } from "../../../../../components/ui/dialog"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../../components/ui/accordion"
+import { TooltipWrapper } from "../../../../../components/ui/tooltip-wrapper"
 import { HelpCircle, ChevronDown, Check, Search } from "lucide-react"
-import { vpcs } from "../../../../lib/data"
+import { vpcs, getSecurityGroup } from "../../../../../lib/data"
 import Link from "next/link"
 
 interface Rule {
@@ -27,9 +28,18 @@ interface Rule {
   description: string
 }
 
-export default function CreateSecurityGroupPage() {
+export default function EditSecurityGroupPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [showCreateVpcModal, setShowCreateVpcModal] = useState(false)
+  const [loading, setLoading] = useState(true)
+  
+  // Get security group data
+  const sg = getSecurityGroup(params.id)
+  
+  if (!sg) {
+    notFound()
+  }
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -39,15 +49,22 @@ export default function CreateSecurityGroupPage() {
 
   const [inboundRules, setInboundRules] = useState<Rule[]>([])
 
-  const [outboundRules, setOutboundRules] = useState<Rule[]>([
-    {
-      id: "out-rule-1",
-      protocol: "all",
-      portRange: "All",
-      remoteIpPrefix: "0.0.0.0/0",
-      description: "Allow all outbound traffic",
-    },
-  ])
+  const [outboundRules, setOutboundRules] = useState<Rule[]>([])
+
+  // Pre-populate form with existing data
+  useEffect(() => {
+    if (sg) {
+      setFormData({
+        name: sg.name,
+        description: sg.description || "",
+        vpc: sg.vpcName,
+        securityGroupFor: "vpc",
+      })
+      setInboundRules([...sg.inboundRules])
+      setOutboundRules([...sg.outboundRules])
+      setLoading(false)
+    }
+  }, [sg])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
@@ -110,19 +127,46 @@ export default function CreateSecurityGroupPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, this would create the security group
-    console.log("Creating Security Group:", {
+    // In a real app, this would update the security group
+    console.log("Updating Security Group:", {
+      id: sg.id,
       ...formData,
       inboundRules,
       outboundRules,
     })
-    router.push("/networking/security-groups")
+    router.push(`/networking/security-groups/${sg.id}`)
+  }
+
+  const customBreadcrumbs = [
+    { href: "/dashboard", title: "Home" },
+    { href: "/networking", title: "Networking" },
+    { href: "/networking/security-groups", title: "Security Groups" },
+    { href: `/networking/security-groups/${sg.id}`, title: sg.name },
+    { href: `/networking/security-groups/${sg.id}/edit`, title: "Edit" }
+  ]
+
+  if (loading) {
+    return (
+      <PageLayout 
+        title="Loading..." 
+        customBreadcrumbs={customBreadcrumbs}
+        hideViewDocs={true}
+      >
+        <div className="flex items-center justify-center h-[400px]">
+          <div className="text-center">
+            <p className="text-muted-foreground">Loading security group...</p>
+          </div>
+        </div>
+      </PageLayout>
+    )
   }
 
   return (
     <PageLayout 
-      title="Create Security Group" 
-      description="Configure and create a new security group for your Virtual Private Cloud"
+      title={`Edit ${sg.name}`}
+      description="Modify the configuration of your security group"
+      customBreadcrumbs={customBreadcrumbs}
+      hideViewDocs={true}
     >
       <div className="flex flex-col md:flex-row gap-6">
         {/* Main Content */}
@@ -165,7 +209,6 @@ export default function CreateSecurityGroupPage() {
                   <VPCSelector 
                     value={formData.vpc}
                     onChange={(value) => handleSelectChange("vpc", value)}
-                    onCreateNew={() => setShowCreateVpcModal(true)}
                   />
 
                   <div className="mb-5">
@@ -198,238 +241,180 @@ export default function CreateSecurityGroupPage() {
 
                 {/* Inbound Rules */}
                 <div className="mb-8">
-                  <h2 className="text-base font-normal mb-5 pb-2.5 border-b border-border">Inbound Rules</h2>
+                  <h2 className="text-lg font-semibold mb-5 pb-2.5 border-b border-border">Inbound Rules</h2>
 
-                  {inboundRules.length > 0 ? (
-                    <>
-                      {inboundRules.map((rule, index) => (
-                        <div key={rule.id} className="rounded-lg bg-gray-50 border border-gray-200 p-5 mb-4">
-                          <div className="flex justify-between items-center mb-4">
-                            <div className="font-semibold">Rule {index + 1}</div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() => deleteRule(index, true)}
-                              className="text-sm underline hover:no-underline"
-                            >
-                              Delete
-                            </Button>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label className="block mb-2 font-medium">
-                                Protocol <span className="text-destructive">*</span>
-                              </Label>
-                              <Select
-                                value={rule.protocol}
-                                onValueChange={(value) => handleRuleChange(index, "protocol", value, true)}
-                                required
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select protocol" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="tcp">TCP</SelectItem>
-                                  <SelectItem value="udp">UDP</SelectItem>
-                                  <SelectItem value="icmp">ICMP</SelectItem>
-                                  <SelectItem value="all">All</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div>
-                              <Label className="block mb-2 font-medium">
-                                Port Range <span className="text-destructive">*</span>
-                              </Label>
-                              <Input
-                                placeholder="e.g., 80 or 8000-9000"
-                                value={rule.portRange}
-                                onChange={(e) => handleRuleChange(index, "portRange", e.target.value, true)}
-                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <Label className="block mb-2 font-medium">
-                                Remote IP Prefix <span className="text-destructive">*</span>
-                              </Label>
-                              <Input
-                                placeholder="e.g., 0.0.0.0/0 or 192.168.1.0/24"
-                                value={rule.remoteIpPrefix}
-                                onChange={(e) => handleRuleChange(index, "remoteIpPrefix", e.target.value, true)}
-                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <Label className="block mb-2 font-medium">Description</Label>
-                              <Input
-                                placeholder="e.g., Allow HTTP traffic"
-                                value={rule.description}
-                                onChange={(e) => handleRuleChange(index, "description", e.target.value, true)}
-                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="hover:bg-secondary transition-colors"
-                        onClick={() => addRule(true)}
-                      >
-                        Add Inbound Rule
-                      </Button>
-                    </>
-                  ) : (
-                    <div className="text-center py-6">
-                      <div className="mb-3">
-                        <svg width="80" height="50" viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
-                          <rect width="80" height="50" fill="#FFFFFF"/>
-                          <rect x="15" y="15" width="50" height="20" fill="none" stroke="#E5E7EB" strokeWidth="2" rx="3"/>
-                          <path d="M22 22H58" stroke="#E5E7EB" strokeWidth="1.5"/>
-                          <path d="M22 28H48" stroke="#E5E7EB" strokeWidth="1.5"/>
-                          <circle cx="19" cy="25" r="1.5" fill="#E5E7EB"/>
-                        </svg>
+                  {inboundRules.map((rule, index) => (
+                    <div key={rule.id} className="rounded-lg bg-gray-50 border border-gray-200 p-5 mb-4">
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="font-semibold">Rule {index + 1}</div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => deleteRule(index, true)}
+                          className="text-sm underline hover:no-underline"
+                        >
+                          Delete
+                        </Button>
                       </div>
-                      <h4 className="font-medium text-sm mb-2">No Inbound Rules</h4>
-                      <p className="text-xs text-muted-foreground mb-3">
-                        No inbound rules defined. Add rules to control incoming traffic to your security group.
-                      </p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addRule(true)}
-                      >
-                        Add Inbound Rule
-                      </Button>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label className="block mb-2 font-medium">
+                            Protocol <span className="text-destructive">*</span>
+                          </Label>
+                          <Select
+                            value={rule.protocol}
+                            onValueChange={(value) => handleRuleChange(index, "protocol", value, true)}
+                            required
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select protocol" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="tcp">TCP</SelectItem>
+                              <SelectItem value="udp">UDP</SelectItem>
+                              <SelectItem value="icmp">ICMP</SelectItem>
+                              <SelectItem value="all">All</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label className="block mb-2 font-medium">
+                            Port Range <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            placeholder="e.g., 80 or 8000-9000"
+                            value={rule.portRange}
+                            onChange={(e) => handleRuleChange(index, "portRange", e.target.value, true)}
+                            className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label className="block mb-2 font-medium">
+                            Remote IP Prefix <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            placeholder="e.g., 0.0.0.0/0 or 192.168.1.0/24"
+                            value={rule.remoteIpPrefix}
+                            onChange={(e) => handleRuleChange(index, "remoteIpPrefix", e.target.value, true)}
+                            className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label className="block mb-2 font-medium">Description</Label>
+                          <Input
+                            placeholder="e.g., Allow HTTP traffic"
+                            value={rule.description}
+                            onChange={(e) => handleRuleChange(index, "description", e.target.value, true)}
+                            className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          />
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  ))}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="hover:bg-secondary transition-colors"
+                    onClick={() => addRule(true)}
+                  >
+                    Add Inbound Rule
+                  </Button>
                 </div>
 
                 {/* Outbound Rules */}
                 <div className="mb-8">
-                  <h2 className="text-base font-normal mb-5 pb-2.5 border-b border-border">Outbound Rules</h2>
+                  <h2 className="text-lg font-semibold mb-5 pb-2.5 border-b border-border">Outbound Rules</h2>
 
-                  {outboundRules.length > 0 ? (
-                    <>
-                      {outboundRules.map((rule, index) => (
-                        <div key={rule.id} className="rounded-lg bg-gray-50 border border-gray-200 p-5 mb-4">
-                          <div className="flex justify-between items-center mb-4">
-                            <div className="font-semibold">Rule {index + 1}</div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() => deleteRule(index, false)}
-                              className="text-sm underline hover:no-underline"
-                            >
-                              Delete
-                            </Button>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label className="block mb-2 font-medium">
-                                Protocol <span className="text-destructive">*</span>
-                              </Label>
-                              <Select
-                                value={rule.protocol}
-                                onValueChange={(value) => handleRuleChange(index, "protocol", value, false)}
-                                required
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select protocol" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="tcp">TCP</SelectItem>
-                                  <SelectItem value="udp">UDP</SelectItem>
-                                  <SelectItem value="icmp">ICMP</SelectItem>
-                                  <SelectItem value="all">All</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div>
-                              <Label className="block mb-2 font-medium">
-                                Port Range <span className="text-destructive">*</span>
-                              </Label>
-                              <Input
-                                placeholder="e.g., 80 or 8000-9000"
-                                value={rule.portRange}
-                                onChange={(e) => handleRuleChange(index, "portRange", e.target.value, false)}
-                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <Label className="block mb-2 font-medium">
-                                Remote IP Prefix <span className="text-destructive">*</span>
-                              </Label>
-                              <Input
-                                placeholder="e.g., 0.0.0.0/0 or 192.168.1.0/24"
-                                value={rule.remoteIpPrefix}
-                                onChange={(e) => handleRuleChange(index, "remoteIpPrefix", e.target.value, false)}
-                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <Label className="block mb-2 font-medium">Description</Label>
-                              <Input
-                                placeholder="e.g., Allow all outbound traffic"
-                                value={rule.description}
-                                onChange={(e) => handleRuleChange(index, "description", e.target.value, false)}
-                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="hover:bg-secondary transition-colors"
-                        onClick={() => addRule(false)}
-                      >
-                        Add Outbound Rule
-                      </Button>
-                    </>
-                  ) : (
-                    <div className="text-center py-6">
-                      <div className="mb-3">
-                        <svg width="80" height="50" viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
-                          <rect width="80" height="50" fill="#FFFFFF"/>
-                          <rect x="15" y="15" width="50" height="20" fill="none" stroke="#E5E7EB" strokeWidth="2" rx="3"/>
-                          <path d="M22 22H58" stroke="#E5E7EB" strokeWidth="1.5"/>
-                          <path d="M22 28H48" stroke="#E5E7EB" strokeWidth="1.5"/>
-                          <circle cx="61" cy="25" r="1.5" fill="#E5E7EB"/>
-                        </svg>
+                  {outboundRules.map((rule, index) => (
+                    <div key={rule.id} className="rounded-lg bg-gray-50 border border-gray-200 p-5 mb-4">
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="font-semibold">Rule {index + 1}</div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => deleteRule(index, false)}
+                          className="text-sm underline hover:no-underline"
+                        >
+                          Delete
+                        </Button>
                       </div>
-                      <h4 className="font-medium text-sm mb-2">No Outbound Rules</h4>
-                      <p className="text-xs text-muted-foreground mb-3">
-                        No outbound rules defined. Add rules to control outgoing traffic from your security group.
-                      </p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addRule(false)}
-                      >
-                        Add Outbound Rule
-                      </Button>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label className="block mb-2 font-medium">
+                            Protocol <span className="text-destructive">*</span>
+                          </Label>
+                          <Select
+                            value={rule.protocol}
+                            onValueChange={(value) => handleRuleChange(index, "protocol", value, false)}
+                            required
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select protocol" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="tcp">TCP</SelectItem>
+                              <SelectItem value="udp">UDP</SelectItem>
+                              <SelectItem value="icmp">ICMP</SelectItem>
+                              <SelectItem value="all">All</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label className="block mb-2 font-medium">
+                            Port Range <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            placeholder="e.g., 80 or 8000-9000"
+                            value={rule.portRange}
+                            onChange={(e) => handleRuleChange(index, "portRange", e.target.value, false)}
+                            className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label className="block mb-2 font-medium">
+                            Remote IP Prefix <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            placeholder="e.g., 0.0.0.0/0 or 192.168.1.0/24"
+                            value={rule.remoteIpPrefix}
+                            onChange={(e) => handleRuleChange(index, "remoteIpPrefix", e.target.value, false)}
+                            className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label className="block mb-2 font-medium">Description</Label>
+                          <Input
+                            placeholder="e.g., Allow all outbound traffic"
+                            value={rule.description}
+                            onChange={(e) => handleRuleChange(index, "description", e.target.value, false)}
+                            className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          />
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  ))}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="hover:bg-secondary transition-colors"
+                    onClick={() => addRule(false)}
+                  >
+                    Add Outbound Rule
+                  </Button>
                 </div>
               </form>
             </CardContent>
@@ -438,7 +423,7 @@ export default function CreateSecurityGroupPage() {
                 type="button"
                 variant="outline"
                 className="hover:bg-secondary transition-colors"
-                onClick={() => router.push("/networking/security-groups")}
+                onClick={() => router.push(`/networking/security-groups/${sg.id}`)}
               >
                 Cancel
               </Button>
@@ -447,7 +432,7 @@ export default function CreateSecurityGroupPage() {
                 className="bg-black text-white hover:bg-black/90 transition-colors hover:scale-105"
                 onClick={handleSubmit}
               >
-                Create Security Group
+                Update Security Group
               </Button>
             </div>
           </Card>
@@ -500,7 +485,7 @@ export default function CreateSecurityGroupPage() {
 function VPCSelector({ value, onChange, onCreateNew }: { 
   value: string
   onChange: (value: string) => void
-  onCreateNew: () => void
+  onCreateNew?: () => void
 }) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -544,16 +529,18 @@ function VPCSelector({ value, onChange, onCreateNew }: {
             </div>
             
             <div className="p-1">
-              <button
-                type="button"
-                onClick={() => {
-                  onCreateNew()
-                  setOpen(false)
-                }}
-                className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
-              >
-                Create new VPC
-              </button>
+              {onCreateNew && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCreateNew()
+                    setOpen(false)
+                  }}
+                  className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+                >
+                  Create new VPC
+                </button>
+              )}
               
               {filteredVPCs.map((vpc) => (
                 <button

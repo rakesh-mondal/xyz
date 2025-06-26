@@ -8,10 +8,47 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ActionMenu } from "../../../components/action-menu"
 import { ChevronUp, ChevronDown, RefreshCw } from "lucide-react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { Button } from "@/components/ui/button"
+import { DeleteConfirmationModal } from "../../../components/delete-confirmation-modal"
+import { useToast } from "../../../hooks/use-toast"
 
 export default function SecurityGroupListPage() {
+  const router = useRouter()
+  const { toast } = useToast()
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<any>(null)
+
+  const handleDeleteClick = (securityGroup: any) => {
+    setSelectedSecurityGroup(securityGroup)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedSecurityGroup) return
+    
+    // In a real app, this would delete the security group via API
+    console.log("Deleting Security Group:", selectedSecurityGroup.name)
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Show success toast
+    toast({
+      title: "Security group deleted successfully",
+      description: `Security Group "${selectedSecurityGroup.name}" deleted successfully`,
+    })
+    
+    // Close modal and clear selection
+    setIsDeleteModalOpen(false)
+    setSelectedSecurityGroup(null)
+    
+    // In a real app, you would refresh the data here
+    // For now, we'll just reload the page
+    window.location.reload()
+  }
+
   const columns = [
     {
       key: "name",
@@ -51,7 +88,7 @@ export default function SecurityGroupListPage() {
           <ActionMenu
             viewHref={`/networking/security-groups/${row.id}`}
             editHref={`/networking/security-groups/${row.id}/edit`}
-            deleteHref={`/networking/security-groups/${row.id}/delete`}
+            onCustomDelete={() => handleDeleteClick(row)}
             resourceName={row.name}
             resourceType="Security Group"
           />
@@ -92,6 +129,18 @@ export default function SecurityGroupListPage() {
           { value: "development-vpc", label: "development-vpc" },
           { value: "staging-vpc", label: "staging-vpc" },
         ]}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false)
+          setSelectedSecurityGroup(null)
+        }}
+        resourceName={selectedSecurityGroup?.name || ""}
+        resourceType="Security Group"
+        onConfirm={handleDeleteConfirm}
       />
     </PageShell>
   )

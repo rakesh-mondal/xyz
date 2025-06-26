@@ -125,7 +125,6 @@ function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availabil
 
   const handleNotifyMe = () => {
     toast({
-      variant: "black",
       title: "Notification Set",
       description: "You will be notified over email once this GPU is available.",
     });

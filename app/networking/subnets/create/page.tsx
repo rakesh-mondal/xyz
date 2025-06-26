@@ -1,29 +1,24 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { HelpCircle, ChevronDown, Check, Search } from "lucide-react"
 import { PageLayout } from "@/components/page-layout"
-import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-
-
-// Mock VPC data
-const vpcs = [
-  { id: "vpc-1", name: "Production VPC", cidr: "10.0.0.0/16" },
-  { id: "vpc-2", name: "Development VPC", cidr: "10.1.0.0/16" },
-  { id: "vpc-3", name: "Staging VPC", cidr: "10.2.0.0/16" },
-  { id: "vpc-4", name: "Testing VPC", cidr: "10.3.0.0/16" },
-]
+import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card"
+import { Button } from "../../../../components/ui/button"
+import { Input } from "../../../../components/ui/input"
+import { Textarea } from "../../../../components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../components/ui/select"
+import { Label } from "../../../../components/ui/label"
+import { Badge } from "../../../../components/ui/badge"
+import { Dialog, DialogContent } from "../../../../components/ui/dialog"
+import { RadioGroup, RadioGroupItem } from "../../../../components/ui/radio-group"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../components/ui/accordion"
+import { TooltipWrapper } from "../../../../components/ui/tooltip-wrapper"
+import { HelpCircle, ChevronDown, Check, Search } from "lucide-react"
+import { vpcs } from "../../../../lib/data"
+import Link from "next/link"
 
 export default function CreateSubnetPage() {
   const router = useRouter()
@@ -175,7 +170,7 @@ export default function CreateSubnetPage() {
                           Gateway IP <span className="text-destructive">*</span>
                         </Label>
                         <TooltipWrapper 
-                          content="The IP address of the gateway for routing traffic in this subnet"
+                          content="The gateway IP address for this subnet (usually the first IP in the range)"
                           side="top"
                         >
                           <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
@@ -190,7 +185,7 @@ export default function CreateSubnetPage() {
                         required
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Gateway IP address
+                        Gateway IP address for the subnet
                       </p>
                     </div>
                   </div>
@@ -323,7 +318,7 @@ function VPCSelector({ value, onChange, onCreateNew }: {
                 >
                   <div className="flex flex-col items-start">
                     <span className="font-medium">{vpc.name}</span>
-                    <span className="text-xs text-muted-foreground">{vpc.id} • {vpc.cidr}</span>
+                    <span className="text-xs text-muted-foreground">{vpc.id} • {vpc.region}</span>
                   </div>
                   {value === vpc.id && <Check className="h-4 w-4" />}
                 </button>

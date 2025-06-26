@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
-import { AlertTriangle } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -57,28 +55,28 @@ export function DeleteConfirmationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
-            <AlertTriangle className="h-5 w-5" />
+      <DialogContent className="sm:max-w-md" style={{ boxShadow: 'rgba(31, 34, 37, 0.09) 0px 0px 0px 1px, rgba(0, 0, 0, 0.16) 0px 16px 40px -6px, rgba(0, 0, 0, 0.04) 0px 12px 24px -6px' }}>
+        <DialogHeader className="space-y-3 pb-4">
+          <DialogTitle className="text-base font-semibold text-black pr-8">
             Confirm Deletion
           </DialogTitle>
-          <DialogDescription>
+          <hr className="border-border" />
+          <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
             Are you sure you want to delete this {resourceType.toLowerCase()}? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <p className="mb-2 text-sm text-muted-foreground">
+        <div className="space-y-4 py-2">
+          <p className="text-sm text-muted-foreground">
             Please confirm that you want to delete the following {resourceType.toLowerCase()}:
           </p>
           <div className="rounded-md bg-muted p-3 font-medium">{resourceName}</div>
         </div>
-        <DialogFooter className="flex gap-2 sm:justify-end">
+        <DialogFooter className="flex gap-3 sm:justify-end" style={{ paddingTop: '.5rem' }}>
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
-            className="border-input hover:bg-secondary transition-colors"
+            className="min-w-20"
             disabled={isDeleting}
           >
             Cancel
@@ -87,7 +85,7 @@ export function DeleteConfirmationModal({
             type="button"
             variant="destructive"
             onClick={handleConfirm}
-            className="hover:scale-105 transition-transform"
+            className="min-w-20"
             disabled={isDeleting}
           >
             {isDeleting ? "Deleting..." : "Delete"}
