@@ -20,6 +20,7 @@ interface ActionMenuProps {
   onEdit?: () => void
   onCustomDelete?: () => void  // New prop for custom delete handling
   onConnectSubnet?: () => void  // New prop for subnet connections
+  deleteLabel?: string  // Custom label for delete action
 }
 
 /**
@@ -46,6 +47,7 @@ export function ActionMenu({
   onEdit,
   onCustomDelete,
   onConnectSubnet,
+  deleteLabel = "Delete",
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -120,7 +122,7 @@ export function ActionMenu({
               className="flex items-center text-destructive focus:text-destructive cursor-pointer"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              <span>Delete</span>
+              <span>{deleteLabel}</span>
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

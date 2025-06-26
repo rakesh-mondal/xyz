@@ -120,6 +120,7 @@ export default function StaticIPListPage() {
             onCustomDelete={() => handleDeleteClick(row)}
             resourceName={row.ipAddress}
             resourceType="Static IP"
+            deleteLabel="Unreserve"
           />
         </div>
       ),
@@ -177,7 +178,7 @@ export default function StaticIPListPage() {
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-muted-foreground">
-              Please note once the IP address is deleted, it is not sure that you will get the same IP address again when you try to reserve a IP address
+              Please note once the IP address is unreserved, it is not sure that you will get the same IP address again when you try to reserve a IP address
             </p>
           </div>
           <DialogFooter className="flex justify-end gap-2">
@@ -194,7 +195,7 @@ export default function StaticIPListPage() {
               variant="destructive"
               onClick={handleDeleteConfirm}
             >
-              Confirm deletion
+              Unreserve IP Address
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -208,7 +209,7 @@ export default function StaticIPListPage() {
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-muted-foreground">
-              The <span className="font-medium text-foreground">{selectedStaticIP?.ipAddress}</span> is attached with a VM <span className="font-medium text-foreground">{selectedStaticIP?.assignedVMName}</span>. Please detach the IP address from the VM before deletion.
+              The <span className="font-medium text-foreground">{selectedStaticIP?.ipAddress}</span> is attached with a VM <span className="font-medium text-foreground">{selectedStaticIP?.assignedVMName}</span>. Please detach the IP address from the VM before unreserving.
             </p>
           </div>
           <DialogFooter>
