@@ -151,23 +151,38 @@ export function DeleteVPCResourceWarningModal({
         </div>
         
         <DialogFooter className="flex gap-3 sm:justify-end" style={{ paddingTop: '.5rem' }}>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="min-w-20"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={onConfirm}
-            disabled={shouldBlockDeletion}
-            className="min-w-20"
-          >
-            Confirm
-          </Button>
+          {/* Gaming VPC with critical resources - show only Close button */}
+          {isGamingVPC && hasCriticalResources ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="min-w-20"
+            >
+              Close
+            </Button>
+          ) : (
+            /* All other cases - show Cancel and Confirm buttons */
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="min-w-20"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={onConfirm}
+                disabled={shouldBlockDeletion}
+                className="min-w-20"
+              >
+                Confirm
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
