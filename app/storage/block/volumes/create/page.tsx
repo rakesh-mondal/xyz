@@ -319,11 +319,7 @@ export default function CreateVolumePage() {
                             <div className="space-y-4">
                               <div className="flex justify-between items-center">
                                 <Label className="text-base font-medium">Snapshot Policy</Label>
-                                {!showSnapshotPolicy ? (
-                                  <Button type="button" variant="outline" size="sm" onClick={() => setShowSnapshotPolicy(true)}>
-                                    Add Snapshot Policy
-                                  </Button>
-                                ) : (
+                                {showSnapshotPolicy && (
                                   <Button
                                     type="button"
                                     variant="ghost"
@@ -461,11 +457,7 @@ export default function CreateVolumePage() {
                             <div className="space-y-4">
                               <div className="flex justify-between items-center">
                                 <Label className="text-base font-medium">Backup Policy</Label>
-                                {!showBackupPolicy ? (
-                                  <Button type="button" variant="outline" size="sm" onClick={() => setShowBackupPolicy(true)}>
-                                    Add Backup Policy
-                                  </Button>
-                                ) : (
+                                {showBackupPolicy && (
                                   <Button
                                     type="button"
                                     variant="ghost"
