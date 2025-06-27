@@ -27,11 +27,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/components/auth/auth-provider"
 import { GlobalSearch } from "@/components/search/global-search"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { Progress } from "@/components/ui/progress"
 
 interface TopHeaderProps {
@@ -115,35 +110,33 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
           </DropdownMenu>
 
           {/* Credits display */}
-          <div>
-            <Popover>
-              <TooltipWrapper content="View credit balance and usage details">
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3 hover:bg-[#1f22250f]">
-                    <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Balance ₹{usageData.remaining}</span>
-                    <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
+          <DropdownMenu>
+            <TooltipWrapper content="View credit balance and usage details">
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-2 h-9 px-3 hover:bg-[#1f22250f]">
+                  <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Balance ₹{usageData.remaining}</span>
+                  <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipWrapper>
+            <DropdownMenuContent align="end" className="w-[240px]">
+              <div className="px-3 py-3">
+                <div className="space-y-2">
+                  <Button variant="default" size="sm" className="w-full" asChild>
+                    <Link href="/billing/add-credits">
+                      Add Credits
+                    </Link>
                   </Button>
-                </PopoverTrigger>
-              </TooltipWrapper>
-              <PopoverContent className="w-60" align="end">
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <Button variant="default" size="sm" className="w-full" asChild>
-                      <Link href="/billing/add-credits">
-                        Add Credits
-                      </Link>
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href="/billing/usage">
-                        View Usage
-                      </Link>
-                    </Button>
-                  </div>
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link href="/billing/usage">
+                      View Usage
+                    </Link>
+                  </Button>
                 </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Notifications */}
           <DropdownMenu>

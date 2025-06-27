@@ -206,7 +206,7 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
             </div>
             
             <div className="text-center space-y-4 max-w-md">
-              <h4 className="text-lg font-medium text-foreground">No Subnets Found</h4>
+              <h4 className="text-lg font-medium text-foreground">Subnets</h4>
               <div className="text-muted-foreground">
                 <p className="text-sm">
                   Create subnets to organize and isolate your resources within this VPC and control network access to improve security.{' '}
