@@ -254,12 +254,8 @@ export function ShadcnDataTable<T = any>({
             <span className="truncate">{col.label}</span>
             {/* Only show arrow if this is the active sort column */}
             {isActive && (
-              <span className="ml-2 inline-block transition-transform duration-200" style={{ transform: isSorted === "desc" ? "rotate(0deg)" : "rotate(180deg)" }}>
-                {isSorted === "desc" ? (
-                  <ArrowDown className="h-4 w-4 text-primary" />
-                ) : (
-                  <ArrowUp className="h-4 w-4 text-primary" />
-                )}
+              <span className="ml-2 inline-block transition-transform duration-300 ease-in-out" style={{ transform: isSorted === "desc" ? "rotate(0deg)" : "rotate(180deg)" }}>
+                <ArrowDown className="h-4 w-4 text-primary" />
               </span>
             )}
             {/* Show faded arrow on hover for sortable but inactive columns */}
