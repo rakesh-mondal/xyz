@@ -426,7 +426,7 @@ export default function CreateVolumePage() {
                                 <div className="bg-card text-card-foreground border-border border rounded-lg p-6">
                                   <div className="flex flex-col items-center justify-center py-8">
                                     {/* SVG Illustration */}
-                                    <div className="mb-4">
+                                    <div className="mb-6">
                                       <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <rect width="64" height="64" rx="12" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1"/>
                                         <path d="M20 24H44C45.1046 24 46 24.8954 46 26V42C46 43.1046 45.1046 44 44 44H20C18.8954 44 18 43.1046 18 42V26C18 24.8954 18.8954 24 20 24Z" stroke="#64748B" strokeWidth="1.5" fill="none"/>
@@ -435,11 +435,24 @@ export default function CreateVolumePage() {
                                       </svg>
                                     </div>
                                     
-                                    <div className="text-center space-y-2 max-w-sm">
-                                      <h4 className="text-sm font-medium text-foreground">No Snapshot Policy</h4>
-                                      <p className="text-xs text-muted-foreground">
-                                        Configure automated snapshots to backup your volume data at regular intervals
-                                      </p>
+                                    <div className="text-center space-y-4 max-w-md">
+                                      <h4 className="text-lg font-medium text-foreground">No Snapshot Policy</h4>
+                                      <div className="text-muted-foreground">
+                                        <p className="text-sm">
+                                          Configure automated snapshots to backup your volume data at regular intervals.{' '}
+                                          <a href="/documentation/snapshots" className="text-primary hover:underline">
+                                            Learn more
+                                          </a>
+                                        </p>
+                                      </div>
+                                      <div className="flex justify-center pt-2">
+                                        <Button 
+                                          onClick={() => setShowSnapshotPolicy(true)}
+                                          size="sm"
+                                        >
+                                          Add Snapshot Policy
+                                        </Button>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
@@ -566,7 +579,7 @@ export default function CreateVolumePage() {
                                 <div className="bg-card text-card-foreground border-border border rounded-lg p-6">
                                   <div className="flex flex-col items-center justify-center py-8">
                                     {/* SVG Illustration */}
-                                    <div className="mb-4">
+                                    <div className="mb-6">
                                       <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <rect width="64" height="64" rx="12" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1"/>
                                         <path d="M18 20H38C40.2091 20 42 21.7909 42 24V40C42 42.2091 40.2091 44 38 44H18C15.7909 44 14 42.2091 14 40V24C14 21.7909 15.7909 20 18 20Z" stroke="#64748B" strokeWidth="1.5" fill="none"/>
@@ -577,11 +590,24 @@ export default function CreateVolumePage() {
                                       </svg>
                                     </div>
                                     
-                                    <div className="text-center space-y-2 max-w-sm">
-                                      <h4 className="text-sm font-medium text-foreground">No Backup Policy</h4>
-                                      <p className="text-xs text-muted-foreground">
-                                        Set up automated backups to create incremental or full backups of your volume
-                                      </p>
+                                    <div className="text-center space-y-4 max-w-md">
+                                      <h4 className="text-lg font-medium text-foreground">No Backup Policy</h4>
+                                      <div className="text-muted-foreground">
+                                        <p className="text-sm">
+                                          Set up automated backups to create incremental or full backups of your volume.{' '}
+                                          <a href="/documentation/backups" className="text-primary hover:underline">
+                                            Learn more
+                                          </a>
+                                        </p>
+                                      </div>
+                                      <div className="flex justify-center pt-2">
+                                        <Button 
+                                          onClick={() => setShowBackupPolicy(true)}
+                                          size="sm"
+                                        >
+                                          Add Backup Policy
+                                        </Button>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
