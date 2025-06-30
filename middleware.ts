@@ -79,8 +79,17 @@ export function middleware(request: NextRequest) {
   }
 
   // If user is authenticated and trying to access auth pages, redirect to dashboard
+  // Exception: Allow access to profile completion flows
   if (accessLevel !== 'none' && pathname.startsWith('/auth')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    const allowedAuthRoutes = [
+      '/auth/profile-completion'
+    ]
+    
+    const isAllowedAuthRoute = allowedAuthRoutes.some(route => pathname.startsWith(route))
+    
+    if (!isAllowedAuthRoute) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
   }
 
   // Clone the request headers and add the auth token

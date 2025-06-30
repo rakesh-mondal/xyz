@@ -67,7 +67,7 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
         <div className="flex items-center gap-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2">
-            <KrutrimLogo width={120} height={40} />
+            <KrutrimLogo width={120} height={40} href={null} />
           </Link>
 
           {isMobile && (

@@ -15,11 +15,12 @@ export default function DashboardProfileCompletionPage() {
   const featureContext = searchParams.get('feature')
 
   useEffect(() => {
-    // If user already has full access, redirect to intended destination
-    if (!isLoading && accessLevel === 'full') {
+    // Only redirect if user has full access AND they came from a feature-specific redirect
+    // This allows users to manually visit profile completion to update their details
+    if (!isLoading && accessLevel === 'full' && featureContext) {
       router.push(redirectPath)
     }
-  }, [accessLevel, isLoading, redirectPath, router])
+  }, [accessLevel, isLoading, redirectPath, featureContext, router])
 
   const handleComplete = () => {
     // Add a small delay to ensure auth state is fully updated
