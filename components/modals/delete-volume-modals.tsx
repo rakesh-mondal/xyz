@@ -32,7 +32,7 @@ export function AttachedVolumeAlert({ isOpen, onClose, volume }: AttachedVolumeA
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-red-600">
+          <DialogTitle className="text-lg font-semibold text-black">
             Volume is associated with a VM
           </DialogTitle>
         </DialogHeader>
