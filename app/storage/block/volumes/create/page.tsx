@@ -9,7 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { vpcs } from "@/lib/data"
 
 export default function CreateVolumePage() {
@@ -18,12 +21,35 @@ export default function CreateVolumePage() {
   const [selectedVpc, setSelectedVpc] = useState("")
   const [volumeType, setVolumeType] = useState("hnss")
   const [source, setSource] = useState("none")
+  const [selectedSnapshot, setSelectedSnapshot] = useState("")
+  const [selectedMachineImage, setSelectedMachineImage] = useState("")
+  const [selectedVolume, setSelectedVolume] = useState("")
   const [size, setSize] = useState([100])
   const [tags, setTags] = useState([{ key: "", value: "" }])
+  
+  // Advanced settings state
+  const [snapshotPolicies, setSnapshotPolicies] = useState<any[]>([])
+  const [backupPolicies, setBackupPolicies] = useState<any[]>([])
   
   // Refs for form fields
   const nameRef = useRef<HTMLInputElement>(null)
   const descriptionRef = useRef<HTMLTextAreaElement>(null)
+
+  // Mock data for source options
+  const snapshots = [
+    { value: "snap-11111", label: "web-server-snapshot (snap-11111) - 50GB - 2024-01-15" },
+    { value: "snap-22222", label: "database-snapshot (snap-22222) - 120GB - 2024-01-10" }
+  ]
+
+  const machineImages = [
+    { value: "ami-11111", label: "Ubuntu 22.04 LTS (ami-11111)" },
+    { value: "ami-22222", label: "CentOS 8 (ami-22222)" }
+  ]
+
+  const otherVolumes = [
+    { value: "vol-11111", label: "web-server-volume (vol-11111) - 100GB" },
+    { value: "vol-22222", label: "database-volume (vol-22222) - 200GB" }
+  ]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,8 +58,28 @@ export default function CreateVolumePage() {
     
     const name = nameRef.current?.value.trim() || ""
     
+    // Validate required fields based on source selection
     if (!name || !selectedVpc) {
       setError("Please fill all required fields.")
+      setLoading(false)
+      return
+    }
+
+    // Validate source-specific requirements
+    if (source === "snapshot" && !selectedSnapshot) {
+      setError("Please select a snapshot.")
+      setLoading(false)
+      return
+    }
+
+    if (source === "machine-image" && !selectedMachineImage) {
+      setError("Please select a machine image.")
+      setLoading(false)
+      return
+    }
+
+    if (source === "volume" && !selectedVolume) {
+      setError("Please select a volume.")
       setLoading(false)
       return
     }
@@ -67,6 +113,33 @@ export default function CreateVolumePage() {
     const pricePerGB = 0.10
     const totalPrice = size[0] * pricePerGB
     return totalPrice.toFixed(2)
+  }
+
+  const addSnapshotPolicy = () => {
+    setSnapshotPolicies([...snapshotPolicies, {
+      id: Date.now(),
+      name: "",
+      maxSnapshots: 5,
+      frequency: "daily"
+    }])
+  }
+
+  const addBackupPolicy = () => {
+    setBackupPolicies([...backupPolicies, {
+      id: Date.now(),
+      name: "",
+      maxBackups: 5,
+      incremental: false,
+      frequency: "daily"
+    }])
+  }
+
+  const handleSourceChange = (newSource: string) => {
+    setSource(newSource)
+    // Clear previously selected values when source changes
+    setSelectedSnapshot("")
+    setSelectedMachineImage("")
+    setSelectedVolume("")
   }
 
   return (
@@ -155,7 +228,7 @@ export default function CreateVolumePage() {
                       <Label htmlFor="source" className="block mb-2 font-medium">
                         Source <span className="text-destructive">*</span>
                       </Label>
-                      <Select value={source} onValueChange={setSource} required>
+                      <Select value={source} onValueChange={handleSourceChange} required>
                         <SelectTrigger>
                           <SelectValue placeholder="Select source" />
                         </SelectTrigger>
@@ -168,6 +241,121 @@ export default function CreateVolumePage() {
                       </Select>
                     </div>
                   </div>
+
+                  {/* Conditional Source Dropdowns */}
+                  {source === "snapshot" && (
+                    <div className="mb-5">
+                      <Label htmlFor="snapshot-select" className="block mb-2 font-medium">
+                        Snapshots <span className="text-destructive">*</span>
+                      </Label>
+                      {snapshots.length > 0 ? (
+                        <Select value={selectedSnapshot} onValueChange={setSelectedSnapshot} required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a snapshot" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {snapshots.map((snapshot) => (
+                              <SelectItem key={snapshot.value} value={snapshot.value}>
+                                {snapshot.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="space-y-2">
+                          <Select disabled>
+                            <SelectTrigger>
+                              <SelectValue placeholder="No snapshots available" />
+                            </SelectTrigger>
+                          </Select>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => window.location.href = "/storage/block/snapshots"}
+                          >
+                            Create Snapshot
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {source === "machine-image" && (
+                    <div className="mb-5">
+                      <Label htmlFor="machine-image-select" className="block mb-2 font-medium">
+                        Machine Images <span className="text-destructive">*</span>
+                      </Label>
+                      {machineImages.length > 0 ? (
+                        <Select value={selectedMachineImage} onValueChange={setSelectedMachineImage} required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a machine image" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {machineImages.map((image) => (
+                              <SelectItem key={image.value} value={image.value}>
+                                {image.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="space-y-2">
+                          <Select disabled>
+                            <SelectTrigger>
+                              <SelectValue placeholder="No machine images available" />
+                            </SelectTrigger>
+                          </Select>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => window.location.href = "/compute/machines/images"}
+                          >
+                            Upload Machine Image
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {source === "volume" && (
+                    <div className="mb-5">
+                      <Label htmlFor="volume-select" className="block mb-2 font-medium">
+                        Other Volumes <span className="text-destructive">*</span>
+                      </Label>
+                      {otherVolumes.length > 0 ? (
+                        <Select value={selectedVolume} onValueChange={setSelectedVolume} required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a volume" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {otherVolumes.map((volume) => (
+                              <SelectItem key={volume.value} value={volume.value}>
+                                {volume.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="space-y-2">
+                          <Select disabled>
+                            <SelectTrigger>
+                              <SelectValue placeholder="No volumes available" />
+                            </SelectTrigger>
+                          </Select>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => window.location.href = "/storage/block/volumes"}
+                          >
+                            Create Volume
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Size Selection */}
                   <Card className="mb-5">
@@ -296,6 +484,172 @@ export default function CreateVolumePage() {
                     </div>
                   </div>
 
+                  {/* Advanced Settings */}
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="advanced">
+                      <AccordionTrigger>Advanced Settings</AccordionTrigger>
+                      <AccordionContent className="space-y-6">
+                        {/* Snapshot Policies */}
+                        <div>
+                          <Label className="block mb-2 font-medium">Snapshot Policies</Label>
+                          {snapshotPolicies.length > 0 ? (
+                            <div className="space-y-4 mb-4">
+                              {snapshotPolicies.map((policy, index) => (
+                                <Card key={policy.id}>
+                                  <CardContent className="pt-4 space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <Label>Snapshot name (suffix)</Label>
+                                        <Input placeholder="Enter suffix" />
+                                      </div>
+                                      <div>
+                                        <Label>Maximum snapshots allowed</Label>
+                                        <Select defaultValue="5">
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {Array.from({length: 10}, (_, i) => (
+                                              <SelectItem key={i+1} value={String(i+1)}>{i+1}</SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <Label className="block mb-2">Scheduler</Label>
+                                      <div className="grid grid-cols-1 gap-4">
+                                        <div>
+                                          <Label>Once every</Label>
+                                          <Select defaultValue="daily">
+                                            <SelectTrigger>
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="30-minutes">30 Minutes</SelectItem>
+                                              <SelectItem value="hourly">Hour</SelectItem>
+                                              <SelectItem value="daily">Day</SelectItem>
+                                              <SelectItem value="monthly">Month</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-6">
+                              <div className="mb-3">
+                                <svg width="80" height="50" viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
+                                  <rect width="80" height="50" fill="#FFFFFF"/>
+                                  <rect x="15" y="15" width="50" height="20" fill="none" stroke="#E5E7EB" strokeWidth="2" rx="3"/>
+                                  <path d="M22 22H58" stroke="#E5E7EB" strokeWidth="1.5"/>
+                                  <path d="M22 28H48" stroke="#E5E7EB" strokeWidth="1.5"/>
+                                  <circle cx="19" cy="25" r="1.5" fill="#E5E7EB"/>
+                                </svg>
+                              </div>
+                              <h4 className="font-medium text-sm mb-2">No Snapshot Policies</h4>
+                              <p className="text-xs text-muted-foreground mb-3">
+                                No snapshot policies configured. Add policies to automate volume snapshot creation and management.
+                              </p>
+                              <Button type="button" variant="outline" size="sm" onClick={addSnapshotPolicy}>
+                                Add Snapshot Policy
+                              </Button>
+                            </div>
+                          )}
+                          {snapshotPolicies.length > 0 && (
+                            <Button type="button" variant="outline" size="sm" onClick={addSnapshotPolicy}>
+                              Add Snapshot Policy
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* Backup Policies */}
+                        <div>
+                          <Label className="block mb-2 font-medium">Backup Policies</Label>
+                          {backupPolicies.length > 0 ? (
+                            <div className="space-y-4 mb-4">
+                              {backupPolicies.map((policy, index) => (
+                                <Card key={policy.id}>
+                                  <CardContent className="pt-4 space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <Label>Backup name (suffix)</Label>
+                                        <Input placeholder="Enter suffix" />
+                                      </div>
+                                      <div>
+                                        <Label>Max Backups Allowed</Label>
+                                        <Select defaultValue="5">
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {Array.from({length: 10}, (_, i) => (
+                                              <SelectItem key={i+1} value={String(i+1)}>{i+1}</SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <Switch />
+                                      <Label>Incremental</Label>
+                                    </div>
+                                    <div>
+                                      <Label className="block mb-2">Scheduler</Label>
+                                      <div className="grid grid-cols-1 gap-4">
+                                        <div>
+                                          <Label>Once every</Label>
+                                          <Select defaultValue="daily">
+                                            <SelectTrigger>
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="30-minutes">30 Minutes</SelectItem>
+                                              <SelectItem value="hourly">Hour</SelectItem>
+                                              <SelectItem value="daily">Day</SelectItem>
+                                              <SelectItem value="monthly">Month</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-6">
+                              <div className="mb-3">
+                                <svg width="80" height="50" viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
+                                  <rect width="80" height="50" fill="#FFFFFF"/>
+                                  <rect x="15" y="15" width="50" height="20" fill="none" stroke="#E5E7EB" strokeWidth="2" rx="3"/>
+                                  <path d="M22 22H58" stroke="#E5E7EB" strokeWidth="1.5"/>
+                                  <path d="M22 28H48" stroke="#E5E7EB" strokeWidth="1.5"/>
+                                  <circle cx="19" cy="25" r="1.5" fill="#E5E7EB"/>
+                                </svg>
+                              </div>
+                              <h4 className="font-medium text-sm mb-2">No Backup Policies</h4>
+                              <p className="text-xs text-muted-foreground mb-3">
+                                No backup policies configured. Add policies to provide automated data protection and recovery options.
+                              </p>
+                              <Button type="button" variant="outline" size="sm" onClick={addBackupPolicy}>
+                                Add Backup Policy
+                              </Button>
+                            </div>
+                          )}
+                          {backupPolicies.length > 0 && (
+                            <Button type="button" variant="outline" size="sm" onClick={addBackupPolicy}>
+                              Add Backup Policy
+                            </Button>
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+
                   {/* Footer Actions */}
                   <div className="flex justify-end gap-3 pt-6 border-t">
                     <Button 
@@ -316,37 +670,65 @@ export default function CreateVolumePage() {
         </div>
 
         {/* Side Panel */}
-        <div className="w-80 flex-shrink-0">
-          <Card className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-l-4 border-l-primary">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                Pricing Summary
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
-                  First Volume
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        <div className="w-80 flex-shrink-0 space-y-6">
+          {/* Pricing Summary */}
+          <div 
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Price Summary</h3>
+              </div>
+            </div>
+            <div>
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Storage ({size[0]} GB)</span>
-                  <span className="font-medium">₹{calculatePrice()}/month</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold">₹{calculatePrice()}</span>
+                  <span className="text-sm text-muted-foreground">per month</span>
                 </div>
-                <div className="flex justify-between items-center pt-3 border-t border-gray-300">
-                  <span className="font-medium">Total</span>
-                  <span className="text-lg font-bold text-primary">₹{calculatePrice()}/month</span>
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• Volume ({size[0]} GB): ₹{calculatePrice()}/month</p>
+                  <p>• Storage type: HNSS</p>
+                  <p>• Additional charges may apply for snapshots and backups</p>
                 </div>
               </div>
-              
-              <div className="mt-4 p-3 bg-white/70 rounded-lg">
-                <h4 className="font-medium text-sm mb-2">Configuration Tips</h4>
-                <ul className="text-xs text-muted-foreground space-y-1">
-                  <li>• Choose size based on your application needs</li>
-                  <li>• HNSS provides high-performance storage</li>
-                  <li>• Consider backup policies for data protection</li>
-                  <li>• Tags help organize and track resources</li>
-                </ul>
-              </div>
+            </div>
+          </div>
+
+          {/* Configuration Tips */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose size based on your application needs</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>HNSS provides high-performance storage</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Consider backup policies for data protection</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Tags help organize and track resources</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use advanced settings for automated management</span>
+                </li>
+              </ul>
             </CardContent>
           </Card>
         </div>
