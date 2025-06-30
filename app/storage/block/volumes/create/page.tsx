@@ -1152,7 +1152,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
             >
               <div className="pb-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold">Price Summary</h3>
+                  <h3 className="text-base font-semibold">VPC Price Summary</h3>
                   {isFirstVPC && (
                     <Badge variant="secondary" className="bg-green-100 text-green-800">First VPC</Badge>
                   )}
@@ -1184,10 +1184,10 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
               </div>
             </div>
 
-            {/* Configuration Tips */}
+            {/* VPC Configuration Tips */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+                <CardTitle className="text-base font-normal">VPC Configuration Tips</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
