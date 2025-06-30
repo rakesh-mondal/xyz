@@ -1,25 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Clock, AlertCircle, ArrowRight } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { ArrowRight, Shield, Zap, Globe, CreditCard } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
-
-// Import section components
-import { BasicInfoSection } from "./profile-sections/basic-info-section"
-import { IdentityVerificationSection } from "./profile-sections/identity-verification-section"
-
-interface ProfileSection {
-  id: string
-  title: string
-  status: 'completed' | 'in-progress' | 'pending'
-  component: React.ComponentType<any>
-  required: boolean
-}
 
 interface UserData {
   name: string
@@ -41,247 +30,243 @@ export function ProfileCompletionDashboard({
   onSkip 
 }: ProfileCompletionDashboardProps) {
   const { updateProfileStatus } = useAuth()
-  const [currentSection, setCurrentSection] = useState<string | null>(null)
-  const [sectionsStatus, setSectionsStatus] = useState({
-    'basic-info': 'completed' as const,
-    'identity-verification': 'pending' as const,
+  const [formData, setFormData] = useState({
+    name: userData.name || "",
+    email: userData.email || "",
+    mobile: userData.mobile || "",
+    accountType: userData.accountType || "individual",
+    companyName: userData.companyName || "",
   })
 
-  const profileSections: ProfileSection[] = [
+  const [originalData, setOriginalData] = useState({
+    name: userData.name || "",
+    email: userData.email || "",
+    mobile: userData.mobile || "",
+    accountType: userData.accountType || "individual",
+    companyName: userData.companyName || "",
+  })
+
+  const [hasChanges, setHasChanges] = useState(false)
+
+  // Check if form data has changed
+  useEffect(() => {
+    const isChanged = Object.keys(formData).some(
+      key => formData[key as keyof typeof formData] !== originalData[key as keyof typeof originalData]
+    )
+    setHasChanges(isChanged)
+  }, [formData, originalData])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target
+    setFormData((prev) => ({ ...prev, [id]: value }))
+  }
+
+  const handleSelectChange = (id: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [id]: value }))
+  }
+
+  const handleSave = () => {
+    // Save the form data
+    setOriginalData(formData)
+    setHasChanges(false)
+    // You can add API call here to save the data
+  }
+
+  const handleCancel = () => {
+    // Reset form to original data
+    setFormData(originalData)
+    setHasChanges(false)
+  }
+
+  const handleVerifyIdentity = () => {
+    // Update profile status
+    updateProfileStatus({ 
+      basicInfoComplete: true 
+    })
+    
+    // Proceed to identity verification
+    if (onComplete) {
+      onComplete()
+    }
+  }
+
+  const benefits = [
     {
-      id: 'basic-info',
-      title: 'Basic Information',
-      status: sectionsStatus['basic-info'],
-      component: BasicInfoSection,
-      required: true
+      icon: <Zap className="h-5 w-5 text-blue-600" />,
+      title: "Compute Resources",
+      description: "Access to CPU and GPU instances"
     },
     {
-      id: 'identity-verification',
-      title: 'Identity Verification',
-      status: sectionsStatus['identity-verification'],
-      component: IdentityVerificationSection,
-      required: true
+      icon: <Shield className="h-5 w-5 text-green-600" />,
+      title: "Storage Solutions",
+      description: "Block and object storage services"
+    },
+    {
+      icon: <Globe className="h-5 w-5 text-purple-600" />,
+      title: "Advanced AI",
+      description: "AI models and machine learning tools"
+    },
+    {
+      icon: <CreditCard className="h-5 w-5 text-orange-600" />,
+      title: "Billing Features",
+      description: "Usage tracking and billing management"
     }
   ]
 
-  // Calculate completion percentage
-  const completedSections = profileSections.filter(section => section.status === 'completed').length
-  const totalSections = profileSections.length
-  const completionPercentage = Math.round((completedSections / totalSections) * 100)
-
-  const getStatusIcon = (status: ProfileSection['status']) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="h-5 w-5 text-green-600" />
-      case 'in-progress':
-        return <Clock className="h-5 w-5 text-blue-600" />
-      case 'pending':
-        return <AlertCircle className="h-5 w-5 text-gray-400" />
-    }
-  }
-
-  const getStatusBadge = (status: ProfileSection['status']) => {
-    const variants = {
-      completed: "bg-green-100 text-green-800 border-green-200",
-      'in-progress': "bg-blue-100 text-blue-800 border-blue-200",
-      pending: "bg-gray-100 text-gray-600 border-gray-200"
-    }
-
-    const labels = {
-      completed: "Complete",
-      'in-progress': "In Progress",
-      pending: "Pending"
-    }
-
-    return (
-      <Badge variant="outline" className={cn("text-xs font-medium", variants[status])}>
-        {labels[status]}
-      </Badge>
-    )
-  }
-
-  const handleSectionComplete = (sectionId: string) => {
-    setSectionsStatus(prev => ({
-      ...prev,
-      [sectionId]: 'completed'
-    }))
-    setCurrentSection(null)
-
-    // Update profile status in auth provider
-    if (sectionId === 'identity-verification') {
-      updateProfileStatus({ identityVerified: true })
-    }
-
-    // Check if all sections are completed
-    const updatedStatus = { ...sectionsStatus, [sectionId]: 'completed' as const }
-    const allCompleted = Object.values(updatedStatus).every(status => status === 'completed')
-    
-    if (allCompleted && onComplete) {
-      // Update all profile completion status
-      updateProfileStatus({ 
-        basicInfoComplete: true,
-        identityVerified: true
-      })
-      
-      // Force refresh access level and add delay for state sync
-      setTimeout(() => {
-        onComplete()
-      }, 150)
-    }
-  }
-
-  const handleSectionStart = (sectionId: string) => {
-    setSectionsStatus(prev => ({
-      ...prev,
-      [sectionId]: 'in-progress'
-    }))
-    setCurrentSection(sectionId)
-  }
-
-  const renderSection = (section: ProfileSection) => {
-    const Component = section.component
-    return (
-      <Component
-        userData={userData}
-        onComplete={() => handleSectionComplete(section.id)}
-        onCancel={() => setCurrentSection(null)}
-      />
-    )
-  }
-
-  // If a section is currently being edited
-  if (currentSection) {
-    const section = profileSections.find(s => s.id === currentSection)
-    if (section) {
-      return renderSection(section)
-    }
-  }
-
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Complete Your Profile
-        </h1>
-        <p className="text-gray-600">
-          Finish setting up your account to unlock all Krutrim Cloud features
-        </p>
-      </div>
-
-      {/* Progress Overview */}
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">Profile Completion</CardTitle>
-            <Badge variant="outline" className="text-sm font-semibold">
-              {completionPercentage}% Complete
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Progress value={completionPercentage} className="mb-4" />
-          <div className="text-sm text-gray-600">
-            {completedSections} of {totalSections} sections completed
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Profile Sections */}
-      <div className="space-y-6">
-        {profileSections.map((section) => (
-          <Card key={section.id} className="overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  {getStatusIcon(section.status)}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {section.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {section.id === 'basic-info' && "Your account information from signup"}
-                      {section.id === 'identity-verification' && "Verify your identity for enhanced security"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  {getStatusBadge(section.status)}
-                  
-                  {section.status === 'pending' && (
-                    <Button
-                      onClick={() => handleSectionStart(section.id)}
-                      className="bg-primary hover:bg-primary/90 text-white"
-                    >
-                      Start
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  )}
-
-                  {section.status === 'completed' && (
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentSection(section.id)}
-                    >
-                      Edit
-                    </Button>
-                  )}
-
-                  {section.status === 'in-progress' && (
-                    <Button
-                      onClick={() => setCurrentSection(section.id)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      Continue
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
+    <div className="flex flex-col md:flex-row gap-6">
+      {/* Main Content - Left Side */}
+      <div className="flex-1 space-y-6">
+        <Card>
+          <CardContent className="space-y-6 pt-6">
+            <div className="space-y-5">
+              {/* Full Name */}
+              <div>
+                <Label htmlFor="name" className="block mb-2 font-medium">
+                  Full Name <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="name"
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  required
+                />
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
 
-      {/* Action Buttons */}
-      <div className="mt-8 flex justify-center space-x-4">
-        {completionPercentage === 100 ? (
-          <Button
-            onClick={onComplete}
-            className="bg-green-600 hover:bg-green-700 text-white px-8"
-          >
-            Complete Setup
-          </Button>
-        ) : (
-          onSkip && (
-            <Button
-              variant="outline"
-              onClick={onSkip}
-              className="px-8"
-            >
-              Skip for Now
-            </Button>
-          )
-        )}
-      </div>
+              {/* Email */}
+              <div>
+                <Label htmlFor="email" className="block mb-2 font-medium">
+                  Email Address <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  required
+                />
+              </div>
 
-      {/* Benefits Reminder */}
-      {completionPercentage < 100 && (
-        <Card className="mt-6 bg-blue-50 border-blue-200">
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-blue-900 mb-2">
-              Complete your profile to unlock:
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-blue-800">
-              <div>• Full compute and storage access</div>
-              <div>• Priority technical support</div>
-              <div>• Advanced security features</div>
-              <div>• Enterprise-grade SLA</div>
+              {/* Mobile */}
+              <div>
+                <Label htmlFor="mobile" className="block mb-2 font-medium">
+                  Mobile Number <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="mobile"
+                  type="tel"
+                  placeholder="Enter your mobile number"
+                  value={formData.mobile}
+                  onChange={handleChange}
+                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  required
+                />
+              </div>
+
+              {/* Account Type */}
+              <div>
+                <Label htmlFor="accountType" className="block mb-2 font-medium">
+                  Account Type <span className="text-destructive">*</span>
+                </Label>
+                <Select 
+                  value={formData.accountType} 
+                  onValueChange={(value) => handleSelectChange("accountType", value)}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select account type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="organization">Organization</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Company Name (conditional) */}
+              {formData.accountType === "organization" && (
+                <div>
+                  <Label htmlFor="companyName" className="block mb-2 font-medium">
+                    Company Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="companyName"
+                    placeholder="Enter your company name"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    required
+                  />
+                </div>
+              )}
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-4 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={!hasChanges}
+                className="hover:bg-secondary transition-colors"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSave}
+                disabled={!hasChanges}
+                className="bg-black text-white hover:bg-black/90 transition-colors"
+              >
+                Save
+              </Button>
             </div>
           </CardContent>
         </Card>
-      )}
+      </div>
+
+      {/* Side Panel - Right Side */}
+      <div className="w-full md:w-80 space-y-6">
+        {/* Benefits Panel */}
+        <div 
+          style={{
+            borderRadius: '16px',
+            border: '4px solid #FFF',
+            background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+            boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+            padding: '1.5rem'
+          }}
+        >
+          <div className="pb-4">
+            <h3 className="text-base font-semibold">Complete your profile to unlock:</h3>
+          </div>
+          <div className="space-y-4 mb-6">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="flex items-start gap-3">
+                <div className="flex-shrink-0 mt-0.5">
+                  {benefit.icon}
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm">{benefit.title}</h4>
+                  <p className="text-xs text-muted-foreground">{benefit.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Verify Identity Button */}
+          <Button 
+            onClick={handleVerifyIdentity}
+            className="w-full bg-black text-white hover:bg-black/90 transition-colors"
+          >
+            Verify your identity
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   )
 } 

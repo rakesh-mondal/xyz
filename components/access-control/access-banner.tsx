@@ -51,37 +51,39 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
 
   if (accessLevel === 'limited') {
     return (
-      <Alert className={`mb-4 border-amber-200 bg-amber-50 ${className}`}>
-        <AlertCircle className="h-4 w-4" style={{ color: '#78350f' }} />
-        <AlertTitle className="text-amber-900">
-          Complete your profile to unlock all features
-        </AlertTitle>
-        <AlertDescription className="text-amber-800">
-          <div className="mt-2">
-            <p className="mb-3">
-              You have access to documentation and cost tools. Complete {requiredSteps.join(' and ').toLowerCase()} for full access to compute, storage, and billing features.
-            </p>
-            
-            {requiredSteps.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3 items-center">
-                <span className="text-xs font-medium text-amber-700">Remaining steps:</span>
-                {requiredSteps.map((step, index) => (
-                  <Badge key={index} variant="outline" className="text-xs bg-white/50 text-amber-700 border-amber-300">
-                    {step}
-                  </Badge>
-                ))}
-              </div>
-            )}
-            
-            <Button 
-              onClick={handleCompleteProfile}
-              className="bg-amber-600 hover:bg-amber-700 text-white"
-            >
-              Complete Profile
-              <ArrowRight className="ml-2 h-3 w-3" />
-            </Button>
+      <Alert 
+        className={`mb-4 border-0 ${className}`}
+        style={{
+          boxShadow: 'rgba(255, 109, 107, 0.1) 0px 0px 0px 1px inset',
+          background: 'linear-gradient(263deg, rgba(255, 109, 107, 0.08) 6.86%, rgba(255, 109, 107, 0.02) 96.69%)'
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" style={{ color: 'rgb(165, 47, 46)' }} />
+            <div>
+              <AlertTitle className="mb-1" style={{ color: 'rgb(165, 47, 46)' }}>Unlock all features and get full access to Krutrim Cloud</AlertTitle>
+              <AlertDescription style={{ color: 'rgb(165, 47, 46)' }}>
+                <p className="text-sm opacity-90">
+                  You have access to documentation and cost tools. Complete {requiredSteps.join(' and ').toLowerCase()} for full access to compute, storage, and billing features.
+                </p>
+              </AlertDescription>
+            </div>
           </div>
-        </AlertDescription>
+          
+          <Button 
+            onClick={handleCompleteProfile}
+            className="text-white flex-shrink-0 ml-4"
+            style={{ 
+              backgroundColor: 'rgb(165, 47, 46)',
+              borderColor: 'rgb(165, 47, 46)'
+            }}
+            size="sm"
+          >
+            Complete Profile
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </Alert>
     )
   }
@@ -143,7 +145,6 @@ export function AccessBannerCompact({ onCompleteProfile, className }: AccessBann
           <span className="text-amber-800 font-medium">
             Profile {getProfileCompletionPercentage()}% complete
           </span>
-          <span className="text-amber-700">• Unlock all features</span>
         </div>
         <Button 
           onClick={handleCompleteProfile}

@@ -168,8 +168,6 @@ function FullAccessDashboard() {
 function LimitedAccessDashboard() {
   return (
     <>
-      {/* ProfileCompletionCard removed for now */}
-
       {/* Basic Credits Card - Always accessible */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>

@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/components/auth/auth-provider"
 import { ProfileCompletionDashboard } from "@/components/auth/profile-completion-dashboard"
+import { PageShell } from "@/components/page-shell"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 
@@ -80,7 +81,10 @@ export default function DashboardProfileCompletionPage() {
   }
 
   return (
-    <div className="w-full">
+    <PageShell
+      title="Complete Your Profile"
+      description="Complete your profile verification to unlock full access to all Krutrim Cloud features including compute resources, storage solutions, and advanced cloud services."
+    >
       {getFeatureMessage()}
       
       <ProfileCompletionDashboard
@@ -94,6 +98,6 @@ export default function DashboardProfileCompletionPage() {
         onComplete={handleComplete}
         onSkip={handleSkip}
       />
-    </div>
+    </PageShell>
   )
 } 

@@ -77,7 +77,11 @@ export function ProfileCompletionCard() {
 
   return (
     <Card 
-      className="border-2 border-dashed border-primary/30 bg-gradient-to-r from-primary/5 to-blue-50 hover:border-primary/50 transition-all duration-200 cursor-pointer"
+      className="border-0 hover:opacity-90 transition-all duration-200 cursor-pointer"
+      style={{
+        boxShadow: 'rgba(255, 109, 107, 0.1) 0px 0px 0px 1px inset',
+        background: 'linear-gradient(263deg, rgba(255, 109, 107, 0.08) 6.86%, rgba(255, 109, 107, 0.02) 96.69%)'
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCompleteProfile}
@@ -85,19 +89,23 @@ export function ProfileCompletionCard() {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-              <Star className="h-4 w-4 text-primary" />
+            <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{ backgroundColor: 'rgba(255, 109, 107, 0.1)' }}>
+              <Star className="h-4 w-4" style={{ color: 'rgb(165, 47, 46)' }} />
             </div>
             <div>
-              <CardTitle className="text-lg">Complete Your Profile</CardTitle>
-              <CardDescription className="text-sm">
+              <CardTitle className="text-lg" style={{ color: 'rgb(165, 47, 46)' }}>Complete Your Profile</CardTitle>
+              <CardDescription className="text-sm" style={{ color: 'rgb(165, 47, 46)', opacity: 0.8 }}>
                 Unlock all features and get full access to Krutrim Cloud
               </CardDescription>
             </div>
           </div>
           <Badge 
-            variant={percentage === 100 ? "default" : "secondary"}
-            className={`${percentage === 100 ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"} text-xs font-medium`}
+            variant="outline"
+            className="text-xs font-medium border-0"
+            style={{ 
+              backgroundColor: percentage === 100 ? 'rgba(255, 109, 107, 0.15)' : 'rgba(255, 109, 107, 0.1)', 
+              color: 'rgb(165, 47, 46)' 
+            }}
           >
             {completedCount}/{totalSteps} Complete
           </Badge>
@@ -108,13 +116,16 @@ export function ProfileCompletionCard() {
         {/* Progress Bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Profile completion</span>
-            <span className="font-medium">{percentage}%</span>
+            <span style={{ color: 'rgb(165, 47, 46)', opacity: 0.8 }}>Profile completion</span>
+            <span className="font-medium" style={{ color: 'rgb(165, 47, 46)' }}>{percentage}%</span>
           </div>
           <div className="relative">
             <Progress value={percentage} className="h-2" />
-            <div className={`absolute top-0 left-0 h-2 rounded-full transition-all duration-500 ${getProgressColor()}`} 
-                 style={{ width: `${percentage}%` }} />
+            <div className="absolute top-0 left-0 h-2 rounded-full transition-all duration-500" 
+                 style={{ 
+                   width: `${percentage}%`,
+                   backgroundColor: 'rgb(165, 47, 46)'
+                 }} />
           </div>
         </div>
 
@@ -124,11 +135,11 @@ export function ProfileCompletionCard() {
             const Icon = step.icon
             return (
               <div key={step.id} className="flex items-center space-x-3">
-                <div className={`flex items-center justify-center w-6 h-6 rounded-full ${
-                  step.completed 
-                    ? "bg-green-100 text-green-600" 
-                    : "bg-gray-100 text-gray-400"
-                }`}>
+                <div className="flex items-center justify-center w-6 h-6 rounded-full"
+                     style={{
+                       backgroundColor: step.completed ? 'rgba(255, 109, 107, 0.15)' : 'rgba(255, 109, 107, 0.05)',
+                       color: step.completed ? 'rgb(165, 47, 46)' : 'rgba(165, 47, 46, 0.5)'
+                     }}>
                   {step.completed ? (
                     <CheckCircle className="h-4 w-4" />
                   ) : (
@@ -136,10 +147,10 @@ export function ProfileCompletionCard() {
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className={`text-sm font-medium ${step.completed ? "text-green-800" : "text-gray-700"}`}>
+                  <p className="text-sm font-medium" style={{ color: step.completed ? 'rgb(165, 47, 46)' : 'rgba(165, 47, 46, 0.8)' }}>
                     {step.label}
                   </p>
-                  <p className="text-xs text-muted-foreground">{step.description}</p>
+                  <p className="text-xs" style={{ color: 'rgba(165, 47, 46, 0.6)' }}>{step.description}</p>
                 </div>
               </div>
             )
@@ -148,20 +159,25 @@ export function ProfileCompletionCard() {
 
         {/* Next Step Highlight */}
         {nextStep && (
-          <div className="mt-4 p-3 bg-white/50 border border-primary/20 rounded-lg">
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(255, 109, 107, 0.08)', border: '1px solid rgba(255, 109, 107, 0.2)' }}>
             <div className="flex items-center space-x-2 mb-2">
-              <Clock className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Next Step</span>
+              <Clock className="h-4 w-4" style={{ color: 'rgb(165, 47, 46)' }} />
+              <span className="text-sm font-medium" style={{ color: 'rgb(165, 47, 46)' }}>Next Step</span>
             </div>
-            <p className="text-sm text-gray-700">{nextStep.label}</p>
-            <p className="text-xs text-muted-foreground">{nextStep.description}</p>
+            <p className="text-sm" style={{ color: 'rgb(165, 47, 46)' }}>{nextStep.label}</p>
+            <p className="text-xs" style={{ color: 'rgba(165, 47, 46, 0.7)' }}>{nextStep.description}</p>
           </div>
         )}
 
         {/* CTA Button */}
         <Button 
-          variant="secondary"
-          className="w-full mt-4"
+          variant="outline"
+          className="w-full mt-4 border-0 hover:opacity-90"
+          style={{ 
+            backgroundColor: 'rgba(255, 109, 107, 0.1)', 
+            color: 'rgb(165, 47, 46)',
+            border: '1px solid rgba(255, 109, 107, 0.3)'
+          }}
           onClick={handleCompleteProfile}
         >
           <span>{nextStep ? `Complete ${nextStep.label}` : 'Complete Profile'}</span>
@@ -169,13 +185,13 @@ export function ProfileCompletionCard() {
         </Button>
 
         {/* Benefits Preview */}
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <p className="text-xs text-muted-foreground mb-2">Unlock with profile completion:</p>
+        <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(255, 109, 107, 0.2)' }}>
+          <p className="text-xs mb-2" style={{ color: 'rgba(165, 47, 46, 0.7)' }}>Unlock with profile completion:</p>
           <div className="flex flex-wrap gap-1">
-            <Badge variant="outline" className="text-xs">Compute Resources</Badge>
-            <Badge variant="outline" className="text-xs">Storage Solutions</Badge>
-            <Badge variant="outline" className="text-xs">Advanced AI</Badge>
-            <Badge variant="outline" className="text-xs">Priority Support</Badge>
+            <Badge variant="outline" className="text-xs border-0" style={{ backgroundColor: 'rgba(255, 109, 107, 0.08)', color: 'rgb(165, 47, 46)' }}>Compute Resources</Badge>
+            <Badge variant="outline" className="text-xs border-0" style={{ backgroundColor: 'rgba(255, 109, 107, 0.08)', color: 'rgb(165, 47, 46)' }}>Storage Solutions</Badge>
+            <Badge variant="outline" className="text-xs border-0" style={{ backgroundColor: 'rgba(255, 109, 107, 0.08)', color: 'rgb(165, 47, 46)' }}>Advanced AI</Badge>
+            <Badge variant="outline" className="text-xs border-0" style={{ backgroundColor: 'rgba(255, 109, 107, 0.08)', color: 'rgb(165, 47, 46)' }}>Priority Support</Badge>
           </div>
         </div>
       </CardContent>
