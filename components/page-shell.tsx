@@ -16,8 +16,6 @@ import {
 import { generateBreadcrumbs, type Breadcrumb as BreadcrumbType } from "@/lib/generate-breadcrumbs"
 
 import { Button } from "@/components/ui/button"
-import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-import { getContextualTooltip } from "@/lib/tooltip-content"
 import Link from "next/link"
 
 interface PageShellProps {
@@ -59,30 +57,24 @@ export function PageShell({ title, description, tabs, children, headerActions, h
           </Breadcrumb>
           
 {!hideViewDocs && (
-            <TooltipWrapper 
-              content={getContextualTooltip(pathname, 'viewDocs')}
-              side="bottom"
-              align="end"
-            >
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/documentation" className="flex items-center gap-1 font-normal text-foreground">
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    viewBox="-0.5 -0.5 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    className="h-4 w-4"
-                    strokeWidth="1"
-                  >
-                    <path d="M14.375 1.9166666666666667H5.75a1.9166666666666667 1.9166666666666667 0 0 0 -1.9166666666666667 1.9166666666666667v15.333333333333334a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 1.9166666666666667h11.5a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 -1.9166666666666667V6.708333333333334Z"></path>
-                    <path d="M13.416666666666668 1.9166666666666667v3.8333333333333335a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 1.9166666666666667h3.8333333333333335"></path>
-                  </svg>
-                  View Docs
-                </Link>
-              </Button>
-            </TooltipWrapper>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/documentation" className="flex items-center gap-1 font-normal text-foreground">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="-0.5 -0.5 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="h-4 w-4"
+                  strokeWidth="1"
+                >
+                  <path d="M14.375 1.9166666666666667H5.75a1.9166666666666667 1.9166666666666667 0 0 0 -1.9166666666666667 1.9166666666666667v15.333333333333334a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 1.9166666666666667h11.5a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 -1.9166666666666667V6.708333333333334Z"></path>
+                  <path d="M13.416666666666668 1.9166666666666667v3.8333333333333335a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 1.9166666666666667h3.8333333333333335"></path>
+                </svg>
+                View Docs
+              </Link>
+            </Button>
           )}
         </div>
         

@@ -1,6 +1,6 @@
 "use client"
 import { useState, useRef } from "react"
-import Link from "next/link"
+
 import { PageLayout } from "@/components/page-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,13 +14,34 @@ import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { ChevronDown, X, ArrowLeft, Check } from "lucide-react"
+import { ChevronDown, X, Check } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
+
 import { HelpCircle, Search } from "lucide-react"
 import { vpcs } from "@/lib/data"
-import { useToast } from "@/hooks/use-toast"
+
+
+// Mock data for dropdowns
+const mockSnapshots = [
+  { id: "snap-001", name: "web-server-backup-20240301", volumeId: "vol-001", createdOn: "2024-03-01", size: "50 GB" },
+  { id: "snap-002", name: "database-snapshot-daily", volumeId: "vol-002", createdOn: "2024-03-02", size: "200 GB" },
+  { id: "snap-003", name: "backup-weekly-snapshot", volumeId: "vol-003", createdOn: "2024-03-03", size: "500 GB" },
+]
+
+const mockMachineImages = [
+  { id: "mi-001", name: "Ubuntu-22.04-LTS", type: "Linux", size: "2.5 GB" },
+  { id: "mi-002", name: "CentOS-8-Stream", type: "Linux", size: "3.2 GB" },
+  { id: "mi-003", name: "Windows-Server-2022", type: "Windows", size: "15.8 GB" },
+  { id: "mi-004", name: "RHEL-9", type: "Linux", size: "4.1 GB" },
+]
+
+const mockOtherVolumes = [
+  { id: "vol-003", name: "backup-volume", size: "500 GB", status: "available" },
+  { id: "vol-009", name: "analytics-storage", size: "300 GB", status: "available" },
+  { id: "vol-015", name: "monitoring-logs", size: "90 GB", status: "available" },
+  { id: "vol-011", name: "media-storage", size: "1000 GB", status: "available" },
+]
 
 export default function CreateVolumePage() {
   const [volumeSize, setVolumeSize] = useState(50)
@@ -28,6 +49,8 @@ export default function CreateVolumePage() {
 
   const [selectedImageId, setSelectedImageId] = useState("")
   const [selectedSnapshotId, setSelectedSnapshotId] = useState("")
+  const [selectedMachineImageId, setSelectedMachineImageId] = useState("")
+  const [selectedOtherVolumeId, setSelectedOtherVolumeId] = useState("")
   const [currentView, setCurrentView] = useState("basic")
   const [availability, setAvailability] = useState("high")
   const [loading, setLoading] = useState(false)
@@ -89,7 +112,12 @@ export default function CreateVolumePage() {
   const calculatePrice = () => {
     // Base price per GB: ₹0.10/GB/month for HNSS
     const basePrice = volumeSize * 0.10
-    return basePrice
+    return basePrice.toFixed(2)
+  }
+
+  const handleUploadMachineImage = () => {
+    // Navigate to upload machine image page
+    window.location.href = "/compute/machines/images/upload"
   }
 
   // Pricing calculations
@@ -126,15 +154,7 @@ export default function CreateVolumePage() {
       title="Create Volume"
       description="Provision a new block storage volume for your cloud resources."
     >
-      <div className="flex items-center mb-6">
-        <Link
-          href="/storage/block"
-          className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Block Storage
-        </Link>
-      </div>
+
       
       <div className="flex flex-col md:flex-row gap-6">
         {/* Main Content */}
@@ -190,10 +210,15 @@ export default function CreateVolumePage() {
                         <div className="flex items-center space-x-3 rounded-lg border border-border p-4 bg-background">
                           <RadioGroupItem value="hnss" id="hnss" />
                           <div className="flex flex-col">
-                            <Label htmlFor="hnss" className="font-medium">
-                              High-speed NVME SSD storage (HNSS)
-                            </Label>
-                            <p className="text-sm text-muted-foreground mt-1">xxx MBPS Throughput</p>
+                            <div className="flex items-center gap-2">
+                              <Label htmlFor="hnss" className="font-medium">
+                                High-speed NVME SSD storage (HNSS)
+                              </Label>
+                              <div className="flex items-center gap-1">
+                                <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                                <span className="text-xs text-muted-foreground">(xxx MBPS Throughput)</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </RadioGroup>
@@ -202,22 +227,28 @@ export default function CreateVolumePage() {
                     <div className="grid gap-3">
                       <Label className="text-base font-medium">Source <span className="text-destructive">*</span></Label>
                       <RadioGroup value={sourceType} onValueChange={setSourceType} className="space-y-1">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-4 gap-3">
                           <div className="flex items-center space-x-3 rounded-lg border border-border p-4 bg-background">
                             <RadioGroupItem value="none" id="none" />
-                            <Label htmlFor="none" className="font-medium">
+                            <Label htmlFor="none" className="font-medium text-sm">
                               None
                             </Label>
                           </div>
                           <div className="flex items-center space-x-3 rounded-lg border border-border p-4 bg-background">
                             <RadioGroupItem value="snapshots" id="snapshots" />
-                            <Label htmlFor="snapshots" className="font-medium">
+                            <Label htmlFor="snapshots" className="font-medium text-sm">
                               Snapshots
                             </Label>
                           </div>
                           <div className="flex items-center space-x-3 rounded-lg border border-border p-4 bg-background">
+                            <RadioGroupItem value="machine-images" id="machine-images" />
+                            <Label htmlFor="machine-images" className="font-medium text-sm">
+                              Machine Images
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-3 rounded-lg border border-border p-4 bg-background">
                             <RadioGroupItem value="other-volumes" id="other-volumes" />
-                            <Label htmlFor="other-volumes" className="font-medium">
+                            <Label htmlFor="other-volumes" className="font-medium text-sm">
                               Other volumes
                             </Label>
                           </div>
@@ -225,29 +256,89 @@ export default function CreateVolumePage() {
                       </RadioGroup>
                     </div>
                     
+                    {/* Conditional Dropdowns */}
                     {sourceType === "snapshots" && (
                       <div className="grid gap-2">
                         <Label htmlFor="snapshots-select">Snapshots <span className="text-destructive">*</span></Label>
-                        <Select>
+                        <Select value={selectedSnapshotId} onValueChange={setSelectedSnapshotId}>
                           <SelectTrigger>
-                            <SelectValue placeholder="No Snapshots created" />
+                            <SelectValue placeholder={mockSnapshots.length > 0 ? "Select a snapshot" : "No Snapshots created"} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="empty">No Snapshots created</SelectItem>
+                            {mockSnapshots.length > 0 ? (
+                              mockSnapshots.map((snapshot) => (
+                                <SelectItem key={snapshot.id} value={snapshot.id}>
+                                  <div className="flex justify-between items-center w-full">
+                                    <span>{snapshot.name}</span>
+                                    <span className="text-xs text-muted-foreground ml-2">({snapshot.size})</span>
+                                  </div>
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="empty" disabled>No Snapshots created</SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
+                      </div>
+                    )}
+
+                    {sourceType === "machine-images" && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="machine-images-select">Machine Images <span className="text-destructive">*</span></Label>
+                        <Select value={selectedMachineImageId} onValueChange={setSelectedMachineImageId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder={mockMachineImages.length > 0 ? "Select a machine image" : "No Machine Images created"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {mockMachineImages.length > 0 ? (
+                              mockMachineImages.map((image) => (
+                                <SelectItem key={image.id} value={image.id}>
+                                  <div className="flex justify-between items-center w-full">
+                                    <span>{image.name}</span>
+                                    <span className="text-xs text-muted-foreground ml-2">({image.size})</span>
+                                  </div>
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="empty" disabled>No Machine Images created</SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        {mockMachineImages.length === 0 && (
+                          <div className="mt-2">
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              size="sm"
+                              onClick={handleUploadMachineImage}
+                            >
+                              Upload Machine Image
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                     
                     {sourceType === "other-volumes" && (
                       <div className="grid gap-2">
                         <Label htmlFor="other-volumes-select">Other Volumes <span className="text-destructive">*</span></Label>
-                        <Select>
+                        <Select value={selectedOtherVolumeId} onValueChange={setSelectedOtherVolumeId}>
                           <SelectTrigger>
-                            <SelectValue placeholder="No volumes available" />
+                            <SelectValue placeholder={mockOtherVolumes.length > 0 ? "Select a volume" : "No volumes available"} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="empty">No volumes available</SelectItem>
+                            {mockOtherVolumes.length > 0 ? (
+                              mockOtherVolumes.map((volume) => (
+                                <SelectItem key={volume.id} value={volume.id}>
+                                  <div className="flex justify-between items-center w-full">
+                                    <span>{volume.name}</span>
+                                    <span className="text-xs text-muted-foreground ml-2">({volume.size})</span>
+                                  </div>
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="empty" disabled>No volumes available</SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -260,7 +351,7 @@ export default function CreateVolumePage() {
                       <div className="p-6 rounded-lg border border-border bg-background">
                         <div className="flex justify-between items-center mb-4">
                           <span className="text-lg font-semibold">{volumeSize} GB</span>
-                          <span className="text-sm text-muted-foreground">${calculatePrice()}/month</span>
+                          <span className="text-sm text-muted-foreground">₹{calculatePrice()}/month</span>
                         </div>
                         <Slider
                           id="size"
@@ -702,7 +793,7 @@ export default function CreateVolumePage() {
       {/* Create VPC Modal */}
       {showCreateVpcModal && (
         <Dialog open={showCreateVpcModal} onOpenChange={setShowCreateVpcModal}>
-          <DialogContent className="max-w-6xl max-h-[90vh] p-0 bg-white overflow-hidden">
+          <DialogContent className="max-w-6xl max-h-[90vh] p-0 bg-white">
             <CreateVPCModalContent onClose={() => setShowCreateVpcModal(false)} />
           </DialogContent>
         </Dialog>
@@ -821,7 +912,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col max-h-[90vh]">
       {/* Header */}
       <div className="flex-shrink-0 p-6 border-b">
         <h2 className="text-lg font-semibold">Create New VPC</h2>
@@ -829,7 +920,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col md:flex-row gap-6 p-6">
           {/* Main Content */}
           <div className="flex-1 space-y-6">
@@ -952,12 +1043,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                 <Label htmlFor="subnetName" className="font-medium">
                                   Subnet Name
                                 </Label>
-                                <TooltipWrapper 
-                                  content="Name for your subnet. Use letters, numbers, hyphens, underscores."
-                                  side="top"
-                                >
-                                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                </TooltipWrapper>
+                                <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
                               </div>
                               <Input
                                 id="subnetName"
@@ -988,12 +1074,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                   <Label htmlFor="cidr" className="font-medium">
                                     CIDR
                                   </Label>
-                                  <TooltipWrapper 
-                                    content="IP range for subnet. Example: 10.0.0.0/24 = 254 IPs"
-                                    side="top"
-                                  >
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                  </TooltipWrapper>
+                                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
                                 </div>
                                 <Input
                                   id="cidr"
@@ -1012,12 +1093,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                   <Label htmlFor="gatewayIp" className="font-medium">
                                     Gateway IP
                                   </Label>
-                                  <TooltipWrapper 
-                                    content="Default gateway IP. Usually first IP in range (e.g., 10.0.0.1)"
-                                    side="top"
-                                  >
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                  </TooltipWrapper>
+                                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
                                 </div>
                                 <Input
                                   id="gatewayIp"
@@ -1036,12 +1112,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                   <Label htmlFor="networkAccessibility" className="font-medium">
                                     Network Accessibility
                                   </Label>
-                                  <TooltipWrapper 
-                                    content="Private: isolated from internet. Public: internet accessible"
-                                    side="top"
-                                  >
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                  </TooltipWrapper>
+                                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
                                 </div>
                                 <Select value={formData.networkAccessibility} onValueChange={(value) => handleSelectChange("networkAccessibility", value)}>
                                   <SelectTrigger>
@@ -1068,7 +1139,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Side Panel */}
-          <div className="w-80 flex-shrink-0 space-y-6">
+          <div className="w-full md:w-80 flex-shrink-0 space-y-6">
             {/* Price Summary */}
             <div 
               style={{
