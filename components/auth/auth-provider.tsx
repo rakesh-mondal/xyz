@@ -9,10 +9,18 @@ import { AccessLevel, getAccessLevelFromProfile } from "@/lib/access-control"
 // Extended user interface with access control
 interface User {
   name: string
+  firstName?: string
+  lastName?: string
   email?: string
   mobile?: string
   accountType?: "individual" | "organization"
   companyName?: string
+  website?: string
+  linkedinProfile?: string
+  address?: string
+  organizationType?: string
+  natureOfBusiness?: string
+  typeOfWorkload?: string
   profileStatus: {
     basicInfoComplete: boolean
     identityVerified: boolean

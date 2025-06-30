@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { ArrowRight, Shield, Zap, Globe, CreditCard, X } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
@@ -72,18 +72,24 @@ function IdentityVerificationModalContent({ userData, onComplete, onCancel }: {
           "Connect DigiLocker"
         )}
       </Button>
-
-
     </div>
   )
 }
 
 interface UserData {
-  name: string
+  firstName?: string
+  lastName?: string
+  name?: string
   email: string
   mobile: string
   accountType: "individual" | "organization"
   companyName?: string
+  website?: string
+  linkedinProfile?: string
+  address?: string
+  organizationType?: string
+  natureOfBusiness?: string
+  typeOfWorkload?: string
 }
 
 interface ProfileCompletionDashboardProps {
@@ -99,20 +105,48 @@ export function ProfileCompletionDashboard({
 }: ProfileCompletionDashboardProps) {
   const { updateProfileStatus } = useAuth()
   const router = useRouter()
+  
+  // Parse name into first and last name if not already separated
+  const getNameParts = (fullName: string) => {
+    const parts = fullName.trim().split(' ')
+    const firstName = parts[0] || ''
+    const lastName = parts.slice(1).join(' ') || ''
+    return { firstName, lastName }
+  }
+
+  const { firstName: defaultFirstName, lastName: defaultLastName } = 
+    userData.firstName && userData.lastName 
+      ? { firstName: userData.firstName, lastName: userData.lastName }
+      : getNameParts(userData.name || '')
+
   const [formData, setFormData] = useState({
-    name: userData.name || "",
+    firstName: userData.firstName || defaultFirstName,
+    lastName: userData.lastName || defaultLastName,
     email: userData.email || "",
     mobile: userData.mobile || "",
-    accountType: userData.accountType || "individual",
+    accountType: "organization" as const,
     companyName: userData.companyName || "",
+    website: userData.website || "",
+    linkedinProfile: userData.linkedinProfile || "",
+    address: userData.address || "",
+    organizationType: userData.organizationType || "",
+    natureOfBusiness: userData.natureOfBusiness || "",
+    typeOfWorkload: userData.typeOfWorkload || "",
   })
 
   const [originalData, setOriginalData] = useState({
-    name: userData.name || "",
+    firstName: userData.firstName || defaultFirstName,
+    lastName: userData.lastName || defaultLastName,
     email: userData.email || "",
     mobile: userData.mobile || "",
-    accountType: userData.accountType || "individual",
+    accountType: "organization" as const,
     companyName: userData.companyName || "",
+    website: userData.website || "",
+    linkedinProfile: userData.linkedinProfile || "",
+    address: userData.address || "",
+    organizationType: userData.organizationType || "",
+    natureOfBusiness: userData.natureOfBusiness || "",
+    typeOfWorkload: userData.typeOfWorkload || "",
   })
 
   const [hasChanges, setHasChanges] = useState(false)
@@ -126,7 +160,7 @@ export function ProfileCompletionDashboard({
     setHasChanges(isChanged)
   }, [formData, originalData])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
     setFormData((prev) => ({ ...prev, [id]: value }))
   }
@@ -202,6 +236,37 @@ export function ProfileCompletionDashboard({
     }
   ]
 
+  const organizationTypes = [
+    "Company",
+    "Partnership",
+    "Proprietorship",
+    "LLP",
+    "Private Limited",
+    "Public Limited",
+    "Non-Profit",
+    "Government",
+    "Educational Institution",
+    "Startup"
+  ]
+
+  const workloadTypes = [
+    "Web Development",
+    "Mobile App Development",
+    "Data Analytics",
+    "Machine Learning",
+    "AI Research",
+    "DevOps",
+    "Testing & QA",
+    "Enterprise Software",
+    "E-commerce",
+    "Gaming",
+    "Media & Entertainment",
+    "Financial Services",
+    "Healthcare",
+    "Education",
+    "Other"
+  ]
+
   return (
     <div className="flex flex-col md:flex-row gap-6">
       {/* Main Content - Left Side */}
@@ -209,22 +274,37 @@ export function ProfileCompletionDashboard({
         <Card>
           <CardContent className="space-y-6 pt-6">
             <div className="space-y-5">
-              {/* Full Name */}
-              <div>
-                <Label htmlFor="name" className="block mb-2 font-medium">
-                  Full Name <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="name"
-                  placeholder="Enter your full name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  required
-                />
+              {/* First Name and Last Name */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName" className="block mb-2 font-medium">
+                    First Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="firstName"
+                    placeholder="Enter your first name"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName" className="block mb-2 font-medium">
+                    Last Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="lastName"
+                    placeholder="Enter your last name"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    required
+                  />
+                </div>
               </div>
 
-              {/* Email */}
+              {/* Email - Non-editable */}
               <div>
                 <Label htmlFor="email" className="block mb-2 font-medium">
                   Email Address <span className="text-destructive">*</span>
@@ -232,15 +312,15 @@ export function ProfileCompletionDashboard({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email address"
                   value={formData.email}
-                  onChange={handleChange}
-                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  required
+                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 cursor-not-allowed"
+                  disabled
+                  readOnly
                 />
+                <p className="text-xs text-gray-500 mt-1">Email address cannot be modified</p>
               </div>
 
-              {/* Mobile */}
+              {/* Mobile - Non-editable */}
               <div>
                 <Label htmlFor="mobile" className="block mb-2 font-medium">
                   Mobile Number <span className="text-destructive">*</span>
@@ -248,50 +328,149 @@ export function ProfileCompletionDashboard({
                 <Input
                   id="mobile"
                   type="tel"
-                  placeholder="Enter your mobile number"
                   value={formData.mobile}
-                  onChange={handleChange}
-                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  required
+                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 cursor-not-allowed"
+                  disabled
+                  readOnly
                 />
+                <p className="text-xs text-gray-500 mt-1">Mobile number cannot be modified</p>
               </div>
 
-              {/* Account Type */}
+              {/* Account Type - Non-editable */}
               <div>
                 <Label htmlFor="accountType" className="block mb-2 font-medium">
                   Account Type <span className="text-destructive">*</span>
                 </Label>
-                <Select 
-                  value={formData.accountType} 
-                  onValueChange={(value) => handleSelectChange("accountType", value)}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select account type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="individual">Individual</SelectItem>
-                    <SelectItem value="organization">Organization</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  value="Organisation"
+                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 cursor-not-allowed"
+                  disabled
+                  readOnly
+                />
+                <p className="text-xs text-gray-500 mt-1">Account type cannot be changed</p>
               </div>
 
-              {/* Company Name (conditional) */}
-              {formData.accountType === "organization" && (
-                <div>
-                  <Label htmlFor="companyName" className="block mb-2 font-medium">
-                    Company Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="companyName"
-                    placeholder="Enter your company name"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                    required
-                  />
-                </div>
-              )}
+              {/* Organization fields */}
+                  {/* Company Name */}
+                  <div>
+                    <Label htmlFor="companyName" className="block mb-2 font-medium">
+                      Company Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="companyName"
+                      placeholder="Enter your company name"
+                      value={formData.companyName}
+                      onChange={handleChange}
+                      className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      required
+                    />
+                  </div>
+
+                                     {/* Website and LinkedIn Profile */}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                       <Label htmlFor="website" className="block mb-2 font-medium">
+                         Website
+                       </Label>
+                       <Input
+                         id="website"
+                         placeholder="https://yourcompany.com"
+                         value={formData.website}
+                         onChange={handleChange}
+                         className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                       />
+                     </div>
+                     <div>
+                       <Label htmlFor="linkedinProfile" className="block mb-2 font-medium">
+                         LinkedIn Profile
+                       </Label>
+                       <Input
+                         id="linkedinProfile"
+                         placeholder="https://linkedin.com/in/yourprofile"
+                         value={formData.linkedinProfile}
+                         onChange={handleChange}
+                         className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                       />
+                     </div>
+                   </div>
+
+                  {/* Address */}
+                  <div>
+                    <Label htmlFor="address" className="block mb-2 font-medium">
+                      Address <span className="text-destructive">*</span>
+                    </Label>
+                    <Textarea
+                      id="address"
+                      placeholder="Enter your complete address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      rows={3}
+                      required
+                    />
+                  </div>
+
+                                     {/* Organisation Type and Type of Workload */}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                       <Label htmlFor="organizationType" className="block mb-2 font-medium">
+                         Organisation Type <span className="text-destructive">*</span>
+                       </Label>
+                       <Select 
+                         value={formData.organizationType} 
+                         onValueChange={(value) => handleSelectChange("organizationType", value)}
+                         required
+                       >
+                         <SelectTrigger>
+                           <SelectValue placeholder="Select organisation type" />
+                         </SelectTrigger>
+                         <SelectContent>
+                           {organizationTypes.map((type) => (
+                             <SelectItem key={type} value={type}>
+                               {type}
+                             </SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                     </div>
+                     <div>
+                       <Label htmlFor="typeOfWorkload" className="block mb-2 font-medium">
+                         Type of Workload <span className="text-destructive">*</span>
+                       </Label>
+                       <Select 
+                         value={formData.typeOfWorkload} 
+                         onValueChange={(value) => handleSelectChange("typeOfWorkload", value)}
+                         required
+                       >
+                         <SelectTrigger>
+                           <SelectValue placeholder="Select your workload type" />
+                         </SelectTrigger>
+                         <SelectContent>
+                           {workloadTypes.map((type) => (
+                             <SelectItem key={type} value={type}>
+                               {type}
+                             </SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                     </div>
+                   </div>
+
+                   {/* Nature of Business */}
+                   <div>
+                     <Label htmlFor="natureOfBusiness" className="block mb-2 font-medium">
+                       Nature of Business <span className="text-destructive">*</span>
+                     </Label>
+                     <Textarea
+                       id="natureOfBusiness"
+                       placeholder="Describe your business activities and industry"
+                       value={formData.natureOfBusiness}
+                       onChange={handleChange}
+                       className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                       rows={3}
+                       required
+                     />
+                   </div>
             </div>
             
             {/* Action Buttons */}

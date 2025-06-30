@@ -91,10 +91,18 @@ export default function DashboardProfileCompletionPage() {
       <ProfileCompletionDashboard
         userData={{
           name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
           email: user.email || '',
           mobile: user.mobile || '',
           accountType: user.accountType || 'individual',
-          companyName: user.companyName
+          companyName: user.companyName,
+          website: user.website,
+          linkedinProfile: user.linkedinProfile,
+          address: user.address,
+          organizationType: user.organizationType,
+          natureOfBusiness: user.natureOfBusiness,
+          typeOfWorkload: user.typeOfWorkload
         }}
         onComplete={handleComplete}
         onSkip={handleSkip}
