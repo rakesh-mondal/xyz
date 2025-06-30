@@ -3,7 +3,7 @@
 import type React from "react"
 import { useEffect } from "react"
 import { CommandPalette } from "./command-palette"
-import { CommandPaletteProvider as ContextProvider, useCommandPalette } from "./command-palette-context"
+import { CommandPaletteContextProvider, useCommandPalette } from "./command-palette-context"
 
 function CommandPaletteWrapper({ children }: { children: React.ReactNode }) {
   const { open, setOpen } = useCommandPalette()
@@ -30,8 +30,8 @@ function CommandPaletteWrapper({ children }: { children: React.ReactNode }) {
 
 export function CommandPaletteProvider({ children }: { children: React.ReactNode }) {
   return (
-    <ContextProvider>
+    <CommandPaletteContextProvider>
       <CommandPaletteWrapper>{children}</CommandPaletteWrapper>
-    </ContextProvider>
+    </CommandPaletteContextProvider>
   )
 }
