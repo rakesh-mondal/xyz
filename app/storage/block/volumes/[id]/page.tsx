@@ -13,6 +13,7 @@ import { ShadcnDataTable } from "../../../../../components/ui/shadcn-data-table"
 import { StatusBadge } from "../../../../../components/status-badge"
 import { Edit, Trash2, Plus } from "lucide-react"
 import { useToast } from "../../../../../hooks/use-toast"
+import { ExtendVolumeModal } from "../../../../../components/modals/extend-volume-modal"
 
 // Mock function to get volume by ID
 const getVolume = (id: string) => {
@@ -101,6 +102,7 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isExtendModalOpen, setIsExtendModalOpen] = useState(false)
   const volume = getVolume(params.id)
 
   if (!volume) {
@@ -122,7 +124,24 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
   }
 
   const handleExtend = () => {
-    router.push(`/storage/block/volumes/${volume.id}/extend`)
+    setIsExtendModalOpen(true)
+  }
+
+  const handleExtendConfirm = async (newSize: number) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // In a real app, you would update the volume data here
+      console.log(`Extending volume ${volume.name} to ${newSize} GB`)
+      
+      // Close modal
+      setIsExtendModalOpen(false)
+      
+      // Refresh would happen in a real app
+    } catch (error) {
+      throw error // Let the modal handle the error
+    }
   }
 
   const handleCreateSnapshot = () => {

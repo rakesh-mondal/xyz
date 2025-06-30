@@ -10,6 +10,7 @@ import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { StatusBadge } from "@/components/status-badge"
 import { ActionMenu } from "@/components/action-menu"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
+import { ExtendVolumeModal } from "@/components/modals/extend-volume-modal"
 import { useToast } from "@/hooks/use-toast"
 
 // Mock data for block storage volumes
@@ -185,6 +186,8 @@ const mockVolumes = [
 function VolumesSection() {
   const [selectedVolume, setSelectedVolume] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isExtendModalOpen, setIsExtendModalOpen] = useState(false)
+  const [volumeToExtend, setVolumeToExtend] = useState<any>(null)
   const { toast } = useToast()
 
   const handleDeleteClick = (volume: any) => {
@@ -193,8 +196,8 @@ function VolumesSection() {
   }
 
   const handleExtendVolume = (volume: any) => {
-    // Navigate to extend volume page
-    window.location.href = `/storage/block/volumes/${volume.id}/extend`
+    setVolumeToExtend(volume)
+    setIsExtendModalOpen(true)
   }
 
   const handleCreateSnapshot = (volume: any) => {
@@ -225,6 +228,27 @@ function VolumesSection() {
         description: "An error occurred while deleting the volume.",
         variant: "destructive",
       })
+    }
+  }
+
+  const handleExtendConfirm = async (newSize: number) => {
+    if (!volumeToExtend) return
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // In a real app, you would update the volume data here
+      console.log(`Extending volume ${volumeToExtend.name} to ${newSize} GB`)
+      
+      // Close modal and reset state
+      setIsExtendModalOpen(false)
+      setVolumeToExtend(null)
+      
+      // Refresh would happen in a real app
+      // For now, just show success message via toast (handled in modal)
+    } catch (error) {
+      throw error // Let the modal handle the error
     }
   }
 
@@ -345,6 +369,18 @@ function VolumesSection() {
         resourceType="Volume"
         onConfirm={handleDeleteConfirm}
       />
+
+      {volumeToExtend && (
+        <ExtendVolumeModal
+          isOpen={isExtendModalOpen}
+          onClose={() => {
+            setIsExtendModalOpen(false)
+            setVolumeToExtend(null)
+          }}
+          volume={volumeToExtend}
+          onConfirm={handleExtendConfirm}
+        />
+      )}
     </div>
   )
 }

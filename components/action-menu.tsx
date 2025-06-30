@@ -113,7 +113,7 @@ export function ActionMenu({
           {onExtend && (
             <DropdownMenuItem onClick={onExtend} className="flex items-center cursor-pointer">
               <ArrowUpRight className="mr-2 h-4 w-4" />
-              <span>Extend</span>
+              <span>Extend Volume</span>
             </DropdownMenuItem>
           )}
           {onWarning && (
