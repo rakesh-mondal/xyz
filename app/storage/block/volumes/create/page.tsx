@@ -793,7 +793,7 @@ export default function CreateVolumePage() {
       {/* Create VPC Modal */}
       {showCreateVpcModal && (
         <Dialog open={showCreateVpcModal} onOpenChange={setShowCreateVpcModal}>
-          <DialogContent className="max-w-6xl max-h-[90vh] p-0 bg-white">
+          <DialogContent className="max-w-7xl h-[95vh] p-0 bg-white overflow-hidden">
             <CreateVPCModalContent onClose={() => setShowCreateVpcModal(false)} />
           </DialogContent>
         </Dialog>
@@ -912,21 +912,22 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="flex flex-col max-h-[90vh]">
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex-shrink-0 p-6 border-b">
+      <div className="flex-shrink-0 p-6 border-b bg-white">
         <h2 className="text-lg font-semibold">Create New VPC</h2>
         <p className="text-sm text-muted-foreground mt-1">Configure and create a new Virtual Private Cloud</p>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="flex flex-col md:flex-row gap-6 p-6">
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full flex flex-col lg:flex-row">
           {/* Main Content */}
-          <div className="flex-1 space-y-6">
-            <Card>
-              <CardContent className="space-y-6 pt-6">
-                <form id="vpc-form" onSubmit={handleSubmit}>
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="space-y-6">
+              <Card>
+                <CardContent className="space-y-6 pt-6">
+                  <form id="vpc-form" onSubmit={handleSubmit}>
                   {/* VPC Configuration */}
                   <div className="mb-8">
                     <div className="mb-5">
@@ -1136,10 +1137,12 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                 </form>
               </CardContent>
             </Card>
+            </div>
           </div>
 
           {/* Side Panel */}
-          <div className="w-full md:w-80 flex-shrink-0 space-y-6">
+          <div className="w-full lg:w-80 flex-shrink-0 overflow-y-auto p-6 border-l bg-gray-50">
+            <div className="space-y-6">
             {/* Price Summary */}
             <div 
               style={{
@@ -1210,12 +1213,13 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                 </ul>
               </CardContent>
             </Card>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="flex-shrink-0 p-6 border-t bg-gray-50">
+      <div className="flex-shrink-0 p-6 border-t bg-white">
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
