@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 import { HelpCircle, Search } from "lucide-react"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { vpcs } from "@/lib/data"
 
 
@@ -793,7 +794,7 @@ export default function CreateVolumePage() {
       {/* Create VPC Modal */}
       {showCreateVpcModal && (
         <Dialog open={showCreateVpcModal} onOpenChange={setShowCreateVpcModal}>
-          <DialogContent className="max-w-7xl h-[95vh] p-0 bg-white overflow-hidden">
+          <DialogContent className="p-0 bg-white max-w-[80vw] max-h-[85vh] w-[80vw] h-[85vh] overflow-hidden flex flex-col">
             <CreateVPCModalContent onClose={() => setShowCreateVpcModal(false)} />
           </DialogContent>
         </Dialog>
@@ -914,16 +915,15 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex-shrink-0 p-6 border-b bg-white">
-        <h2 className="text-lg font-semibold">Create New VPC</h2>
-        <p className="text-sm text-muted-foreground mt-1">Configure and create a new Virtual Private Cloud</p>
+      <div className="flex-shrink-0 p-6 border-b">
+        <h2 className="text-2xl font-semibold">Create Virtual Private Cloud</h2>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full flex flex-col lg:flex-row">
-          {/* Main Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 flex gap-6 min-h-0 p-6">
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto pr-2" style={{ scrollBehavior: 'auto', overflowAnchor: 'none' }}>
             <div className="space-y-6">
               <Card>
                 <CardContent className="space-y-6 pt-6">
@@ -1044,7 +1044,12 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                 <Label htmlFor="subnetName" className="font-medium">
                                   Subnet Name
                                 </Label>
-                                <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                <TooltipWrapper 
+                                  content="Name for your subnet. Use letters, numbers, hyphens, underscores."
+                                  side="top"
+                                >
+                                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                </TooltipWrapper>
                               </div>
                               <Input
                                 id="subnetName"
@@ -1075,7 +1080,12 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                   <Label htmlFor="cidr" className="font-medium">
                                     CIDR
                                   </Label>
-                                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                  <TooltipWrapper 
+                                    content="IP range for subnet. Example: 10.0.0.0/24 = 254 IPs"
+                                    side="top"
+                                  >
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                  </TooltipWrapper>
                                 </div>
                                 <Input
                                   id="cidr"
@@ -1094,7 +1104,12 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                   <Label htmlFor="gatewayIp" className="font-medium">
                                     Gateway IP
                                   </Label>
-                                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                  <TooltipWrapper 
+                                    content="Default gateway IP. Usually first IP in range (e.g., 10.0.0.1)"
+                                    side="top"
+                                  >
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                  </TooltipWrapper>
                                 </div>
                                 <Input
                                   id="gatewayIp"
@@ -1113,7 +1128,12 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                   <Label htmlFor="networkAccessibility" className="font-medium">
                                     Network Accessibility
                                   </Label>
-                                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                  <TooltipWrapper 
+                                    content="Private: isolated from internet. Public: internet accessible"
+                                    side="top"
+                                  >
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                  </TooltipWrapper>
                                 </div>
                                 <Select value={formData.networkAccessibility} onValueChange={(value) => handleSelectChange("networkAccessibility", value)}>
                                   <SelectTrigger>
@@ -1139,87 +1159,85 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
             </Card>
             </div>
           </div>
+        </div>
 
-          {/* Side Panel */}
-          <div className="w-full lg:w-80 flex-shrink-0 overflow-y-auto p-6 border-l bg-gray-50">
-            <div className="space-y-6">
-            {/* Price Summary */}
-            <div 
-              style={{
-                borderRadius: '16px',
-                border: '4px solid #FFF',
-                background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
-                boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-                padding: '1.5rem'
-              }}
-            >
-              <div className="pb-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold">VPC Price Summary</h3>
-                  {isFirstVPC && (
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">First VPC</Badge>
-                  )}
-                </div>
-              </div>
-              <div>
-                {isFirstVPC ? (
-                  <div className="space-y-3">
-                    <div className="text-2xl font-bold text-green-600">Free</div>
-                    <p className="text-sm text-muted-foreground">
-                      Your first Virtual Private Cloud is free! This includes the basic VPC setup and one subnet.
-                    </p>
-                    <div className="text-xs text-muted-foreground pt-2 border-t">
-                      <p>• First VPC: ₹0.00/month</p>
-                      <p>• Subsequent VPCs: ₹500.00/month</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="text-2xl font-bold">₹500.00</div>
-                    <p className="text-sm text-muted-foreground">per month</p>
-                    <div className="text-xs text-muted-foreground pt-2 border-t">
-                      <p>• VPC Setup: ₹500.00/month</p>
-                      <p>• Additional subnets: ₹100.00/month each</p>
-                      <p>• Data transfer charges apply</p>
-                    </div>
-                  </div>
+        {/* Side Panel */}
+        <div className="w-80 flex-shrink-0 space-y-6">
+          {/* Price Summary */}
+          <div 
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Price Summary</h3>
+                {isFirstVPC && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">First VPC</Badge>
                 )}
               </div>
             </div>
-
-            {/* VPC Configuration Tips */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-normal">VPC Configuration Tips</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose a descriptive VPC name for easy identification</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select the region closest to your users for better performance</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use private networks for better security</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Plan your CIDR blocks to avoid IP conflicts</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+            <div>
+              {isFirstVPC ? (
+                <div className="space-y-3">
+                  <div className="text-2xl font-bold text-green-600">Free</div>
+                  <p className="text-sm text-muted-foreground">
+                    Your first Virtual Private Cloud is free! This includes the basic VPC setup and one subnet.
+                  </p>
+                  <div className="text-xs text-muted-foreground pt-2 border-t">
+                    <p>• First VPC: ₹0.00/month</p>
+                    <p>• Subsequent VPCs: ₹500.00/month</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="text-2xl font-bold">₹500.00</div>
+                  <p className="text-sm text-muted-foreground">per month</p>
+                  <div className="text-xs text-muted-foreground pt-2 border-t">
+                    <p>• VPC Setup: ₹500.00/month</p>
+                    <p>• Additional subnets: ₹100.00/month each</p>
+                    <p>• Data transfer charges apply</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Configuration Tips */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose a descriptive VPC name for easy identification</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select the region closest to your users for better performance</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use private networks for better security</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Plan your CIDR blocks to avoid IP conflicts</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="flex-shrink-0 p-6 border-t bg-white">
+      <div className="flex-shrink-0 p-6 border-t bg-gray-50">
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
