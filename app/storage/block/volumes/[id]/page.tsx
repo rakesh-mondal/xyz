@@ -14,6 +14,7 @@ import { StatusBadge } from "../../../../../components/status-badge"
 import { Edit, Trash2, Plus } from "lucide-react"
 import { useToast } from "../../../../../hooks/use-toast"
 import { ExtendVolumeModal } from "../../../../../components/modals/extend-volume-modal"
+import { AttachedVolumeAlert, DeleteVolumeConfirmation } from "../../../../../components/modals/delete-volume-modals"
 
 // Mock function to get volume by ID
 const getVolume = (id: string) => {
@@ -101,7 +102,8 @@ const mockBackupPolicies = [
 export default function VolumeDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { toast } = useToast()
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isAttachedAlertOpen, setIsAttachedAlertOpen] = useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false)
   const volume = getVolume(params.id)
 
@@ -109,14 +111,30 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
     notFound()
   }
 
-  const handleDelete = () => {
-    // In a real app, this would delete the volume
-    console.log("Deleting volume:", volume.name)
-    toast({
-      title: "Volume deleted successfully",
-      description: `${volume.name} has been deleted.`,
-    })
-    router.push("/storage/block")
+  const handleDeleteClick = () => {
+    // Check if volume is attached to a VM
+    if (volume.attachedInstances && volume.attachedInstances.length > 0) {
+      // Volume is attached - show alert preventing deletion
+      setIsAttachedAlertOpen(true)
+    } else {
+      // Volume is not attached - show deletion confirmation
+      setIsDeleteConfirmOpen(true)
+    }
+  }
+
+  const handleActualDelete = async () => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // In a real app, this would delete the volume
+      console.log("Deleting volume:", volume.name)
+      
+      // Navigate back to volumes list
+      router.push("/storage/block")
+    } catch (error) {
+      throw error // Let the modal handle the error
+    }
   }
 
   const handleEdit = () => {
@@ -282,7 +300,7 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsDeleteModalOpen(true)}
+            onClick={handleDeleteClick}
             className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
           >
             <Trash2 className="h-4 w-4" />
@@ -490,12 +508,33 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
         )}
       </div>
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        resourceName={volume.name}
-        resourceType="Volume"
-        onConfirm={handleDelete}
+      {/* Alert for volumes attached to VMs */}
+      <AttachedVolumeAlert
+        isOpen={isAttachedAlertOpen}
+        onClose={() => setIsAttachedAlertOpen(false)}
+        volume={{
+          name: volume.name,
+          attachedInstance: volume.attachedInstances.length > 0 ? volume.attachedInstances[0] : ""
+        }}
+      />
+
+      {/* Confirmation for detached volumes */}
+      <DeleteVolumeConfirmation
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        volume={{
+          name: volume.name,
+          id: volume.id
+        }}
+        onConfirm={handleActualDelete}
+      />
+
+      {/* Extend Volume Modal */}
+      <ExtendVolumeModal
+        isOpen={isExtendModalOpen}
+        onClose={() => setIsExtendModalOpen(false)}
+        volume={volume}
+        onConfirm={handleExtendConfirm}
       />
     </PageLayout>
   )

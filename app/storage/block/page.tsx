@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/status-badge"
 import { ActionMenu } from "@/components/action-menu"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { ExtendVolumeModal } from "@/components/modals/extend-volume-modal"
+import { AttachedVolumeAlert, DeleteVolumeConfirmation } from "@/components/modals/delete-volume-modals"
 import { useToast } from "@/hooks/use-toast"
 
 // Mock data for block storage volumes
@@ -186,13 +187,23 @@ const mockVolumes = [
 function VolumesSection() {
   const [selectedVolume, setSelectedVolume] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isAttachedAlertOpen, setIsAttachedAlertOpen] = useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false)
   const [volumeToExtend, setVolumeToExtend] = useState<any>(null)
   const { toast } = useToast()
 
   const handleDeleteClick = (volume: any) => {
     setSelectedVolume(volume)
-    setIsDeleteModalOpen(true)
+    
+    // Check if volume is attached to a VM
+    if (volume.attachedInstance && volume.attachedInstance !== "-") {
+      // Volume is attached - show alert preventing deletion
+      setIsAttachedAlertOpen(true)
+    } else {
+      // Volume is not attached - show deletion confirmation
+      setIsDeleteConfirmOpen(true)
+    }
   }
 
   const handleExtendVolume = (volume: any) => {
@@ -212,22 +223,31 @@ function VolumesSection() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      toast({
-        title: "Volume deleted successfully",
-        description: `${selectedVolume.name} has been deleted.`,
-      })
-
       // In a real app, you would refresh the data here
       console.log(`Deleting volume: ${selectedVolume.name}`)
       
       setIsDeleteModalOpen(false)
       setSelectedVolume(null)
     } catch (error) {
-      toast({
-        title: "Failed to delete volume",
-        description: "An error occurred while deleting the volume.",
-        variant: "destructive",
-      })
+      throw error // Let the modal handle the error display
+    }
+  }
+
+  const handleActualDelete = async () => {
+    if (!selectedVolume) return
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // In a real app, you would refresh the data here
+      console.log(`Deleting volume: ${selectedVolume.name}`)
+      
+      // Reset state
+      setIsDeleteConfirmOpen(false)
+      setSelectedVolume(null)
+    } catch (error) {
+      throw error // Let the modal handle the error display
     }
   }
 
@@ -362,13 +382,36 @@ function VolumesSection() {
         vpcOptions={vpcOptions}
       />
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        resourceName={selectedVolume?.name || ""}
-        resourceType="Volume"
-        onConfirm={handleDeleteConfirm}
-      />
+      {/* Alert for volumes attached to VMs */}
+      {selectedVolume && (
+        <AttachedVolumeAlert
+          isOpen={isAttachedAlertOpen}
+          onClose={() => {
+            setIsAttachedAlertOpen(false)
+            setSelectedVolume(null)
+          }}
+          volume={{
+            name: selectedVolume.name,
+            attachedInstance: selectedVolume.attachedInstance
+          }}
+        />
+      )}
+
+      {/* Confirmation for detached volumes */}
+      {selectedVolume && (
+        <DeleteVolumeConfirmation
+          isOpen={isDeleteConfirmOpen}
+          onClose={() => {
+            setIsDeleteConfirmOpen(false)
+            setSelectedVolume(null)
+          }}
+          volume={{
+            name: selectedVolume.name,
+            id: selectedVolume.id
+          }}
+          onConfirm={handleActualDelete}
+        />
+      )}
 
       {volumeToExtend && (
         <ExtendVolumeModal
