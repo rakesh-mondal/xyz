@@ -160,7 +160,6 @@ export default function EditVPCPage({ params }: { params: { id: string } }) {
   return (
     <PageLayout 
       title={`Edit VPC: ${vpc.name}`}
-      description="Update the description of your Virtual Private Cloud"
       customBreadcrumbs={customBreadcrumbs}
     >
       <div className="flex flex-col md:flex-row gap-6">
@@ -270,36 +269,42 @@ export default function EditVPCPage({ params }: { params: { id: string } }) {
         <div className="w-80 flex-shrink-0">
           <div className="space-y-6">
             {/* Current Configuration */}
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="font-medium mb-4">Current Configuration</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">VPC ID:</span>
-                    <span className="font-mono">{vpc.id}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Type:</span>
-                    <span>{vpc.type}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Status:</span>
-                    <span className="capitalize">{vpc.status}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Created:</span>
-                    <span>{new Date(vpc.createdOn).toLocaleDateString()}</span>
-                  </div>
+            <div 
+              style={{
+                borderRadius: '16px',
+                border: '4px solid #FFF',
+                background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+                boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+                padding: '1.5rem'
+              }}
+            >
+              <h3 className="text-base font-semibold mb-4">Current Configuration</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">VPC ID:</span>
+                  <span className="font-mono">{vpc.id}</span>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Type:</span>
+                  <span>{vpc.type}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Status:</span>
+                  <span className="capitalize">{vpc.status}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Created:</span>
+                  <span>{new Date(vpc.createdOn).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
 
             {/* Region Information */}
             {formData.region && regionAvailability[formData.region as keyof typeof regionAvailability] && (
               <Card>
                 <CardContent className="pt-6">
-                  <h3 className="font-medium mb-4">Region Information</h3>
-                  <div className="space-y-3">
+                  <h3 className="text-base font-normal">Region Information</h3>
+                  <div className="space-y-3 mt-4">
                     <div>
                       <p className="text-sm font-medium">{regionAvailability[formData.region as keyof typeof regionAvailability].name}</p>
                       <p className="text-xs text-muted-foreground mt-1">Current region for this VPC</p>
