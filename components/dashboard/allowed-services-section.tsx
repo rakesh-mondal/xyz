@@ -66,28 +66,35 @@ export function AllowedServicesSection() {
         {allowedServices.map((service) => {
           const Icon = service.icon
           return (
-            <Card 
+            <div 
               key={service.id}
-              className="hover:shadow-md transition-all duration-200 border-l-4 border-l-transparent hover:border-l-primary group"
+              className="relative w-full"
+              style={{
+                borderRadius: '16px',
+                border: '4px solid #FFF',
+                background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+                boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+                padding: '1.5rem'
+              }}
             >
-              <CardHeader className="pb-4">
+              <div className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${service.color} flex items-center justify-center`}>
                       <Icon className="h-5 w-5" />
                     </div>
                     <div className="flex items-center">
-                      <CardTitle className="text-lg leading-none">{service.title}</CardTitle>
+                      <h3 className="text-lg font-semibold leading-none">{service.title}</h3>
                     </div>
                   </div>
                   <StatusBadge status="available" />
                 </div>
-                <CardDescription className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 mt-3">
                   {service.description}
-                </CardDescription>
-              </CardHeader>
+                </p>
+              </div>
 
-              <CardContent className="space-y-4">
+              <div className="space-y-4">
                 {/* Features List */}
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium text-gray-900">What's included:</h4>
@@ -104,16 +111,16 @@ export function AllowedServicesSection() {
                 {/* Action Button */}
                 <Button 
                   asChild
-                  className="w-full group-hover:shadow-md transition-all duration-200"
+                  className="w-full"
                   variant="default"
                 >
                   <Link href={service.href} className="flex items-center justify-center">
                     Explore {service.title}
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )
         })}
       </div>
