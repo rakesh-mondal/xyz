@@ -79,48 +79,5 @@ export function VPCDeletionStatus({ vpc, showProgress = true, compact = false }:
     )
   }
 
-  return (
-    <div className="space-y-3">
-      
-              {showProgress && (
-          <>
-            <div className="space-y-2">
-              <div className="w-full rounded-full h-2" style={{ backgroundColor: 'rgba(255, 109, 107, 0.2)' }}>
-                <div 
-                  className="h-2 rounded-full transition-all duration-300 ease-out"
-                  style={{ 
-                    width: `${progress}%`,
-                    backgroundColor: 'rgb(165, 47, 46)'
-                  }}
-                ></div>
-              </div>
-              <div className="flex justify-between text-xs" style={{ color: 'rgb(165, 47, 46)' }}>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {timeElapsed} min elapsed
-                </span>
-                <span>{formatTimeRemaining()}</span>
-              </div>
-            </div>
-            
-            <div 
-              className="text-xs p-3 rounded-lg border"
-              style={{
-                background: 'linear-gradient(263deg, rgba(255, 109, 107, 0.08) 6.86%, rgba(255, 109, 107, 0.02) 96.69%)',
-                borderColor: 'rgba(255, 109, 107, 0.1)'
-              }}
-            >
-              <p className="font-medium mb-1" style={{ color: 'rgb(165, 47, 46)' }}>Deletion Process:</p>
-              <ul className="space-y-1" style={{ color: 'rgb(165, 47, 46)' }}>
-                <li>• Terminating all resources</li>
-                <li>• Releasing IP addresses</li>
-                <li>• Cleaning up network configurations</li>
-                <li>• Removing security groups</li>
-                <li>• Final cleanup and verification</li>
-              </ul>
-            </div>
-          </>
-        )}
-    </div>
-  )
+    return null
 } 
