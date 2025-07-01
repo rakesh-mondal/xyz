@@ -169,12 +169,7 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
         </DetailGrid>
       </div>
 
-      {/* VPC Deletion Progress Section */}
-      {vpc.status === "deleting" && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-          <VPCDeletionStatus vpc={vpc} showProgress={true} />
-        </div>
-      )}
+
 
       {/* Subnets Section */}
       <div className="bg-card text-card-foreground border-border border rounded-lg p-6">
