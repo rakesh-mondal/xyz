@@ -58,7 +58,7 @@ export default function SecurityGroupListPage() {
       render: (value: string, row: any) => (
         <a
           href={`/networking/security-groups/${row.id}`}
-          className="text-primary underline font-medium hover:no-underline"
+          className="text-primary font-medium hover:underline leading-5"
         >
           {value}
         </a>
@@ -68,11 +68,22 @@ export default function SecurityGroupListPage() {
       key: "vpcName",
       label: "VPC",
       searchable: true,
+      render: (value: string) => (
+        <div className="leading-5">{value}</div>
+      ),
     },
     {
       key: "createdOn",
       label: "Created On",
       sortable: true,
+      render: (value: string) => {
+        const date = new Date(value);
+        return (
+          <div className="text-muted-foreground leading-5">
+            {date.toLocaleDateString()} {date.toLocaleTimeString()}
+          </div>
+        );
+      },
     },
     {
       key: "status",

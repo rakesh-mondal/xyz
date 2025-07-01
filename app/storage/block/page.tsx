@@ -284,14 +284,14 @@ function VolumesSection() {
           return (
             <a
               href={`/storage/block/volumes/${row.id}`}
-              className="text-primary font-medium hover:underline text-sm"
+              className="text-primary font-medium hover:underline leading-5"
             >
               {value}
             </a>
           );
         }
         // For "creating" status, just show plain text
-        return <div className="font-medium text-sm">{value}</div>;
+        return <div className="font-medium leading-5">{value}</div>;
       },
     },
     {
@@ -299,7 +299,7 @@ function VolumesSection() {
       label: "Volume Type",
       sortable: true,
       render: (value: string) => (
-        <div className="text-sm">{value}</div>
+        <div className="leading-5">{value}</div>
       ),
     },
     {
@@ -307,7 +307,7 @@ function VolumesSection() {
       label: "Volume Role",
       sortable: true,
       render: (value: string) => (
-        <div className="text-sm">{value}</div>
+        <div className="leading-5">{value}</div>
       ),
     },
     {
@@ -315,7 +315,7 @@ function VolumesSection() {
       label: "Size (In GB)",
       sortable: true,
       render: (value: string) => (
-        <div className="text-sm">{value} GB</div>
+        <div className="leading-5">{value} GB</div>
       ),
     },
     {
@@ -324,7 +324,7 @@ function VolumesSection() {
       sortable: true,
       searchable: true,
       render: (value: string) => (
-        <div className="text-sm">{value === "-" ? "Not attached" : value}</div>
+        <div className="leading-5">{value === "-" ? "Not attached" : value}</div>
       ),
     },
     {

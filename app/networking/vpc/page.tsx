@@ -46,7 +46,7 @@ export default function VPCListPage() {
       render: (value: string, row: any) => (
         <a
           href={`/networking/vpc/${row.id}`}
-          className="text-primary font-medium hover:underline"
+          className="text-primary font-medium hover:underline leading-5"
         >
           {row.name}
         </a>
@@ -78,7 +78,7 @@ export default function VPCListPage() {
       label: "Description",
       searchable: true,
       render: (value: string) => (
-        <div className="max-w-xs truncate" title={value}>
+        <div className="max-w-xs truncate leading-5" title={value}>
           {value}
         </div>
       ),
@@ -90,7 +90,7 @@ export default function VPCListPage() {
       render: (value: string) => {
         const date = new Date(value);
         return (
-          <div className="text-foreground/60">
+          <div className="text-muted-foreground leading-5">
             {date.toLocaleDateString()} {date.toLocaleTimeString()}
           </div>
         );

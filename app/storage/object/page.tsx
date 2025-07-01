@@ -112,14 +112,14 @@ export default function ObjectStoragePage() {
           return (
             <a
               href={`/storage/object/${row.id}`}
-              className="text-primary font-medium hover:underline text-sm"
+              className="text-primary font-medium hover:underline leading-5"
             >
               {value}
             </a>
           );
         }
         // For "updating" status, just show plain text
-        return <div className="font-medium text-sm">{value}</div>;
+        return <div className="font-medium leading-5">{value}</div>;
       },
     },
     {
@@ -128,7 +128,7 @@ export default function ObjectStoragePage() {
       sortable: true,
       searchable: true,
       render: (value: string) => (
-        <div className="text-sm">{value}</div>
+        <div className="leading-5">{value}</div>
       ),
     },
     {
@@ -136,7 +136,7 @@ export default function ObjectStoragePage() {
       label: "Size",
       sortable: true,
       render: (value: string) => (
-        <div className="text-sm">{value}</div>
+        <div className="leading-5">{value}</div>
       ),
     },
     {
@@ -146,7 +146,7 @@ export default function ObjectStoragePage() {
       render: (value: string) => {
         const date = new Date(value);
         return (
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground leading-5">
             {date.toLocaleDateString()} {date.toLocaleTimeString()}
           </div>
         );

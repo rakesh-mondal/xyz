@@ -65,7 +65,7 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
               <AlertTitle className="mb-1" style={{ color: 'rgb(165, 47, 46)' }}>Unlock all features and get full access to Krutrim Cloud</AlertTitle>
               <AlertDescription style={{ color: 'rgb(165, 47, 46)' }}>
                 <p className="text-sm opacity-90">
-                  You have access to documentation and cost tools. Complete {requiredSteps.join(' and ').toLowerCase()} for full access to compute, storage, and billing features.
+                  You have access to documentation, maps AI tools. Complete {requiredSteps.join(' and ').toLowerCase()} for full access to compute, storage, and billing features.
                 </p>
               </AlertDescription>
             </div>
