@@ -95,7 +95,7 @@ export function ProfileCompletionCard() {
             <div>
               <CardTitle className="text-lg" style={{ color: 'rgb(165, 47, 46)' }}>Complete Your Profile</CardTitle>
               <CardDescription className="text-sm" style={{ color: 'rgb(165, 47, 46)', opacity: 0.8 }}>
-                Unlock all features and get full access to Krutrim Cloud
+                Verify your profile to unlock all Krutrim Cloud features—compute, storage, and more.
               </CardDescription>
             </div>
           </div>

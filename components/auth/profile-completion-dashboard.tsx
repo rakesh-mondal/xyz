@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { ArrowRight, Shield, Zap, Globe, CreditCard, X } from "lucide-react"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
+import { ArrowRight, Shield, Zap, Globe, CreditCard, X, HelpCircle } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useRouter } from "next/navigation"
 import { IdentityVerificationSection } from "@/components/auth/profile-sections/identity-verification-section"
@@ -216,23 +217,23 @@ export function ProfileCompletionDashboard({
   const benefits = [
     {
       icon: <Zap className="h-5 w-5 text-blue-600" />,
-      title: "Compute Resources",
-      description: "Access to CPU and GPU instances"
+      title: "Compute Power",
+      description: "Spin up CPU/GPU instances instantly"
     },
     {
       icon: <Shield className="h-5 w-5 text-green-600" />,
-      title: "Storage Solutions",
-      description: "Block and object storage services"
+      title: "Secure Storage",
+      description: "Reliable block & object storage"
     },
     {
       icon: <Globe className="h-5 w-5 text-purple-600" />,
-      title: "Advanced AI",
-      description: "AI models and machine learning tools"
+      title: "AI Suite",
+      description: "Pre-trained models and ML tools"
     },
     {
       icon: <CreditCard className="h-5 w-5 text-orange-600" />,
-      title: "Billing Features",
-      description: "Usage tracking and billing management"
+      title: "Smart Billing",
+      description: "Real-time usage and cost controls"
     }
   ]
 
@@ -304,42 +305,55 @@ export function ProfileCompletionDashboard({
                 </div>
               </div>
 
-              {/* Email - Non-editable */}
-              <div>
-                <Label htmlFor="email" className="block mb-2 font-medium">
-                  Email Address <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 cursor-not-allowed"
-                  disabled
-                  readOnly
-                />
-                <p className="text-xs text-gray-500 mt-1">Email address cannot be modified</p>
-              </div>
-
-              {/* Mobile - Non-editable */}
-              <div>
-                <Label htmlFor="mobile" className="block mb-2 font-medium">
-                  Mobile Number <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="mobile"
-                  type="tel"
-                  value={formData.mobile}
-                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 cursor-not-allowed"
-                  disabled
-                  readOnly
-                />
-                <p className="text-xs text-gray-500 mt-1">Mobile number cannot be modified</p>
+              {/* Email and Mobile - Non-editable */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="email" className="block mb-2 font-medium">
+                    <div className="flex items-center gap-2">
+                      Email Address <span className="text-destructive">*</span>
+                      <TooltipWrapper content="Email address cannot be modified">
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipWrapper>
+                    </div>
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 cursor-not-allowed"
+                    disabled
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="mobile" className="block mb-2 font-medium">
+                    <div className="flex items-center gap-2">
+                      Mobile Number <span className="text-destructive">*</span>
+                      <TooltipWrapper content="Mobile number cannot be modified">
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipWrapper>
+                    </div>
+                  </Label>
+                  <Input
+                    id="mobile"
+                    type="tel"
+                    value={formData.mobile}
+                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 cursor-not-allowed"
+                    disabled
+                    readOnly
+                  />
+                </div>
               </div>
 
               {/* Account Type - Non-editable */}
               <div>
                 <Label htmlFor="accountType" className="block mb-2 font-medium">
-                  Account Type <span className="text-destructive">*</span>
+                  <div className="flex items-center gap-2">
+                    Account Type <span className="text-destructive">*</span>
+                    <TooltipWrapper content="Account type cannot be changed">
+                      <HelpCircle className="h-4 w-4 text-gray-400" />
+                    </TooltipWrapper>
+                  </div>
                 </Label>
                 <Input
                   value="Organisation"
@@ -347,7 +361,6 @@ export function ProfileCompletionDashboard({
                   disabled
                   readOnly
                 />
-                <p className="text-xs text-gray-500 mt-1">Account type cannot be changed</p>
               </div>
 
               {/* Organization fields */}
@@ -509,7 +522,7 @@ export function ProfileCompletionDashboard({
           }}
         >
           <div className="pb-4">
-            <h3 className="text-base font-semibold">Complete your profile to unlock:</h3>
+            <h3 className="text-base font-semibold">Finish your profile to get full access</h3>
           </div>
           <div className="space-y-4 mb-6">
             {benefits.map((benefit, index) => (

@@ -84,7 +84,7 @@ export default function DashboardProfileCompletionPage() {
   return (
     <PageShell
       title="Complete Your Profile"
-      description="Complete your profile verification to unlock full access to all Krutrim Cloud features including compute resources, storage solutions, and advanced cloud services."
+      description="Verify your profile to unlock all Krutrim Cloud features—compute, storage, and more."
     >
       {getFeatureMessage()}
       
