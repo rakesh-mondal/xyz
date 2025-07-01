@@ -82,7 +82,6 @@ export function VPCDeletionStatus({ vpc, showProgress = true, compact = false }:
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium" style={{ color: 'rgb(165, 47, 46)' }}>VPC Deletion in Progress</span>
         <div className="flex items-center gap-0.5">
           <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'rgb(165, 47, 46)', animationDelay: '0s' }}></div>
           <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'rgb(165, 47, 46)', animationDelay: '0.2s' }}></div>
