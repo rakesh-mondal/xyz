@@ -167,21 +167,25 @@ const navigationConfig = {
         href: "/ai-solutions/bhashik",
         label: "Bhashik",
         subItems: [
-          { href: "/ai-solutions/bhashik/all-services", label: "All Services" },
+          { href: "/bhashik", label: "All Services" },
           {
-            href: "/ai-solutions/bhashik/text-services",
+            href: "/bhashik/text-services",
             label: "Text Services",
             subItems: [
-              { href: "/ai-solutions/bhashik/text-services/translation", label: "Text Translation" },
-              { href: "/ai-solutions/bhashik/text-services/language-detection", label: "Language Detection" },
+              { href: "/bhashik/text-services?tab=translation", label: "Text Translation" },
+              { href: "/bhashik/text-services?tab=detection", label: "Language Detection" },
+              { href: "/bhashik/text-services?tab=extraction", label: "Extraction" },
+              { href: "/bhashik/text-services?tab=sentiment", label: "Sentiment Analysis" },
+              { href: "/bhashik/text-services?tab=summarization", label: "Summarization" },
             ],
           },
           {
-            href: "/ai-solutions/bhashik/speech",
-            label: "Speech",
+            href: "/bhashik/speech-services",
+            label: "Speech Services",
             subItems: [
-              { href: "/ai-solutions/bhashik/speech/tts", label: "TTS" },
-              { href: "/ai-solutions/bhashik/speech/stt", label: "STT" },
+              { href: "/bhashik/speech-services?tab=text-to-speech", label: "Text to Speech" },
+              { href: "/bhashik/speech-services?tab=speech-to-text", label: "Speech to Text" },
+              { href: "/bhashik/speech-services?tab=speech-to-speech", label: "Speech to Speech" },
             ],
           },
         ],
@@ -551,8 +555,17 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
       setExpandedSubItem("/billing")
     } else if (pathname.startsWith("/ai-studio")) {
       setExpandedItem("/ai-studio")
-    } else if (pathname.startsWith("/ai-solutions")) {
+    } else if (pathname.startsWith("/ai-solutions") || pathname.startsWith("/bhashik")) {
       setExpandedItem("/ai-solutions")
+      if (pathname.startsWith("/bhashik")) {
+        setExpandedSubItem("/ai-solutions/bhashik")
+        if (pathname.startsWith("/bhashik/text-services")) {
+          setExpandedTertiaryItem("/bhashik/text-services")
+        }
+        if (pathname.startsWith("/bhashik/speech-services")) {
+          setExpandedTertiaryItem("/bhashik/speech-services")
+        }
+      }
     } else if (pathname.startsWith("/administration")) {
       setExpandedItem("/administration")
     }
@@ -577,7 +590,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
       router.push("/models")
     } else if (newExpandedItem && href === "/ai-solutions") {
       setExpandedSubItem("/ai-solutions/bhashik")
-      router.push("/bhashik/text")
+      router.push("/bhashik")
     } else if (newExpandedItem && href === "/administration") {
       setExpandedSubItem("/billing")
       router.push("/billing")
@@ -607,7 +620,11 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
       } else if (href === "/ai-studio/models") {
         router.push("/model-hub/catalog")
       } else if (href === "/ai-solutions/bhashik") {
-        router.push("/bhashik/text")
+        router.push("/bhashik")
+      } else if (href === "/bhashik/text-services") {
+        router.push("/bhashik/text-services")
+      } else if (href === "/bhashik/speech-services") {
+        router.push("/bhashik/speech-services")
       } else if (href === "/administration/kms") {
         router.push("/administration/kms/storage")
       }
@@ -655,6 +672,15 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     }
     if (path === "/storage/object") {
       return pathname.startsWith("/storage/object")
+    }
+    if (path === "/ai-solutions/bhashik") {
+      return pathname.startsWith("/bhashik")
+    }
+    if (path === "/bhashik/text-services") {
+      return pathname.startsWith("/bhashik/text-services")
+    }
+    if (path === "/bhashik/speech-services") {
+      return pathname.startsWith("/bhashik/speech-services")
     }
     return pathname === path
   }
