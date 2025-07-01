@@ -12,6 +12,7 @@ import { getVPC, subnets } from "../../../../lib/data"
 import { DeleteConfirmationModal } from "../../../../components/delete-confirmation-modal"
 import { ShadcnDataTable } from "../../../../components/ui/shadcn-data-table"
 import { StatusBadge } from "../../../../components/status-badge"
+import { VPCDeletionStatus } from "../../../../components/vpc-deletion-status"
 import { Edit, Trash2 } from "lucide-react"
 
 export default function VPCDetailsPage({ params }: { params: { id: string } }) {
@@ -108,26 +109,28 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
         padding: '1.5rem'
       }}>
         {/* Overlay Edit/Delete Buttons */}
-        <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleEdit}
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          {vpc.name !== "production-vpc" && (
+        {vpc.status !== "deleting" && (
+          <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsDeleteModalOpen(true)}
-              className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+              onClick={handleEdit}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
             >
-              <Trash2 className="h-4 w-4" />
+              <Edit className="h-4 w-4" />
             </Button>
-          )}
-        </div>
+            {vpc.name !== "production-vpc" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        )}
         
         <DetailGrid>
           {/* VPC ID, Region, Status, Created On in one row */}
@@ -143,7 +146,11 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
               <div>
-                <StatusBadge status={vpc.status} />
+                {vpc.status === "deleting" ? (
+                  <VPCDeletionStatus vpc={vpc} compact={true} />
+                ) : (
+                  <StatusBadge status={vpc.status} />
+                )}
               </div>
             </div>
             <div className="space-y-1">
@@ -161,6 +168,13 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
           </div>
         </DetailGrid>
       </div>
+
+      {/* VPC Deletion Progress Section */}
+      {vpc.status === "deleting" && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
+          <VPCDeletionStatus vpc={vpc} showProgress={true} />
+        </div>
+      )}
 
       {/* Subnets Section */}
       <div className="bg-card text-card-foreground border-border border rounded-lg p-6">

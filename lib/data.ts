@@ -169,13 +169,15 @@ export const vpcs = [
   {
     id: "vpc-13",
     name: "iot-vpc",
-    status: "active",
+    status: "deleting",
     type: "Free",
     region: "ap-northeast-1",
     createdOn: "2023-12-01T17:15:00Z",
     description: "IoT devices and sensor data collection",
     networkName: "iot-network",
     resources: [],
+    deletionStartedOn: "2024-12-19T10:30:00Z",
+    estimatedDeletionTime: 15, // minutes
   },
   {
     id: "vpc-14",

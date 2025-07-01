@@ -109,6 +109,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "maintenance":
     case "paused":
     case "suspended":
+    case "deleting":
       bgColor = "bg-orange-100"
       textColor = "text-orange-800"
       break

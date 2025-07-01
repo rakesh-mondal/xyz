@@ -4,8 +4,12 @@ import { useState } from "react"
 import { PageShell } from "@/components/page-shell"
 import { CreateButton } from "../../../components/create-button"
 import { StatusBadge } from "../../../components/status-badge"
+import { VPCDeletionStatus } from "../../../components/vpc-deletion-status"
 import { vpcs } from "../../../lib/data"
 import { ActionMenu } from "../../../components/action-menu"
+import { TooltipWrapper } from "../../../components/ui/tooltip-wrapper"
+import { Button } from "../../../components/ui/button"
+import { MoreVertical } from "lucide-react"
 import { ShadcnDataTable } from "../../../components/ui/shadcn-data-table"
 import { DeleteVPCResourceWarningModal, DeleteVPCConfirmationModal } from "../../../components/modals/delete-vpc-modals"
 
@@ -56,7 +60,12 @@ export default function VPCListPage() {
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value: string) => <StatusBadge status={value} />,
+      render: (value: string, row: any) => {
+        if (value === "deleting") {
+          return <VPCDeletionStatus vpc={row} compact={true} />
+        }
+        return <StatusBadge status={value} />
+      },
     },
     {
       key: "type",
@@ -102,13 +111,21 @@ export default function VPCListPage() {
       align: "right" as const,
       render: (value: any, row: any) => (
         <div className="flex justify-end">
-          <ActionMenu
-            viewHref={`/networking/vpc/${row.id}`}
-            editHref={`/networking/vpc/${row.id}/edit`}
-            onCustomDelete={() => handleDeleteClick(row)}
-            resourceName={row.name}
-            resourceType="VPC"
-          />
+          {row.status === "deleting" ? (
+            <TooltipWrapper content="Actions are disabled while VPC is being deleted">
+              <Button variant="ghost" size="icon" className="rounded-full opacity-50 cursor-not-allowed" disabled>
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </TooltipWrapper>
+          ) : (
+            <ActionMenu
+              viewHref={`/networking/vpc/${row.id}`}
+              editHref={`/networking/vpc/${row.id}/edit`}
+              onCustomDelete={() => handleDeleteClick(row)}
+              resourceName={row.name}
+              resourceType="VPC"
+            />
+          )}
         </div>
       ),
     },
