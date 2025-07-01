@@ -145,10 +145,11 @@ const navigationStructure: NavigationCategory[] = [
         href: "/doc-intelligence",
         icon: <FileSearch className="h-5 w-5" />,
         items: [
+          { title: "All Services", href: "/doc-intelligence" },
           { title: "Extract Text", href: "/doc-intelligence/extract-text" },
           { title: "Extract Information", href: "/doc-intelligence/extract-info" },
-          { title: "Document Summarization", href: "/doc-intelligence/summarization" },
-          { title: "Privacy Protection", href: "/doc-intelligence/privacy" },
+          { title: "Doc Summarization", href: "/doc-intelligence/summarization" },
+          { title: "PII Masking", href: "/doc-intelligence/pii-masking" },
         ],
       },
       {

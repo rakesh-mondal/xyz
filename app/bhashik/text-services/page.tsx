@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { VercelTabs } from "@/components/ui/vercel-tabs"
 
@@ -250,7 +251,16 @@ const tabs = [
 ]
 
 export default function TextServicesPage() {
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("translation")
+
+  // Set initial tab based on URL parameter
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam && tabs.some(tab => tab.id === tabParam)) {
+      setActiveTab(tabParam)
+    }
+  }, [searchParams])
 
   // Handle tab change without URL navigation 
   const handleTabChange = (tabId: string) => {

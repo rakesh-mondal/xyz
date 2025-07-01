@@ -144,11 +144,10 @@ const navigationConfig = {
         href: "/ai-studio/models",
         label: "Models",
         subItems: [
-          { href: "/ai-studio/models/catalog", label: "Model Catalogue" },
-          { href: "/ai-studio/models/fine-tuning", label: "Fine-Tuning" },
-          { href: "/ai-studio/models/evaluation", label: "Evaluation" },
-          { href: "/ai-studio/models/deployments", label: "Deployments" },
-          { href: "/ai-studio/models/rag", label: "RAG" },
+          { href: "/model-hub/catalog", label: "Model Catalogue" },
+          { href: "/model-dev/fine-tuning", label: "Fine-Tuning" },
+          { href: "/models/deployment", label: "Deployments" },
+          { href: "/model-dev/evaluation", label: "Evaluation" },
         ],
       },
       {
@@ -194,8 +193,11 @@ const navigationConfig = {
         href: "/ai-solutions/document-intelligence",
         label: "Document Intelligence",
         subItems: [
-          { href: "/ai-solutions/document-intelligence/extract-text", label: "Extract Text" },
-          { href: "/ai-solutions/document-intelligence/extract-info", label: "Extract Info" },
+          { href: "/doc-intelligence", label: "All Services" },
+          { href: "/doc-intelligence/extract-text", label: "Extract Text" },
+          { href: "/doc-intelligence/extract-info", label: "Extract Information" },
+          { href: "/doc-intelligence/summarization", label: "Doc Summarization" },
+          { href: "/doc-intelligence/pii-masking", label: "PII Masking" },
         ],
       },
       {
@@ -555,7 +557,7 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
       setExpandedSubItem("/billing")
     } else if (pathname.startsWith("/ai-studio")) {
       setExpandedItem("/ai-studio")
-    } else if (pathname.startsWith("/ai-solutions") || pathname.startsWith("/bhashik")) {
+    } else if (pathname.startsWith("/ai-solutions") || pathname.startsWith("/bhashik") || pathname.startsWith("/doc-intelligence")) {
       setExpandedItem("/ai-solutions")
       if (pathname.startsWith("/bhashik")) {
         setExpandedSubItem("/ai-solutions/bhashik")
@@ -565,6 +567,8 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
         if (pathname.startsWith("/bhashik/speech-services")) {
           setExpandedTertiaryItem("/bhashik/speech-services")
         }
+      } else if (pathname.startsWith("/doc-intelligence")) {
+        setExpandedSubItem("/ai-solutions/document-intelligence")
       }
     } else if (pathname.startsWith("/administration")) {
       setExpandedItem("/administration")
@@ -621,6 +625,8 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
         router.push("/model-hub/catalog")
       } else if (href === "/ai-solutions/bhashik") {
         router.push("/bhashik")
+      } else if (href === "/ai-solutions/document-intelligence") {
+        router.push("/doc-intelligence")
       } else if (href === "/bhashik/text-services") {
         router.push("/bhashik/text-services")
       } else if (href === "/bhashik/speech-services") {
@@ -675,6 +681,9 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     }
     if (path === "/ai-solutions/bhashik") {
       return pathname.startsWith("/bhashik")
+    }
+    if (path === "/ai-solutions/document-intelligence") {
+      return pathname.startsWith("/doc-intelligence")
     }
     if (path === "/bhashik/text-services") {
       return pathname.startsWith("/bhashik/text-services")
