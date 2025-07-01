@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { TooltipWrapper } from "./ui/tooltip-wrapper"
-import { Progress } from "./ui/progress"
 import { Clock } from "lucide-react"
 
 interface VPCDeletionStatusProps {
@@ -54,9 +53,9 @@ export function VPCDeletionStatus({ vpc, showProgress = true, compact = false }:
 
   const AnimatedDots = () => (
     <div className="flex items-center gap-0.5">
-      <div className="w-1 h-1 bg-current rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
-      <div className="w-1 h-1 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-      <div className="w-1 h-1 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+      <div className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: 'rgb(165, 47, 46)', animationDelay: '0s' }}></div>
+      <div className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: 'rgb(165, 47, 46)', animationDelay: '0.2s' }}></div>
+      <div className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: 'rgb(165, 47, 46)', animationDelay: '0.4s' }}></div>
     </div>
   )
 
@@ -65,9 +64,16 @@ export function VPCDeletionStatus({ vpc, showProgress = true, compact = false }:
       <TooltipWrapper 
         content={`VPC deletion in progress. Started ${timeElapsed} minutes ago. ${formatTimeRemaining()}`}
       >
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          <AnimatedDots />
+        <span 
+          className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium"
+          style={{
+            background: 'linear-gradient(263deg, rgba(255, 109, 107, 0.08) 6.86%, rgba(255, 109, 107, 0.02) 96.69%)',
+            color: 'rgb(165, 47, 46)',
+            boxShadow: 'rgba(255, 109, 107, 0.1) 0px 0px 0px 1px inset'
+          }}
+        >
           Deleting
+          <AnimatedDots />
         </span>
       </TooltipWrapper>
     )
@@ -76,19 +82,27 @@ export function VPCDeletionStatus({ vpc, showProgress = true, compact = false }:
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
+        <span className="text-sm font-medium" style={{ color: 'rgb(165, 47, 46)' }}>VPC Deletion in Progress</span>
         <div className="flex items-center gap-0.5">
-          <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
-          <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'rgb(165, 47, 46)', animationDelay: '0s' }}></div>
+          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'rgb(165, 47, 46)', animationDelay: '0.2s' }}></div>
+          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'rgb(165, 47, 46)', animationDelay: '0.4s' }}></div>
         </div>
-        <span className="text-sm font-medium text-blue-800">VPC Deletion in Progress</span>
       </div>
       
               {showProgress && (
           <>
             <div className="space-y-2">
-              <Progress value={progress} className="h-2 bg-blue-100" />
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="w-full rounded-full h-2" style={{ backgroundColor: 'rgba(255, 109, 107, 0.2)' }}>
+                <div 
+                  className="h-2 rounded-full transition-all duration-300 ease-out"
+                  style={{ 
+                    width: `${progress}%`,
+                    backgroundColor: 'rgb(165, 47, 46)'
+                  }}
+                ></div>
+              </div>
+              <div className="flex justify-between text-xs" style={{ color: 'rgb(165, 47, 46)' }}>
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   {timeElapsed} min elapsed
@@ -97,9 +111,15 @@ export function VPCDeletionStatus({ vpc, showProgress = true, compact = false }:
               </div>
             </div>
             
-            <div className="text-xs text-muted-foreground bg-blue-50 p-3 rounded-lg border border-blue-200">
-              <p className="font-medium text-blue-800 mb-1">Deletion Process:</p>
-              <ul className="space-y-1 text-blue-700">
+            <div 
+              className="text-xs p-3 rounded-lg border"
+              style={{
+                background: 'linear-gradient(263deg, rgba(255, 109, 107, 0.08) 6.86%, rgba(255, 109, 107, 0.02) 96.69%)',
+                borderColor: 'rgba(255, 109, 107, 0.1)'
+              }}
+            >
+              <p className="font-medium mb-1" style={{ color: 'rgb(165, 47, 46)' }}>Deletion Process:</p>
+              <ul className="space-y-1" style={{ color: 'rgb(165, 47, 46)' }}>
                 <li>• Terminating all resources</li>
                 <li>• Releasing IP addresses</li>
                 <li>• Cleaning up network configurations</li>
