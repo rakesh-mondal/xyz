@@ -171,7 +171,7 @@ export default function VPCDetailsPage({ params }: { params: { id: string } }) {
 
       {/* VPC Deletion Progress Section */}
       {vpc.status === "deleting" && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
           <VPCDeletionStatus vpc={vpc} showProgress={true} />
         </div>
       )}
