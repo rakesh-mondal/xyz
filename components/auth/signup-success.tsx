@@ -48,7 +48,7 @@ export function SignupSuccess({ onNext, onSkipToDashboard }: SignupSuccessProps)
 
         {/* Profile Completion Benefits */}
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8">
-          <h3 className="font-semibold text-gray-900 mb-2">Complete Your Profile to Unlock</h3>
+          <h3 className="font-semibold text-gray-900 mb-2">Verify your identity to Unlock</h3>
           <div className="space-y-2 text-sm text-gray-600">
             <div className="flex items-center">
               <div className="w-2 h-2 bg-gray-400 rounded-full mr-3"></div>
@@ -76,7 +76,7 @@ export function SignupSuccess({ onNext, onSkipToDashboard }: SignupSuccessProps)
             variant="secondary"
             className="w-full flex items-center justify-center gap-2"
           >
-            Complete Profile
+            Verify your identity
             <ArrowRight className="h-4 w-4" />
           </Button>
 
@@ -95,7 +95,7 @@ export function SignupSuccess({ onNext, onSkipToDashboard }: SignupSuccessProps)
         {/* Additional Information */}
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
-            You can complete your profile later from your account settings.
+            You can verify your identity later from your account settings.
           </p>
         </div>
       </div>

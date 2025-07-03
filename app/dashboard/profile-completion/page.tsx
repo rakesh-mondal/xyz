@@ -71,11 +71,11 @@ export default function DashboardProfileCompletionPage() {
     return (
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h3 className="font-semibold text-blue-900 mb-1">
-          Complete profile to access {featureName}
+          Complete your profile to access {featureName}
         </h3>
         <p className="text-sm text-blue-800">
-          You were redirected here because {featureName} requires profile verification. 
-          Complete the steps below to unlock full access.
+          You were redirected here because {featureName} requires a complete profile. 
+          Fill in the required information below to unlock full access.
         </p>
       </div>
     )
@@ -83,8 +83,8 @@ export default function DashboardProfileCompletionPage() {
 
   return (
     <PageShell
-      title="Complete Your Profile"
-      description="Verify your profile to unlock all Krutrim Cloud features—compute, storage, and more."
+      title="Your Profile"
+      description="Manage your account information and preferences to access all Krutrim Cloud features—compute, storage, and more."
     >
       {getFeatureMessage()}
       

@@ -522,7 +522,7 @@ export function ProfileCompletionDashboard({
           }}
         >
           <div className="pb-4">
-            <h3 className="text-base font-semibold">Finish your profile to get full access</h3>
+            <h3 className="text-base font-semibold">Finish your KYC to get full access</h3>
           </div>
           <div className="space-y-4 mb-6">
             {benefits.map((benefit, index) => (

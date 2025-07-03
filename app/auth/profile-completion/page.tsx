@@ -69,11 +69,11 @@ export default function ProfileCompletionPage() {
     return (
       <div className="max-w-4xl mx-auto mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h3 className="font-semibold text-blue-900 mb-1">
-          Complete profile to access {featureName}
+          Complete your profile to access {featureName}
         </h3>
         <p className="text-sm text-blue-800">
-          You were redirected here because {featureName} requires profile verification. 
-          Complete the steps below to unlock full access.
+          You were redirected here because {featureName} requires a complete profile. 
+          Fill in the required information below to unlock full access.
         </p>
       </div>
     )

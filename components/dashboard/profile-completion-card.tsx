@@ -93,7 +93,7 @@ export function ProfileCompletionCard() {
               <Star className="h-4 w-4" style={{ color: 'rgb(165, 47, 46)' }} />
             </div>
             <div>
-              <CardTitle className="text-lg" style={{ color: 'rgb(165, 47, 46)' }}>Complete Your Profile</CardTitle>
+              <CardTitle className="text-lg" style={{ color: 'rgb(165, 47, 46)' }}>Verify your identity</CardTitle>
               <CardDescription className="text-sm" style={{ color: 'rgb(165, 47, 46)', opacity: 0.8 }}>
                 Verify your profile to unlock all Krutrim Cloud features—compute, storage, and more.
               </CardDescription>
@@ -180,7 +180,7 @@ export function ProfileCompletionCard() {
           }}
           onClick={handleCompleteProfile}
         >
-          <span>{nextStep ? `Complete ${nextStep.label}` : 'Complete Profile'}</span>
+          <span>{nextStep ? `Complete ${nextStep.label}` : 'Verify your identity'}</span>
           <ArrowRight className={`ml-2 h-4 w-4 transition-transform duration-200 ${isHovered ? 'translate-x-1' : ''}`} />
         </Button>
 

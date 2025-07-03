@@ -108,7 +108,7 @@ export function FeatureRestriction({
               <div className="text-center p-4">
                 <Lock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-600 mb-1">Feature Restricted</p>
-                <p className="text-xs text-gray-500">Complete profile to unlock</p>
+                <p className="text-xs text-gray-500">Verify identity to unlock</p>
                 <Button 
                   size="sm"
                   onClick={handleRestrictedClick}
@@ -196,7 +196,7 @@ export function FeatureRestriction({
               onClick={handleCompleteProfile}
               className="flex-1 bg-primary hover:bg-primary/90"
             >
-              {accessLevel === 'limited' ? 'Complete Profile' : 'Setup Account'}
+              {accessLevel === 'limited' ? 'Verify your identity' : 'Setup Account'}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>

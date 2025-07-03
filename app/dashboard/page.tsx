@@ -190,7 +190,7 @@ function LimitedAccessDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground">Complete profile to access</p>
+              <p className="text-xs text-muted-foreground">Verify identity to access</p>
             </CardContent>
           </Card>
         </DashboardSection>
@@ -203,7 +203,7 @@ function LimitedAccessDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground">Complete profile to access</p>
+              <p className="text-xs text-muted-foreground">Verify identity to access</p>
             </CardContent>
           </Card>
         </DashboardSection>
@@ -216,7 +216,7 @@ function LimitedAccessDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground">Complete profile to access</p>
+              <p className="text-xs text-muted-foreground">Verify identity to access</p>
             </CardContent>
           </Card>
         </DashboardSection>

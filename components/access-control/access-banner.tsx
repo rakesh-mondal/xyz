@@ -80,7 +80,7 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
             }}
             size="sm"
           >
-            Complete Profile
+            Verify your identity
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

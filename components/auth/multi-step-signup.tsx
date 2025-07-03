@@ -408,7 +408,7 @@ export function MultiStepSignup() {
     } else {
       return {
         title: "Profile Completion",
-        description: "Complete your profile for full access",
+        description: "Verify your identity for full access",
         color: "bg-green-100 text-green-800"
       }
     }
@@ -477,7 +477,7 @@ export function MultiStepSignup() {
               <span className="w-2 h-2 bg-green-400 rounded-full"></span>
               <span>Account created successfully</span>
               <span>•</span>
-              <span>Complete your profile for full access</span>
+              <span>Verify your identity for full access</span>
             </div>
           </div>
         )}
