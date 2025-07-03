@@ -78,6 +78,9 @@ interface ShadcnDataTableProps<T = any> {
   enableVpcFilter?: boolean
   vpcOptions?: { value: string; label: string }[]
   onVpcChange?: (vpc: string) => void
+  enableStatusFilter?: boolean
+  statusOptions?: { value: string; label: string }[]
+  onStatusChange?: (status: string) => void
 }
 
 export function ShadcnDataTable<T = any>({ 
@@ -95,7 +98,10 @@ export function ShadcnDataTable<T = any>({
   nameFilterColumn,
   enableVpcFilter = false,
   vpcOptions = [],
-  onVpcChange
+  onVpcChange,
+  enableStatusFilter = false,
+  statusOptions = [],
+  onStatusChange
 }: ShadcnDataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>(() => {
     if (defaultSort) {
@@ -140,6 +146,9 @@ export function ShadcnDataTable<T = any>({
   // VPC filter state
   const [selectedVpc, setSelectedVpc] = React.useState("all")
   
+  // Status filter state
+  const [selectedStatus, setSelectedStatus] = React.useState("all")
+  
   // Get unique names for the filter dropdown
   const uniqueNames = React.useMemo(() => {
     if (!enableNameFilter || !nameFilterColumn) return []
@@ -148,12 +157,24 @@ export function ShadcnDataTable<T = any>({
   }, [data, enableNameFilter, nameFilterColumn])
 
   // Filter data based on selected names
-  const filteredData = React.useMemo(() => {
+  const filteredByNames = React.useMemo(() => {
     if (!enableNameFilter || !nameFilterColumn || selectedNames.length === 0) {
       return data
     }
     return data.filter(item => selectedNames.includes((item as any)[nameFilterColumn]))
   }, [data, selectedNames, enableNameFilter, nameFilterColumn])
+
+  // Filter data based on selected status
+  const filteredData = React.useMemo(() => {
+    let result = filteredByNames
+    
+    // Apply status filter
+    if (enableStatusFilter && selectedStatus !== "all") {
+      result = result.filter(item => (item as any).jobStatus === selectedStatus)
+    }
+    
+    return result
+  }, [filteredByNames, enableStatusFilter, selectedStatus])
 
   // Helper function to format relative time
   const formatRelativeTime = (date: Date): string => {
@@ -229,6 +250,13 @@ export function ShadcnDataTable<T = any>({
     setSelectedVpc(value)
     if (onVpcChange) {
       onVpcChange(value)
+    }
+  }
+
+  const handleStatusChange = (value: string) => {
+    setSelectedStatus(value)
+    if (onStatusChange) {
+      onStatusChange(value)
     }
   }
 
@@ -339,6 +367,21 @@ export function ShadcnDataTable<T = any>({
                   {vpcOptions.map((vpc) => (
                     <SelectItem key={vpc.value} value={vpc.value}>
                       {vpc.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {enableStatusFilter && statusOptions.length > 0 && (
+              <Select value={selectedStatus} onValueChange={handleStatusChange}>
+                <SelectTrigger className="h-9 w-[150px] rounded-md">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map((status) => (
+                    <SelectItem key={status.value} value={status.value}>
+                      {status.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
