@@ -881,16 +881,57 @@ export default function UsageMetricsPage() {
     );
   }
 
-  // Header actions for billing
+  // Header actions for billing  
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isDateSelecting, setIsDateSelecting] = useState(false);
+
+  const datePresets = [
+    {
+      label: "Last 7 days",
+      range: { from: new Date(new Date().setDate(new Date().getDate() - 7)), to: new Date() }
+    },
+    {
+      label: "Last 30 days", 
+      range: { from: new Date(new Date().setDate(new Date().getDate() - 30)), to: new Date() }
+    },
+    {
+      label: "Last 3 months",
+      range: { from: new Date(new Date().setMonth(new Date().getMonth() - 3)), to: new Date() }
+    },
+    {
+      label: "This month",
+      range: { 
+        from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+        to: new Date()
+      }
+    }
+  ];
+
+  const handleHeaderPresetSelect = (preset: typeof datePresets[0]) => {
+    setDate(preset.range);
+    setIsDatePickerOpen(false);
+    setIsDateSelecting(false);
+  };
+
+  const handleHeaderDateSelect = (selectedDate: DateRange | undefined) => {
+    setDate(selectedDate);
+    if (selectedDate?.from && selectedDate?.to) {
+      setIsDateSelecting(false);
+    } else if (selectedDate?.from && !selectedDate?.to) {
+      setIsDateSelecting(true);
+    } else {
+      setIsDateSelecting(false);
+    }
+  };
+
   const headerActions = (
     <>
       <Button variant="outline">
-        <ArrowDownTrayIcon className="mr-1 h-4 w-4" />
         Export
       </Button>
-      <Popover>
+      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className="flex items-center gap-2 min-w-[260px] justify-start text-left font-normal">
             <CalendarIcon className="h-4 w-4" />
             {date?.from ? (
               date.to ? (
@@ -898,7 +939,9 @@ export default function UsageMetricsPage() {
                   {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                <span className="text-blue-600">
+                  From: {format(date.from, "LLL dd, y")} | Select end
+                </span>
               )
             ) : (
               "Pick a date range"
@@ -906,15 +949,77 @@ export default function UsageMetricsPage() {
             <ChevronDownIcon className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="end">
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={setDate}
-            numberOfMonths={2}
-          />
+        <PopoverContent className="w-auto p-0 flex" align="end">
+          {/* Quick Presets Sidebar */}
+          <div className="w-48 p-4 border-r bg-gray-50">
+            <h4 className="font-medium text-sm mb-3 text-gray-700">Quick Select</h4>
+            <div className="space-y-2">
+              {datePresets.map((preset) => (
+                <Button
+                  key={preset.label}
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start h-9 text-sm text-left px-3 py-2 hover:bg-gray-100"
+                  onClick={() => handleHeaderPresetSelect(preset)}
+                >
+                  {preset.label}
+                </Button>
+              ))}
+            </div>
+            
+            {/* Current Selection Status */}
+            {date?.from && (
+              <div className="mt-4 pt-3 border-t">
+                <h5 className="font-medium text-xs text-gray-600 mb-2">Current Selection</h5>
+                <div className="text-xs text-gray-500 space-y-1">
+                  <div>Start: {format(date.from, "MMM dd, y")}</div>
+                  {date.to ? (
+                    <div>End: {format(date.to, "MMM dd, y")}</div>
+                  ) : (
+                    <div className="text-blue-600">Select end date →</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Calendar Section */}
+          <div className="p-3">
+            {/* Selection Progress Indicator */}
+            {isDateSelecting && date?.from && (
+              <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
+                <span className="font-medium">Start:</span> {format(date.from, "LLL dd, y")}
+                <br />
+                <span className="text-gray-600">Now select an end date</span>
+              </div>
+            )}
+            
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={date?.from}
+              selected={date}
+              onSelect={handleHeaderDateSelect}
+              numberOfMonths={2}
+              className="rounded-md"
+              modifiers={{
+                ...(date?.from && { start: date.from }),
+                ...(date?.to && { end: date.to }),
+              }}
+              modifiersStyles={{
+                start: { 
+                  backgroundColor: '#3b82f6', 
+                  color: 'white',
+                  fontWeight: 'bold'
+                },
+                end: { 
+                  backgroundColor: '#ef4444', 
+                  color: 'white',
+                  fontWeight: 'bold'
+                },
+              }}
+            />
+          </div>
         </PopoverContent>
       </Popover>
       <Link href="/billing/add-credits">

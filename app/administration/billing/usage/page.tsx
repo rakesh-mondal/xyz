@@ -47,12 +47,53 @@ export default function BillingUsagePage() {
   const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [openAccordion, setOpenAccordion] = useState(["summary"]);
   const [activeTab, setActiveTab] = useState("usage-statistics");
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isDateSelecting, setIsDateSelecting] = useState(false);
 
   const tabs = [
     { id: "credit-balance", label: "Credit Balance" },
     { id: "add-credits", label: "Add Credits" },
     { id: "usage-statistics", label: "Usage Statistics" }
   ];
+
+  const datePresets = [
+    {
+      label: "Last 7 days",
+      range: { from: new Date(new Date().setDate(new Date().getDate() - 7)), to: new Date() }
+    },
+    {
+      label: "Last 30 days", 
+      range: { from: new Date(new Date().setDate(new Date().getDate() - 30)), to: new Date() }
+    },
+    {
+      label: "Last 3 months",
+      range: { from: new Date(new Date().setMonth(new Date().getMonth() - 3)), to: new Date() }
+    },
+    {
+      label: "This month",
+      range: { 
+        from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+        to: new Date()
+      }
+    }
+  ];
+
+  const handlePresetSelect = (preset: typeof datePresets[0]) => {
+    setDate(preset.range);
+    setIsDatePickerOpen(false);
+    setIsDateSelecting(false);
+  };
+
+  const handleDateSelect = (selectedDate: DateRange | undefined) => {
+    setDate(selectedDate);
+    if (selectedDate?.from && selectedDate?.to) {
+      setIsDateSelecting(false);
+    } else if (selectedDate?.from && !selectedDate?.to) {
+      setIsDateSelecting(true);
+    } else {
+      setIsDateSelecting(false);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -63,15 +104,95 @@ export default function BillingUsagePage() {
           onTabChange={setActiveTab}
           size="md"
         />
-        <Popover>
+        <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
-              {date ? date.from ? date.from.toLocaleDateString() : "Select Date Range" : "Select Date Range"}
+            <Button variant="outline" className="flex items-center gap-2 min-w-[240px] justify-start text-left font-normal">
+              {date?.from ? (
+                date.to ? (
+                  <>
+                    {date.from.toLocaleDateString()} - {date.to.toLocaleDateString()}
+                  </>
+                ) : (
+                  <span className="text-blue-600">
+                    From: {date.from.toLocaleDateString()} | Select end
+                  </span>
+                )
+              ) : (
+                "Select Date Range"
+              )}
               <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar mode="range" selected={date} onSelect={setDate} initialFocus />
+          <PopoverContent className="w-auto p-0 flex">
+            {/* Quick Presets Sidebar */}
+            <div className="w-48 p-4 border-r bg-gray-50">
+              <h4 className="font-medium text-sm mb-3 text-gray-700">Quick Select</h4>
+              <div className="space-y-2">
+                {datePresets.map((preset) => (
+                  <Button
+                    key={preset.label}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start h-9 text-sm text-left px-3 py-2 hover:bg-gray-100"
+                    onClick={() => handlePresetSelect(preset)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+              
+              {/* Current Selection Status */}
+              {date?.from && (
+                <div className="mt-4 pt-3 border-t">
+                  <h5 className="font-medium text-xs text-gray-600 mb-2">Current Selection</h5>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div>Start: {date.from.toLocaleDateString()}</div>
+                    {date.to ? (
+                      <div>End: {date.to.toLocaleDateString()}</div>
+                    ) : (
+                      <div className="text-blue-600">Select end date →</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Calendar Section */}
+            <div className="p-3">
+              {/* Selection Progress Indicator */}
+              {isDateSelecting && date?.from && (
+                <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
+                  <span className="font-medium">Start:</span> {date.from.toLocaleDateString()}
+                  <br />
+                  <span className="text-gray-600">Now select an end date</span>
+                </div>
+              )}
+              
+              <Calendar 
+                mode="range" 
+                selected={date} 
+                onSelect={handleDateSelect} 
+                initialFocus 
+                numberOfMonths={2}
+                className="rounded-md"
+                modifiers={{
+                  ...(date?.from && { start: date.from }),
+                  ...(date?.to && { end: date.to }),
+                }}
+                modifiersStyles={{
+                  start: { 
+                    backgroundColor: '#3b82f6', 
+                    color: 'white',
+                    fontWeight: 'bold'
+                  },
+                  end: { 
+                    backgroundColor: '#ef4444', 
+                    color: 'white',
+                    fontWeight: 'bold'
+                  },
+                }}
+              />
+            </div>
           </PopoverContent>
         </Popover>
       </div>
