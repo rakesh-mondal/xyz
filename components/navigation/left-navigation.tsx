@@ -70,30 +70,19 @@ const navigationConfig = {
         subItems: [
           {
             href: "/compute/vms",
-            label: "VMs",
+            label: "Virtual Machines",
             subItems: [
               { href: "/compute/vms/cpu", label: "CPU VM" },
               { href: "/compute/vms/gpu", label: "GPU VM" },
-              { href: "/compute/vms/ai-pods", label: "AI Pods" },
               { href: "/compute/vms/instances", label: "My Instances" },
               { href: "/compute/vms/images", label: "Machine Images" },
             ],
           },
           {
-            href: "/compute/hpc",
-            label: "HPC",
+            href: "/compute/ai-pods",
+            label: "AI Pods",
             subItems: [
-              { href: "/compute/hpc/gpu-clusters", label: "GPU Clusters" },
-              { href: "/compute/hpc/cpu-clusters", label: "CPU Clusters" },
-              { href: "/compute/hpc/my-clusters", label: "My Clusters" },
-            ],
-          },
-          {
-            href: "/compute/auto-scaling",
-            label: "Auto Scaling",
-            subItems: [
-              { href: "/compute/auto-scaling/asg", label: "ASG" },
-              { href: "/compute/auto-scaling/templates", label: "Templates" },
+              { href: "/compute/ai-pods/my-pods", label: "My Pods" },
             ],
           },
         ],
@@ -149,10 +138,6 @@ const navigationConfig = {
           { href: "/models/deployment", label: "Deployments" },
           { href: "/model-dev/evaluation", label: "Evaluation" },
         ],
-      },
-      {
-        href: "/ai-studio/training",
-        label: "Training"
       },
     ],
   },

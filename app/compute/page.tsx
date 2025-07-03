@@ -6,9 +6,8 @@ export default function ComputePage() {
       title="Compute"
       description="Manage your compute resources and virtual machines"
       tabs={[
-        { title: "VMs", href: "/compute/vms" },
-        { title: "HPC", href: "/compute/hpc" },
-        { title: "Auto Scaling", href: "/compute/auto-scaling" },
+        { title: "Virtual Machines", href: "/compute/vms" },
+        { title: "AI Pods", href: "/compute/ai-pods" },
       ]}
     >
       <div className="rounded-lg border border-dashed p-10 text-center">

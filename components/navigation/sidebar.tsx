@@ -75,7 +75,6 @@ const navigationStructure: NavigationCategory[] = [
         items: [
           { title: "Machines", href: "/compute/machines" },
           { title: "AI Pods", href: "/compute/ai-pods" },
-          { title: "Auto Scaling", href: "/compute/auto-scaling" },
         ],
       },
       {
@@ -126,7 +125,6 @@ const navigationStructure: NavigationCategory[] = [
         href: "/model-dev",
         icon: <Code className="h-5 w-5" />,
         items: [
-          { title: "Training", href: "/model-dev/training" },
           { title: "Fine-Tuning", href: "/model-dev/fine-tuning" },
           { title: "Evaluation", href: "/model-dev/evaluation" },
         ],
