@@ -207,9 +207,11 @@ export function TopHeader({ onMenuClick, isMobile }: TopHeaderProps) {
                   </Badge>
                 </div>
                 <DropdownMenuSeparator className="my-1" />
-                <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer">
-                  <UserIcon className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">My Account</span>
+                <DropdownMenuItem className="flex items-center gap-2 py-2 px-3 cursor-pointer" asChild>
+                  <Link href="/dashboard/profile-completion">
+                    <UserIcon className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">My Account</span>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem 
