@@ -18,7 +18,11 @@ import {
 import { useAuth } from "@/components/auth/auth-provider"
 import { useRouter } from "next/navigation"
 
-export function ProfileCompletionCard() {
+interface ProfileCompletionCardProps {
+  onVerifyIdentity?: () => void
+}
+
+export function ProfileCompletionCard({ onVerifyIdentity }: ProfileCompletionCardProps) {
   const { user, accessLevel } = useAuth()
   const router = useRouter()
   const [isHovered, setIsHovered] = useState(false)
@@ -65,7 +69,12 @@ export function ProfileCompletionCard() {
   const { steps, completedCount, totalSteps, percentage, nextStep } = getCompletionData()
 
   const handleCompleteProfile = () => {
-    router.push('/dashboard/profile-completion')
+    // If onVerifyIdentity callback is provided, use it instead of navigating
+    if (onVerifyIdentity) {
+      onVerifyIdentity()
+    } else {
+      router.push('/dashboard/profile-completion')
+    }
   }
 
   const getProgressColor = () => {

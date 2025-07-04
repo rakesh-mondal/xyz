@@ -1,11 +1,17 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity, CreditCard, DollarSign, Users, Server, Database, Cpu, BarChart3 } from "lucide-react"
 import { CommandPaletteProvider } from "@/components/command/command-palette-provider"
 import { AccessBanner } from "@/components/access-control/access-banner"
 import { FeatureRestriction } from "@/components/access-control/feature-restriction"
-import { ProfileCompletionCard } from "@/components/dashboard/profile-completion-card"
+
 import { AllowedServicesSection } from "@/components/dashboard/allowed-services-section"
 import { DashboardSection } from "@/components/dashboard/dashboard-section"
+import { IdentityVerificationModal } from "@/components/modals/identity-verification-modal"
+import { useAuth } from "@/components/auth/auth-provider"
+import { useToast } from "@/hooks/use-toast"
 
 // Full access dashboard layout
 function FullAccessDashboard() {
@@ -226,13 +232,28 @@ function LimitedAccessDashboard() {
       <AllowedServicesSection />
     </>
   )
-}
+  }
 
 export default function DashboardPage() {
+  const { user } = useAuth()
+  const { toast } = useToast()
+  const [isIdentityModalOpen, setIsIdentityModalOpen] = useState(false)
+
+  const handleVerifyIdentity = () => {
+    setIsIdentityModalOpen(true)
+  }
+
+  const handleIdentityVerificationComplete = () => {
+    toast({
+      title: "Identity Verification Complete",
+      description: "Your identity has been verified successfully. You now have full access to all Krutrim Cloud services."
+    })
+  }
+
   return (
     <CommandPaletteProvider>
       <div className="space-y-6">
-        <AccessBanner />
+        <AccessBanner onCompleteProfile={handleVerifyIdentity} />
 
         <div>
           <div className="mb-4">
@@ -243,10 +264,30 @@ export default function DashboardPage() {
           </div>
         </div>
 
+
+
         {/* Conditional rendering based on access level */}
         <DashboardSection section="Dashboard Content" requiredAccess="limited">
           <LimitedAccessDashboard />
         </DashboardSection>
+
+        {/* Identity Verification Modal */}
+        {user && (
+          <IdentityVerificationModal
+            isOpen={isIdentityModalOpen}
+            onClose={() => setIsIdentityModalOpen(false)}
+            onComplete={handleIdentityVerificationComplete}
+            userData={{
+              firstName: user.firstName || '',
+              lastName: user.lastName || '',
+              name: user.name || '',
+              email: user.email || '',
+              mobile: user.mobile || '',
+              accountType: user.accountType || 'individual',
+              companyName: user.companyName || ''
+            }}
+          />
+        )}
       </div>
     </CommandPaletteProvider>
   )

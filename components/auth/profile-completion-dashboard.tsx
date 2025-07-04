@@ -12,7 +12,6 @@ import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { ArrowRight, Shield, Zap, Globe, CreditCard, X, HelpCircle } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useRouter } from "next/navigation"
-import { IdentityVerificationSection } from "@/components/auth/profile-sections/identity-verification-section"
 
 // Modal-optimized DigiLocker verification content
 function IdentityVerificationModalContent({ userData, onComplete, onCancel }: { 
