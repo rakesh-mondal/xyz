@@ -8,7 +8,7 @@ export default function BillingLayout({
   return (
     <div className="flex h-full">
       <div className="flex-1">
-        <div className="p-4 md:p-6">
+        <div className="p-4">
           {children}
         </div>
       </div>

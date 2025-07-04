@@ -11,6 +11,8 @@ import { StatusBadge } from "@/components/status-badge"
 import { ActionMenu } from "@/components/action-menu"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { useToast } from "@/hooks/use-toast"
+import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
+import { EmptyState } from "@/components/ui/empty-state"
 
 // Mock data for model evaluations
 const mockModelEvaluations = [
@@ -115,6 +117,10 @@ function ModelEvaluationSection() {
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const { toast } = useToast()
+
+  // Filter data based on user type for demo
+  const filteredModelEvaluations = filterDataForUser(mockModelEvaluations)
+  const showEmptyState = shouldShowEmptyState() && filteredModelEvaluations.length === 0
 
   const handleDeleteClick = (item: any) => {
     setSelectedItem(item)
@@ -228,28 +234,34 @@ function ModelEvaluationSection() {
   ]
 
   // Add actions property to each evaluation row for DataTable
-  const dataWithActions = mockModelEvaluations.map((evaluation) => ({ ...evaluation, actions: null }))
+  const dataWithActions = filteredModelEvaluations.map((evaluation) => ({ ...evaluation, actions: null }))
 
   return (
     <>
-      <ShadcnDataTable
-        columns={columns}
-        data={dataWithActions}
-        searchableColumns={["evaluationName", "model"]}
-        defaultSort={{ column: "createdAt", direction: "desc" }}
-        pageSize={10}
-        enableSearch={true}
-        enablePagination={true}
-        onRefresh={handleRefresh}
-        enableStatusFilter={true}
-        statusOptions={[
-          { value: "all", label: "All Evaluations" },
-          { value: "completed", label: "Completed" },
-          { value: "running", label: "Running" },
-          { value: "pending", label: "Pending" },
-          { value: "failed", label: "Failed" },
-        ]}
-      />
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('model-evaluation')}
+        />
+      ) : (
+        <ShadcnDataTable
+          columns={columns}
+          data={dataWithActions}
+          searchableColumns={["evaluationName", "model"]}
+          defaultSort={{ column: "createdAt", direction: "desc" }}
+          pageSize={10}
+          enableSearch={true}
+          enablePagination={true}
+          onRefresh={handleRefresh}
+          enableStatusFilter={true}
+          statusOptions={[
+            { value: "all", label: "All Evaluations" },
+            { value: "completed", label: "Completed" },
+            { value: "running", label: "Running" },
+            { value: "pending", label: "Pending" },
+            { value: "failed", label: "Failed" },
+          ]}
+        />
+      )}
 
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
@@ -267,6 +279,10 @@ function PerformanceEvaluationSection() {
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const { toast } = useToast()
+
+  // Filter data based on user type for demo
+  const filteredPerformanceEvaluations = filterDataForUser(mockPerformanceEvaluations)
+  const showEmptyState = shouldShowEmptyState() && filteredPerformanceEvaluations.length === 0
 
   const handleDeleteClick = (item: any) => {
     setSelectedItem(item)
@@ -364,28 +380,34 @@ function PerformanceEvaluationSection() {
   ]
 
   // Add actions property to each evaluation row for DataTable
-  const dataWithActions = mockPerformanceEvaluations.map((evaluation) => ({ ...evaluation, actions: null }))
+  const dataWithActions = filteredPerformanceEvaluations.map((evaluation) => ({ ...evaluation, actions: null }))
 
   return (
     <>
-      <ShadcnDataTable
-        columns={columns}
-        data={dataWithActions}
-        searchableColumns={["evaluationName", "model"]}
-        defaultSort={{ column: "createdAt", direction: "desc" }}
-        pageSize={10}
-        enableSearch={true}
-        enablePagination={true}
-        onRefresh={handleRefresh}
-        enableStatusFilter={true}
-        statusOptions={[
-          { value: "all", label: "All Evaluations" },
-          { value: "completed", label: "Completed" },
-          { value: "running", label: "Running" },
-          { value: "pending", label: "Pending" },
-          { value: "failed", label: "Failed" },
-        ]}
-      />
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('performance-evaluation')}
+        />
+      ) : (
+        <ShadcnDataTable
+          columns={columns}
+          data={dataWithActions}
+          searchableColumns={["evaluationName", "model"]}
+          defaultSort={{ column: "createdAt", direction: "desc" }}
+          pageSize={10}
+          enableSearch={true}
+          enablePagination={true}
+          onRefresh={handleRefresh}
+          enableStatusFilter={true}
+          statusOptions={[
+            { value: "all", label: "All Evaluations" },
+            { value: "completed", label: "Completed" },
+            { value: "running", label: "Running" },
+            { value: "pending", label: "Pending" },
+            { value: "failed", label: "Failed" },
+          ]}
+        />
+      )}
 
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}

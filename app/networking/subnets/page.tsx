@@ -16,6 +16,8 @@ import {
   DeleteSubnetNameConfirmationModal 
 } from "../../../components/modals/delete-subnet-modals"
 import { SubnetConnectionModal } from "../../../components/modals/subnet-connection-modal"
+import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "../../../lib/demo-data-filter"
+import { EmptyState } from "../../../components/ui/empty-state"
 
 export default function SubnetListPage() {
   const router = useRouter()
@@ -24,6 +26,10 @@ export default function SubnetListPage() {
   const [attachedVM, setAttachedVM] = useState<string | null>(null)
   const [connectionModalOpen, setConnectionModalOpen] = useState(false)
   const [connectionSubnet, setConnectionSubnet] = useState<any>(null)
+
+  // Filter data based on user type for demo
+  const filteredSubnets = filterDataForUser(subnets)
+  const showEmptyState = shouldShowEmptyState() && filteredSubnets.length === 0
 
   const handleDeleteClick = (subnet: any) => {
     const vmName = getVMAttachedToSubnet(subnet.id)
@@ -137,7 +143,7 @@ export default function SubnetListPage() {
   ]
 
   // Add actions property to each subnet row for DataTable
-  const dataWithActions = subnets.map((subnet) => ({ ...subnet, actions: null }))
+  const dataWithActions = filteredSubnets.map((subnet) => ({ ...subnet, actions: null }))
 
   const handleRefresh = () => {
     // Add your refresh logic here
@@ -158,35 +164,41 @@ export default function SubnetListPage() {
         <CreateButton href="/networking/subnets/create" label="Create Subnet" />
       }
     >
-
-      <ShadcnDataTable
-        columns={columns}
-        data={dataWithActions}
-        searchableColumns={["name", "vpcName"]}
-        pageSize={10}
-        enableSearch={true}
-        enableColumnVisibility={false}
-        enablePagination={true}
-        onRefresh={handleRefresh}
-        enableAutoRefresh={true}
-        enableVpcFilter={true}
-        vpcOptions={[
-          { value: "all", label: "All VPCs" },
-          { value: "production-vpc", label: "production-vpc" },
-          { value: "development-vpc", label: "development-vpc" },
-          { value: "staging-vpc", label: "staging-vpc" },
-          { value: "testing-vpc", label: "testing-vpc" },
-          { value: "backup-vpc", label: "backup-vpc" },
-          { value: "analytics-vpc", label: "analytics-vpc" },
-          { value: "security-vpc", label: "security-vpc" },
-          { value: "ml-vpc", label: "ml-vpc" },
-          { value: "cdn-vpc", label: "cdn-vpc" },
-          { value: "iot-vpc", label: "iot-vpc" },
-          { value: "gaming-vpc", label: "gaming-vpc" },
-          { value: "blockchain-vpc", label: "blockchain-vpc" },
-          { value: "research-vpc", label: "research-vpc" },
-        ]}
-      />
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('subnet')}
+          onAction={() => window.location.href = '/networking/subnets/create'}
+        />
+      ) : (
+        <ShadcnDataTable
+          columns={columns}
+          data={dataWithActions}
+          searchableColumns={["name", "vpcName"]}
+          pageSize={10}
+          enableSearch={true}
+          enableColumnVisibility={false}
+          enablePagination={true}
+          onRefresh={handleRefresh}
+          enableAutoRefresh={true}
+          enableVpcFilter={true}
+          vpcOptions={[
+            { value: "all", label: "All VPCs" },
+            { value: "production-vpc", label: "production-vpc" },
+            { value: "development-vpc", label: "development-vpc" },
+            { value: "staging-vpc", label: "staging-vpc" },
+            { value: "testing-vpc", label: "testing-vpc" },
+            { value: "backup-vpc", label: "backup-vpc" },
+            { value: "analytics-vpc", label: "analytics-vpc" },
+            { value: "security-vpc", label: "security-vpc" },
+            { value: "ml-vpc", label: "ml-vpc" },
+            { value: "cdn-vpc", label: "cdn-vpc" },
+            { value: "iot-vpc", label: "iot-vpc" },
+            { value: "gaming-vpc", label: "gaming-vpc" },
+            { value: "blockchain-vpc", label: "blockchain-vpc" },
+            { value: "research-vpc", label: "research-vpc" },
+          ]}
+        />
+      )}
 
       {/* Step 1: VM Attachment Warning Modal */}
       {selectedSubnet && attachedVM && (

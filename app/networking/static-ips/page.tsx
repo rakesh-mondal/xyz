@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Button } from "@/components/ui/button"
 import { useToast } from "../../../hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../components/ui/dialog"
+import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "../../../lib/demo-data-filter"
+import { EmptyState } from "../../../components/ui/empty-state"
 
 export default function StaticIPListPage() {
   const router = useRouter()
@@ -20,6 +22,10 @@ export default function StaticIPListPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isVMAttachedModalOpen, setIsVMAttachedModalOpen] = useState(false)
   const [selectedStaticIP, setSelectedStaticIP] = useState<any>(null)
+
+  // Filter data based on user type for demo
+  const filteredStaticIPs = filterDataForUser(staticIPs)
+  const showEmptyState = shouldShowEmptyState() && filteredStaticIPs.length === 0
 
   const handleDeleteClick = (staticIP: any) => {
     setSelectedStaticIP(staticIP)
@@ -128,7 +134,7 @@ export default function StaticIPListPage() {
   ]
 
   // Add actions property to each static IP row for DataTable
-  const dataWithActions = staticIPs.map((ip) => ({ ...ip, actions: null }))
+  const dataWithActions = filteredStaticIPs.map((ip) => ({ ...ip, actions: null }))
 
   // VPC options for filtering
   const vpcOptions = [
@@ -155,20 +161,25 @@ export default function StaticIPListPage() {
         <CreateButton href="/networking/static-ips/create" label="Reserve IP Address" />
       }
     >
-
-      <ShadcnDataTable
-        columns={columns}
-        data={dataWithActions}
-        searchableColumns={["ipAddress", "subnetName", "assignedVMName"]}
-        defaultSort={{ column: "ipAddress", direction: "asc" }}
-        pageSize={10}
-        enableSearch={true}
-        enableColumnVisibility={false}
-        enablePagination={true}
-        onRefresh={handleRefresh}
-        enableVpcFilter={true}
-        vpcOptions={vpcOptions}
-      />
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('static-ips')}
+        />
+      ) : (
+        <ShadcnDataTable
+          columns={columns}
+          data={dataWithActions}
+          searchableColumns={["ipAddress", "subnetName", "assignedVMName"]}
+          defaultSort={{ column: "ipAddress", direction: "asc" }}
+          pageSize={10}
+          enableSearch={true}
+          enableColumnVisibility={false}
+          enablePagination={true}
+          onRefresh={handleRefresh}
+          enableVpcFilter={true}
+          vpcOptions={vpcOptions}
+        />
+      )}
 
       {/* Unreserve IP Confirmation Modal */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>

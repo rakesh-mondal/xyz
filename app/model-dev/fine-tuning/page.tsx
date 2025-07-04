@@ -6,6 +6,8 @@ import { CreateButton } from "@/components/create-button"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { StatusBadge } from "@/components/status-badge"
 import { ActionMenu } from "@/components/action-menu"
+import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
+import { EmptyState } from "@/components/ui/empty-state"
 
 // Mock data for fine-tuning jobs
 const mockFineTuningJobs = [
@@ -76,6 +78,10 @@ const mockFineTuningJobs = [
 
 export default function FineTuningPage() {
   const [jobs] = useState(mockFineTuningJobs)
+
+  // Filter data based on user type for demo
+  const filteredJobs = filterDataForUser(jobs)
+  const showEmptyState = shouldShowEmptyState() && filteredJobs.length === 0
 
   const handleRefresh = () => {
     console.log("🔄 Refreshing Fine-Tuning Jobs data at:", new Date().toLocaleTimeString())
@@ -166,20 +172,26 @@ export default function FineTuningPage() {
         <CreateButton href="/model-dev/fine-tuning/create" label="Create Fine Tuning Job" />
       }
     >
-      <ShadcnDataTable 
-        columns={columns} 
-        data={jobs}
-        searchableColumns={["fineTunedModel", "baseModel"]}
-        defaultSort={{ column: "lastUpdated", direction: "desc" }}
-        pageSize={5}
-        enableSearch={true}
-        enableColumnVisibility={false}
-        enablePagination={jobs.length > 5}
-        onRefresh={handleRefresh}
-        enableAutoRefresh={true}
-        enableVpcFilter={true}
-        vpcOptions={statusOptions}
-      />
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('fine-tuning')}
+        />
+      ) : (
+        <ShadcnDataTable 
+          columns={columns} 
+          data={filteredJobs}
+          searchableColumns={["fineTunedModel", "baseModel"]}
+          defaultSort={{ column: "lastUpdated", direction: "desc" }}
+          pageSize={5}
+          enableSearch={true}
+          enableColumnVisibility={false}
+          enablePagination={filteredJobs.length > 5}
+          onRefresh={handleRefresh}
+          enableAutoRefresh={true}
+          enableVpcFilter={true}
+          vpcOptions={statusOptions}
+        />
+      )}
     </PageShell>
   )
 }

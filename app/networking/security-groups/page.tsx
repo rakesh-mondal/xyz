@@ -13,12 +13,18 @@ import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { Button } from "@/components/ui/button"
 import { DeleteConfirmationModal } from "../../../components/delete-confirmation-modal"
 import { useToast } from "../../../hooks/use-toast"
+import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "../../../lib/demo-data-filter"
+import { EmptyState } from "../../../components/ui/empty-state"
 
 export default function SecurityGroupListPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<any>(null)
+
+  // Filter data based on user type for demo
+  const filteredSecurityGroups = filterDataForUser(securityGroups)
+  const showEmptyState = shouldShowEmptyState() && filteredSecurityGroups.length === 0
 
   const handleDeleteClick = (securityGroup: any) => {
     setSelectedSecurityGroup(securityGroup)
@@ -109,7 +115,7 @@ export default function SecurityGroupListPage() {
   ]
 
   // Add actions property to each security group row for DataTable
-  const dataWithActions = securityGroups.map((sg) => ({ ...sg, actions: null }))
+  const dataWithActions = filteredSecurityGroups.map((sg) => ({ ...sg, actions: null }))
 
   const handleRefresh = () => {
     window.location.reload()
@@ -123,24 +129,30 @@ export default function SecurityGroupListPage() {
         <CreateButton href="/networking/security-groups/create" label="Create Security Group" />
       }
     >
-
-      <ShadcnDataTable
-        columns={columns}
-        data={dataWithActions}
-        searchableColumns={["name", "vpcName"]}
-        pageSize={10}
-        enableSearch={true}
-        enableColumnVisibility={false}
-        enablePagination={true}
-        onRefresh={handleRefresh}
-        enableVpcFilter={true}
-        vpcOptions={[
-          { value: "all", label: "All VPCs" },
-          { value: "production-vpc", label: "production-vpc" },
-          { value: "development-vpc", label: "development-vpc" },
-          { value: "staging-vpc", label: "staging-vpc" },
-        ]}
-      />
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('security-group')}
+          onAction={() => window.location.href = '/networking/security-groups/create'}
+        />
+      ) : (
+        <ShadcnDataTable
+          columns={columns}
+          data={dataWithActions}
+          searchableColumns={["name", "vpcName"]}
+          pageSize={10}
+          enableSearch={true}
+          enableColumnVisibility={false}
+          enablePagination={true}
+          onRefresh={handleRefresh}
+          enableVpcFilter={true}
+          vpcOptions={[
+            { value: "all", label: "All VPCs" },
+            { value: "production-vpc", label: "production-vpc" },
+            { value: "development-vpc", label: "development-vpc" },
+            { value: "staging-vpc", label: "staging-vpc" },
+          ]}
+        />
+      )}
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal

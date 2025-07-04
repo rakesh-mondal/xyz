@@ -21,6 +21,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar"
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
+import { filterBillingDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
+import { EmptyState } from "@/components/ui/empty-state"
 
 // Data for Summary section
 const pieData = [
@@ -178,6 +180,25 @@ export default function UsageMetricsPage() {
   const [studioTab, setStudioTab] = useState("model")
   const [solutionsTab, setSolutionsTab] = useState("bhashik")
 
+  // Apply demo user filtering to all billing data
+  const filteredPieData = filterBillingDataForUser(pieData)
+  const filteredServiceSummary = filterBillingDataForUser(serviceSummary)
+  const filteredMockCompute = filterBillingDataForUser(mockCompute)
+  const filteredMockStorage = filterBillingDataForUser(mockStorage)
+  const filteredMockNetwork = filterBillingDataForUser(mockNetwork)
+  const filteredAllInfra = filterBillingDataForUser(allInfra)
+  const filteredMockModelCatalog = filterBillingDataForUser(mockModelCatalog)
+  const filteredMockFinetune = filterBillingDataForUser(mockFinetune)
+  const filteredMockDeploy = filterBillingDataForUser(mockDeploy)
+  const filteredMockEval = filterBillingDataForUser(mockEval)
+  const filteredAllStudio = filterBillingDataForUser(allStudio)
+  const filteredMockBasic = filterBillingDataForUser(mockBasic)
+  const filteredMockDocInt = filterBillingDataForUser(mockDocInt)
+  const filteredMockIndustrial = filterBillingDataForUser(mockIndustrial)
+  const filteredAllSolutions = filterBillingDataForUser(allSolutions)
+  
+  const showEmptyState = shouldShowEmptyState()
+
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId)
   }
@@ -188,12 +209,22 @@ export default function UsageMetricsPage() {
 
   // Summary Section Component
   const SummarySection = () => {
+    if (showEmptyState) {
+      return (
+        <EmptyState
+          title="No Usage Data Yet"
+          description="Start using Krutrim Cloud services to see your usage summary, billing breakdown, and credit consumption here."
+          className="min-h-[400px]"
+        />
+      )
+    }
+
     const totalAvailableCredits = 69187.32; // Updated to show desired remaining credits
     const totalUsedCredits = 67093.659;
     const remainingCredits = totalAvailableCredits - totalUsedCredits;
     
     // Calculate percentages for horizontal bar chart
-    const barChartData = pieData.map(item => ({
+    const barChartData = filteredPieData.map(item => ({
       ...item,
       percentage: ((item.value / totalUsedCredits) * 100).toFixed(1)
     })).sort((a, b) => b.value - a.value); // Sort by value descending for better visual hierarchy
@@ -373,6 +404,7 @@ export default function UsageMetricsPage() {
       { id: "compute", label: "Compute" },
       { id: "storage", label: "Storage" },
       { id: "network", label: "Network" },
+      { id: "credits", label: "Add credit options" },
     ];
 
     // Data for each tab (updated to match VPC structure)
@@ -401,6 +433,45 @@ export default function UsageMetricsPage() {
 
     // Render table for each tab
     const renderTable = () => {
+      if (showEmptyState) {
+        if (coreTab === "compute") {
+          return (
+            <EmptyState
+              title="No Compute Usage Yet"
+              description="Your compute instances, VMs, and processing costs will appear here once you start using our compute services."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (coreTab === "storage") {
+          return (
+            <EmptyState
+              title="No Storage Usage Yet"
+              description="Your block storage, object storage, and data storage costs will appear here once you start using our storage services."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (coreTab === "network") {
+          return (
+            <EmptyState
+              title="No Network Usage Yet"
+              description="Your networking, bandwidth, and data transfer costs will appear here once you start using our network services."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (coreTab === "credits") {
+          return (
+            <EmptyState
+              title="No Credit Purchase History"
+              description="Your infrastructure credit purchases and usage credits will be displayed here once you start purchasing credit packages."
+              className="min-h-[300px]"
+            />
+          );
+        }
+      }
+      
       if (coreTab === "compute") {
         return (
           <div className="rounded-md border mt-4">
@@ -507,7 +578,7 @@ export default function UsageMetricsPage() {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-                          <CardTitle className="text-lg font-normal">Infrastructure Costs</CardTitle>
+          <CardTitle className="text-lg font-normal">Infrastructure Costs</CardTitle>
         </CardHeader>
         <CardContent>
             <VercelTabs
@@ -530,6 +601,7 @@ export default function UsageMetricsPage() {
       { id: "finetune", label: "Fine Tuning" },
       { id: "deploy", label: "Deployment" },
       { id: "eval", label: "Evaluation" },
+      { id: "credits", label: "Add credit options" },
     ];
 
     // Data for each tab (updated to match VPC structure)
@@ -559,6 +631,54 @@ export default function UsageMetricsPage() {
 
     // Render table for each tab
     const renderTable = () => {
+      if (showEmptyState) {
+        if (studioTab === "model") {
+          return (
+            <EmptyState
+              title="No Model Usage Yet"
+              description="Your AI model inference and API calls will be tracked here once you start using our model catalogue services."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (studioTab === "finetune") {
+          return (
+            <EmptyState
+              title="No Fine-tuning Jobs Yet"
+              description="Your model fine-tuning jobs and training costs will appear here once you start customizing models."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (studioTab === "deploy") {
+          return (
+            <EmptyState
+              title="No Model Deployments Yet"
+              description="Your deployed model instances and hosting costs will be shown here once you start deploying models."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (studioTab === "eval") {
+          return (
+            <EmptyState
+              title="No Model Evaluations Yet"
+              description="Your model evaluation runs and testing costs will be tracked here once you start evaluating models."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (studioTab === "credits") {
+          return (
+            <EmptyState
+              title="No AI Studio Credit Options"
+              description="Credit purchasing options for model inference, training, and deployment will be available here once you need additional credits."
+              className="min-h-[300px]"
+            />
+          );
+        }
+      }
+      
       if (studioTab === "model") {
         return (
           <div className="rounded-md border mt-4">
@@ -701,7 +821,7 @@ export default function UsageMetricsPage() {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-                          <CardTitle className="text-lg font-normal">Model Development Charges</CardTitle>
+          <CardTitle className="text-lg font-normal">Model Development Charges</CardTitle>
         </CardHeader>
         <CardContent>
             <VercelTabs
@@ -723,6 +843,7 @@ export default function UsageMetricsPage() {
       { id: "bhashik", label: "Bhashik" },
       { id: "dis", label: "DIS" },
       { id: "industrial", label: "Industrial Solution" },
+      { id: "credits", label: "Add credit options" },
     ];
 
     // Data for each tab (updated to match VPC structure)
@@ -757,6 +878,45 @@ export default function UsageMetricsPage() {
 
     // Render table for each tab
     const renderTable = () => {
+      if (showEmptyState) {
+        if (solutionsTab === "bhashik") {
+          return (
+            <EmptyState
+              title="No Bhashik Usage Yet"
+              description="Your speech-to-text, text-to-speech, and translation service usage will be tracked here once you start using Bhashik."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (solutionsTab === "dis") {
+          return (
+            <EmptyState
+              title="No DIS Usage Yet"
+              description="Your document intelligence, text extraction, and OCR service usage will be shown here once you start using DIS."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (solutionsTab === "industrial") {
+          return (
+            <EmptyState
+              title="No Industrial Solution Usage Yet"
+              description="Your industrial AI solutions, notebook usage, and pod storage costs will appear here once you start using our industrial services."
+              className="min-h-[300px]"
+            />
+          );
+        }
+        if (solutionsTab === "credits") {
+          return (
+            <EmptyState
+              title="No AI Solutions Credit Options"
+              description="Credit purchasing options for Bhashik, DIS, and other AI solutions will be available here to expand your usage capabilities."
+              className="min-h-[300px]"
+            />
+          );
+        }
+      }
+      
       if (solutionsTab === "bhashik") {
         return (
           <div className="rounded-md border mt-4">
@@ -864,7 +1024,7 @@ export default function UsageMetricsPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-1">
-                            <CardTitle className="text-lg font-normal">Deployed AI Charges</CardTitle>
+            <CardTitle className="text-lg font-normal">Deployed AI Charges</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -925,107 +1085,9 @@ export default function UsageMetricsPage() {
   };
 
   const headerActions = (
-    <>
-      <Button variant="outline">
-        Export
-      </Button>
-      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="flex items-center gap-2 min-w-[260px] justify-start text-left font-normal">
-            <CalendarIcon className="h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
-                </>
-              ) : (
-                <span className="text-blue-600">
-                  From: {format(date.from, "LLL dd, y")} | Select end
-                </span>
-              )
-            ) : (
-              "Pick a date range"
-            )}
-            <ChevronDownIcon className="h-4 w-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 flex" align="end">
-          {/* Quick Presets Sidebar */}
-          <div className="w-48 p-4 border-r bg-gray-50">
-            <h4 className="font-medium text-sm mb-3 text-gray-700">Quick Select</h4>
-            <div className="space-y-2">
-              {datePresets.map((preset) => (
-                <Button
-                  key={preset.label}
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start h-9 text-sm text-left px-3 py-2 hover:bg-gray-100"
-                  onClick={() => handleHeaderPresetSelect(preset)}
-                >
-                  {preset.label}
-                </Button>
-              ))}
-            </div>
-            
-            {/* Current Selection Status */}
-            {date?.from && (
-              <div className="mt-4 pt-3 border-t">
-                <h5 className="font-medium text-xs text-gray-600 mb-2">Current Selection</h5>
-                <div className="text-xs text-gray-500 space-y-1">
-                  <div>Start: {format(date.from, "MMM dd, y")}</div>
-                  {date.to ? (
-                    <div>End: {format(date.to, "MMM dd, y")}</div>
-                  ) : (
-                    <div className="text-blue-600">Select end date →</div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Calendar Section */}
-          <div className="p-3">
-            {/* Selection Progress Indicator */}
-            {isDateSelecting && date?.from && (
-              <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
-                <span className="font-medium">Start:</span> {format(date.from, "LLL dd, y")}
-                <br />
-                <span className="text-gray-600">Now select an end date</span>
-              </div>
-            )}
-            
-            <Calendar
-              initialFocus
-              mode="range"
-              defaultMonth={date?.from}
-              selected={date}
-              onSelect={handleHeaderDateSelect}
-              numberOfMonths={2}
-              className="rounded-md"
-              modifiers={{
-                ...(date?.from && { start: date.from }),
-                ...(date?.to && { end: date.to }),
-              }}
-              modifiersStyles={{
-                start: { 
-                  backgroundColor: '#3b82f6', 
-                  color: 'white',
-                  fontWeight: 'bold'
-                },
-                end: { 
-                  backgroundColor: '#ef4444', 
-                  color: 'white',
-                  fontWeight: 'bold'
-                },
-              }}
-            />
-          </div>
-        </PopoverContent>
-      </Popover>
-      <Link href="/billing/add-credits">
-        <Button variant="default">Add Credits</Button>
-      </Link>
-    </>
+    <Link href="/billing/add-credits">
+      <Button variant="default">Add Credits</Button>
+    </Link>
   )
 
   return (

@@ -8,6 +8,8 @@ import { StatusBadge } from "@/components/status-badge"
 import { ActionMenu } from "@/components/action-menu"
 import { Button } from "@/components/ui/button"
 import { ExternalLink } from "lucide-react"
+import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
+import { EmptyState } from "@/components/ui/empty-state"
 
 // Mock data for deployments
 const mockDeployments = [
@@ -63,6 +65,10 @@ const mockDeployments = [
 
 export default function DeploymentsPage() {
   const [deployments] = useState(mockDeployments)
+
+  // Filter data based on user type for demo
+  const filteredDeployments = filterDataForUser(deployments)
+  const showEmptyState = shouldShowEmptyState() && filteredDeployments.length === 0
 
   const handleRefresh = () => {
     console.log("🔄 Refreshing Deployments data at:", new Date().toLocaleTimeString())
@@ -145,20 +151,26 @@ export default function DeploymentsPage() {
         <CreateButton href="/models/deployment/create" label="New Deploy" />
       }
     >
-      <ShadcnDataTable 
-        columns={columns} 
-        data={deployments}
-        searchableColumns={["deploymentName", "instanceType"]}
-        defaultSort={{ column: "lastUpdated", direction: "desc" }}
-        pageSize={5}
-        enableSearch={true}
-        enableColumnVisibility={false}
-        enablePagination={deployments.length > 5}
-        onRefresh={handleRefresh}
-        enableAutoRefresh={true}
-        enableVpcFilter={true}
-        vpcOptions={statusOptions}
-      />
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('deployments')}
+        />
+      ) : (
+        <ShadcnDataTable 
+          columns={columns} 
+          data={filteredDeployments}
+          searchableColumns={["deploymentName", "instanceType"]}
+          defaultSort={{ column: "lastUpdated", direction: "desc" }}
+          pageSize={5}
+          enableSearch={true}
+          enableColumnVisibility={false}
+          enablePagination={filteredDeployments.length > 5}
+          onRefresh={handleRefresh}
+          enableAutoRefresh={true}
+          enableVpcFilter={true}
+          vpcOptions={statusOptions}
+        />
+      )}
     </PageShell>
   )
 }

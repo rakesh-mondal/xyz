@@ -12,10 +12,16 @@ import { Button } from "../../../components/ui/button"
 import { MoreVertical } from "lucide-react"
 import { ShadcnDataTable } from "../../../components/ui/shadcn-data-table"
 import { DeleteVPCResourceWarningModal, DeleteVPCConfirmationModal } from "../../../components/modals/delete-vpc-modals"
+import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "../../../lib/demo-data-filter"
+import { EmptyState } from "../../../components/ui/empty-state"
 
 export default function VPCListPage() {
   const [deleteStep, setDeleteStep] = useState<"warning" | "confirmation" | null>(null)
   const [selectedVPC, setSelectedVPC] = useState<any>(null)
+
+  // Filter data based on user type for demo
+  const filteredVPCs = filterDataForUser(vpcs)
+  const showEmptyState = shouldShowEmptyState() && filteredVPCs.length === 0
 
   const handleDeleteClick = (vpc: any) => {
     setSelectedVPC(vpc)
@@ -150,18 +156,25 @@ export default function VPCListPage() {
         <CreateButton href="/networking/vpc/create" label="Create VPC" />
       }
     >
-      <ShadcnDataTable 
-        columns={columns} 
-        data={vpcs}
-        searchableColumns={["name", "type", "description"]}
-        pageSize={10}
-        enableSearch={true}
-        enableColumnVisibility={false}
-        enablePagination={true}
-        onRefresh={handleRefresh}
-        enableAutoRefresh={true}
-        enableVpcFilter={false}
-      />
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('vpc')}
+          onAction={() => window.location.href = '/networking/vpc/create'}
+        />
+      ) : (
+        <ShadcnDataTable 
+          columns={columns} 
+          data={filteredVPCs}
+          searchableColumns={["name", "type", "description"]}
+          pageSize={10}
+          enableSearch={true}
+          enableColumnVisibility={false}
+          enablePagination={true}
+          onRefresh={handleRefresh}
+          enableAutoRefresh={true}
+          enableVpcFilter={false}
+        />
+      )}
 
       {/* Step 1: Resource Warning Modal */}
       {selectedVPC && (

@@ -70,12 +70,22 @@ export function SignInScreen() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Set authentication data in localStorage
+      let userType: 'existing' | 'new' | 'regular' = 'regular'
+      
+      // Determine user type based on demo credentials
+      if (email === "existing.user@krutrim.com") {
+        userType = 'existing'
+      } else if (email === "new.user@krutrim.com") {
+        userType = 'new'
+      }
+
       const userInfo = {
         name: email.split('@')[0],
         email: email,
         mobile: "",
         accountType: "individual",
-        signinCompletedAt: new Date().toISOString()
+        signinCompletedAt: new Date().toISOString(),
+        userType: userType
       }
       
       // Set auth token
@@ -196,6 +206,47 @@ export function SignInScreen() {
             <div>
               <Button type="submit" className="group relative flex w-full justify-center" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign in"}
+              </Button>
+            </div>
+
+            {/* Demo Credentials Section */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-2 text-gray-500">Or try demo credentials</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full text-left"
+                onClick={() => {
+                  setEmail("existing.user@krutrim.com")
+                  setPassword("demo123!")
+                }}
+              >
+                <div className="flex flex-col items-start">
+                  <span className="font-medium text-sm">Existing User</span>
+                  <span className="text-xs text-gray-500">With sample data</span>
+                </div>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full text-left"
+                onClick={() => {
+                  setEmail("new.user@krutrim.com")
+                  setPassword("demo123!")
+                }}
+              >
+                <div className="flex flex-col items-start">
+                  <span className="font-medium text-sm">New User</span>
+                  <span className="text-xs text-gray-500">Empty states</span>
+                </div>
               </Button>
             </div>
 

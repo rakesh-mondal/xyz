@@ -8,9 +8,7 @@ export default function DataLayout({
   return (
     <div className="flex h-full">
       <div className="flex-1">
-        <div className="p-4">
-          <div className="mt-6">{children}</div>
-        </div>
+        {children}
       </div>
     </div>
   )

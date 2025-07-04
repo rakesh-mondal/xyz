@@ -13,6 +13,8 @@ import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { ExtendVolumeModal } from "@/components/modals/extend-volume-modal"
 import { AttachedVolumeAlert, DeleteVolumeConfirmation } from "@/components/modals/delete-volume-modals"
 import { useToast } from "@/hooks/use-toast"
+import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
+import { EmptyState } from "@/components/ui/empty-state"
 
 // Mock data for block storage volumes
 const mockVolumes = [
@@ -193,6 +195,10 @@ function VolumesSection() {
   const [volumeToExtend, setVolumeToExtend] = useState<any>(null)
   const { toast } = useToast()
 
+  // Filter data based on user type for demo
+  const filteredVolumes = filterDataForUser(mockVolumes)
+  const showEmptyState = shouldShowEmptyState() && filteredVolumes.length === 0
+
   const handleDeleteClick = (volume: any) => {
     setSelectedVolume(volume)
     
@@ -354,14 +360,14 @@ function VolumesSection() {
   ]
 
   // Add actions property to each volume row for DataTable
-  const dataWithActions = mockVolumes.map((volume) => ({ ...volume, actions: null }))
+  const dataWithActions = filteredVolumes.map((volume) => ({ ...volume, actions: null }))
 
   const handleRefresh = () => {
     window.location.reload()
   }
 
   // Get unique VPCs for filter options
-  const vpcOptions = Array.from(new Set(mockVolumes.map(volume => volume.vpc)))
+  const vpcOptions = Array.from(new Set(filteredVolumes.map(volume => volume.vpc)))
     .map(vpc => ({ value: vpc, label: vpc }))
 
   // Add "All VPCs" option at the beginning
@@ -369,18 +375,24 @@ function VolumesSection() {
 
   return (
     <div className="space-y-6">
-      <ShadcnDataTable
-        columns={columns}
-        data={dataWithActions}
-        searchableColumns={["name", "attachedInstance"]}
-        defaultSort={{ column: "status", direction: "asc" }}
-        pageSize={10}
-        enableSearch={true}
-        enablePagination={true}
-        onRefresh={handleRefresh}
-        enableVpcFilter={true}
-        vpcOptions={vpcOptions}
-      />
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('volumes')}
+        />
+      ) : (
+        <ShadcnDataTable
+          columns={columns}
+          data={dataWithActions}
+          searchableColumns={["name", "attachedInstance"]}
+          defaultSort={{ column: "status", direction: "asc" }}
+          pageSize={10}
+          enableSearch={true}
+          enablePagination={true}
+          onRefresh={handleRefresh}
+          enableVpcFilter={true}
+          vpcOptions={vpcOptions}
+        />
+      )}
 
       {/* Alert for volumes attached to VMs */}
       {selectedVolume && (
