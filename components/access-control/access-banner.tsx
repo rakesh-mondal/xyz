@@ -14,16 +14,26 @@ interface AccessBannerProps {
 }
 
 export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps) {
-  const { user, accessLevel } = useAuth()
+  const { user, accessLevel, getUserType } = useAuth()
   const router = useRouter()
 
   // Don't show banner for full access users
   if (accessLevel === 'full') return null
 
+  const userType = getUserType()
+  const isNewUser = userType === 'new'
+  const isExistingUser = userType === 'existing'
+
   const handleCompleteProfile = () => {
-    if (onCompleteProfile) {
-      onCompleteProfile()
+    if (isNewUser) {
+      // New users: Open modal (current behavior)
+      if (onCompleteProfile) {
+        onCompleteProfile()
+      } else {
+        router.push('/dashboard/profile-completion')
+      }
     } else {
+      // Existing users: Always navigate to profile completion page
       router.push('/dashboard/profile-completion')
     }
   }
@@ -80,7 +90,7 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
             }}
             size="sm"
           >
-            Verify your identity
+            {isNewUser ? 'Verify your identity' : 'Complete your profile'}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
@@ -116,15 +126,25 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
 
 // Compact version for smaller spaces
 export function AccessBannerCompact({ onCompleteProfile, className }: AccessBannerProps) {
-  const { user, accessLevel } = useAuth()
+  const { user, accessLevel, getUserType } = useAuth()
   const router = useRouter()
 
   if (accessLevel === 'full') return null
 
+  const userType = getUserType()
+  const isNewUser = userType === 'new'
+  const isExistingUser = userType === 'existing'
+
   const handleCompleteProfile = () => {
-    if (onCompleteProfile) {
-      onCompleteProfile()
+    if (isNewUser) {
+      // New users: Open modal (current behavior)
+      if (onCompleteProfile) {
+        onCompleteProfile()
+      } else {
+        router.push('/dashboard/profile-completion')
+      }
     } else {
+      // Existing users: Always navigate to profile completion page
       router.push('/dashboard/profile-completion')
     }
   }
@@ -152,7 +172,7 @@ export function AccessBannerCompact({ onCompleteProfile, className }: AccessBann
           size="sm"
           className="text-xs"
         >
-          Complete
+          {isNewUser ? 'Verify' : 'Complete'}
           <ArrowRight className="ml-1 h-3 w-3" />
         </Button>
       </div>

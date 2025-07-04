@@ -151,6 +151,8 @@ export function ProfileCompletionDashboard({
 
   const [hasChanges, setHasChanges] = useState(false)
   const [showIdentityVerificationModal, setShowIdentityVerificationModal] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [isProfileSaved, setIsProfileSaved] = useState(false)
 
   // Check if form data has changed
   useEffect(() => {
@@ -159,6 +161,26 @@ export function ProfileCompletionDashboard({
     )
     setHasChanges(isChanged)
   }, [formData, originalData])
+
+  // Check if profile is complete (all required fields filled)
+  const isProfileComplete = () => {
+    const requiredFields = [
+      'firstName',
+      'lastName', 
+      'email',
+      'mobile',
+      'companyName',
+      'address',
+      'organizationType',
+      'typeOfWorkload',
+      'natureOfBusiness'
+    ]
+    
+    return requiredFields.every(field => {
+      const value = formData[field as keyof typeof formData]
+      return value && value.trim() !== ''
+    })
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
@@ -173,6 +195,13 @@ export function ProfileCompletionDashboard({
     // Save the form data
     setOriginalData(formData)
     setHasChanges(false)
+    
+    // Mark profile as saved
+    setIsProfileSaved(true)
+    
+    // Show success modal after saving
+    setShowSuccessModal(true)
+    
     // You can add API call here to save the data
   }
 
@@ -211,6 +240,17 @@ export function ProfileCompletionDashboard({
   const handleIdentityVerificationCancel = () => {
     // Close modal without completing verification
     setShowIdentityVerificationModal(false)
+  }
+
+  const handleSuccessModalVerifyIdentity = () => {
+    // Close success modal and open identity verification modal
+    setShowSuccessModal(false)
+    setShowIdentityVerificationModal(true)
+  }
+
+  const handleSuccessModalClose = () => {
+    // Just close the success modal
+    setShowSuccessModal(false)
   }
 
   const benefits = [
@@ -541,12 +581,60 @@ export function ProfileCompletionDashboard({
           <Button 
             type="button"
             onClick={handleVerifyIdentity}
-            className="w-full bg-black text-white hover:bg-black/90 transition-colors"
+            disabled={!isProfileComplete() && !isProfileSaved}
+            className="w-full bg-black text-white hover:bg-black/90 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             Verify your identity
           </Button>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="p-0 bg-white max-w-md w-full overflow-hidden flex flex-col">
+          {/* Header */}
+          <div className="flex-shrink-0 p-6 border-b">
+            <DialogHeader>
+              <DialogTitle>Profile Updated Successfully!</DialogTitle>
+              <DialogDescription>
+                Your profile has been saved. Now verify your identity to unlock full access.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          {/* Main Content */}
+          <div className="flex-1 p-6 text-center">
+            <div className="space-y-6">
+              <Shield className="mx-auto h-16 w-16 text-green-600" />
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold">Profile Successfully Updated</h3>
+                <p className="text-gray-600">
+                  Great! Your profile information has been saved. Complete your identity verification to access all Krutrim Cloud features.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex-shrink-0 p-6 border-t bg-gray-50">
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={handleSuccessModalClose}
+                className="flex-1"
+              >
+                Later
+              </Button>
+              <Button
+                onClick={handleSuccessModalVerifyIdentity}
+                className="flex-1 bg-black text-white hover:bg-black/90"
+              >
+                Verify Identity
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Identity Verification Modal */}
       <Dialog open={showIdentityVerificationModal} onOpenChange={setShowIdentityVerificationModal}>
