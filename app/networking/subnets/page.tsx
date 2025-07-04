@@ -125,6 +125,7 @@ export default function SubnetListPage() {
       render: (_: any, row: any) => (
         <div className="flex justify-end">
           <ActionMenu
+            editHref={`/networking/subnets/${row.id}/edit`}
             onCustomDelete={() => handleDeleteClick(row)}
             onConnectSubnet={() => handleConnectSubnet(row)}
             resourceName={row.name}
