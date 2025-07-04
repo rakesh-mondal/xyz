@@ -253,7 +253,20 @@ export default function CreateVPCPage() {
                                 Subnet Name
                               </Label>
                               <TooltipWrapper 
-                                content="Name for your subnet. Use letters, numbers, hyphens, underscores."
+                                content={
+                                  <div className="space-y-2">
+                                    <p className="font-medium">Subnet Name Guidelines</p>
+                                    <p>Choose a descriptive name that identifies the subnet's purpose or environment.</p>
+                                    <p><strong>Allowed characters:</strong></p>
+                                    <ul className="list-disc pl-4 space-y-1">
+                                      <li>Letters (a-z, A-Z)</li>
+                                      <li>Numbers (0-9)</li>
+                                      <li>Hyphens (-)</li>
+                                      <li>Underscores (_)</li>
+                                    </ul>
+                                    <p><strong>Examples:</strong> web-subnet, db-private, app-tier-1</p>
+                                  </div>
+                                }
                                 side="top"
                               >
                                 <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
@@ -289,7 +302,19 @@ export default function CreateVPCPage() {
                                   CIDR
                                 </Label>
                                 <TooltipWrapper 
-                                  content="IP range for subnet. Example: 10.0.0.0/24 = 254 IPs"
+                                  content={
+                                    <div className="space-y-2">
+                                      <p className="font-medium">CIDR Block Configuration</p>
+                                      <p>Define the IP address range for your subnet using CIDR notation.</p>
+                                      <p><strong>Common CIDR blocks:</strong></p>
+                                      <ul className="list-disc pl-4 space-y-1">
+                                        <li>/24 = 254 usable IPs (good for small environments)</li>
+                                        <li>/23 = 510 usable IPs (good for medium environments)</li>
+                                        <li>/22 = 1022 usable IPs (good for large environments)</li>
+                                      </ul>
+                                      <p><strong>Example:</strong> 10.0.1.0/24 provides IPs from 10.0.1.1 to 10.0.1.254</p>
+                                    </div>
+                                  }
                                   side="top"
                                 >
                                   <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
@@ -313,7 +338,19 @@ export default function CreateVPCPage() {
                                   Gateway IP
                                 </Label>
                                 <TooltipWrapper 
-                                  content="Default gateway IP. Usually first IP in range (e.g., 10.0.0.1)"
+                                  content={
+                                    <div className="space-y-2">
+                                      <p className="font-medium">Gateway IP Configuration</p>
+                                      <p>The gateway IP serves as the default route for resources in this subnet to communicate with other subnets and external networks.</p>
+                                      <p><strong>Best Practices:</strong></p>
+                                      <ul className="list-disc pl-4 space-y-1">
+                                        <li>Usually the first IP in your CIDR range</li>
+                                        <li>Must be within your subnet's CIDR range</li>
+                                        <li>Cannot be the network or broadcast address</li>
+                                      </ul>
+                                      <p><strong>Example:</strong> For subnet 10.0.1.0/24, use 10.0.1.1 as gateway</p>
+                                    </div>
+                                  }
                                   side="top"
                                 >
                                   <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
@@ -337,7 +374,25 @@ export default function CreateVPCPage() {
                                   Network Accessibility
                                 </Label>
                                 <TooltipWrapper 
-                                  content="Private: isolated from internet. Public: internet accessible"
+                                  content={
+                                    <div className="space-y-2">
+                                      <p className="font-medium">Network Accessibility Types</p>
+                                      <p><strong>Private Subnet:</strong></p>
+                                      <ul className="list-disc pl-4 space-y-1">
+                                        <li>Isolated from direct internet access</li>
+                                        <li>Resources can only communicate within the VPC</li>
+                                        <li>Ideal for databases, application servers, and backend services</li>
+                                        <li>Higher security for sensitive workloads</li>
+                                      </ul>
+                                      <p><strong>Public Subnet:</strong></p>
+                                      <ul className="list-disc pl-4 space-y-1">
+                                        <li>Direct internet access available</li>
+                                        <li>Resources can receive public IP addresses</li>
+                                        <li>Suitable for web servers, load balancers, and NAT gateways</li>
+                                        <li>Required for internet-facing applications</li>
+                                      </ul>
+                                    </div>
+                                  }
                                   side="top"
                                 >
                                   <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />

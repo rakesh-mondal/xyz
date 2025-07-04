@@ -30,7 +30,7 @@ interface Rule {
 
 export default function EditSecurityGroupPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const [showCreateVpcModal, setShowCreateVpcModal] = useState(false)
+
   const [loading, setLoading] = useState(true)
   
   // Get security group data
@@ -43,7 +43,6 @@ export default function EditSecurityGroupPage({ params }: { params: { id: string
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    vpc: "",
     securityGroupFor: "vpc",
   })
 
@@ -57,7 +56,6 @@ export default function EditSecurityGroupPage({ params }: { params: { id: string
       setFormData({
         name: sg.name,
         description: sg.description || "",
-        vpc: sg.vpcName,
         securityGroupFor: "vpc",
       })
       setInboundRules([...sg.inboundRules])
@@ -79,10 +77,18 @@ export default function EditSecurityGroupPage({ params }: { params: { id: string
     if (isInbound) {
       const newRules = [...inboundRules]
       newRules[index] = { ...newRules[index], [field]: value }
+      // Auto-set port range when protocol is "all"
+      if (field === "protocol" && value === "all") {
+        newRules[index] = { ...newRules[index], portRange: "0-65535" }
+      }
       setInboundRules(newRules)
     } else {
       const newRules = [...outboundRules]
       newRules[index] = { ...newRules[index], [field]: value }
+      // Auto-set port range when protocol is "all"
+      if (field === "protocol" && value === "all") {
+        newRules[index] = { ...newRules[index], portRange: "0-65535" }
+      }
       setOutboundRules(newRules)
     }
   }
@@ -178,18 +184,17 @@ export default function EditSecurityGroupPage({ params }: { params: { id: string
                 <div className="mb-8">
                   <div className="mb-5">
                     <Label htmlFor="name" className="block mb-2 font-medium">
-                      Security Group Name <span className="text-destructive">*</span>
+                      Security Group Name
                     </Label>
                     <Input
                       id="name"
-                      placeholder="Enter security group name"
                       value={formData.name}
-                      onChange={handleChange}
-                      className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                      required
+                      className="bg-muted border-muted-foreground/20 text-muted-foreground cursor-not-allowed"
+                      disabled
+                      readOnly
                     />
                     <p className="text-xs text-muted-foreground mt-1">
-                      Only alphanumeric characters, hyphens, and underscores allowed.
+                      Security group name cannot be changed after creation.
                     </p>
                   </div>
 
@@ -206,21 +211,15 @@ export default function EditSecurityGroupPage({ params }: { params: { id: string
                     />
                   </div>
 
-                  <VPCSelector 
-                    value={formData.vpc}
-                    onChange={(value) => handleSelectChange("vpc", value)}
-                  />
-
                   <div className="mb-5">
                     <Label htmlFor="securityGroupFor" className="block mb-2 font-medium">
-                      Security Group For <span className="text-destructive">*</span>
+                      Security Group For
                     </Label>
                     <Select
                       value={formData.securityGroupFor}
-                      onValueChange={(value) => handleSelectChange("securityGroupFor", value)}
-                      required
+                      disabled
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-muted border-muted-foreground/20 text-muted-foreground cursor-not-allowed">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -288,8 +287,14 @@ export default function EditSecurityGroupPage({ params }: { params: { id: string
                             value={rule.portRange}
                             onChange={(e) => handleRuleChange(index, "portRange", e.target.value, true)}
                             className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            disabled={rule.protocol === "all"}
                             required
                           />
+                          {rule.protocol === "all" && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              All ports (0-65535) are automatically selected for "All" protocol
+                            </p>
+                          )}
                         </div>
 
                         <div>
@@ -377,8 +382,14 @@ export default function EditSecurityGroupPage({ params }: { params: { id: string
                             value={rule.portRange}
                             onChange={(e) => handleRuleChange(index, "portRange", e.target.value, false)}
                             className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            disabled={rule.protocol === "all"}
                             required
                           />
+                          {rule.protocol === "all" && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              All ports (0-65535) are automatically selected for "All" protocol
+                            </p>
+                          )}
                         </div>
 
                         <div>
@@ -473,11 +484,7 @@ export default function EditSecurityGroupPage({ params }: { params: { id: string
         </div>
       </div>
 
-      <Dialog open={showCreateVpcModal} onOpenChange={setShowCreateVpcModal}>
-        <DialogContent className="p-0 bg-white max-w-[80vw] max-h-[85vh] w-[80vw] h-[85vh] overflow-hidden flex flex-col">
-          <CreateVPCModalContent onClose={() => setShowCreateVpcModal(false)} />
-        </DialogContent>
-      </Dialog>
+
     </PageLayout>
   )
 }
@@ -798,19 +805,19 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                     </div>
 
                     <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                      <p className="text-gray-600" style={{ fontSize: '13px' }}>
-                        You can configure specific settings such as the Subnet, CIDR block, and Gateway IP in the advanced settings.
-                      </p>
+                                              <p className="text-gray-600" style={{ fontSize: '13px' }}>
+                          You can configure specific settings such as the Subnet, CIDR block, and Gateway IP in the advanced settings.
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Advanced Settings */}
-                  <div className="mb-8">
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="advanced-settings">
-                        <AccordionTrigger className="text-base font-semibold">
-                          Advanced Settings
-                        </AccordionTrigger>
+                    {/* Advanced Settings */}
+                    <div className="mb-8">
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="advanced-settings">
+                          <AccordionTrigger className="text-base font-semibold">
+                            Advanced Settings
+                          </AccordionTrigger>
                         <AccordionContent>
                           <div className="pt-4">
                             <div className="mb-5">

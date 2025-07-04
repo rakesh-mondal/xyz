@@ -21,6 +21,7 @@ interface User {
   organizationType?: string
   natureOfBusiness?: string
   typeOfWorkload?: string
+  userType?: "new" | "existing"
   profileStatus: {
     basicInfoComplete: boolean
     identityVerified: boolean
@@ -34,11 +35,12 @@ type AuthContextType = {
   isLoading: boolean
   user: User | null
   accessLevel: AccessLevel
-  login: (email: string, password: string) => Promise<boolean>
+  login: (email: string, password: string, userType?: "new" | "existing") => Promise<boolean>
   logout: () => void
   setUserData: (data: Partial<User>) => void
   updateProfileStatus: (status: Partial<User['profileStatus']>) => void
   refreshAccessLevel: () => void
+  getUserType: () => "new" | "existing" | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -94,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               mobile: parsedUser.mobile || '',
               accountType: parsedUser.accountType || 'individual',
               companyName: parsedUser.companyName,
+              userType: parsedUser.userType || 'existing', // Default to existing
               profileStatus: {
                 basicInfoComplete: parsedUser.profileStatus?.basicInfoComplete ?? true, // From signup
                 identityVerified: parsedUser.profileStatus?.identityVerified ?? false,
@@ -120,6 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Set default limited access for authenticated users without valid data
           const defaultUser: User = {
             name: 'User',
+            userType: 'existing',
             profileStatus: {
               basicInfoComplete: true,
               identityVerified: false,
@@ -164,6 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setUserData = (data: Partial<User>) => {
     const updatedUser = user ? { ...user, ...data } : {
       name: data.name || 'User',
+      userType: data.userType || 'existing',
       profileStatus: {
         basicInfoComplete: true,
         identityVerified: false,
@@ -209,7 +214,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, userType: "new" | "existing" = "existing") => {
     // Simulate API call
     setIsLoading(true)
 
@@ -219,14 +224,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set a cookie to simulate authentication
     document.cookie = "auth-token=authenticated; path=/; max-age=3600"
     
-    // Set default user with limited access (after signup but before profile completion)
-    const defaultUser: User = {
-      name: 'User',
-      email: email,
-      profileStatus: {
-        basicInfoComplete: true, // Login implies basic info is complete
-        identityVerified: false,
-        paymentSetupComplete: false
+    // Set user based on type
+    let defaultUser: User
+    
+    if (userType === "new") {
+      // New user - just signed up, needs identity verification
+      defaultUser = {
+        name: 'New User',
+        email: email,
+        userType: 'new',
+        profileStatus: {
+          basicInfoComplete: true, // Login implies basic info is complete
+          identityVerified: false,
+          paymentSetupComplete: false
+        }
+      }
+    } else {
+      // Existing user - has basic profile but needs to complete it
+      defaultUser = {
+        name: 'Existing User',
+        email: email,
+        userType: 'existing',
+        profileStatus: {
+          basicInfoComplete: true,
+          identityVerified: false,
+          paymentSetupComplete: false
+        }
       }
     }
     
@@ -254,6 +277,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, 100)
   }
 
+  const getUserType = () => {
+    return user?.userType || null
+  }
+
   return (
     <AuthContext.Provider value={{ 
       isAuthenticated, 
@@ -264,7 +291,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout, 
       setUserData, 
       updateProfileStatus,
-      refreshAccessLevel
+      refreshAccessLevel,
+      getUserType
     }}>
       {children}
     </AuthContext.Provider>

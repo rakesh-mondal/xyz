@@ -16,7 +16,7 @@ import { Dialog, DialogContent } from "../../../../components/ui/dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../components/ui/accordion"
 import { TooltipWrapper } from "../../../../components/ui/tooltip-wrapper"
 import { HelpCircle, ChevronDown, Check, Search } from "lucide-react"
-import { vpcs } from "../../../../lib/data"
+
 import Link from "next/link"
 
 interface Rule {
@@ -29,21 +29,28 @@ interface Rule {
 
 export default function CreateSecurityGroupPage() {
   const router = useRouter()
-  const [showCreateVpcModal, setShowCreateVpcModal] = useState(false)
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    vpc: "",
     securityGroupFor: "vpc",
   })
 
-  const [inboundRules, setInboundRules] = useState<Rule[]>([])
+  const [inboundRules, setInboundRules] = useState<Rule[]>([
+    {
+      id: "in-rule-1",
+      protocol: "tcp",
+      portRange: "22",
+      remoteIpPrefix: "0.0.0.0/0",
+      description: "SSH",
+    },
+  ])
 
   const [outboundRules, setOutboundRules] = useState<Rule[]>([
     {
       id: "out-rule-1",
       protocol: "all",
-      portRange: "All",
+      portRange: "0-65535",
       remoteIpPrefix: "0.0.0.0/0",
       description: "Allow all outbound traffic",
     },
@@ -62,10 +69,18 @@ export default function CreateSecurityGroupPage() {
     if (isInbound) {
       const newRules = [...inboundRules]
       newRules[index] = { ...newRules[index], [field]: value }
+      // Auto-set port range when protocol is "all"
+      if (field === "protocol" && value === "all") {
+        newRules[index] = { ...newRules[index], portRange: "0-65535" }
+      }
       setInboundRules(newRules)
     } else {
       const newRules = [...outboundRules]
       newRules[index] = { ...newRules[index], [field]: value }
+      // Auto-set port range when protocol is "all"
+      if (field === "protocol" && value === "all") {
+        newRules[index] = { ...newRules[index], portRange: "0-65535" }
+      }
       setOutboundRules(newRules)
     }
   }
@@ -162,12 +177,6 @@ export default function CreateSecurityGroupPage() {
                     />
                   </div>
 
-                  <VPCSelector 
-                    value={formData.vpc}
-                    onChange={(value) => handleSelectChange("vpc", value)}
-                    onCreateNew={() => setShowCreateVpcModal(true)}
-                  />
-
                   <div className="mb-5">
                     <Label htmlFor="securityGroupFor" className="block mb-2 font-medium">
                       Security Group For <span className="text-destructive">*</span>
@@ -247,8 +256,14 @@ export default function CreateSecurityGroupPage() {
                                 value={rule.portRange}
                                 onChange={(e) => handleRuleChange(index, "portRange", e.target.value, true)}
                                 className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                disabled={rule.protocol === "all"}
                                 required
                               />
+                              {rule.protocol === "all" && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  All ports (0-65535) are automatically selected for "All" protocol
+                                </p>
+                              )}
                             </div>
 
                             <div>
@@ -365,8 +380,14 @@ export default function CreateSecurityGroupPage() {
                                 value={rule.portRange}
                                 onChange={(e) => handleRuleChange(index, "portRange", e.target.value, false)}
                                 className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                disabled={rule.protocol === "all"}
                                 required
                               />
+                              {rule.protocol === "all" && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  All ports (0-65535) are automatically selected for "All" protocol
+                                </p>
+                              )}
                             </div>
 
                             <div>
@@ -488,11 +509,7 @@ export default function CreateSecurityGroupPage() {
         </div>
       </div>
 
-      <Dialog open={showCreateVpcModal} onOpenChange={setShowCreateVpcModal}>
-        <DialogContent className="p-0 bg-white max-w-[80vw] max-h-[85vh] w-[80vw] h-[85vh] overflow-hidden flex flex-col">
-          <CreateVPCModalContent onClose={() => setShowCreateVpcModal(false)} />
-        </DialogContent>
-      </Dialog>
+
     </PageLayout>
   )
 }
@@ -811,19 +828,19 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                     </div>
 
                     <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                      <p className="text-gray-600" style={{ fontSize: '13px' }}>
-                        You can configure specific settings such as the Subnet, CIDR block, and Gateway IP in the advanced settings.
-                      </p>
+                                              <p className="text-gray-600" style={{ fontSize: '13px' }}>
+                          You can configure specific settings such as the Subnet, CIDR block, and Gateway IP in the advanced settings.
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Advanced Settings */}
-                  <div className="mb-8">
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="advanced-settings">
-                        <AccordionTrigger className="text-base font-semibold">
-                          Advanced Settings
-                        </AccordionTrigger>
+                    {/* Advanced Settings */}
+                    <div className="mb-8">
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="advanced-settings">
+                          <AccordionTrigger className="text-base font-semibold">
+                            Advanced Settings
+                          </AccordionTrigger>
                         <AccordionContent>
                           <div className="pt-4">
                             <div className="mb-5">

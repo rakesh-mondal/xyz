@@ -145,7 +145,19 @@ export default function CreateSubnetPage() {
                           CIDR <span className="text-destructive">*</span>
                         </Label>
                         <TooltipWrapper 
-                          content="Specify the IP address range for this subnet using CIDR notation"
+                          content={
+                            <div className="space-y-2">
+                              <p className="font-medium">CIDR Block Configuration</p>
+                              <p>Define the IP address range for your subnet using CIDR notation (e.g., 192.168.1.0/24).</p>
+                              <p><strong>Examples:</strong></p>
+                              <ul className="list-disc pl-4 space-y-1">
+                                <li>/24 = 254 usable IPs (good for small environments)</li>
+                                <li>/23 = 510 usable IPs (good for medium environments)</li>
+                                <li>/22 = 1022 usable IPs (good for large environments)</li>
+                              </ul>
+                              <p><strong>Important:</strong> Choose a CIDR block that doesn't overlap with existing subnets and provides adequate IP addresses for your resources.</p>
+                            </div>
+                          }
                           side="top"
                         >
                           <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
@@ -170,7 +182,19 @@ export default function CreateSubnetPage() {
                           Gateway IP <span className="text-destructive">*</span>
                         </Label>
                         <TooltipWrapper 
-                          content="The gateway IP address for this subnet (usually the first IP in the range)"
+                          content={
+                            <div className="space-y-2">
+                              <p className="font-medium">Gateway IP Configuration</p>
+                              <p>The gateway IP serves as the default route for resources in this subnet to communicate with other subnets and external networks.</p>
+                              <p><strong>Best Practices:</strong></p>
+                              <ul className="list-disc pl-4 space-y-1">
+                                <li>Usually the first IP in your CIDR range (e.g., 192.168.1.1 for 192.168.1.0/24)</li>
+                                <li>Must be within your subnet's CIDR range</li>
+                                <li>Cannot be the network or broadcast address</li>
+                              </ul>
+                              <p><strong>Example:</strong> For subnet 192.168.1.0/24, use 192.168.1.1 as gateway</p>
+                            </div>
+                          }
                           side="top"
                         >
                           <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
@@ -230,7 +254,7 @@ export default function CreateSubnetPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Ensure subnet CIDR is within your VPC's CIDR range</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Plan IP address allocation to avoid future conflicts</span>
                 </li>
               </ul>
             </CardContent>
@@ -345,11 +369,6 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
     vpcName: "",
     region: "",
     description: "",
-    subnetName: "",
-    subnetDescription: "",
-    cidr: "",
-    gatewayIp: "",
-    networkAccessibility: "",
   })
   const [loading, setLoading] = useState(false)
   const [isFirstVPC] = useState(true)
@@ -560,135 +579,6 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                         />
                       </div>
 
-                      <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                        <p className="text-gray-600" style={{ fontSize: '13px' }}>
-                          You can configure specific settings such as the Subnet, CIDR block, and Gateway IP in the advanced settings.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Advanced Settings */}
-                    <div className="mb-8">
-                      <Accordion type="single" collapsible className="w-full">
-                        <AccordionItem value="advanced-settings">
-                          <AccordionTrigger className="text-base font-semibold">
-                            Advanced Settings
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="pt-4">
-                              <div className="mb-5">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Label htmlFor="subnetName" className="font-medium">
-                                    Subnet Name
-                                  </Label>
-                                  <TooltipWrapper 
-                                    content="Name for your subnet. Use letters, numbers, hyphens, underscores."
-                                    side="top"
-                                  >
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                  </TooltipWrapper>
-                                </div>
-                                <Input
-                                  id="subnetName"
-                                  placeholder="Enter subnet name"
-                                  value={formData.subnetName}
-                                  onChange={handleChange}
-                                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                />
-                              </div>
-
-                              <div className="mb-5">
-                                <Label htmlFor="subnetDescription" className="block mb-2 font-medium">
-                                  Subnet Description
-                                </Label>
-                                <Textarea
-                                  id="subnetDescription"
-                                  placeholder="Enter subnet description"
-                                  value={formData.subnetDescription}
-                                  onChange={handleChange}
-                                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[80px]"
-                                />
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-                                <div>
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Label htmlFor="cidr" className="font-medium">
-                                      CIDR
-                                    </Label>
-                                    <TooltipWrapper 
-                                      content="IP range for subnet. Example: 10.0.0.0/24 = 254 IPs"
-                                      side="top"
-                                    >
-                                      <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                    </TooltipWrapper>
-                                  </div>
-                                  <Input
-                                    id="cidr"
-                                    placeholder="e.g., 10.0.0.0/24"
-                                    value={formData.cidr}
-                                    onChange={handleChange}
-                                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                  />
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    IP address range in CIDR notation
-                                  </p>
-                                </div>
-
-                                <div>
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Label htmlFor="gatewayIp" className="font-medium">
-                                      Gateway IP
-                                    </Label>
-                                    <TooltipWrapper 
-                                      content="Default gateway IP. Usually first IP in range (e.g., 10.0.0.1)"
-                                      side="top"
-                                    >
-                                      <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                    </TooltipWrapper>
-                                  </div>
-                                  <Input
-                                    id="gatewayIp"
-                                    placeholder="e.g., 10.0.0.1"
-                                    value={formData.gatewayIp}
-                                    onChange={handleChange}
-                                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                  />
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    Gateway IP address
-                                  </p>
-                                </div>
-
-                                <div>
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Label htmlFor="networkAccessibility" className="font-medium">
-                                      Network Accessibility
-                                    </Label>
-                                    <TooltipWrapper 
-                                      content="Private: isolated from internet. Public: internet accessible"
-                                      side="top"
-                                    >
-                                      <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                    </TooltipWrapper>
-                                  </div>
-                                  <Select value={formData.networkAccessibility} onValueChange={(value) => handleSelectChange("networkAccessibility", value)}>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select accessibility" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="private">Private</SelectItem>
-                                      <SelectItem value="public">Public</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    Internet accessibility
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
                     </div>
                   </form>
                 </CardContent>

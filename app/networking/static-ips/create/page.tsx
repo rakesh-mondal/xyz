@@ -547,7 +547,7 @@ function CreateSubnetModalContent({ onClose }: { onClose: () => void }) {
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Ensure subnet CIDR is within your VPC's CIDR range</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Reserve IP addresses for consistent resource access</span>
                 </li>
               </ul>
             </CardContent>
