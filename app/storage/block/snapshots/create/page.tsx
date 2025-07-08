@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Switch } from "@/components/ui/switch"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
+import { HelpCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { snapshots } from "@/lib/data"
 
@@ -463,9 +465,17 @@ export default function CreateSnapshotPage() {
                   {/* Resource Selection */}
                   {snapshotType === "volume" ? (
                     <div>
-                      <Label htmlFor="volume" className="block mb-2 font-medium">
-                        Select Volume <span className="text-destructive">*</span>
-                      </Label>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Label htmlFor="volume" className="font-medium">
+                          Select Volume <span className="text-destructive">*</span>
+                        </Label>
+                        <TooltipWrapper 
+                          content="Only volumes that are available or attached can be snapshotted." 
+                          side="top"
+                        >
+                          <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                        </TooltipWrapper>
+                      </div>
                       <Select 
                         value={selectedVolume} 
                         onValueChange={(value) => handleResourceChange(value, "volume")}
@@ -484,15 +494,20 @@ export default function CreateSnapshotPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Only volumes that are available or attached can be snapshotted.
-                      </p>
                     </div>
                   ) : (
                     <div>
-                      <Label htmlFor="vm" className="block mb-2 font-medium">
-                        Select Virtual Machine <span className="text-destructive">*</span>
-                      </Label>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Label htmlFor="vm" className="font-medium">
+                          Select Virtual Machine <span className="text-destructive">*</span>
+                        </Label>
+                        <TooltipWrapper 
+                          content="VM snapshots capture the entire machine state including all attached volumes." 
+                          side="top"
+                        >
+                          <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                        </TooltipWrapper>
+                      </div>
                       <Select 
                         value={selectedVM} 
                         onValueChange={(value) => handleResourceChange(value, "vm")}
@@ -509,17 +524,22 @@ export default function CreateSnapshotPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        VM snapshots capture the entire machine state including all attached volumes.
-                      </p>
                     </div>
                   )}
 
                   {/* Maximum Snapshots */}
                   <div>
-                    <Label htmlFor="maxSnapshots" className="block mb-2 font-medium">
-                      Maximum Snapshots <span className="text-destructive">*</span>
-                    </Label>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Label htmlFor="maxSnapshots" className="font-medium">
+                        Maximum Snapshots <span className="text-destructive">*</span>
+                      </Label>
+                      <TooltipWrapper 
+                        content="When this limit is reached, the oldest snapshot (except Primary) will be replaced." 
+                        side="top"
+                      >
+                        <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                      </TooltipWrapper>
+                    </div>
                     <Select value={maxSnapshots} onValueChange={handleMaxSnapshotsChange} required>
                       <SelectTrigger>
                         <SelectValue />
@@ -530,39 +550,48 @@ export default function CreateSnapshotPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      When this limit is reached, the oldest snapshot (except Primary) will be replaced.
-                    </p>
                   </div>
                 </div>
 
                 {/* Auto-generated Name Display */}
                 {autoGeneratedName && (
                   <div className="mb-5">
-                    <Label className="block mb-2 font-medium">Auto-generated Name</Label>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Label className="font-medium">
+                        Auto-generated Name
+                      </Label>
+                      <TooltipWrapper 
+                        content="This name follows the automatic naming convention. You can override it below." 
+                        side="top"
+                      >
+                        <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                      </TooltipWrapper>
+                    </div>
                     <div className="bg-muted p-3 rounded-md">
                       <code className="text-sm font-mono">{autoGeneratedName}</code>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      This name follows the automatic naming convention. You can override it below.
-                    </p>
                   </div>
                 )}
 
                 {/* Custom Name Override */}
                 <div className="mb-5">
-                  <Label htmlFor="customName" className="block mb-2 font-medium">
-                    Custom Name (Optional)
-                  </Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Label htmlFor="customName" className="font-medium">
+                      Custom Name (Optional)
+                    </Label>
+                    <TooltipWrapper 
+                      content="Leave empty to use the auto-generated name. Only alphanumeric characters, hyphens, and underscores allowed." 
+                      side="top"
+                    >
+                      <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                    </TooltipWrapper>
+                  </div>
                   <Input 
                     id="customName" 
                     ref={customNameRef} 
                     placeholder={autoGeneratedName || "Enter custom snapshot name"} 
                     className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Leave empty to use the auto-generated name. Only alphanumeric characters, hyphens, and underscores allowed.
-                  </p>
                 </div>
                 
                 {/* Description */}
@@ -584,17 +613,17 @@ export default function CreateSnapshotPage() {
                     Policy Scheduler <span className="text-destructive">*</span>
                   </Label>
                   
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-4">
                     {/* Minute */}
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Minute</Label>
-                      <div className="flex items-center space-x-2 mb-2">
+                      <div className="flex items-center space-x-1 mb-3">
                         <Switch
                           checked={minuteMode === "specific"}
                           onCheckedChange={(checked) => setMinuteMode(checked ? "specific" : "any")}
-                          className="scale-75"
+                          className="scale-75 flex-shrink-0"
                         />
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground leading-none">
                           {minuteMode === "specific" ? "Specific" : "Any"}
                         </span>
                       </div>
@@ -609,7 +638,7 @@ export default function CreateSnapshotPage() {
                           className="text-sm h-8"
                         />
                       ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
                           Every minute
                         </div>
                       )}
@@ -618,13 +647,13 @@ export default function CreateSnapshotPage() {
                     {/* Hour */}
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Hour</Label>
-                      <div className="flex items-center space-x-2 mb-2">
+                      <div className="flex items-center space-x-1 mb-3">
                         <Switch
                           checked={hourMode === "specific"}
                           onCheckedChange={(checked) => setHourMode(checked ? "specific" : "any")}
-                          className="scale-75"
+                          className="scale-75 flex-shrink-0"
                         />
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground leading-none">
                           {hourMode === "specific" ? "Specific" : "Any"}
                         </span>
                       </div>
@@ -639,7 +668,7 @@ export default function CreateSnapshotPage() {
                           className="text-sm h-8"
                         />
                       ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
                           Every hour
                         </div>
                       )}
@@ -648,13 +677,13 @@ export default function CreateSnapshotPage() {
                     {/* Day */}
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Day</Label>
-                      <div className="flex items-center space-x-2 mb-2">
+                      <div className="flex items-center space-x-1 mb-3">
                         <Switch
                           checked={dayOfMonthMode === "specific"}
                           onCheckedChange={(checked) => setDayOfMonthMode(checked ? "specific" : "any")}
-                          className="scale-75"
+                          className="scale-75 flex-shrink-0"
                         />
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground leading-none">
                           {dayOfMonthMode === "specific" ? "Specific" : "Any"}
                         </span>
                       </div>
@@ -670,7 +699,7 @@ export default function CreateSnapshotPage() {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
                           Every day
                         </div>
                       )}
@@ -679,13 +708,13 @@ export default function CreateSnapshotPage() {
                     {/* Month */}
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Month</Label>
-                      <div className="flex items-center space-x-2 mb-2">
+                      <div className="flex items-center space-x-1 mb-3">
                         <Switch
                           checked={monthMode === "specific"}
                           onCheckedChange={(checked) => setMonthMode(checked ? "specific" : "any")}
-                          className="scale-75"
+                          className="scale-75 flex-shrink-0"
                         />
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground leading-none">
                           {monthMode === "specific" ? "Specific" : "Any"}
                         </span>
                       </div>
@@ -704,7 +733,7 @@ export default function CreateSnapshotPage() {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
                           Every month
                         </div>
                       )}
@@ -713,13 +742,13 @@ export default function CreateSnapshotPage() {
                     {/* Day of Week */}
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Weekday</Label>
-                      <div className="flex items-center space-x-2 mb-2">
+                      <div className="flex items-center space-x-1 mb-3">
                         <Switch
                           checked={dayOfWeekMode === "specific"}
                           onCheckedChange={(checked) => setDayOfWeekMode(checked ? "specific" : "any")}
-                          className="scale-75"
+                          className="scale-75 flex-shrink-0"
                         />
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground leading-none">
                           {dayOfWeekMode === "specific" ? "Specific" : "Any"}
                         </span>
                       </div>
@@ -743,7 +772,7 @@ export default function CreateSnapshotPage() {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
                           Any weekday
                         </div>
                       )}
@@ -817,13 +846,13 @@ export default function CreateSnapshotPage() {
             <div>
               <div className="space-y-3">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold">$2.50</span>
+                  <span className="text-2xl font-bold">₹2.50</span>
                   <span className="text-sm text-muted-foreground">per month</span>
                 </div>
                 <div className="text-xs text-muted-foreground pt-2 border-t">
-                  <p>• Snapshot Storage: $0.05/GB/month</p>
-                  <p>• Data Transfer: $0.02/GB</p>
-                  <p>• API Requests: $0.004/1000 requests</p>
+                  <p>• Snapshot Storage: ₹0.05/GB/month</p>
+                  <p>• Data Transfer: ₹0.02/GB</p>
+                  <p>• API Requests: ₹0.004/1000 requests</p>
                   <p>• Estimated for average usage patterns</p>
                 </div>
               </div>
