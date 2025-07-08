@@ -458,79 +458,82 @@ export default function CreateSnapshotPage() {
                   </div>
                 </div>
 
-                {/* Resource Selection */}
-                {snapshotType === "volume" ? (
-                  <div className="mb-5">
-                    <Label htmlFor="volume" className="block mb-2 font-medium">
-                      Select Volume <span className="text-destructive">*</span>
-                    </Label>
-                    <Select 
-                      value={selectedVolume} 
-                      onValueChange={(value) => handleResourceChange(value, "volume")}
-                      required
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a volume" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockVolumes
-                          .filter(volume => volume.status !== "creating") // Only show available volumes
-                          .map((volume) => (
-                          <SelectItem key={volume.id} value={volume.id}>
-                            {volume.name} ({volume.id}) - {volume.size}GB - {volume.status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Only volumes that are available or attached can be snapshotted.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="mb-5">
-                    <Label htmlFor="vm" className="block mb-2 font-medium">
-                      Select Virtual Machine <span className="text-destructive">*</span>
-                    </Label>
-                    <Select 
-                      value={selectedVM} 
-                      onValueChange={(value) => handleResourceChange(value, "vm")}
-                      required
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a virtual machine" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockVMs.map((vm) => (
-                          <SelectItem key={vm.id} value={vm.id}>
-                            {vm.name} ({vm.id}) - {vm.vpc} - {vm.status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      VM snapshots capture the entire machine state including all attached volumes.
-                    </p>
-                  </div>
-                )}
+                {/* Resource Selection and Configuration in one row */}
+                <div className="grid grid-cols-2 gap-4 mb-5">
+                  {/* Resource Selection */}
+                  {snapshotType === "volume" ? (
+                    <div>
+                      <Label htmlFor="volume" className="block mb-2 font-medium">
+                        Select Volume <span className="text-destructive">*</span>
+                      </Label>
+                      <Select 
+                        value={selectedVolume} 
+                        onValueChange={(value) => handleResourceChange(value, "volume")}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a volume" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {mockVolumes
+                            .filter(volume => volume.status !== "creating") // Only show available volumes
+                            .map((volume) => (
+                            <SelectItem key={volume.id} value={volume.id}>
+                              {volume.name} ({volume.id}) - {volume.size}GB - {volume.status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Only volumes that are available or attached can be snapshotted.
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <Label htmlFor="vm" className="block mb-2 font-medium">
+                        Select Virtual Machine <span className="text-destructive">*</span>
+                      </Label>
+                      <Select 
+                        value={selectedVM} 
+                        onValueChange={(value) => handleResourceChange(value, "vm")}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a virtual machine" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {mockVMs.map((vm) => (
+                            <SelectItem key={vm.id} value={vm.id}>
+                              {vm.name} ({vm.id}) - {vm.vpc} - {vm.status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        VM snapshots capture the entire machine state including all attached volumes.
+                      </p>
+                    </div>
+                  )}
 
-                {/* Snapshot Configuration */}
-                <div className="mb-5">
-                  <Label htmlFor="maxSnapshots" className="block mb-2 font-medium">
-                    Maximum Snapshots <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={maxSnapshots} onValueChange={handleMaxSnapshotsChange} required>
-                    <SelectTrigger className="max-w-[200px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({length: 10}, (_, i) => (
-                        <SelectItem key={i+1} value={String(i+1)}>{i+1} snapshot{i+1 > 1 ? 's' : ''}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    When this limit is reached, the oldest snapshot (except Primary) will be replaced.
-                  </p>
+                  {/* Maximum Snapshots */}
+                  <div>
+                    <Label htmlFor="maxSnapshots" className="block mb-2 font-medium">
+                      Maximum Snapshots <span className="text-destructive">*</span>
+                    </Label>
+                    <Select value={maxSnapshots} onValueChange={handleMaxSnapshotsChange} required>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({length: 10}, (_, i) => (
+                          <SelectItem key={i+1} value={String(i+1)}>{i+1} snapshot{i+1 > 1 ? 's' : ''}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      When this limit is reached, the oldest snapshot (except Primary) will be replaced.
+                    </p>
+                  </div>
                 </div>
 
                 {/* Auto-generated Name Display */}
@@ -577,168 +580,170 @@ export default function CreateSnapshotPage() {
 
                 {/* Policy Scheduler */}
                 <div className="mb-5">
-                  <Label className="block mb-4 font-medium text-lg">
+                  <Label className="block mb-3 font-medium">
                     Policy Scheduler <span className="text-destructive">*</span>
                   </Label>
                   
-                  <div className="space-y-6">
+                  <div className="grid grid-cols-3 gap-3">
                     {/* Minute */}
-                    <div className="border rounded-lg p-4 bg-muted/30">
-                      <div className="flex items-center justify-between mb-3">
-                        <Label className="font-medium">Minute (0-59)</Label>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-muted-foreground">Any Value</span>
-                          <Switch
-                            checked={minuteMode === "specific"}
-                            onCheckedChange={(checked) => setMinuteMode(checked ? "specific" : "any")}
-                          />
-                          <span className="text-sm text-muted-foreground">Specific Value</span>
-                        </div>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Minute</Label>
+                      <div className="flex items-center space-x-2 mb-2">
+                                                 <Switch
+                           checked={minuteMode === "specific"}
+                           onCheckedChange={(checked) => setMinuteMode(checked ? "specific" : "any")}
+                         />
+                        <span className="text-xs text-muted-foreground">
+                          {minuteMode === "specific" ? "Specific" : "Any (*)"}
+                        </span>
                       </div>
                       {minuteMode === "specific" ? (
                         <Input
-                          type="text"
+                          type="number"
                           value={minute}
                           onChange={(e) => setMinute(e.target.value)}
-                          placeholder="Enter minute (0-59)"
-                          className="text-sm"
+                          placeholder="0-59"
+                          min="0"
+                          max="59"
+                          className="text-sm h-8"
                         />
                       ) : (
-                        <div className="bg-muted p-3 rounded border text-center">
-                          <code className="text-primary font-mono text-lg">*</code>
-                          <p className="text-xs text-muted-foreground mt-1">Every minute</p>
-                        </div>
+                        <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
                       )}
                     </div>
 
                     {/* Hour */}
-                    <div className="border rounded-lg p-4 bg-muted/30">
-                      <div className="flex items-center justify-between mb-3">
-                        <Label className="font-medium">Hour (0-23)</Label>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-muted-foreground">Any Value</span>
-                          <Switch
-                            checked={hourMode === "specific"}
-                            onCheckedChange={(checked) => setHourMode(checked ? "specific" : "any")}
-                          />
-                          <span className="text-sm text-muted-foreground">Specific Value</span>
-                        </div>
-                      </div>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Hour</Label>
+                                             <div className="flex items-center space-x-2 mb-2">
+                         <Switch
+                           checked={hourMode === "specific"}
+                           onCheckedChange={(checked) => setHourMode(checked ? "specific" : "any")}
+                         />
+                         <span className="text-xs text-muted-foreground">
+                           {hourMode === "specific" ? "Specific" : "Any (*)"}
+                         </span>
+                       </div>
                       {hourMode === "specific" ? (
                         <Input
-                          type="text"
+                          type="number"
                           value={hour}
                           onChange={(e) => setHour(e.target.value)}
-                          placeholder="Enter hour (0-23)"
-                          className="text-sm"
+                          placeholder="0-23"
+                          min="0"
+                          max="23"
+                          className="text-sm h-8"
                         />
                       ) : (
-                        <div className="bg-muted p-3 rounded border text-center">
-                          <code className="text-primary font-mono text-lg">*</code>
-                          <p className="text-xs text-muted-foreground mt-1">Every hour</p>
-                        </div>
+                        <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
                       )}
                     </div>
 
-                    {/* Day of Month */}
-                    <div className="border rounded-lg p-4 bg-muted/30">
-                      <div className="flex items-center justify-between mb-3">
-                        <Label className="font-medium">Day of Month (1-31)</Label>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-muted-foreground">Any Value</span>
-                          <Switch
-                            checked={dayOfMonthMode === "specific"}
-                            onCheckedChange={(checked) => setDayOfMonthMode(checked ? "specific" : "any")}
-                          />
-                          <span className="text-sm text-muted-foreground">Specific Value</span>
-                        </div>
+                    {/* Day */}
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Day</Label>
+                      <div className="flex items-center space-x-2 mb-2">
+                                                 <Switch
+                           checked={dayOfMonthMode === "specific"}
+                           onCheckedChange={(checked) => setDayOfMonthMode(checked ? "specific" : "any")}
+                         />
+                        <span className="text-xs text-muted-foreground">
+                          {dayOfMonthMode === "specific" ? "Specific" : "Any (*)"}
+                        </span>
                       </div>
                       {dayOfMonthMode === "specific" ? (
-                        <Input
-                          type="text"
-                          value={dayOfMonth}
-                          onChange={(e) => setDayOfMonth(e.target.value)}
-                          placeholder="Enter day (1-31)"
-                          className="text-sm"
-                        />
+                        <Select value={dayOfMonth} onValueChange={setDayOfMonth}>
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue placeholder="Day" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({length: 31}, (_, i) => (
+                              <SelectItem key={i+1} value={String(i+1)}>{i+1}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       ) : (
-                        <div className="bg-muted p-3 rounded border text-center">
-                          <code className="text-primary font-mono text-lg">*</code>
-                          <p className="text-xs text-muted-foreground mt-1">Every day</p>
-                        </div>
+                        <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
                       )}
                     </div>
 
                     {/* Month */}
-                    <div className="border rounded-lg p-4 bg-muted/30">
-                      <div className="flex items-center justify-between mb-3">
-                        <Label className="font-medium">Month (1-12 or JAN-DEC)</Label>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-muted-foreground">Any Value</span>
-                          <Switch
-                            checked={monthMode === "specific"}
-                            onCheckedChange={(checked) => setMonthMode(checked ? "specific" : "any")}
-                          />
-                          <span className="text-sm text-muted-foreground">Specific Value</span>
-                        </div>
-                      </div>
-                      {monthMode === "specific" ? (
-                        <Input
-                          type="text"
-                          value={month}
-                          onChange={(e) => setMonth(e.target.value)}
-                          placeholder="Enter month (1-12 or JAN-DEC)"
-                          className="text-sm"
-                        />
-                      ) : (
-                        <div className="bg-muted p-3 rounded border text-center">
-                          <code className="text-primary font-mono text-lg">*</code>
-                          <p className="text-xs text-muted-foreground mt-1">Every month</p>
-                        </div>
-                      )}
-                    </div>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Month</Label>
+                      <div className="flex items-center space-x-2 mb-2">
+                                                 <Switch
+                           checked={monthMode === "specific"}
+                           onCheckedChange={(checked) => setMonthMode(checked ? "specific" : "any")}
+                         />
+                         <span className="text-xs text-muted-foreground">
+                           {monthMode === "specific" ? "Specific" : "Any (*)"}
+                         </span>
+                       </div>
+                       {monthMode === "specific" ? (
+                         <Select value={month} onValueChange={setMonth}>
+                           <SelectTrigger className="h-8 text-sm">
+                             <SelectValue placeholder="Month" />
+                           </SelectTrigger>
+                           <SelectContent>
+                             {[
+                               "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                             ].map((m) => (
+                               <SelectItem key={m} value={m}>{m}</SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                       ) : (
+                         <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
+                       )}
+                     </div>
 
-                    {/* Day of Week */}
-                    <div className="border rounded-lg p-4 bg-muted/30">
-                      <div className="flex items-center justify-between mb-3">
-                        <Label className="font-medium">Day of Week (0-6 or SUN-SAT)</Label>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-muted-foreground">Any Value</span>
-                          <Switch
-                            checked={dayOfWeekMode === "specific"}
-                            onCheckedChange={(checked) => setDayOfWeekMode(checked ? "specific" : "any")}
-                          />
-                          <span className="text-sm text-muted-foreground">Specific Value</span>
-                        </div>
+                     {/* Day of Week */}
+                     <div>
+                       <Label className="text-sm font-medium mb-2 block">Weekday</Label>
+                       <div className="flex items-center space-x-2 mb-2">
+                         <Switch
+                           checked={dayOfWeekMode === "specific"}
+                           onCheckedChange={(checked) => setDayOfWeekMode(checked ? "specific" : "any")}
+                         />
+                        <span className="text-xs text-muted-foreground">
+                          {dayOfWeekMode === "specific" ? "Specific" : "Any (*)"}
+                        </span>
                       </div>
                       {dayOfWeekMode === "specific" ? (
-                        <Input
-                          type="text"
-                          value={dayOfWeek}
-                          onChange={(e) => setDayOfWeek(e.target.value)}
-                          placeholder="Enter day (0-6 or SUN-SAT)"
-                          className="text-sm"
-                        />
+                        <Select value={dayOfWeek} onValueChange={setDayOfWeek}>
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue placeholder="Day" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[
+                              {value: "0", label: "Sun"},
+                              {value: "1", label: "Mon"},
+                              {value: "2", label: "Tue"},
+                              {value: "3", label: "Wed"},
+                              {value: "4", label: "Thu"},
+                              {value: "5", label: "Fri"},
+                              {value: "6", label: "Sat"}
+                            ].map((day) => (
+                              <SelectItem key={day.value} value={day.value}>{day.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       ) : (
-                        <div className="bg-muted p-3 rounded border text-center">
-                          <code className="text-primary font-mono text-lg">*</code>
-                          <p className="text-xs text-muted-foreground mt-1">Every day of the week</p>
-                        </div>
+                        <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
                       )}
                     </div>
                   </div>
 
                   {/* Generated CRON Expression */}
-                  <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-4 rounded-lg border border-primary/20 mt-6">
-                    <h4 className="font-medium text-lg mb-3">Generated CRON Expression</h4>
-                    <div className="flex items-center space-x-3 mb-3">
-                      <code className="text-primary font-mono text-xl bg-white px-3 py-2 rounded border">
-                        {generateCronExpression()}
-                      </code>
+                  <div className="bg-muted/50 p-3 rounded-lg mt-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">CRON Expression:</span>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
+                        className="h-6 px-2 text-xs"
                         onClick={() => {
                           navigator.clipboard.writeText(generateCronExpression())
                           toast({
@@ -750,10 +755,12 @@ export default function CreateSnapshotPage() {
                         Copy
                       </Button>
                     </div>
-                    <div className="text-sm text-muted-foreground bg-white/50 p-3 rounded border">
-                      <strong>Explanation:</strong><br />
+                    <code className="text-primary font-mono text-sm bg-white px-2 py-1 rounded border">
+                      {generateCronExpression()}
+                    </code>
+                    <p className="text-xs text-muted-foreground mt-2">
                       {generateCronExplanation()}
-                    </div>
+                    </p>
                   </div>
                 </div>
 
@@ -776,36 +783,40 @@ export default function CreateSnapshotPage() {
         </div>
 
         {/* Side Panel */}
-        <div className="w-80 flex-shrink-0">
+        <div className="w-80 flex-shrink-0 space-y-6">
           {/* Instant Create Snapshot Summary */}
-          <Card className="mb-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Instant Create Snapshot</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Snapshot Storage:</span>
-                  <span className="font-medium">$0.05/GB/month</span>
+          <div 
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Instant Create Snapshot</h3>
+              </div>
+            </div>
+            <div>
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold">$2.50</span>
+                  <span className="text-sm text-muted-foreground">per month</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Data Transfer:</span>
-                  <span className="font-medium">$0.02/GB</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">API Requests:</span>
-                  <span className="font-medium">$0.004/1000 requests</span>
-                </div>
-                <div className="border-t pt-3 mt-3">
-                  <div className="flex justify-between font-semibold">
-                    <span>Estimated Monthly Cost:</span>
-                    <span className="text-primary">$2.50</span>
-                  </div>
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• Snapshot Storage: $0.05/GB/month</p>
+                  <p>• Data Transfer: $0.02/GB</p>
+                  <p>• API Requests: $0.004/1000 requests</p>
+                  <p>• Estimated for average usage patterns</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Allowed Formats */}
-          <Card className="mb-6">
+          <Card>
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold mb-4">Allowed Formats</h3>
               <div className="space-y-3 text-sm">
@@ -838,28 +849,28 @@ export default function CreateSnapshotPage() {
           <Card>
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold mb-4">Best Practices</h3>
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <div className="flex items-start space-x-2">
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <p>Create snapshots during low-traffic periods for better performance</p>
-                </div>
-                <div className="flex items-start space-x-2">
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Create snapshots during low-traffic periods for better performance</span>
+                </li>
+                <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <p>Schedule regular snapshots for critical volumes to ensure data protection</p>
-                </div>
-                <div className="flex items-start space-x-2">
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Schedule regular snapshots for critical volumes to ensure data protection</span>
+                </li>
+                <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <p>Use descriptive names to easily identify snapshot contents and purpose</p>
-                </div>
-                <div className="flex items-start space-x-2">
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use descriptive names to easily identify snapshot contents and purpose</span>
+                </li>
+                <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <p>Monitor snapshot storage costs as they accumulate over time</p>
-                </div>
-                <div className="flex items-start space-x-2">
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Monitor snapshot storage costs as they accumulate over time</span>
+                </li>
+                <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <p>Test snapshot restoration procedures regularly to verify data integrity</p>
-                </div>
-              </div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Test snapshot restoration procedures regularly to verify data integrity</span>
+                </li>
+              </ul>
             </CardContent>
           </Card>
         </div>
