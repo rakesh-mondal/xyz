@@ -589,12 +589,13 @@ export default function CreateSnapshotPage() {
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Minute</Label>
                       <div className="flex items-center space-x-2 mb-2">
-                                                 <Switch
-                           checked={minuteMode === "specific"}
-                           onCheckedChange={(checked) => setMinuteMode(checked ? "specific" : "any")}
-                         />
+                        <Switch
+                          checked={minuteMode === "specific"}
+                          onCheckedChange={(checked) => setMinuteMode(checked ? "specific" : "any")}
+                          className="scale-75"
+                        />
                         <span className="text-xs text-muted-foreground">
-                          {minuteMode === "specific" ? "Specific" : "Any (*)"}
+                          {minuteMode === "specific" ? "Specific" : "Any"}
                         </span>
                       </div>
                       {minuteMode === "specific" ? (
@@ -608,22 +609,25 @@ export default function CreateSnapshotPage() {
                           className="text-sm h-8"
                         />
                       ) : (
-                        <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                          Every minute
+                        </div>
                       )}
                     </div>
 
                     {/* Hour */}
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Hour</Label>
-                                             <div className="flex items-center space-x-2 mb-2">
-                         <Switch
-                           checked={hourMode === "specific"}
-                           onCheckedChange={(checked) => setHourMode(checked ? "specific" : "any")}
-                         />
-                         <span className="text-xs text-muted-foreground">
-                           {hourMode === "specific" ? "Specific" : "Any (*)"}
-                         </span>
-                       </div>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Switch
+                          checked={hourMode === "specific"}
+                          onCheckedChange={(checked) => setHourMode(checked ? "specific" : "any")}
+                          className="scale-75"
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          {hourMode === "specific" ? "Specific" : "Any"}
+                        </span>
+                      </div>
                       {hourMode === "specific" ? (
                         <Input
                           type="number"
@@ -635,7 +639,9 @@ export default function CreateSnapshotPage() {
                           className="text-sm h-8"
                         />
                       ) : (
-                        <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                          Every hour
+                        </div>
                       )}
                     </div>
 
@@ -643,12 +649,13 @@ export default function CreateSnapshotPage() {
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Day</Label>
                       <div className="flex items-center space-x-2 mb-2">
-                                                 <Switch
-                           checked={dayOfMonthMode === "specific"}
-                           onCheckedChange={(checked) => setDayOfMonthMode(checked ? "specific" : "any")}
-                         />
+                        <Switch
+                          checked={dayOfMonthMode === "specific"}
+                          onCheckedChange={(checked) => setDayOfMonthMode(checked ? "specific" : "any")}
+                          className="scale-75"
+                        />
                         <span className="text-xs text-muted-foreground">
-                          {dayOfMonthMode === "specific" ? "Specific" : "Any (*)"}
+                          {dayOfMonthMode === "specific" ? "Specific" : "Any"}
                         </span>
                       </div>
                       {dayOfMonthMode === "specific" ? (
@@ -663,7 +670,9 @@ export default function CreateSnapshotPage() {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                          Every day
+                        </div>
                       )}
                     </div>
 
@@ -671,43 +680,47 @@ export default function CreateSnapshotPage() {
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Month</Label>
                       <div className="flex items-center space-x-2 mb-2">
-                                                 <Switch
-                           checked={monthMode === "specific"}
-                           onCheckedChange={(checked) => setMonthMode(checked ? "specific" : "any")}
-                         />
-                         <span className="text-xs text-muted-foreground">
-                           {monthMode === "specific" ? "Specific" : "Any (*)"}
-                         </span>
-                       </div>
-                       {monthMode === "specific" ? (
-                         <Select value={month} onValueChange={setMonth}>
-                           <SelectTrigger className="h-8 text-sm">
-                             <SelectValue placeholder="Month" />
-                           </SelectTrigger>
-                           <SelectContent>
-                             {[
-                               "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-                             ].map((m) => (
-                               <SelectItem key={m} value={m}>{m}</SelectItem>
-                             ))}
-                           </SelectContent>
-                         </Select>
-                       ) : (
-                         <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
-                       )}
-                     </div>
-
-                     {/* Day of Week */}
-                     <div>
-                       <Label className="text-sm font-medium mb-2 block">Weekday</Label>
-                       <div className="flex items-center space-x-2 mb-2">
-                         <Switch
-                           checked={dayOfWeekMode === "specific"}
-                           onCheckedChange={(checked) => setDayOfWeekMode(checked ? "specific" : "any")}
-                         />
+                        <Switch
+                          checked={monthMode === "specific"}
+                          onCheckedChange={(checked) => setMonthMode(checked ? "specific" : "any")}
+                          className="scale-75"
+                        />
                         <span className="text-xs text-muted-foreground">
-                          {dayOfWeekMode === "specific" ? "Specific" : "Any (*)"}
+                          {monthMode === "specific" ? "Specific" : "Any"}
+                        </span>
+                      </div>
+                      {monthMode === "specific" ? (
+                        <Select value={month} onValueChange={setMonth}>
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue placeholder="Month" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[
+                              "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                            ].map((m) => (
+                              <SelectItem key={m} value={m}>{m}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                          Every month
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Day of Week */}
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Weekday</Label>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Switch
+                          checked={dayOfWeekMode === "specific"}
+                          onCheckedChange={(checked) => setDayOfWeekMode(checked ? "specific" : "any")}
+                          className="scale-75"
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          {dayOfWeekMode === "specific" ? "Specific" : "Any"}
                         </span>
                       </div>
                       {dayOfWeekMode === "specific" ? (
@@ -730,7 +743,9 @@ export default function CreateSnapshotPage() {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <div className="text-center py-1 bg-muted rounded text-muted-foreground text-sm">*</div>
+                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border">
+                          Any weekday
+                        </div>
                       )}
                     </div>
                   </div>
