@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { snapshots } from "@/lib/data"
 
@@ -213,6 +214,13 @@ export default function CreateSnapshotPage() {
   const [dayOfMonth, setDayOfMonth] = useState("23")
   const [month, setMonth] = useState("Jan")
   const [dayOfWeek, setDayOfWeek] = useState("*")
+  
+  // Policy scheduler mode state (specific value vs any value)
+  const [minuteMode, setMinuteMode] = useState<"specific" | "any">("specific")
+  const [hourMode, setHourMode] = useState<"specific" | "any">("specific")
+  const [dayOfMonthMode, setDayOfMonthMode] = useState<"specific" | "any">("specific")
+  const [monthMode, setMonthMode] = useState<"specific" | "any">("specific")
+  const [dayOfWeekMode, setDayOfWeekMode] = useState<"specific" | "any">("any")
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -227,16 +235,24 @@ export default function CreateSnapshotPage() {
       "Jul": "7", "Aug": "8", "Sep": "9", "Oct": "10", "Nov": "11", "Dec": "12"
     }
     
-    const cronMonth = monthMap[month] || month
-    return `${minute} ${hour} ${dayOfMonth} ${cronMonth} ${dayOfWeek}`
+    const cronMinute = minuteMode === "any" ? "*" : minute
+    const cronHour = hourMode === "any" ? "*" : hour
+    const cronDayOfMonth = dayOfMonthMode === "any" ? "*" : dayOfMonth
+    const cronMonth = monthMode === "any" ? "*" : (monthMap[month] || month)
+    const cronDayOfWeek = dayOfWeekMode === "any" ? "*" : dayOfWeek
+    
+    return `${cronMinute} ${cronHour} ${cronDayOfMonth} ${cronMonth} ${cronDayOfWeek}`
   }
 
   // Generate CRON explanation
   const generateCronExplanation = () => {
-    const monthName = month
-    const dayOfWeekText = dayOfWeek === "*" ? "undefined" : `day ${dayOfWeek} of the week`
+    const minuteText = minuteMode === "any" ? "every minute" : `minute ${minute}`
+    const hourText = hourMode === "any" ? "every hour" : `hour ${hour}`
+    const dayOfMonthText = dayOfMonthMode === "any" ? "every day" : `day ${dayOfMonth} of the month`
+    const monthText = monthMode === "any" ? "every month" : `in ${month}`
+    const dayOfWeekText = dayOfWeekMode === "any" ? "every day of the week" : `on day ${dayOfWeek} of the week`
     
-    return `This job will run at minute ${minute} of hour ${hour} on day ${dayOfMonth} of the month in ${monthName} on ${dayOfWeekText}.`
+    return `This job will run at ${minuteText} of ${hourText} on ${dayOfMonthText} ${monthText} ${dayOfWeekText}.`
   }
 
   // Calculate next snapshot number and name based on existing snapshots
@@ -367,7 +383,7 @@ export default function CreateSnapshotPage() {
 
   return (
     <PageLayout
-      title="Create Snapshot"
+      title="Instant Create Snapshot"
       description="Create an instant snapshot of your volume or VM for backup and disaster recovery."
     >
       <div className="flex flex-col md:flex-row gap-6">
@@ -561,97 +577,162 @@ export default function CreateSnapshotPage() {
 
                 {/* Policy Scheduler */}
                 <div className="mb-5">
-                  <Label className="block mb-3 font-medium">
+                  <Label className="block mb-4 font-medium text-lg">
                     Policy Scheduler <span className="text-destructive">*</span>
                   </Label>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                  <div className="space-y-6">
                     {/* Minute */}
-                    <div>
-                      <Label htmlFor="minute" className="block mb-1 text-sm">
-                        Minute <span className="text-muted-foreground">(0-59)</span>
-                      </Label>
-                      <Input
-                        id="minute"
-                        type="text"
-                        value={minute}
-                        onChange={(e) => setMinute(e.target.value)}
-                        placeholder="0-59"
-                        className="text-sm"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">*/Every n minute</p>
+                    <div className="border rounded-lg p-4 bg-muted/30">
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="font-medium">Minute (0-59)</Label>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-muted-foreground">Any Value</span>
+                          <Switch
+                            checked={minuteMode === "specific"}
+                            onCheckedChange={(checked) => setMinuteMode(checked ? "specific" : "any")}
+                          />
+                          <span className="text-sm text-muted-foreground">Specific Value</span>
+                        </div>
+                      </div>
+                      {minuteMode === "specific" ? (
+                        <Input
+                          type="text"
+                          value={minute}
+                          onChange={(e) => setMinute(e.target.value)}
+                          placeholder="Enter minute (0-59)"
+                          className="text-sm"
+                        />
+                      ) : (
+                        <div className="bg-muted p-3 rounded border text-center">
+                          <code className="text-primary font-mono text-lg">*</code>
+                          <p className="text-xs text-muted-foreground mt-1">Every minute</p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Hour */}
-                    <div>
-                      <Label htmlFor="hour" className="block mb-1 text-sm">
-                        Hour <span className="text-muted-foreground">(0-23)</span>
-                      </Label>
-                      <Input
-                        id="hour"
-                        type="text"
-                        value={hour}
-                        onChange={(e) => setHour(e.target.value)}
-                        placeholder="0-23"
-                        className="text-sm"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">*/Every n hour</p>
+                    <div className="border rounded-lg p-4 bg-muted/30">
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="font-medium">Hour (0-23)</Label>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-muted-foreground">Any Value</span>
+                          <Switch
+                            checked={hourMode === "specific"}
+                            onCheckedChange={(checked) => setHourMode(checked ? "specific" : "any")}
+                          />
+                          <span className="text-sm text-muted-foreground">Specific Value</span>
+                        </div>
+                      </div>
+                      {hourMode === "specific" ? (
+                        <Input
+                          type="text"
+                          value={hour}
+                          onChange={(e) => setHour(e.target.value)}
+                          placeholder="Enter hour (0-23)"
+                          className="text-sm"
+                        />
+                      ) : (
+                        <div className="bg-muted p-3 rounded border text-center">
+                          <code className="text-primary font-mono text-lg">*</code>
+                          <p className="text-xs text-muted-foreground mt-1">Every hour</p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Day of Month */}
-                    <div>
-                      <Label htmlFor="dayOfMonth" className="block mb-1 text-sm">
-                        Day of Month <span className="text-muted-foreground">(1-31)</span>
-                      </Label>
-                      <Input
-                        id="dayOfMonth"
-                        type="text"
-                        value={dayOfMonth}
-                        onChange={(e) => setDayOfMonth(e.target.value)}
-                        placeholder="1-31"
-                        className="text-sm"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">*/Every n day-of-month</p>
+                    <div className="border rounded-lg p-4 bg-muted/30">
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="font-medium">Day of Month (1-31)</Label>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-muted-foreground">Any Value</span>
+                          <Switch
+                            checked={dayOfMonthMode === "specific"}
+                            onCheckedChange={(checked) => setDayOfMonthMode(checked ? "specific" : "any")}
+                          />
+                          <span className="text-sm text-muted-foreground">Specific Value</span>
+                        </div>
+                      </div>
+                      {dayOfMonthMode === "specific" ? (
+                        <Input
+                          type="text"
+                          value={dayOfMonth}
+                          onChange={(e) => setDayOfMonth(e.target.value)}
+                          placeholder="Enter day (1-31)"
+                          className="text-sm"
+                        />
+                      ) : (
+                        <div className="bg-muted p-3 rounded border text-center">
+                          <code className="text-primary font-mono text-lg">*</code>
+                          <p className="text-xs text-muted-foreground mt-1">Every day</p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Month */}
-                    <div>
-                      <Label htmlFor="month" className="block mb-1 text-sm">
-                        Month <span className="text-muted-foreground">(1-12) or (JAN-DEC)</span>
-                      </Label>
-                      <Input
-                        id="month"
-                        type="text"
-                        value={month}
-                        onChange={(e) => setMonth(e.target.value)}
-                        placeholder="1-12 or JAN-DEC"
-                        className="text-sm"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">*/Every n month</p>
+                    <div className="border rounded-lg p-4 bg-muted/30">
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="font-medium">Month (1-12 or JAN-DEC)</Label>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-muted-foreground">Any Value</span>
+                          <Switch
+                            checked={monthMode === "specific"}
+                            onCheckedChange={(checked) => setMonthMode(checked ? "specific" : "any")}
+                          />
+                          <span className="text-sm text-muted-foreground">Specific Value</span>
+                        </div>
+                      </div>
+                      {monthMode === "specific" ? (
+                        <Input
+                          type="text"
+                          value={month}
+                          onChange={(e) => setMonth(e.target.value)}
+                          placeholder="Enter month (1-12 or JAN-DEC)"
+                          className="text-sm"
+                        />
+                      ) : (
+                        <div className="bg-muted p-3 rounded border text-center">
+                          <code className="text-primary font-mono text-lg">*</code>
+                          <p className="text-xs text-muted-foreground mt-1">Every month</p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Day of Week */}
-                    <div className="md:col-span-2">
-                      <Label htmlFor="dayOfWeek" className="block mb-1 text-sm">
-                        Day of Week <span className="text-muted-foreground">(0-6) or (SUN-SAT)</span>
-                      </Label>
-                      <Input
-                        id="dayOfWeek"
-                        type="text"
-                        value={dayOfWeek}
-                        onChange={(e) => setDayOfWeek(e.target.value)}
-                        placeholder="0-6 or SUN or *"
-                        className="text-sm"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">*/Every n day-of-week</p>
+                    <div className="border rounded-lg p-4 bg-muted/30">
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="font-medium">Day of Week (0-6 or SUN-SAT)</Label>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-muted-foreground">Any Value</span>
+                          <Switch
+                            checked={dayOfWeekMode === "specific"}
+                            onCheckedChange={(checked) => setDayOfWeekMode(checked ? "specific" : "any")}
+                          />
+                          <span className="text-sm text-muted-foreground">Specific Value</span>
+                        </div>
+                      </div>
+                      {dayOfWeekMode === "specific" ? (
+                        <Input
+                          type="text"
+                          value={dayOfWeek}
+                          onChange={(e) => setDayOfWeek(e.target.value)}
+                          placeholder="Enter day (0-6 or SUN-SAT)"
+                          className="text-sm"
+                        />
+                      ) : (
+                        <div className="bg-muted p-3 rounded border text-center">
+                          <code className="text-primary font-mono text-lg">*</code>
+                          <p className="text-xs text-muted-foreground mt-1">Every day of the week</p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Generated CRON Expression */}
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h4 className="font-medium text-lg mb-2">Generated CRON Expression</h4>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <code className="text-primary font-mono text-base">
+                  <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-4 rounded-lg border border-primary/20 mt-6">
+                    <h4 className="font-medium text-lg mb-3">Generated CRON Expression</h4>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <code className="text-primary font-mono text-xl bg-white px-3 py-2 rounded border">
                         {generateCronExpression()}
                       </code>
                       <Button
@@ -669,7 +750,7 @@ export default function CreateSnapshotPage() {
                         Copy
                       </Button>
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-muted-foreground bg-white/50 p-3 rounded border">
                       <strong>Explanation:</strong><br />
                       {generateCronExplanation()}
                     </div>
@@ -696,10 +777,10 @@ export default function CreateSnapshotPage() {
 
         {/* Side Panel */}
         <div className="w-80 flex-shrink-0">
-          {/* Pricing Summary */}
+          {/* Instant Create Snapshot Summary */}
           <Card className="mb-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Snapshot Creation</h3>
+              <h3 className="text-lg font-semibold mb-4">Instant Create Snapshot</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Snapshot Storage:</span>
