@@ -943,6 +943,10 @@ export const getVPC = (id: string) => {
   return vpcs.find((vpc) => vpc.id === id)
 }
 
+export const getSnapshot = (id: string) => {
+  return snapshots.find((snapshot) => snapshot.id === id)
+}
+
 export const getSecurityGroup = (id: string) => {
   return securityGroups.find((sg) => sg.id === id)
 }
