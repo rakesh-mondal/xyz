@@ -1067,6 +1067,34 @@ export const getSnapshot = (id: string) => {
   return snapshots.find((snapshot) => snapshot.id === id)
 }
 
+export const canDeletePrimarySnapshot = (snapshotId: string) => {
+  const snapshot = getSnapshot(snapshotId)
+  if (!snapshot) return false
+  
+  // If it's not a Primary snapshot, it can always be deleted
+  if (snapshot.type !== "Primary") return true
+  
+  // Check if there are other Primary snapshots for the same volume/VM
+  const otherPrimarySnapshots = snapshots.filter(s => 
+    s.id !== snapshotId && 
+    s.type === "Primary" && 
+    s.volumeVM === snapshot.volumeVM &&
+    s.status !== "deleting" &&
+    s.status !== "failed"
+  )
+  
+  return otherPrimarySnapshots.length > 0
+}
+
+export const getPrimarySnapshotsForResource = (volumeVM: string) => {
+  return snapshots.filter(s => 
+    s.type === "Primary" && 
+    s.volumeVM === volumeVM &&
+    s.status !== "deleting" &&
+    s.status !== "failed"
+  )
+}
+
 export const getSecurityGroup = (id: string) => {
   return securityGroups.find((sg) => sg.id === id)
 }

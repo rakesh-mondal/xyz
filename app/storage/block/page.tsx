@@ -14,6 +14,7 @@ import { ExtendVolumeModal } from "@/components/modals/extend-volume-modal"
 import { AttachedVolumeAlert, DeleteVolumeConfirmation } from "@/components/modals/delete-volume-modals"
 import { useToast } from "@/hooks/use-toast"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
+import { canDeletePrimarySnapshot, getPrimarySnapshotsForResource } from "@/lib/data"
 import { EmptyState } from "@/components/ui/empty-state"
 import { snapshots } from "@/lib/data"
 
@@ -452,6 +453,17 @@ function SnapshotsSection() {
   const showEmptyState = shouldShowEmptyState() && filteredSnapshots.length === 0
 
   const handleDeleteClick = (snapshot: any) => {
+    // Check if this is a Primary snapshot and if it can be safely deleted
+    if (snapshot.type === "Primary" && !canDeletePrimarySnapshot(snapshot.id)) {
+      const primarySnapshots = getPrimarySnapshotsForResource(snapshot.volumeVM)
+      toast({
+        title: "Cannot delete Primary snapshot",
+        description: `You must create another Primary snapshot for "${snapshot.volumeVM}" before deleting this one. This is the only Primary snapshot for this resource.`,
+        variant: "destructive"
+      })
+      return
+    }
+
     setSelectedSnapshot(snapshot)
     setIsDeleteConfirmOpen(true)
   }

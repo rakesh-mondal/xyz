@@ -6,7 +6,7 @@ import { notFound } from "next/navigation"
 import { PageLayout } from "../../../../../components/page-layout"
 import { DetailGrid } from "../../../../../components/detail-grid"
 import { Button } from "../../../../../components/ui/button"
-import { getSnapshot } from "../../../../../lib/data"
+import { getSnapshot, canDeletePrimarySnapshot, getPrimarySnapshotsForResource } from "../../../../../lib/data"
 import { DeleteConfirmationModal } from "../../../../../components/delete-confirmation-modal"
 import { StatusBadge } from "../../../../../components/status-badge"
 import { Edit, Trash2, Download, Copy } from "lucide-react"
@@ -24,6 +24,16 @@ export default function SnapshotDetailsPage({ params }: { params: { id: string }
   }
 
   const handleDelete = () => {
+    // Check if this is a Primary snapshot and if it can be safely deleted
+    if (snapshot.type === "Primary" && !canDeletePrimarySnapshot(snapshot.id)) {
+      toast({
+        title: "Cannot delete Primary snapshot",
+        description: `You must create another Primary snapshot for "${snapshot.volumeVM}" before deleting this one. This is the only Primary snapshot for this resource.`,
+        variant: "destructive"
+      })
+      return
+    }
+
     // In a real app, this would delete the snapshot
     console.log("Deleting snapshot:", snapshot.name)
     toast({
@@ -31,6 +41,20 @@ export default function SnapshotDetailsPage({ params }: { params: { id: string }
       description: `Snapshot "${snapshot.name}" has been deleted successfully.`
     })
     router.push("/storage/block?tab=snapshots")
+  }
+
+  const handleDeleteButtonClick = () => {
+    // Check if this is a Primary snapshot and if it can be safely deleted
+    if (snapshot.type === "Primary" && !canDeletePrimarySnapshot(snapshot.id)) {
+      toast({
+        title: "Cannot delete Primary snapshot", 
+        description: `You must create another Primary snapshot for "${snapshot.volumeVM}" before deleting this one. This is the only Primary snapshot for this resource.`,
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsDeleteModalOpen(true)
   }
 
   const handleEdit = () => {
@@ -54,6 +78,26 @@ export default function SnapshotDetailsPage({ params }: { params: { id: string }
       return "Virtual Machine"
     }
     return "Volume"
+  }
+
+  // Check if deletion is allowed for this snapshot
+  const isDeletionAllowed = () => {
+    if (snapshot.type !== "Primary") return true
+    return canDeletePrimarySnapshot(snapshot.id)
+  }
+
+  // Get deletion constraint message
+  const getDeletionConstraintMessage = () => {
+    if (snapshot.type !== "Primary") return "Delete this snapshot"
+    
+    const primarySnapshots = getPrimarySnapshotsForResource(snapshot.volumeVM)
+    const activePrimaryCount = primarySnapshots.length
+    
+    if (activePrimaryCount <= 1) {
+      return `Cannot delete: This is the only Primary snapshot for ${snapshot.volumeVM}. Create another Primary snapshot first.`
+    }
+    
+    return `Delete this Primary snapshot (${activePrimaryCount - 1} other Primary snapshots will remain)`
   }
 
   const customBreadcrumbs = [
@@ -99,14 +143,24 @@ export default function SnapshotDetailsPage({ params }: { params: { id: string }
               <Edit className="h-4 w-4" />
             </Button>
             {snapshot.name !== "web-server-backup-primary" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsDeleteModalOpen(true)}
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+              <TooltipWrapper 
+                content={getDeletionConstraintMessage()} 
+                side="top"
               >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDeleteButtonClick}
+                  disabled={!isDeletionAllowed()}
+                  className={`h-8 w-8 p-0 bg-white/80 hover:bg-white border border-gray-200 shadow-sm ${
+                    isDeletionAllowed() 
+                      ? "text-muted-foreground hover:text-red-600" 
+                      : "text-gray-300 cursor-not-allowed"
+                  }`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </TooltipWrapper>
             )}
           </div>
         )}
@@ -234,6 +288,26 @@ export default function SnapshotDetailsPage({ params }: { params: { id: string }
                         {snapshot.policy.enabled ? "Enabled" : "Disabled"}
                       </span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Primary Snapshots:</span>
+                      <span className="font-medium">
+                        {getPrimarySnapshotsForResource(snapshot.volumeVM).length} for {snapshot.volumeVM}
+                      </span>
+                    </div>
+                    {snapshot.type === "Primary" && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Deletion Status:</span>
+                        <span className={`font-medium text-xs ${
+                          isDeletionAllowed() 
+                            ? "text-green-600" 
+                            : "text-red-600"
+                        }`}>
+                          {isDeletionAllowed() 
+                            ? "Can be deleted" 
+                            : "Cannot delete (only Primary)"}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
