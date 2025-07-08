@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Switch } from "@/components/ui/switch"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-import { HelpCircle } from "lucide-react"
+import { HelpCircle, Copy } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { snapshots } from "@/lib/data"
 
@@ -783,21 +783,24 @@ export default function CreateSnapshotPage() {
                   <div className="bg-muted/50 p-3 rounded-lg mt-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium">CRON Expression:</span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-6 px-2 text-xs"
-                        onClick={() => {
-                          navigator.clipboard.writeText(generateCronExpression())
-                          toast({
-                            title: "CRON expression copied",
-                            description: "The CRON expression has been copied to your clipboard."
-                          })
-                        }}
+                      <TooltipWrapper 
+                        content="Copy CRON expression to clipboard" 
+                        side="top"
                       >
-                        Copy
-                      </Button>
+                        <button
+                          type="button"
+                          className="p-1 hover:bg-muted/50 rounded transition-colors"
+                          onClick={() => {
+                            navigator.clipboard.writeText(generateCronExpression())
+                            toast({
+                              title: "CRON expression copied",
+                              description: "The CRON expression has been copied to your clipboard."
+                            })
+                          }}
+                        >
+                          <Copy className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer" />
+                        </button>
+                      </TooltipWrapper>
                     </div>
                     <code className="text-primary font-mono text-sm bg-white px-2 py-1 rounded border">
                       {generateCronExpression()}
