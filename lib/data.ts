@@ -795,7 +795,15 @@ export const snapshots = [
     volumeVM: "web-server-root",
     status: "available",
     createdOn: "2024-12-19T08:30:00Z",
-    description: "Primary snapshot of web server root volume"
+    description: "Primary snapshot of web server root volume",
+    policy: {
+      enabled: true,
+      cronExpression: "30 8 * * *",
+      scheduleDescription: "Daily at 8:30 AM",
+      nextExecution: "2024-12-20T08:30:00Z",
+      maxSnapshots: 7,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-002", 
@@ -805,7 +813,15 @@ export const snapshots = [
     volumeVM: "database-storage",
     status: "available",
     createdOn: "2024-12-19T02:00:00Z",
-    description: "Daily delta snapshot of database storage"
+    description: "Daily delta snapshot of database storage",
+    policy: {
+      enabled: true,
+      cronExpression: "0 2 * * *",
+      scheduleDescription: "Daily at 2:00 AM",
+      nextExecution: "2024-12-20T02:00:00Z",
+      maxSnapshots: 10,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-003",
@@ -815,7 +831,15 @@ export const snapshots = [
     volumeVM: "app-server-data",
     status: "creating",
     createdOn: "2024-12-19T10:15:00Z",
-    description: "Primary snapshot of application server data volume"
+    description: "Primary snapshot of application server data volume",
+    policy: {
+      enabled: true,
+      cronExpression: "15 10 * * 1",
+      scheduleDescription: "Weekly on Monday at 10:15 AM",
+      nextExecution: "2024-12-23T10:15:00Z",
+      maxSnapshots: 4,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-004",
@@ -825,7 +849,15 @@ export const snapshots = [
     volumeVM: "backup-volume",
     status: "available",
     createdOn: "2024-12-18T20:45:00Z",
-    description: "Delta snapshot of backup volume"
+    description: "Delta snapshot of backup volume",
+    policy: {
+      enabled: true,
+      cronExpression: "45 20 * * *",
+      scheduleDescription: "Daily at 8:45 PM",
+      nextExecution: "2024-12-19T20:45:00Z",
+      maxSnapshots: 14,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-005",
@@ -835,7 +867,15 @@ export const snapshots = [
     volumeVM: "staging-server-01",
     status: "available",
     createdOn: "2024-12-18T16:30:00Z",
-    description: "VM snapshot of staging server"
+    description: "VM snapshot of staging server",
+    policy: {
+      enabled: false,
+      cronExpression: "30 16 * * 5",
+      scheduleDescription: "Weekly on Friday at 4:30 PM",
+      nextExecution: null,
+      maxSnapshots: 3,
+      policyType: "manual"
+    }
   },
   {
     id: "snap-006",
@@ -845,7 +885,15 @@ export const snapshots = [
     volumeVM: "temp-processing",
     status: "available",
     createdOn: "2024-12-19T06:20:00Z",
-    description: "Delta snapshot of temporary processing volume"
+    description: "Delta snapshot of temporary processing volume",
+    policy: {
+      enabled: true,
+      cronExpression: "20 6 * * *",
+      scheduleDescription: "Daily at 6:20 AM",
+      nextExecution: "2024-12-20T06:20:00Z",
+      maxSnapshots: 5,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-007",
@@ -855,7 +903,15 @@ export const snapshots = [
     volumeVM: "logs-storage",
     status: "deleting",
     createdOn: "2024-12-17T14:10:00Z",
-    description: "Primary snapshot of logs storage volume - scheduled for deletion"
+    description: "Primary snapshot of logs storage volume - scheduled for deletion",
+    policy: {
+      enabled: false,
+      cronExpression: "10 14 * * *",
+      scheduleDescription: "Daily at 2:10 PM",
+      nextExecution: null,
+      maxSnapshots: 7,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-008",
@@ -865,7 +921,15 @@ export const snapshots = [
     volumeVM: "cache-volume",
     status: "available",
     createdOn: "2024-12-19T04:15:00Z",
-    description: "Delta snapshot of cache volume"
+    description: "Delta snapshot of cache volume",
+    policy: {
+      enabled: true,
+      cronExpression: "15 4 * * *",
+      scheduleDescription: "Daily at 4:15 AM",
+      nextExecution: "2024-12-20T04:15:00Z",
+      maxSnapshots: 3,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-009",
@@ -875,7 +939,15 @@ export const snapshots = [
     volumeVM: "analytics-storage",
     status: "available",
     createdOn: "2024-12-18T12:00:00Z",
-    description: "Primary snapshot of analytics storage volume"
+    description: "Primary snapshot of analytics storage volume",
+    policy: {
+      enabled: true,
+      cronExpression: "0 12 1 * *",
+      scheduleDescription: "Monthly on 1st at 12:00 PM",
+      nextExecution: "2025-01-01T12:00:00Z",
+      maxSnapshots: 12,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-010",
@@ -885,7 +957,15 @@ export const snapshots = [
     volumeVM: "test-environment",
     status: "creating",
     createdOn: "2024-12-19T09:45:00Z",
-    description: "VM snapshot of test environment"
+    description: "VM snapshot of test environment",
+    policy: {
+      enabled: true,
+      cronExpression: "45 9 * * 1-5",
+      scheduleDescription: "Weekdays at 9:45 AM",
+      nextExecution: "2024-12-20T09:45:00Z",
+      maxSnapshots: 5,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-011",
@@ -895,7 +975,15 @@ export const snapshots = [
     volumeVM: "media-storage",
     status: "available",
     createdOn: "2024-12-18T23:30:00Z",
-    description: "Delta snapshot of media storage volume"
+    description: "Delta snapshot of media storage volume",
+    policy: {
+      enabled: true,
+      cronExpression: "30 23 * * 0",
+      scheduleDescription: "Weekly on Sunday at 11:30 PM",
+      nextExecution: "2024-12-22T23:30:00Z",
+      maxSnapshots: 8,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-012",
@@ -905,7 +993,15 @@ export const snapshots = [
     volumeVM: "ml-training-data",
     status: "available",
     createdOn: "2024-12-18T08:00:00Z",
-    description: "Primary snapshot of ML training data volume"
+    description: "Primary snapshot of ML training data volume",
+    policy: {
+      enabled: true,
+      cronExpression: "0 8 */7 * *",
+      scheduleDescription: "Every 7 days at 8:00 AM",
+      nextExecution: "2024-12-25T08:00:00Z",
+      maxSnapshots: 4,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-013",
@@ -915,7 +1011,15 @@ export const snapshots = [
     volumeVM: "dev-workspace",
     status: "available", 
     createdOn: "2024-12-19T07:30:00Z",
-    description: "Delta snapshot of development workspace"
+    description: "Delta snapshot of development workspace",
+    policy: {
+      enabled: true,
+      cronExpression: "30 7 * * 1-5",
+      scheduleDescription: "Weekdays at 7:30 AM",
+      nextExecution: "2024-12-20T07:30:00Z",
+      maxSnapshots: 10,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-014",
@@ -925,7 +1029,15 @@ export const snapshots = [
     volumeVM: "monitoring-logs",
     status: "available",
     createdOn: "2024-12-18T18:20:00Z",
-    description: "Primary snapshot of monitoring logs volume"
+    description: "Primary snapshot of monitoring logs volume",
+    policy: {
+      enabled: true,
+      cronExpression: "20 18 * * *",
+      scheduleDescription: "Daily at 6:20 PM",
+      nextExecution: "2024-12-19T18:20:00Z",
+      maxSnapshots: 30,
+      policyType: "automated"
+    }
   },
   {
     id: "snap-015",
@@ -935,7 +1047,15 @@ export const snapshots = [
     volumeVM: "backup-secondary",
     status: "failed",
     createdOn: "2024-12-19T03:45:00Z",
-    description: "Delta snapshot of secondary backup volume - creation failed"
+    description: "Delta snapshot of secondary backup volume - creation failed",
+    policy: {
+      enabled: false,
+      cronExpression: "45 3 * * *",
+      scheduleDescription: "Daily at 3:45 AM",
+      nextExecution: null,
+      maxSnapshots: 7,
+      policyType: "automated"
+    }
   }
 ]
 
