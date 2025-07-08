@@ -145,6 +145,11 @@ export function getEmptyStateMessage(resourceType: string): {
         title: "No Transactions Yet",
         description: "Your billing transactions will appear here once you start using our services."
       },
+      snapshots: {
+        title: "No Snapshots Found",
+        description: "Create snapshots to capture point-in-time copies of your volumes for backup and disaster recovery.",
+        actionText: "Create Snapshot"
+      },
       default: {
         title: `No ${resourceType} yet`,
         description: `Create your first ${resourceType} to get started.`,

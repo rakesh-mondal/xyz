@@ -785,6 +785,160 @@ export const staticIPs = [
   },
 ]
 
+// Mock snapshot data for block storage
+export const snapshots = [
+  {
+    id: "snap-001",
+    name: "web-server-backup-primary",
+    type: "Primary",
+    size: "50 GB",
+    volumeVM: "web-server-root",
+    status: "available",
+    createdOn: "2024-12-19T08:30:00Z",
+    description: "Primary snapshot of web server root volume"
+  },
+  {
+    id: "snap-002", 
+    name: "db-storage-daily",
+    type: "Delta",
+    size: "25 GB",
+    volumeVM: "database-storage",
+    status: "available",
+    createdOn: "2024-12-19T02:00:00Z",
+    description: "Daily delta snapshot of database storage"
+  },
+  {
+    id: "snap-003",
+    name: "app-server-primary",
+    type: "Primary",
+    size: "120 GB",
+    volumeVM: "app-server-data",
+    status: "creating",
+    createdOn: "2024-12-19T10:15:00Z",
+    description: "Primary snapshot of application server data volume"
+  },
+  {
+    id: "snap-004",
+    name: "backup-vol-delta",
+    type: "Delta",
+    size: "75 GB",
+    volumeVM: "backup-volume",
+    status: "available",
+    createdOn: "2024-12-18T20:45:00Z",
+    description: "Delta snapshot of backup volume"
+  },
+  {
+    id: "snap-005",
+    name: "staging-vm-snapshot",
+    type: "Primary", 
+    size: "40 GB",
+    volumeVM: "staging-server-01",
+    status: "available",
+    createdOn: "2024-12-18T16:30:00Z",
+    description: "VM snapshot of staging server"
+  },
+  {
+    id: "snap-006",
+    name: "temp-processing-delta",
+    type: "Delta",
+    size: "15 GB",
+    volumeVM: "temp-processing",
+    status: "available",
+    createdOn: "2024-12-19T06:20:00Z",
+    description: "Delta snapshot of temporary processing volume"
+  },
+  {
+    id: "snap-007",
+    name: "logs-storage-primary",
+    type: "Primary",
+    size: "65 GB",
+    volumeVM: "logs-storage",
+    status: "deleting",
+    createdOn: "2024-12-17T14:10:00Z",
+    description: "Primary snapshot of logs storage volume - scheduled for deletion"
+  },
+  {
+    id: "snap-008",
+    name: "cache-vol-delta",
+    type: "Delta",
+    size: "30 GB", 
+    volumeVM: "cache-volume",
+    status: "available",
+    createdOn: "2024-12-19T04:15:00Z",
+    description: "Delta snapshot of cache volume"
+  },
+  {
+    id: "snap-009",
+    name: "analytics-storage-primary",
+    type: "Primary",
+    size: "280 GB",
+    volumeVM: "analytics-storage",
+    status: "available",
+    createdOn: "2024-12-18T12:00:00Z",
+    description: "Primary snapshot of analytics storage volume"
+  },
+  {
+    id: "snap-010",
+    name: "test-env-snapshot",
+    type: "Primary",
+    size: "55 GB",
+    volumeVM: "test-environment",
+    status: "creating",
+    createdOn: "2024-12-19T09:45:00Z",
+    description: "VM snapshot of test environment"
+  },
+  {
+    id: "snap-011",
+    name: "media-storage-delta",
+    type: "Delta",
+    size: "150 GB",
+    volumeVM: "media-storage",
+    status: "available",
+    createdOn: "2024-12-18T23:30:00Z",
+    description: "Delta snapshot of media storage volume"
+  },
+  {
+    id: "snap-012",
+    name: "ml-training-primary",
+    type: "Primary",
+    size: "1.8 TB",
+    volumeVM: "ml-training-data",
+    status: "available",
+    createdOn: "2024-12-18T08:00:00Z",
+    description: "Primary snapshot of ML training data volume"
+  },
+  {
+    id: "snap-013",
+    name: "dev-workspace-delta",
+    type: "Delta",
+    size: "35 GB",
+    volumeVM: "dev-workspace",
+    status: "available", 
+    createdOn: "2024-12-19T07:30:00Z",
+    description: "Delta snapshot of development workspace"
+  },
+  {
+    id: "snap-014",
+    name: "monitoring-logs-primary",
+    type: "Primary",
+    size: "80 GB",
+    volumeVM: "monitoring-logs",
+    status: "available",
+    createdOn: "2024-12-18T18:20:00Z",
+    description: "Primary snapshot of monitoring logs volume"
+  },
+  {
+    id: "snap-015",
+    name: "backup-secondary-delta",
+    type: "Delta",
+    size: "200 GB",
+    volumeVM: "backup-secondary",
+    status: "failed",
+    createdOn: "2024-12-19T03:45:00Z",
+    description: "Delta snapshot of secondary backup volume - creation failed"
+  }
+]
+
 export const getVPC = (id: string) => {
   return vpcs.find((vpc) => vpc.id === id)
 }
