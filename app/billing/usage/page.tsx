@@ -404,7 +404,6 @@ export default function UsageMetricsPage() {
       { id: "compute", label: "Compute" },
       { id: "storage", label: "Storage" },
       { id: "network", label: "Network" },
-      { id: "credits", label: "Add credit options" },
     ];
 
     // Data for each tab (updated to match VPC structure)
@@ -461,15 +460,7 @@ export default function UsageMetricsPage() {
             />
           );
         }
-        if (coreTab === "credits") {
-          return (
-            <EmptyState
-              title="No Credit Purchase History"
-              description="Your infrastructure credit purchases and usage credits will be displayed here once you start purchasing credit packages."
-              className="min-h-[300px]"
-            />
-          );
-        }
+
       }
       
       if (coreTab === "compute") {
@@ -601,7 +592,6 @@ export default function UsageMetricsPage() {
       { id: "finetune", label: "Fine Tuning" },
       { id: "deploy", label: "Deployment" },
       { id: "eval", label: "Evaluation" },
-      { id: "credits", label: "Add credit options" },
     ];
 
     // Data for each tab (updated to match VPC structure)
@@ -668,15 +658,7 @@ export default function UsageMetricsPage() {
             />
           );
         }
-        if (studioTab === "credits") {
-          return (
-            <EmptyState
-              title="No AI Studio Credit Options"
-              description="Credit purchasing options for model inference, training, and deployment will be available here once you need additional credits."
-              className="min-h-[300px]"
-            />
-          );
-        }
+
       }
       
       if (studioTab === "model") {
@@ -843,7 +825,6 @@ export default function UsageMetricsPage() {
       { id: "bhashik", label: "Bhashik" },
       { id: "dis", label: "DIS" },
       { id: "industrial", label: "Industrial Solution" },
-      { id: "credits", label: "Add credit options" },
     ];
 
     // Data for each tab (updated to match VPC structure)
@@ -906,15 +887,7 @@ export default function UsageMetricsPage() {
             />
           );
         }
-        if (solutionsTab === "credits") {
-          return (
-            <EmptyState
-              title="No AI Solutions Credit Options"
-              description="Credit purchasing options for Bhashik, DIS, and other AI solutions will be available here to expand your usage capabilities."
-              className="min-h-[300px]"
-            />
-          );
-        }
+
       }
       
       if (solutionsTab === "bhashik") {
