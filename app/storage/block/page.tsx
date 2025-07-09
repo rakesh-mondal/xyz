@@ -12,6 +12,7 @@ import { ActionMenu } from "@/components/action-menu"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { ExtendVolumeModal } from "@/components/modals/extend-volume-modal"
 import { AttachedVolumeAlert, DeleteVolumeConfirmation } from "@/components/modals/delete-volume-modals"
+import { DeleteSnapshotConstraintModal, DeleteSnapshotConfirmationModal } from "@/components/modals/delete-snapshot-modals"
 import { useToast } from "@/hooks/use-toast"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
 import { canDeletePrimarySnapshot, getPrimarySnapshotsForResource } from "@/lib/data"
@@ -185,6 +186,175 @@ const mockVolumes = [
     status: "available",
     createdOn: "2024-03-18T12:45:00Z",
   },
+]
+
+// Mock backup data for block storage
+const mockBackups = [
+  {
+    id: "backup-001",
+    name: "web-server-backup-primary",
+    size: "50 GB",
+    volumeName: "web-server-root",
+    type: "Primary",
+    status: "completed",
+    vpc: "vpc-main-prod",
+    createdOn: "2024-12-19T08:30:00Z",
+    description: "Primary backup of web server root volume",
+  },
+  {
+    id: "backup-002", 
+    name: "db-storage-backup-delta",
+    size: "25 GB",
+    volumeName: "database-storage",
+    type: "Delta",
+    status: "completed",
+    vpc: "vpc-main-prod",
+    createdOn: "2024-12-19T02:00:00Z",
+    description: "Daily delta backup of database storage",
+  },
+  {
+    id: "backup-003",
+    name: "app-server-backup-primary",
+    size: "120 GB",
+    volumeName: "app-server-data",
+    type: "Primary",
+    status: "creating",
+    vpc: "vpc-main-prod",
+    createdOn: "2024-12-19T10:15:00Z",
+    description: "Primary backup of application server data volume",
+  },
+  {
+    id: "backup-004",
+    name: "backup-vol-delta",
+    size: "75 GB",
+    volumeName: "backup-volume",
+    type: "Delta",
+    status: "completed",
+    vpc: "vpc-backup",
+    createdOn: "2024-12-18T20:45:00Z",
+    description: "Delta backup of backup volume",
+  },
+  {
+    id: "backup-005",
+    name: "staging-backup-primary", 
+    size: "40 GB",
+    volumeName: "staging-root",
+    type: "Primary",
+    status: "completed",
+    vpc: "vpc-staging",
+    createdOn: "2024-12-18T16:30:00Z",
+    description: "Primary backup of staging server root volume",
+  },
+  {
+    id: "backup-006",
+    name: "temp-processing-backup-delta",
+    size: "15 GB",
+    volumeName: "temp-processing",
+    type: "Delta",
+    status: "completed",
+    vpc: "vpc-main-prod",
+    createdOn: "2024-12-19T06:20:00Z",
+    description: "Delta backup of temporary processing volume",
+  },
+  {
+    id: "backup-007",
+    name: "logs-storage-backup-primary",
+    size: "65 GB",
+    volumeName: "logs-storage",
+    type: "Primary",
+    status: "failed",
+    vpc: "vpc-logs",
+    createdOn: "2024-12-17T14:10:00Z",
+    description: "Primary backup of logs storage volume - backup failed",
+  },
+  {
+    id: "backup-008",
+    name: "cache-backup-delta",
+    size: "30 GB", 
+    volumeName: "cache-volume",
+    type: "Delta",
+    status: "completed",
+    vpc: "vpc-main-prod",
+    createdOn: "2024-12-19T04:15:00Z",
+    description: "Delta backup of cache volume",
+  },
+  {
+    id: "backup-009",
+    name: "analytics-backup-primary",
+    size: "280 GB",
+    volumeName: "analytics-storage",
+    type: "Primary",
+    status: "completed",
+    vpc: "vpc-analytics",
+    createdOn: "2024-12-18T12:00:00Z",
+    description: "Primary backup of analytics storage volume",
+  },
+  {
+    id: "backup-010",
+    name: "test-env-backup",
+    size: "55 GB",
+    volumeName: "test-environment",
+    type: "Primary",
+    status: "creating",
+    vpc: "vpc-testing",
+    createdOn: "2024-12-19T09:45:00Z",
+    description: "Primary backup of test environment volume",
+  },
+  {
+    id: "backup-011",
+    name: "media-backup-delta",
+    size: "150 GB",
+    volumeName: "media-storage",
+    type: "Delta",
+    status: "completed",
+    vpc: "vpc-media",
+    createdOn: "2024-12-18T23:30:00Z",
+    description: "Delta backup of media storage volume",
+  },
+  {
+    id: "backup-012",
+    name: "ml-training-backup-primary",
+    size: "1.8 TB",
+    volumeName: "ml-training-data",
+    type: "Primary",
+    status: "completed",
+    vpc: "vpc-ml",
+    createdOn: "2024-12-18T08:00:00Z",
+    description: "Primary backup of ML training data volume",
+  },
+  {
+    id: "backup-013",
+    name: "dev-workspace-backup-delta",
+    size: "35 GB",
+    volumeName: "dev-workspace",
+    type: "Delta",
+    status: "completed",
+    vpc: "vpc-development",
+    createdOn: "2024-12-19T07:30:00Z",
+    description: "Delta backup of development workspace",
+  },
+  {
+    id: "backup-014",
+    name: "monitoring-backup-primary",
+    size: "80 GB",
+    volumeName: "monitoring-logs",
+    type: "Primary",
+    status: "completed",
+    vpc: "vpc-monitoring",
+    createdOn: "2024-12-18T18:20:00Z",
+    description: "Primary backup of monitoring logs volume",
+  },
+  {
+    id: "backup-015",
+    name: "backup-secondary-delta",
+    size: "200 GB",
+    volumeName: "backup-secondary",
+    type: "Delta",
+    status: "failed",
+    vpc: "vpc-backup",
+    createdOn: "2024-12-19T03:45:00Z",
+    description: "Delta backup of secondary backup volume - backup failed",
+  }
 ]
 
 // Tab content components with empty states
@@ -444,8 +614,8 @@ function VolumesSection() {
 
 function SnapshotsSection() {
   const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [deleteStep, setDeleteStep] = useState<"constraint" | "confirmation" | null>(null)
+  const [constraintReason, setConstraintReason] = useState("")
   const { toast } = useToast()
 
   // Filter data based on user type for demo
@@ -453,36 +623,22 @@ function SnapshotsSection() {
   const showEmptyState = shouldShowEmptyState() && filteredSnapshots.length === 0
 
   const handleDeleteClick = (snapshot: any) => {
+    setSelectedSnapshot(snapshot)
+    
     // Check if this is a Primary snapshot and if it can be safely deleted
     if (snapshot.type === "Primary" && !canDeletePrimarySnapshot(snapshot.id)) {
-      const primarySnapshots = getPrimarySnapshotsForResource(snapshot.volumeVM)
-      toast({
-        title: "Cannot delete Primary snapshot",
-        description: `You must create another Primary snapshot for "${snapshot.volumeVM}" before deleting this one. This is the only Primary snapshot for this resource.`,
-        variant: "destructive"
-      })
-      return
+      const reason = `You must create another Primary snapshot for "${snapshot.volumeVM}" before deleting this one. This is the only Primary snapshot for this resource.`
+      setConstraintReason(reason)
+      setDeleteStep("constraint")
+    } else {
+      // Snapshot can be deleted, show confirmation modal
+      setDeleteStep("confirmation")
     }
-
-    setSelectedSnapshot(snapshot)
-    setIsDeleteConfirmOpen(true)
   }
 
-  const handleDeleteConfirm = async () => {
-    if (!selectedSnapshot) return
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // In a real app, you would refresh the data here
-      console.log(`Deleting snapshot: ${selectedSnapshot.name}`)
-      
-      setIsDeleteModalOpen(false)
-      setSelectedSnapshot(null)
-    } catch (error) {
-      throw error // Let the modal handle the error display
-    }
+  const handleConstraintConfirm = () => {
+    // Move to confirmation step if deletion is allowed
+    setDeleteStep("confirmation")
   }
 
   const handleActualDelete = async () => {
@@ -496,11 +652,17 @@ function SnapshotsSection() {
       console.log(`Deleting snapshot: ${selectedSnapshot.name}`)
       
       // Reset state
-      setIsDeleteConfirmOpen(false)
+      setDeleteStep(null)
       setSelectedSnapshot(null)
     } catch (error) {
       throw error // Let the modal handle the error display
     }
+  }
+
+  const handleCloseModals = () => {
+    setDeleteStep(null)
+    setSelectedSnapshot(null)
+    setConstraintReason("")
   }
 
   const columns = [
@@ -602,16 +764,23 @@ function SnapshotsSection() {
         />
       )}
 
-      {/* Confirmation for snapshots */}
+      {/* Step 1: Constraint Warning Modal */}
       {selectedSnapshot && (
-        <DeleteConfirmationModal
-          isOpen={isDeleteConfirmOpen}
-          onClose={() => {
-            setIsDeleteConfirmOpen(false)
-            setSelectedSnapshot(null)
-          }}
-          resourceName={selectedSnapshot.name}
-          resourceType="Snapshot"
+        <DeleteSnapshotConstraintModal
+          open={deleteStep === "constraint"}
+          onClose={handleCloseModals}
+          snapshot={selectedSnapshot}
+          constraintReason={constraintReason}
+          onConfirm={deleteStep === "constraint" && !constraintReason.includes("must create another") ? handleConstraintConfirm : undefined}
+        />
+      )}
+
+      {/* Step 2: Name Confirmation Modal */}
+      {selectedSnapshot && (
+        <DeleteSnapshotConfirmationModal
+          open={deleteStep === "confirmation"}
+          onClose={handleCloseModals}
+          snapshot={selectedSnapshot}
           onConfirm={handleActualDelete}
         />
       )}
@@ -620,55 +789,162 @@ function SnapshotsSection() {
 }
 
 function BackupSection() {
+  const [selectedBackup, setSelectedBackup] = useState<any>(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const { toast } = useToast()
+
+  // Filter data based on user type for demo
+  const filteredBackups = filterDataForUser(mockBackups)
+  const showEmptyState = shouldShowEmptyState() && filteredBackups.length === 0
+
+  const handleDeleteClick = (backup: any) => {
+    setSelectedBackup(backup)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedBackup) return
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // In a real app, you would refresh the data here
+      console.log(`Deleting backup: ${selectedBackup.name}`)
+      
+      toast({
+        title: "Backup deleted",
+        description: `Backup "${selectedBackup.name}" has been successfully deleted.`,
+      })
+      
+      // Reset state
+      setIsDeleteModalOpen(false)
+      setSelectedBackup(null)
+    } catch (error) {
+      throw error // Let the modal handle the error display
+    }
+  }
+
+  const columns = [
+    {
+      key: "name",
+      label: "Backup Name",
+      sortable: true,
+      searchable: true,
+      render: (value: string, row: any) => (
+        <a
+          href={`/storage/block/backup/${row.id}`}
+          className="text-primary font-medium hover:underline leading-5"
+        >
+          {value}
+        </a>
+      ),
+    },
+    {
+      key: "size",
+      label: "Size",
+      sortable: true,
+      render: (value: string) => (
+        <div className="leading-5">{value}</div>
+      ),
+    },
+    {
+      key: "volumeName",
+      label: "Volume Name",
+      sortable: true,
+      searchable: true,
+      render: (value: string) => (
+        <div className="leading-5">{value}</div>
+      ),
+    },
+    {
+      key: "type",
+      label: "Type",
+      sortable: true,
+      render: (value: string) => (
+        <div className="leading-5">{value}</div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      sortable: true,
+      render: (value: string) => <StatusBadge status={value} />,
+    },
+    {
+      key: "createdOn",
+      label: "Created",
+      sortable: true,
+      render: (value: string) => {
+        const date = new Date(value);
+        return (
+          <div className="text-muted-foreground leading-5">
+            {date.toLocaleDateString()} {date.toLocaleTimeString()}
+          </div>
+        );
+      },
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "right" as const,
+      render: (_: any, row: any) => (
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref={`/storage/block/backup/${row.id}`}
+            editHref={`/storage/block/backup/${row.id}/edit`}
+            onCustomDelete={() => handleDeleteClick(row)}
+            resourceName={row.name}
+            resourceType="Backup"
+            deleteLabel="Delete Backup"
+          />
+        </div>
+      ),
+    },
+  ]
+
+  // Add actions property to each backup row for DataTable
+  const dataWithActions = filteredBackups.map((backup) => ({ ...backup, actions: null }))
+
+  const handleRefresh = () => {
+    window.location.reload()
+  }
+
+  // Get unique VPCs for filter options
+  const vpcOptions = Array.from(new Set(filteredBackups.map(backup => backup.vpc)))
+    .map(vpc => ({ value: vpc, label: vpc }))
+
+  // Add "All VPCs" option at the beginning
+  vpcOptions.unshift({ value: "all", label: "All VPCs" })
+
   return (
-    <div className="bg-card text-card-foreground border-border border rounded-lg p-6">
-      <div className="flex flex-col items-center justify-center py-12">
-        {/* SVG Illustration */}
-        <div className="mb-6">
-          <svg width="215" height="140" viewBox="0 0 215 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="215" height="140" fill="#FFFFFF"></rect>
-            <path d="M64 0L64 140" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"></path>
-            <path d="M151 0L151 140" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"></path>
-            <path d="M215 32H0" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"></path>
-            <path d="M215 108H0" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"></path>
-            <path d="M215 71H0" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"></path>
-            <path d="M199 0L199 140" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10"></path>
-            <path d="M16 0L16 140" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10"></path>
-            <path d="M0 16L215 16" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10"></path>
-            <path d="M0 124L215 124" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10"></path>
-            <path d="M78.6555 76.8751L105.795 63.5757C106.868 63.05 108.132 63.05 109.205 63.5757L136.344 76.8751C137.628 77.5037 138.438 78.7848 138.438 80.1854V90.7764C138.438 92.177 137.628 93.4578 136.344 94.0867L109.205 107.386C108.132 107.912 106.868 107.912 105.795 107.386L78.6555 94.0867C77.3724 93.4581 76.5625 92.177 76.5625 90.7764V80.1854C76.5625 78.7848 77.3724 77.504 78.6555 76.8751Z" fill="#FFFFFF" stroke="#5C5E63" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"></path>
-            <g opacity="0.6">
-              <path d="M77.8 78.1958L107.5 93.2146L137.2 78.1958" stroke="#5C5E63" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"></path>
-              <path d="M107.5 107.445V93.2197" stroke="#5C5E63" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"></path>
-            </g>
-            <path d="M78.6555 47.0687L105.795 33.7693C106.868 33.2436 108.132 33.2436 109.205 33.7693L136.344 47.0687C137.628 47.6973 138.438 48.9784 138.438 50.379V60.97C138.438 62.3706 137.628 63.6514 136.344 64.2803L109.205 77.5797C108.132 78.1054 106.868 78.1054 105.795 77.5797L78.6555 64.2803C77.3724 63.6517 76.5625 62.3706 76.5625 60.97V50.379C76.5625 48.9784 77.3724 47.6976 78.6555 47.0687Z" fill="#FFFFFF" stroke="#5C5E63" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"></path>
-            <g opacity="0.6">
-              <path d="M77.8 48.3943L107.5 63.4133L137.2 48.3943" stroke="#5C5E63" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"></path>
-              <path d="M107.5 77.6435V63.4182" stroke="#5C5E63" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"></path>
-            </g>
-          </svg>
-        </div>
-        
-        <div className="text-center space-y-4 max-w-md">
-          <h4 className="text-lg font-medium text-foreground">No Backups Found</h4>
-          <div className="text-muted-foreground">
-            <p className="text-sm">
-              Create automated backups to ensure your data is protected and can be restored when needed.{' '}
-              <a href="/documentation/backups" className="text-primary hover:underline">
-                Learn more
-              </a>
-            </p>
-          </div>
-          <div className="flex justify-center pt-2">
-            <Button 
-              onClick={() => window.location.href = '/storage/block/backup/create'}
-              size="sm"
-            >
-              Create Backup
-            </Button>
-          </div>
-        </div>
-      </div>
+    <div>
+      {showEmptyState ? (
+        <EmptyState
+          {...getEmptyStateMessage('backup')}
+        />
+      ) : (
+        <ShadcnDataTable
+          columns={columns}
+          data={dataWithActions}
+          searchableColumns={["name", "volumeName"]}
+          defaultSort={{ column: "createdOn", direction: "desc" }}
+          pageSize={10}
+          enableSearch={true}
+          enablePagination={true}
+          onRefresh={handleRefresh}
+          enableVpcFilter={true}
+          vpcOptions={vpcOptions}
+        />
+      )}
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        resourceName={selectedBackup?.name || ""}
+        resourceType="Backup"
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   )
 }

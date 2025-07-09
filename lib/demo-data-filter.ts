@@ -150,6 +150,11 @@ export function getEmptyStateMessage(resourceType: string): {
         description: "Create snapshots to capture point-in-time copies of your volumes for backup and disaster recovery.",
         actionText: "Create Snapshot"
       },
+      backup: {
+        title: "No Backups Found",
+        description: "Create automated backups to ensure your data is protected and can be restored when needed.",
+        actionText: "Create Backup"
+      },
       default: {
         title: `No ${resourceType} yet`,
         description: `Create your first ${resourceType} to get started.`,
