@@ -24,6 +24,50 @@ import HighchartsReact from 'highcharts-react-official'
 import { filterBillingDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
 import { EmptyState } from "@/components/ui/empty-state"
 
+// Custom infrastructure icon for Core Infrastructure empty states
+const infrastructureIcon = (
+  <svg width="466" height="241" viewBox="0 0 466 241" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-72">
+    <g opacity="0.51">
+      <path d="M294.9 36.11V19.88L326.611 1.35999L359.18 21.1V84.16L327.041 102.78L309.43 91.55L294.9 60.09V36.11Z" fill="white"/>
+      <path d="M166.85 93.41V44.47L238.13 3.40002L309.6 44.47V126.63L238.22 166.95L164.82 122.82L166.85 93.41Z" fill="white"/>
+      <path d="M283.392 107.238C285.926 100.032 284.192 92.8586 279.519 91.2147C274.846 89.5708 269.003 94.0793 266.468 101.285C263.934 108.49 265.667 115.663 270.341 117.307C275.014 118.951 280.857 114.443 283.392 107.238Z" fill="#52B54A"/>
+      <path d="M204.52 109.99C205.02 108.7 204.52 172.42 204.52 172.42L170.95 191.29L139.04 172.98V109.99L171.97 90.84L204.53 109.99H204.52Z" fill="white"/>
+    </g>
+  </svg>
+)
+
+// Custom usage analytics icon
+const usageAnalyticsIcon = (
+  <svg width="467" height="243" viewBox="0 0 467 243" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-72">
+<g opacity="0.51">
+<path d="M82.71 71.23C189.18 105.86 308.45 145.19 414.63 180.7C308.16 146.07 188.89 106.74 82.71 71.23Z" fill="#686767"/>
+<path d="M163.39 36.01L174.83 39.62L174.8 39.73L163.39 36.01Z" fill="#686767"/>
+<path d="M186.27 43.23L197.72 46.84L197.62 47.16L186.21 43.44L186.27 43.23Z" fill="#686767"/>
+<path d="M209.149 50.47L220.589 54.12L220.449 54.53L209.029 50.85L209.149 50.47Z" fill="#686767"/>
+<path d="M232.02 57.76L243.45 61.41L243.3 61.9L231.88 58.22L232.02 57.76Z" fill="#686767"/>
+<path d="M254.89 65.06L266.32 68.7L266.14 69.26L254.72 65.58L254.89 65.06Z" fill="#686767"/>
+<path d="M277.75 72.35L289.19 75.99L288.98 76.62L277.56 72.94L277.75 72.35Z" fill="#686767"/>
+<path d="M300.619 79.64L312.049 83.28L311.829 83.98L300.399 80.3L300.619 79.64Z" fill="#686767"/>
+<path d="M323.48 86.95L334.9 90.63L334.69 91.29L323.26 87.64L323.48 86.95Z" fill="#686767"/>
+<path d="M346.319 94.31L357.739 98L357.549 98.58L346.119 94.93L346.319 94.31Z" fill="#686767"/>
+<path d="M369.159 101.68L380.579 105.36L380.419 105.87L368.989 102.22L369.159 101.68Z" fill="#686767"/>
+<path d="M392 109.04L403.43 112.72L403.29 113.16L391.85 109.51L392 109.04Z" fill="#686767"/>
+<path d="M414.85 116.4L426.27 120.08L426.15 120.45L414.72 116.8L414.85 116.4Z" fill="#686767"/>
+<path d="M437.68 123.8L449.09 127.51L449.04 127.67L437.6 124.06L437.68 123.8Z" fill="#686767"/>
+<path d="M460.5 131.23L466.33 133.12L460.479 131.28L460.5 131.23Z" fill="#686767"/>
+<path d="M5.01953 114.31L12.6495 116.71C12.6495 116.71 12.6796 116.73 12.6696 116.75C12.6696 116.77 12.6495 116.78 12.6295 116.77L5.01953 114.31Z" fill="#686767"/>
+<path d="M20.2799 119.11L27.9099 121.51C27.9099 121.51 27.9899 121.58 27.9699 121.63C27.9499 121.68 27.8999 121.71 27.8499 121.69L20.2398 119.23C20.2098 119.22 20.1899 119.18 20.1999 119.15C20.2099 119.12 20.2499 119.1 20.2799 119.11Z" fill="#686767"/>
+<path d="M35.5498 123.91L43.1799 126.31C43.2599 126.34 43.3099 126.42 43.2799 126.51C43.2499 126.59 43.1698 126.64 43.0798 126.61L35.4699 124.15C35.3999 124.13 35.3699 124.06 35.3899 123.99C35.4099 123.92 35.4798 123.89 35.5498 123.91Z" fill="#686767"/>
+<path d="M50.8099 128.71L58.4399 131.13C58.5399 131.16 58.6 131.27 58.57 131.38C58.54 131.48 58.43 131.54 58.32 131.51L50.7 129.07C50.6 129.04 50.5499 128.93 50.5799 128.83C50.6099 128.73 50.72 128.68 50.82 128.71H50.8099Z" fill="#686767"/>
+<path d="M66.0599 133.55L73.6899 135.97C73.8099 136.01 73.8699 136.13 73.8299 136.25C73.7899 136.37 73.6699 136.43 73.5499 136.39L65.9299 133.95C65.8199 133.91 65.7599 133.8 65.7899 133.69C65.8299 133.58 65.9399 133.52 66.0499 133.55H66.0599Z" fill="#686767"/>
+<path d="M81.3099 138.38L88.9399 140.8C89.0699 140.84 89.1399 140.98 89.0999 141.1C89.0599 141.23 88.9198 141.3 88.7998 141.26L81.1798 138.82C81.0598 138.78 80.9899 138.65 81.0299 138.53C81.0699 138.41 81.1999 138.34 81.3199 138.38H81.3099Z" fill="#686767"/>
+<path d="M96.5594 143.22L104.189 145.64C104.329 145.68 104.409 145.83 104.359 145.97C104.319 146.11 104.169 146.19 104.029 146.14L96.4094 143.7C96.2794 143.66 96.1994 143.52 96.2494 143.38C96.2994 143.24 96.4294 143.17 96.5694 143.22H96.5594Z" fill="#686767"/>
+</g>
+</svg>
+);
+
+// Data for Summary section
+
 // Data for Summary section
 const pieData = [
   { name: "Compute", value: 1291.5, color: "#6366f1" },
@@ -215,6 +259,7 @@ export default function UsageMetricsPage() {
           title="No Usage Data Yet"
           description="Start using Krutrim Cloud services to see your usage summary, billing breakdown, and credit consumption here."
           className="min-h-[400px]"
+          icon={usageAnalyticsIcon}
         />
       )
     }
@@ -439,6 +484,7 @@ export default function UsageMetricsPage() {
               title="No Compute Usage Yet"
               description="Your compute instances, VMs, and processing costs will appear here once you start using our compute services."
               className="min-h-[300px]"
+              icon={infrastructureIcon}
             />
           );
         }
@@ -448,6 +494,7 @@ export default function UsageMetricsPage() {
               title="No Storage Usage Yet"
               description="Your block storage, object storage, and data storage costs will appear here once you start using our storage services."
               className="min-h-[300px]"
+              icon={infrastructureIcon}
             />
           );
         }
@@ -457,6 +504,7 @@ export default function UsageMetricsPage() {
               title="No Network Usage Yet"
               description="Your networking, bandwidth, and data transfer costs will appear here once you start using our network services."
               className="min-h-[300px]"
+              icon={infrastructureIcon}
             />
           );
         }
@@ -568,10 +616,7 @@ export default function UsageMetricsPage() {
 
     return (
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg font-normal">Infrastructure Costs</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
             <VercelTabs
               tabs={coreTabs}
               activeTab={coreTab}
@@ -802,10 +847,7 @@ export default function UsageMetricsPage() {
 
     return (
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg font-normal">Model Development Charges</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
             <VercelTabs
               tabs={studioTabs}
               activeTab={studioTab}
@@ -995,12 +1037,7 @@ export default function UsageMetricsPage() {
 
     return (
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex flex-col gap-1">
-            <CardTitle className="text-lg font-normal">Deployed AI Charges</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
             <VercelTabs
               tabs={solutionsTabs}
               activeTab={solutionsTab}
