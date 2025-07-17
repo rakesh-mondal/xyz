@@ -18,6 +18,7 @@ import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@
 import { canDeletePrimarySnapshot, getPrimarySnapshotsForResource } from "@/lib/data"
 import { EmptyState } from "@/components/ui/empty-state"
 import { snapshots } from "@/lib/data"
+import Link from "next/link"
 
 const volumeIcon = (
   <svg width="467" height="218" viewBox="0 0 467 218" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-72">
@@ -1136,10 +1137,7 @@ export default function BlockStoragePage() {
           label: "Create Volume"
         }
       case "snapshots":
-        return { 
-          href: "/storage/block/snapshots/create", 
-          label: "Create Snapshot"
-        }
+        return "multiple" // Special case for multiple buttons
       case "backup":
         return { 
           href: "/storage/block/backup/create", 
@@ -1154,15 +1152,37 @@ export default function BlockStoragePage() {
   }
 
   const { title, description } = getPageInfo()
-  const { href, label } = getButtonInfo()
+  const buttonInfo = getButtonInfo()
+
+  // Create header actions based on button info
+  const getHeaderActions = () => {
+    if (buttonInfo === "multiple") {
+      // Special case for snapshots tab with multiple buttons
+      return (
+        <div className="flex items-center gap-3">
+          <Button asChild variant="outline">
+            <Link href="/storage/block/snapshots/policies/create">
+              Create Snapshot Policies
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/storage/block/snapshots/create">
+              Create Instant Snapshot
+            </Link>
+          </Button>
+        </div>
+      )
+    } else {
+      // Single button case
+      return <CreateButton href={buttonInfo.href} label={buttonInfo.label} />
+    }
+  }
 
   return (
     <PageLayout 
       title={title} 
       description={description}
-      headerActions={
-        <CreateButton href={href} label={label} />
-      }
+      headerActions={getHeaderActions()}
     >
       <div className="space-y-6">
         <VercelTabs
