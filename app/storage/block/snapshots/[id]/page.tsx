@@ -200,13 +200,23 @@ export default function SnapshotDetailsPage({ params }: { params: { id: string }
           <div className="col-span-full grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Size</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{snapshot.size}</div>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{snapshot.size} GB</div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Source {getResourceType(snapshot.volumeVM)}</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{snapshot.volumeVM}</div>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Source Resource</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{snapshot.volumeVM} ({getResourceType(snapshot.volumeVM)})</div>
             </div>
           </div>
+          
+          {/* Policy field (conditional) */}
+          {snapshot.policy && snapshot.policy.policyType !== 'manual' && (
+            <div className="col-span-full">
+              <div className="space-y-1">
+                <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Policy</label>
+                <div className="font-medium" style={{ fontSize: '14px' }}>{snapshot.name.split('-snapshot-')[0]}</div>
+              </div>
+            </div>
+          )}
           
           {/* Description */}
           <div className="col-span-full">
@@ -218,184 +228,91 @@ export default function SnapshotDetailsPage({ params }: { params: { id: string }
         </DetailGrid>
       </div>
 
-      {/* Policy Configuration Section */}
-      <div className="bg-card text-card-foreground border-border border rounded-lg p-6">
-        <div className="space-y-6">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium">Policy Configuration</h3>
-              <div className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
-                snapshot.policy.enabled 
-                  ? "bg-green-100 text-green-800" 
-                  : "bg-gray-100 text-gray-800"
-              }`}>
-                {snapshot.policy.enabled ? "Active" : "Inactive"}
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Schedule Information */}
-              <div className="space-y-4">
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Schedule Details</h4>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Policy Type:</span>
-                      <span className="font-medium capitalize">{snapshot.policy.policyType}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Schedule:</span>
-                      <span className="font-medium">{snapshot.policy.scheduleDescription}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Status:</span>
-                      <span className={`font-medium ${
-                        snapshot.policy.enabled ? "text-green-600" : "text-gray-600"
-                      }`}>
-                        {snapshot.policy.enabled ? "Enabled" : "Disabled"}
-                      </span>
-                    </div>
-                    {snapshot.policy.nextExecution && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Next Execution:</span>
-                        <span className="font-medium">
-                          {formatDate(snapshot.policy.nextExecution)}
-                        </span>
-                      </div>
-                    )}
+      {/* Conditional Form Data Display */}
+      {snapshot.policy && snapshot.policy.policyType !== 'manual' ? (
+        // Snapshot created via Policy - show Policy form data
+        <div className="bg-card text-card-foreground border-border border rounded-lg p-6">
+          <h3 className="text-lg font-medium mb-4">Policy Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-3">Policy Details</h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Policy Name:</span>
+                    <span className="font-medium">{snapshot.name.split('-snapshot-')[0]}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Resource Type:</span>
+                    <span className="font-medium capitalize">{snapshot.policy.policyType}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Schedule:</span>
+                    <span className="font-medium">{snapshot.policy.scheduleDescription}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Max Snapshots:</span>
+                    <span className="font-medium">{snapshot.policy.maxSnapshots}</span>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Policy Settings */}
-              <div className="space-y-4">
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Policy Settings</h4>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Maximum Snapshots:</span>
-                      <span className="font-medium">{snapshot.policy.maxSnapshots}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Retention Policy:</span>
-                      <span className="font-medium">
-                        {snapshot.policy.maxSnapshots > 10 ? "Long-term" : "Standard"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Auto-cleanup:</span>
-                      <span className="font-medium">
-                        {snapshot.policy.enabled ? "Enabled" : "Disabled"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Primary Snapshots:</span>
-                      <span className="font-medium">
-                        {getPrimarySnapshotsForResource(snapshot.volumeVM).length} for {snapshot.volumeVM}
-                      </span>
-                    </div>
-                    {snapshot.type === "Primary" && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Deletion Status:</span>
-                        <span className={`font-medium text-xs ${
-                          isDeletionAllowed() 
-                            ? "text-green-600" 
-                            : "text-red-600"
-                        }`}>
-                          {isDeletionAllowed() 
-                            ? "Can be deleted" 
-                            : "Cannot delete (only Primary)"}
-                        </span>
-                      </div>
-                    )}
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-3">Naming Convention</h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Pattern:</span>
+                    <span className="font-medium">{snapshot.name.split('-snapshot-')[0]}-snapshot-{"{{date}}"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Generated Name:</span>
+                    <span className="font-medium">{snapshot.name}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* CRON Expression Section */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-medium mb-4">CRON Expression</h3>
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Expression:</span>
-                <TooltipWrapper 
-                  content="Copy CRON expression to clipboard" 
-                  side="top"
-                >
-                  <button
-                    type="button"
-                    className="p-1 hover:bg-muted/50 rounded transition-colors"
-                    onClick={() => {
-                      navigator.clipboard.writeText(snapshot.policy.cronExpression)
-                      toast({
-                        title: "Copied to clipboard",
-                        description: "CRON expression has been copied to your clipboard."
-                      })
-                    }}
-                  >
-                    <Copy className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </TooltipWrapper>
-              </div>
-              <div className="font-mono text-sm bg-background border rounded px-3 py-2 mb-2">
-                {snapshot.policy.cronExpression}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                This expression schedules: <span className="font-medium">{snapshot.policy.scheduleDescription}</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Policy Actions */}
-          {snapshot.status === "available" && (
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-medium mb-4">Policy Actions</h3>
-              <div className="flex flex-wrap gap-3">
-                <Button 
-                  size="sm" 
-                  variant={snapshot.policy.enabled ? "outline" : "default"}
-                  onClick={() => {
-                    toast({
-                      title: snapshot.policy.enabled ? "Policy disabled" : "Policy enabled",
-                      description: `Snapshot policy has been ${snapshot.policy.enabled ? "disabled" : "enabled"}.`
-                    })
-                  }}
-                >
-                  {snapshot.policy.enabled ? "Disable Policy" : "Enable Policy"}
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => {
-                    toast({
-                      title: "Edit policy",
-                      description: "Edit policy functionality would be implemented here."
-                    })
-                  }}
-                >
-                  Edit Policy
-                </Button>
-                {snapshot.policy.enabled && (
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => {
-                      toast({
-                        title: "Manual execution triggered",
-                        description: "A manual snapshot has been triggered outside the regular schedule."
-                      })
-                    }}
-                  >
-                    Run Now
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      ) : (
+        // Snapshot created via Instant Snapshot - show Instant form data
+        <div className="bg-card text-card-foreground border-border border rounded-lg p-6">
+          <h3 className="text-lg font-medium mb-4">Instant Snapshot Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-3">Snapshot Details</h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Snapshot Type:</span>
+                    <span className="font-medium">{snapshot.type}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Source Resource:</span>
+                    <span className="font-medium">{snapshot.volumeVM}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Resource Type:</span>
+                    <span className="font-medium">{getResourceType(snapshot.volumeVM)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-3">Description</h4>
+                <div className="space-y-3 text-sm">
+                  <div className="text-sm">
+                    {snapshot.description || "No description provided"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}

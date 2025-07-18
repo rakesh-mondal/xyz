@@ -247,7 +247,7 @@ export default function CreateVPCPage() {
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="pt-4">
-                          <div className="mb-5">
+                          <div className="mb-5 px-1">
                             <div className="flex items-center gap-2 mb-2">
                               <Label htmlFor="subnetName" className="font-medium">
                                 Subnet Name
@@ -277,11 +277,11 @@ export default function CreateVPCPage() {
                               placeholder="Enter subnet name"
                               value={formData.subnetName}
                               onChange={handleChange}
-                              className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                              className="focus:ring-2 focus:ring-ring focus:ring-offset-2 w-full"
                             />
                           </div>
 
-                          <div className="mb-5">
+                          <div className="mb-5 px-1">
                             <Label htmlFor="subnetDescription" className="block mb-2 font-medium">
                               Subnet Description
                             </Label>
@@ -290,13 +290,13 @@ export default function CreateVPCPage() {
                               placeholder="Enter subnet description"
                               value={formData.subnetDescription}
                               onChange={handleChange}
-                              className="focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[80px]"
+                              className="focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[80px] w-full"
                             />
                           </div>
 
                           {/* CIDR, Gateway IP, and Network Accessibility in one row */}
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-                            <div>
+                          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-5">
+                            <div className="min-w-0 px-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <Label htmlFor="cidr" className="font-medium">
                                   CIDR
@@ -325,14 +325,14 @@ export default function CreateVPCPage() {
                                 placeholder="e.g., 10.0.0.0/24"
                                 value={formData.cidr}
                                 onChange={handleChange}
-                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2 w-full"
                               />
                               <p className="text-xs text-muted-foreground mt-1">
                                 IP address range in CIDR notation
                               </p>
                             </div>
 
-                            <div>
+                            <div className="min-w-0 px-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <Label htmlFor="gatewayIp" className="font-medium">
                                   Gateway IP
@@ -361,14 +361,14 @@ export default function CreateVPCPage() {
                                 placeholder="e.g., 10.0.0.1"
                                 value={formData.gatewayIp}
                                 onChange={handleChange}
-                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                className="focus:ring-2 focus:ring-ring focus:ring-offset-2 w-full"
                               />
                               <p className="text-xs text-muted-foreground mt-1">
                                 Gateway IP address
                               </p>
                             </div>
 
-                            <div>
+                            <div className="min-w-0 px-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <Label htmlFor="networkAccessibility" className="font-medium">
                                   Network Accessibility
@@ -399,7 +399,7 @@ export default function CreateVPCPage() {
                                 </TooltipWrapper>
                               </div>
                               <Select value={formData.networkAccessibility} onValueChange={(value) => handleSelectChange("networkAccessibility", value)}>
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full focus:ring-2 focus:ring-ring focus:ring-offset-2">
                                   <SelectValue placeholder="Select accessibility" />
                                 </SelectTrigger>
                                 <SelectContent>

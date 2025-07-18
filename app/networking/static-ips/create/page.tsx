@@ -135,7 +135,7 @@ export default function CreateStaticIPPage() {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" className="bg-black text-white hover:bg-black/90 transition-colors hover:scale-105">
+                  <Button type="submit" className="bg-black text-white hover:bg-black/90 transition-colors">
                     Reserve IP Address
                   </Button>
                 </div>
@@ -963,9 +963,9 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                 />
                               </div>
 
-                              {/* CIDR, Gateway IP, and Network Accessibility in one row */}
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-                                <div>
+                                                          {/* CIDR, Gateway IP, and Network Accessibility in one row */}
+                            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-5">
+                                <div className="min-w-0 px-1">
                                   <div className="flex items-center gap-2 mb-2">
                                     <Label htmlFor="cidr" className="font-medium">
                                       CIDR
@@ -982,14 +982,14 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                     placeholder="e.g., 10.0.0.0/24"
                                     value={formData.cidr}
                                     onChange={handleChange}
-                                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2 w-full"
                                   />
                                   <p className="text-xs text-muted-foreground mt-1">
                                     IP address range in CIDR notation
                                   </p>
                                 </div>
 
-                                <div>
+                                <div className="min-w-0 px-1">
                                   <div className="flex items-center gap-2 mb-2">
                                     <Label htmlFor="gatewayIp" className="font-medium">
                                       Gateway IP
@@ -1006,14 +1006,14 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                     placeholder="e.g., 10.0.0.1"
                                     value={formData.gatewayIp}
                                     onChange={handleChange}
-                                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2 w-full"
                                   />
                                   <p className="text-xs text-muted-foreground mt-1">
                                     Gateway IP address
                                   </p>
                                 </div>
 
-                                <div>
+                                <div className="min-w-0 px-1">
                                   <div className="flex items-center gap-2 mb-2">
                                     <Label htmlFor="networkAccessibility" className="font-medium">
                                       Network Accessibility
@@ -1026,7 +1026,7 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                                     </TooltipWrapper>
                                   </div>
                                   <Select value={formData.networkAccessibility} onValueChange={(value) => handleSelectChange("networkAccessibility", value)}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full focus:ring-2 focus:ring-ring focus:ring-offset-2">
                                       <SelectValue placeholder="Select accessibility" />
                                     </SelectTrigger>
                                     <SelectContent>

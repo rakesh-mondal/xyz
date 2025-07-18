@@ -877,81 +877,81 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
                               />
                             </div>
 
-                            {/* CIDR, Gateway IP, and Network Accessibility in one row */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-                              <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Label htmlFor="cidr" className="font-medium">
-                                    CIDR
-                                  </Label>
-                                  <TooltipWrapper 
-                                    content="IP range for subnet. Example: 10.0.0.0/24 = 254 IPs"
-                                    side="top"
-                                  >
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                  </TooltipWrapper>
-                                </div>
-                                <Input
-                                  id="cidr"
-                                  placeholder="e.g., 10.0.0.0/24"
-                                  value={formData.cidr}
-                                  onChange={handleChange}
-                                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                />
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  IP address range in CIDR notation
-                                </p>
-                              </div>
+                                                          {/* CIDR, Gateway IP, and Network Accessibility in one row */}
+                              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-5">
+                                                             <div className="min-w-0 px-1">
+                                 <div className="flex items-center gap-2 mb-2">
+                                   <Label htmlFor="cidr" className="font-medium">
+                                     CIDR
+                                   </Label>
+                                   <TooltipWrapper 
+                                     content="IP range for subnet. Example: 10.0.0.0/24 = 254 IPs"
+                                     side="top"
+                                   >
+                                     <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                   </TooltipWrapper>
+                                 </div>
+                                 <Input
+                                   id="cidr"
+                                   placeholder="e.g., 10.0.0.0/24"
+                                   value={formData.cidr}
+                                   onChange={handleChange}
+                                   className="focus:ring-2 focus:ring-ring focus:ring-offset-2 w-full"
+                                 />
+                                 <p className="text-xs text-muted-foreground mt-1">
+                                   IP address range in CIDR notation
+                                 </p>
+                               </div>
 
-                              <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Label htmlFor="gatewayIp" className="font-medium">
-                                    Gateway IP
-                                  </Label>
-                                  <TooltipWrapper 
-                                    content="Default gateway IP. Usually first IP in range (e.g., 10.0.0.1)"
-                                    side="top"
-                                  >
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                  </TooltipWrapper>
-                                </div>
-                                <Input
-                                  id="gatewayIp"
-                                  placeholder="e.g., 10.0.0.1"
-                                  value={formData.gatewayIp}
-                                  onChange={handleChange}
-                                  className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                />
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  Gateway IP address
-                                </p>
-                              </div>
+                                                             <div className="min-w-0 px-1">
+                                 <div className="flex items-center gap-2 mb-2">
+                                   <Label htmlFor="gatewayIp" className="font-medium">
+                                     Gateway IP
+                                   </Label>
+                                   <TooltipWrapper 
+                                     content="Default gateway IP. Usually first IP in range (e.g., 10.0.0.1)"
+                                     side="top"
+                                   >
+                                     <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                   </TooltipWrapper>
+                                 </div>
+                                 <Input
+                                   id="gatewayIp"
+                                   placeholder="e.g., 10.0.0.1"
+                                   value={formData.gatewayIp}
+                                   onChange={handleChange}
+                                   className="focus:ring-2 focus:ring-ring focus:ring-offset-2 w-full"
+                                 />
+                                 <p className="text-xs text-muted-foreground mt-1">
+                                   Gateway IP address
+                                 </p>
+                               </div>
 
-                              <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Label htmlFor="networkAccessibility" className="font-medium">
-                                    Network Accessibility
-                                  </Label>
-                                  <TooltipWrapper 
-                                    content="Private: isolated from internet. Public: internet accessible"
-                                    side="top"
-                                  >
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                                  </TooltipWrapper>
+                                                              <div className="min-w-0 px-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Label htmlFor="networkAccessibility" className="font-medium">
+                                      Network Accessibility
+                                    </Label>
+                                    <TooltipWrapper 
+                                      content="Private: isolated from internet. Public: internet accessible"
+                                      side="top"
+                                    >
+                                      <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                                    </TooltipWrapper>
+                                  </div>
+                                  <Select value={formData.networkAccessibility} onValueChange={(value) => handleSelectChange("networkAccessibility", value)}>
+                                    <SelectTrigger className="w-full focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                                      <SelectValue placeholder="Select accessibility" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="private">Private</SelectItem>
+                                      <SelectItem value="public">Public</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Internet accessibility
+                                  </p>
                                 </div>
-                                <Select value={formData.networkAccessibility} onValueChange={(value) => handleSelectChange("networkAccessibility", value)}>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select accessibility" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="private">Private</SelectItem>
-                                    <SelectItem value="public">Public</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  Internet accessibility
-                                </p>
-                              </div>
                             </div>
                           </div>
                         </AccordionContent>
