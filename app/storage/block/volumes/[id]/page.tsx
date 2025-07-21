@@ -15,6 +15,9 @@ import { Edit, Trash2, Plus } from "lucide-react"
 import { useToast } from "../../../../../hooks/use-toast"
 import { ExtendVolumeModal } from "../../../../../components/modals/extend-volume-modal"
 import { AttachedVolumeAlert, DeleteVolumeConfirmation } from "../../../../../components/modals/delete-volume-modals"
+import { snapshots } from "@/lib/data";
+import { ActionMenu } from "../../../../../components/action-menu";
+import { AddPolicyModal } from "../../../../../components/modals/add-policy-modal";
 
 // Mock function to get volume by ID
 const getVolume = (id: string) => {
@@ -63,48 +66,20 @@ const getVolume = (id: string) => {
   return mockVolumes.find(volume => volume.id === id)
 }
 
-// Mock snapshot policies data
-const mockSnapshotPolicies = [
-  {
-    id: "snap-policy-001",
-    name: "daily-backup-policy",
-    description: "Creates daily snapshots at 2 AM for point-in-time recovery",
-    scheduler: "0 2 * * *",
-    volumeId: "vol-001",
-  },
-  {
-    id: "snap-policy-002",
-    name: "hourly-db-snapshots",
-    description: "Hourly database snapshots during business hours for high availability",
-    scheduler: "0 9-17 * * 1-5",
-    volumeId: "vol-002",
-  },
-]
-
-// Mock backup policies data
-const mockBackupPolicies = [
-  {
-    id: "backup-policy-001",
-    name: "weekly-full-backup",
-    description: "Full backup every Sunday at midnight with 30-day retention",
-    scheduler: "0 0 * * 0",
-    volumeId: "vol-001",
-  },
-  {
-    id: "backup-policy-002",
-    name: "incremental-backup",
-    description: "Incremental backup every 6 hours with 7-day retention",
-    scheduler: "0 */6 * * *",
-    volumeId: "vol-002",
-  },
-]
-
 export default function VolumeDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isAttachedAlertOpen, setIsAttachedAlertOpen] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false)
+  const [snapshotPolicyDeleted, setSnapshotPolicyDeleted] = useState(false);
+  const [backupPolicyDeleted, setBackupPolicyDeleted] = useState(false);
+  const [showAddSnapshotPolicy, setShowAddSnapshotPolicy] = useState(false);
+  const [showAddBackupPolicy, setShowAddBackupPolicy] = useState(false);
+  const [snapshotPolicyState, setSnapshotPolicyState] = useState<any>(null);
+  const [backupPolicyState, setBackupPolicyState] = useState<any>(null);
+  const [editSnapshot, setEditSnapshot] = useState(false);
+  const [editBackup, setEditBackup] = useState(false);
   const volume = getVolume(params.id)
 
   if (!volume) {
@@ -180,9 +155,29 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
   }
 
-  // Filter policies for this volume
-  const volumeSnapshotPolicies = volume.id === "vol-002" ? [] : mockSnapshotPolicies.filter(policy => policy.volumeId === volume.id)
-  const volumeBackupPolicies = volume.id === "vol-002" ? [] : mockBackupPolicies.filter(policy => policy.volumeId === volume.id)
+  // Find snapshot policy for this volume (mock: match volume.name or id to snapshot.volumeVM)
+  const snapshotPolicy = !snapshotPolicyDeleted && (snapshotPolicyState || snapshots.find(
+    (snap) => snap.volumeVM === volume.name && snap.policy
+  )?.policy);
+
+  // Dummy backup policy (for demo, you can expand this as needed)
+  const backupPolicies = [
+    {
+      volumeId: "vol-001",
+      enabled: true,
+      schedule: "Daily at 3:00 AM",
+      retention: 7,
+      nextExecution: "2024-12-20T03:00:00Z",
+    },
+    {
+      volumeId: "vol-002",
+      enabled: false,
+      schedule: "Weekly on Sunday at 2:00 AM",
+      retention: 4,
+      nextExecution: null,
+    },
+  ];
+  const backupPolicy = !backupPolicyDeleted && (backupPolicyState || backupPolicies.find((p) => p.volumeId === volume.id));
 
   // Snapshot policies table columns
   const snapshotPolicyColumns = [
@@ -362,151 +357,69 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
         </DetailGrid>
       </div>
 
-      {/* Snapshot Policies Section */}
+      {/* Snapshot Policy Section */}
       <div className="bg-card text-card-foreground border-border border rounded-lg p-6 mb-6">
-        {volumeSnapshotPolicies.length > 0 ? (
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-5 pb-2.5 border-b border-border">
-              <h2 className="text-lg font-semibold">Snapshot Policies ({volumeSnapshotPolicies.length})</h2>
-              <Button variant="outline" size="sm" onClick={handleCreateSnapshotPolicy}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Policy
-              </Button>
+        <h2 className="text-lg font-semibold mb-4">Snapshot Policy</h2>
+        {snapshotPolicy ? (
+          <div className="bg-gray-50 rounded p-4 flex items-center justify-between">
+            <div>
+              <div className="text-sm text-gray-700 font-medium">{snapshotPolicy.scheduleDescription}</div>
+              <div className="text-xs text-gray-500 mt-1">Max Snapshots: {snapshotPolicy.maxSnapshots}</div>
+              <div className="text-xs text-gray-500">Next Execution: {snapshotPolicy.nextExecution ? new Date(snapshotPolicy.nextExecution).toLocaleString() : "-"}</div>
+              <div className="text-xs text-gray-500">Status: {snapshotPolicy.enabled ? "Enabled" : "Disabled"}</div>
             </div>
-            <ShadcnDataTable
-              columns={snapshotPolicyColumns}
-              data={volumeSnapshotPolicies}
-              searchableColumns={["name", "description"]}
-              pageSize={5}
-              enableSearch={true}
-              enableColumnVisibility={false}
-              enablePagination={true}
-              enableVpcFilter={false}
+            <ActionMenu
+              resourceName="Snapshot Policy"
+              resourceType="Policy"
+              onEdit={() => { setEditSnapshot(true); }}
+              onCustomDelete={() => { setSnapshotPolicyDeleted(true); setSnapshotPolicyState(null); }}
+              deleteLabel="Delete"
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8">
-            {/* SVG Illustration */}
-            <div className="mb-4">
-              <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="120" height="80" fill="#FFFFFF"></rect>
-                <path d="M36 0L36 80" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M84 0L84 80" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M120 18H0" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M120 62H0" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M120 40H0" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M111 0L111 80" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10"></path>
-                <path d="M9 0L9 80" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10"></path>
-                <path d="M0 9L120 9" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10"></path>
-                <path d="M0 71L120 71" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10"></path>
-                <path d="M44 44L59 36.5C59.6 36.2 60.4 36.2 61 36.5L76 44C76.8 44.4 77.3 45.2 77.3 46V52C77.3 52.8 76.8 53.6 76 54L61 61.5C60.4 61.8 59.6 61.8 59 61.5L44 54C43.2 53.6 42.7 52.8 42.7 52V46C42.7 45.2 43.2 44.4 44 44Z" fill="#FFFFFF" stroke="#5C5E63" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round"></path>
-                <g opacity="0.6">
-                  <path d="M43.5 45L60 53L76.5 45" stroke="#5C5E63" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                  <path d="M60 61.5V53" stroke="#5C5E63" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                </g>
-                <path d="M44 27L59 19.5C59.6 19.2 60.4 19.2 61 19.5L76 27C76.8 27.4 77.3 28.2 77.3 29V35C77.3 35.8 76.8 36.6 76 37L61 44.5C60.4 44.8 59.6 44.8 59 44.5L44 37C43.2 36.6 42.7 35.8 42.7 35V29C42.7 28.2 43.2 27.4 44 27Z" fill="#FFFFFF" stroke="#5C5E63" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round"></path>
-                <g opacity="0.6">
-                  <path d="M43.5 28L60 36L76.5 28" stroke="#5C5E63" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                  <path d="M60 44.5V36" stroke="#5C5E63" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                </g>
-              </svg>
-            </div>
-            
-            <div className="text-center space-y-2 max-w-sm">
-              <h4 className="text-base font-medium text-foreground">Snapshot Policies</h4>
-              <div className="text-muted-foreground">
-                <p className="text-sm">
-                  Create automated snapshot policies for point-in-time recovery.{' '}
-                  <a href="/documentation/snapshots" className="text-primary hover:underline">
-                    Learn more
-                  </a>
-                </p>
-              </div>
-              <div className="flex justify-center pt-1">
-                <Button 
-                  onClick={handleCreateSnapshotPolicy}
-                  size="sm"
-                >
-                  Create Snapshot Policy
-                </Button>
-              </div>
-            </div>
-          </div>
+          <Button variant="default" onClick={() => setShowAddSnapshotPolicy(true)}>Add Policy</Button>
         )}
       </div>
+      <AddPolicyModal
+        open={showAddSnapshotPolicy || editSnapshot}
+        onClose={() => { setShowAddSnapshotPolicy(false); setEditSnapshot(false); }}
+        onSave={policy => { setSnapshotPolicyState(policy); setSnapshotPolicyDeleted(false); }}
+        mode={editSnapshot ? "edit" : "add"}
+        type="snapshot"
+        initialPolicy={editSnapshot ? snapshotPolicy : undefined}
+      />
 
-      {/* Backup Policies Section */}
-      <div className="bg-card text-card-foreground border-border border rounded-lg p-6">
-        {volumeBackupPolicies.length > 0 ? (
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-5 pb-2.5 border-b border-border">
-              <h2 className="text-lg font-semibold">Backup Policies ({volumeBackupPolicies.length})</h2>
-              <Button variant="outline" size="sm" onClick={handleCreateBackupPolicy}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Policy
-              </Button>
+      {/* Backup Policy Section */}
+      <div className="bg-card text-card-foreground border-border border rounded-lg p-6 mb-6">
+        <h2 className="text-lg font-semibold mb-4">Backup Policy</h2>
+        {backupPolicy ? (
+          <div className="bg-gray-50 rounded p-4 flex items-center justify-between">
+            <div>
+              <div className="text-sm text-gray-700 font-medium">{backupPolicy.schedule}</div>
+              <div className="text-xs text-gray-500 mt-1">Retention: {backupPolicy.retention} backups</div>
+              <div className="text-xs text-gray-500">Next Execution: {backupPolicy.nextExecution ? new Date(backupPolicy.nextExecution).toLocaleString() : "-"}</div>
+              <div className="text-xs text-gray-500">Status: {backupPolicy.enabled ? "Enabled" : "Disabled"}</div>
             </div>
-            <ShadcnDataTable
-              columns={backupPolicyColumns}
-              data={volumeBackupPolicies}
-              searchableColumns={["name", "description"]}
-              pageSize={5}
-              enableSearch={true}
-              enableColumnVisibility={false}
-              enablePagination={true}
-              enableVpcFilter={false}
+            <ActionMenu
+              resourceName="Backup Policy"
+              resourceType="Policy"
+              onEdit={() => { setEditBackup(true); }}
+              onCustomDelete={() => { setBackupPolicyDeleted(true); setBackupPolicyState(null); }}
+              deleteLabel="Delete"
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8">
-            {/* SVG Illustration */}
-            <div className="mb-4">
-              <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="120" height="80" fill="#FFFFFF"></rect>
-                <path d="M36 0L36 80" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M84 0L84 80" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M120 18H0" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M120 62H0" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M120 40H0" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10" strokeDasharray="2 2"></path>
-                <path d="M111 0L111 80" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10"></path>
-                <path d="M9 0L9 80" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10"></path>
-                <path d="M0 9L120 9" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10"></path>
-                <path d="M0 71L120 71" stroke="#EEEFF1" strokeWidth="0.6" strokeMiterlimit="10"></path>
-                <path d="M44 44L59 36.5C59.6 36.2 60.4 36.2 61 36.5L76 44C76.8 44.4 77.3 45.2 77.3 46V52C77.3 52.8 76.8 53.6 76 54L61 61.5C60.4 61.8 59.6 61.8 59 61.5L44 54C43.2 53.6 42.7 52.8 42.7 52V46C42.7 45.2 43.2 44.4 44 44Z" fill="#FFFFFF" stroke="#5C5E63" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round"></path>
-                <g opacity="0.6">
-                  <path d="M43.5 45L60 53L76.5 45" stroke="#5C5E63" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                  <path d="M60 61.5V53" stroke="#5C5E63" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                </g>
-                <path d="M44 27L59 19.5C59.6 19.2 60.4 19.2 61 19.5L76 27C76.8 27.4 77.3 28.2 77.3 29V35C77.3 35.8 76.8 36.6 76 37L61 44.5C60.4 44.8 59.6 44.8 59 44.5L44 37C43.2 36.6 42.7 35.8 42.7 35V29C42.7 28.2 43.2 27.4 44 27Z" fill="#FFFFFF" stroke="#5C5E63" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round"></path>
-                <g opacity="0.6">
-                  <path d="M43.5 28L60 36L76.5 28" stroke="#5C5E63" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                  <path d="M60 44.5V36" stroke="#5C5E63" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                </g>
-              </svg>
-            </div>
-            
-            <div className="text-center space-y-2 max-w-sm">
-              <h4 className="text-base font-medium text-foreground">Backup Policies</h4>
-              <div className="text-muted-foreground">
-                <p className="text-sm">
-                  Set up automated backup policies for data protection.{' '}
-                  <a href="/documentation/backups" className="text-primary hover:underline">
-                    Learn more
-                  </a>
-                </p>
-              </div>
-              <div className="flex justify-center pt-1">
-                <Button 
-                  onClick={handleCreateBackupPolicy}
-                  size="sm"
-                >
-                  Create Backup Policy
-                </Button>
-              </div>
-            </div>
-          </div>
+          <Button variant="default" onClick={() => setShowAddBackupPolicy(true)}>Add Policy</Button>
         )}
       </div>
+      <AddPolicyModal
+        open={showAddBackupPolicy || editBackup}
+        onClose={() => { setShowAddBackupPolicy(false); setEditBackup(false); }}
+        onSave={policy => { setBackupPolicyState(policy); setBackupPolicyDeleted(false); }}
+        mode={editBackup ? "edit" : "add"}
+        type="backup"
+        initialPolicy={editBackup ? backupPolicy : undefined}
+      />
 
       {/* Alert for volumes attached to VMs */}
       <AttachedVolumeAlert
