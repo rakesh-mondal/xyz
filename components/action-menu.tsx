@@ -24,6 +24,7 @@ interface ActionMenuProps {
   onCopyURL?: () => void  // New prop for copy URL action
   onEditBucket?: () => void  // New prop for edit bucket action
   onAddRule?: () => void  // New prop for add rule action
+  onRestore?: () => void  // New prop for restore backup action
 }
 
 /**
@@ -54,6 +55,7 @@ export function ActionMenu({
   onCopyURL,
   onEditBucket,
   onAddRule,
+  onRestore,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -132,6 +134,11 @@ export function ActionMenu({
             <DropdownMenuItem onClick={onConnectSubnet} className="flex items-center cursor-pointer">
               <Network className="mr-2 h-4 w-4" />
               <span>Connect/Disconnect Subnet</span>
+            </DropdownMenuItem>
+          )}
+          {onRestore && (
+            <DropdownMenuItem onClick={onRestore} className="flex items-center cursor-pointer">
+              <span>Restore</span>
             </DropdownMenuItem>
           )}
           {(deleteHref || onCustomDelete) && (

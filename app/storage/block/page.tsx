@@ -19,6 +19,7 @@ import { canDeletePrimarySnapshot, getPrimarySnapshotsForResource } from "@/lib/
 import { EmptyState } from "@/components/ui/empty-state"
 import { snapshots } from "@/lib/data"
 import Link from "next/link"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 const volumeIcon = (
   <svg width="467" height="218" viewBox="0 0 467 218" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-72">
@@ -913,6 +914,8 @@ function SnapshotsSection() {
 function BackupSection() {
   const [selectedBackup, setSelectedBackup] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false)
+  const [restoreInProgress, setRestoreInProgress] = useState(false)
   const { toast } = useToast()
 
   // Filter data based on user type for demo
@@ -922,6 +925,11 @@ function BackupSection() {
   const handleDeleteClick = (backup: any) => {
     setSelectedBackup(backup)
     setIsDeleteModalOpen(true)
+  }
+
+  const handleRestoreClick = (backup: any) => {
+    setSelectedBackup(backup)
+    setIsRestoreModalOpen(true)
   }
 
   const handleDeleteConfirm = async () => {
@@ -945,6 +953,21 @@ function BackupSection() {
     } catch (error) {
       throw error // Let the modal handle the error display
     }
+  }
+
+  // Simulate restore logic: restore all deltas up to primary for the same volume
+  const handleRestoreConfirm = async () => {
+    setRestoreInProgress(true)
+    // Simulate restore delay
+    setTimeout(() => {
+      setRestoreInProgress(false)
+      setIsRestoreModalOpen(false)
+      toast({
+        title: "Restore started (mock)",
+        description: `Restoring backup \"${selectedBackup?.name}\" and all previous deltas up to the primary for volume \"${selectedBackup?.volumeName}\".`,
+      })
+      setSelectedBackup(null)
+    }, 1500)
   }
 
   const columns = [
@@ -1016,6 +1039,7 @@ function BackupSection() {
             viewHref={`/storage/block/backup/${row.id}`}
             editHref={`/storage/block/backup/${row.id}/edit`}
             onCustomDelete={() => handleDeleteClick(row)}
+            onRestore={() => handleRestoreClick(row)}
             resourceName={row.name}
             resourceType="Backup"
             deleteLabel="Delete Backup"
@@ -1067,6 +1091,28 @@ function BackupSection() {
         resourceType="Backup"
         onConfirm={handleDeleteConfirm}
       />
+
+      {/* Restore Confirmation Modal */}
+      <Dialog open={isRestoreModalOpen} onOpenChange={setIsRestoreModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Restore Backup</DialogTitle>
+          </DialogHeader>
+          <div className="py-2">
+            Are you sure you want to restore <b>{selectedBackup?.name}</b>?
+            <br />
+            This will restore all delta backups up to the primary backup for volume <b>{selectedBackup?.volumeName}</b>.
+            <br />
+            <span className="text-xs text-muted-foreground">(Design mode: this is a mock operation)</span>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRestoreModalOpen(false)} disabled={restoreInProgress}>Cancel</Button>
+            <Button onClick={handleRestoreConfirm} disabled={restoreInProgress}>
+              {restoreInProgress ? "Restoring..." : "Restore"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
