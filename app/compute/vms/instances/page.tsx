@@ -3,6 +3,5 @@
 import { redirect } from "next/navigation"
 
 export default function MyInstancesPage() {
-  // Redirect to main VMs page with My Instances tab
-  redirect("/compute/vms")
+  return <div className="p-8 text-center text-gray-500">Not found</div>;
 } 

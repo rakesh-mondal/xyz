@@ -1216,3 +1216,54 @@ export const removeSubnetConnection = (subnetId: string, targetSubnetId: string)
     targetConnection.connectedSubnets = targetConnection.connectedSubnets.filter(id => id !== subnetId)
   }
 }
+
+export const vmInstances = [
+  {
+    id: "vm-001",
+    name: "Web Server 01",
+    type: "CPU",
+    flavour: "Standard-4",
+    vpc: "production-vpc",
+    status: "Active",
+    fixedIp: "10.0.0.5",
+    publicIp: "34.201.10.5",
+    createdOn: "2023-12-01T10:00:00Z",
+    deleteProtection: true,
+  },
+  {
+    id: "vm-002",
+    name: "AI Training Node",
+    type: "GPU",
+    flavour: "GPU-8xA100",
+    vpc: "ai-workload-vpc",
+    status: "Stopped",
+    fixedIp: "10.0.1.8",
+    publicIp: "52.14.22.8",
+    createdOn: "2023-12-05T14:30:00Z",
+    deleteProtection: false,
+  },
+  {
+    id: "vm-003",
+    name: "Database Server",
+    type: "CPU",
+    flavour: "Memory-Optimized-16",
+    vpc: "production-vpc",
+    status: "Restarting",
+    fixedIp: "10.0.0.12",
+    publicIp: "34.201.10.12",
+    createdOn: "2023-12-10T09:15:00Z",
+    deleteProtection: true,
+  },
+  {
+    id: "vm-004",
+    name: "Dev Sandbox",
+    type: "CPU",
+    flavour: "Standard-2",
+    vpc: "development-vpc",
+    status: "Active",
+    fixedIp: "10.0.2.3",
+    publicIp: "18.222.33.3",
+    createdOn: "2023-12-12T11:45:00Z",
+    deleteProtection: false,
+  },
+];
