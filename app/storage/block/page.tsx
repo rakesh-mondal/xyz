@@ -20,6 +20,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { snapshots } from "@/lib/data"
 import Link from "next/link"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { CreateBackupModal } from "@/components/modals/create-backup-modal"
 
 const volumeIcon = (
   <svg width="467" height="218" viewBox="0 0 467 218" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-72">
@@ -487,6 +488,8 @@ function VolumesSection() {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false)
   const [volumeToExtend, setVolumeToExtend] = useState<any>(null)
+  const [showBackupModal, setShowBackupModal] = useState(false)
+  const [instantBackupVolume, setInstantBackupVolume] = useState<any>(null)
   const { toast } = useToast()
 
   // Filter data based on user type for demo
@@ -572,6 +575,11 @@ function VolumesSection() {
     }
   }
 
+  const handleCreateInstantBackup = (volume: any) => {
+    setInstantBackupVolume(volume)
+    setShowBackupModal(true)
+  }
+
   const columns = [
     {
       key: "name",
@@ -647,6 +655,8 @@ function VolumesSection() {
             resourceName={row.name}
             resourceType="Volume"
             deleteLabel="Delete Volume"
+            onCreateInstantBackup={() => handleCreateInstantBackup(row)}
+            createLabel="Create Instant Backup"
           />
         </div>
       ),
@@ -731,6 +741,25 @@ function VolumesSection() {
           onConfirm={handleExtendConfirm}
         />
       )}
+
+      <CreateBackupModal
+        open={showBackupModal}
+        onClose={() => { setShowBackupModal(false); setInstantBackupVolume(null); }}
+        onCreate={async ({ name, description, tags }) => {
+          // Static price logic: $0.10/GB
+          const price = instantBackupVolume ? `$${(Number(instantBackupVolume.size) * 0.10).toFixed(2)}` : "$0.00";
+          // Add to mockBackups (design mode: just log or update local state if you want to show instantly)
+          // For now, just toast
+          toast({
+            title: "Backup Created",
+            description: `Backup '${name}' for volume '${instantBackupVolume?.name}' created. Price: ${price}`,
+          });
+          setShowBackupModal(false);
+          setInstantBackupVolume(null);
+        }}
+        price={instantBackupVolume ? `$${(Number(instantBackupVolume.size) * 0.10).toFixed(2)}` : undefined}
+        volume={instantBackupVolume}
+      />
     </div>
   )
 }

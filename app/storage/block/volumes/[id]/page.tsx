@@ -18,6 +18,7 @@ import { AttachedVolumeAlert, DeleteVolumeConfirmation } from "../../../../../co
 import { snapshots } from "@/lib/data";
 import { ActionMenu } from "../../../../../components/action-menu";
 import { AddPolicyModal } from "../../../../../components/modals/add-policy-modal";
+import { CreateBackupModal } from "../../../../../components/modals/create-backup-modal";
 
 // Mock function to get volume by ID
 const getVolume = (id: string) => {
@@ -81,6 +82,7 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
   const [editSnapshot, setEditSnapshot] = useState(false);
   const [editBackup, setEditBackup] = useState(false);
   const volume = getVolume(params.id)
+  const [showBackupModal, setShowBackupModal] = useState(false);
 
   if (!volume) {
     notFound()
@@ -265,8 +267,8 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
       hideViewDocs={true}
       headerActions={
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleCreateSnapshot}>
-            Create Snapshot
+          <Button variant="outline" onClick={() => setShowBackupModal(true)}>
+            Create Instant Backup
           </Button>
           <Button variant="outline" onClick={handleExtend}>
             Extend Volume
@@ -274,6 +276,20 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
         </div>
       }
     >
+      <CreateBackupModal
+        open={showBackupModal}
+        onClose={() => setShowBackupModal(false)}
+        onCreate={async ({ name, description, tags }) => {
+          const price = `$${(Number(volume.size) * 0.10).toFixed(2)}`;
+          toast({
+            title: "Backup Created",
+            description: `Backup '${name}' for volume '${volume.name}' created. Price: ${price}`,
+          });
+          setShowBackupModal(false);
+        }}
+        price={`$${(Number(volume.size) * 0.10).toFixed(2)}`}
+        volume={volume}
+      />
       {/* Volume Basic Information */}
       <div className="mb-6 group relative" style={{
         borderRadius: '16px',

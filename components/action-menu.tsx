@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus } from "lucide-react"
+import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus, FolderDown } from "lucide-react"
 import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { TooltipWrapper } from "./ui/tooltip-wrapper"
@@ -23,7 +23,8 @@ interface ActionMenuProps {
   deleteLabel?: string  // Custom label for delete action
   onCopyURL?: () => void  // New prop for copy URL action
   onEditBucket?: () => void  // New prop for edit bucket action
-  onAddRule?: () => void  // New prop for add rule action
+  onAddRule?: () => void  // Deprecated, use onCreateInstantBackup for backup action
+  onCreateInstantBackup?: () => void  // For instant backup action
   onRestore?: () => void  // New prop for restore backup action
 }
 
@@ -55,6 +56,7 @@ export function ActionMenu({
   onCopyURL,
   onEditBucket,
   onAddRule,
+  onCreateInstantBackup,
   onRestore,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -106,10 +108,10 @@ export function ActionMenu({
               <span>Edit Bucket</span>
             </DropdownMenuItem>
           )}
-          {onAddRule && (
-            <DropdownMenuItem onClick={onAddRule} className="flex items-center cursor-pointer">
-              <Plus className="mr-2 h-4 w-4" />
-              <span>Add Rule</span>
+          {onCreateInstantBackup && (
+            <DropdownMenuItem onClick={onCreateInstantBackup} className="flex items-center cursor-pointer">
+              <FolderDown className="mr-2 h-4 w-4" />
+              <span>Create Instant Backup</span>
             </DropdownMenuItem>
           )}
           {onExtend && (
