@@ -138,6 +138,7 @@ export function ActionMenu({
           )}
           {onRestore && (
             <DropdownMenuItem onClick={onRestore} className="flex items-center cursor-pointer">
+              <ArrowUpRight className="mr-2 h-4 w-4" />
               <span>Restore</span>
             </DropdownMenuItem>
           )}
