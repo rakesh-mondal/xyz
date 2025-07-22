@@ -167,9 +167,15 @@ export function SubnetConnectionModal({
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <div className="text-muted-foreground text-sm">
-                    No available subnets to connect in {subnet.vpcName}
+                  <div className="text-muted-foreground text-sm mb-4">
+                    No available subnets to connect in the VPC {subnet.vpcName}
                   </div>
+                  <Button
+                    variant="default"
+                    onClick={() => window.location.href = '/networking/subnets/create'}
+                  >
+                    Create Subnet
+                  </Button>
                 </div>
               )}
             </div>
