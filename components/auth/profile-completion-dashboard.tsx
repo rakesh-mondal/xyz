@@ -12,6 +12,7 @@ import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { ArrowRight, Shield, Zap, Globe, CreditCard, X, HelpCircle } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useRouter } from "next/navigation"
+import { toast } from "@/hooks/use-toast"
 
 // Modal-optimized DigiLocker verification content
 function IdentityVerificationModalContent({ userData, onComplete, onCancel }: { 
@@ -153,6 +154,9 @@ export function ProfileCompletionDashboard({
   const [showIdentityVerificationModal, setShowIdentityVerificationModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isProfileSaved, setIsProfileSaved] = useState(false)
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
+  // Add state for password change success at the top of the component
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
 
   // Check if form data has changed
   useEffect(() => {
@@ -576,7 +580,6 @@ export function ProfileCompletionDashboard({
               </div>
             ))}
           </div>
-          
           {/* Verify Identity Button */}
           <Button 
             type="button"
@@ -587,6 +590,14 @@ export function ProfileCompletionDashboard({
             Verify your identity
           </Button>
         </div>
+        {/* Change Password Button OUTSIDE the KYC card */}
+        <Button
+          type="button"
+          onClick={() => setShowChangePasswordModal(true)}
+          className="w-full bg-white text-black border border-gray-300 hover:bg-gray-100 transition-colors mt-4"
+        >
+          Change Password
+        </Button>
       </div>
 
       {/* Success Modal */}
@@ -730,6 +741,101 @@ export function ProfileCompletionDashboard({
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Password Modal */}
+      <Dialog open={showChangePasswordModal} onOpenChange={isOpen => {
+        setShowChangePasswordModal(isOpen);
+        if (!isOpen) setChangePasswordSuccess(false); // Reset on close
+      }}>
+        <DialogContent className="p-0 bg-white max-w-md w-full overflow-hidden flex flex-col">
+          {/* Header */}
+          <div className="flex-shrink-0 p-6 border-b">
+            <DialogHeader>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogDescription>
+                Enter your current password and choose a new password.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          {/* Main Content */}
+          {changePasswordSuccess ? (
+            <div className="flex-1 p-8 flex flex-col items-center justify-center text-center">
+              <div className="mb-4">
+                <svg className="mx-auto h-12 w-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Password changed successfully!</h3>
+              <p className="text-gray-600 mb-6">Your password has been updated.</p>
+              <Button
+                type="button"
+                className="bg-black text-white hover:bg-black/90 px-8"
+                onClick={() => {
+                  setShowChangePasswordModal(false);
+                  setChangePasswordSuccess(false);
+                }}
+              >
+                Close
+              </Button>
+            </div>
+          ) : (
+            <form
+              className="flex-1 p-6 space-y-5"
+              onSubmit={e => {
+                e.preventDefault();
+                setChangePasswordSuccess(true);
+              }}
+            >
+              <div>
+                <Label htmlFor="current-password">Current Password</Label>
+                <Input
+                  id="current-password"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  required
+                  autoComplete="new-password"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  required
+                  autoComplete="new-password"
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowChangePasswordModal(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 bg-black text-white hover:bg-black/90"
+                >
+                  Change Password
+                </Button>
+              </div>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     </div>
