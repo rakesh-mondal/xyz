@@ -11,7 +11,40 @@ import { useToast } from "@/hooks/use-toast"
 import { EmptyState } from "@/components/ui/empty-state"
 
 // Mock data for object storage buckets - empty for new users
-const mockBuckets: any[] = []
+const mockBuckets: any[] = [
+  {
+    id: "bucket-1",
+    name: "project-assets",
+    region: "us-east-1",
+    size: "12.4 GB",
+    createdOn: "2024-04-10T14:23:00Z",
+    status: "success",
+  },
+  {
+    id: "bucket-2",
+    name: "logs-archive",
+    region: "eu-west-1",
+    size: "2.1 TB",
+    createdOn: "2024-03-22T09:10:00Z",
+    status: "success",
+  },
+  {
+    id: "bucket-3",
+    name: "media-backups",
+    region: "ap-south-1",
+    size: "850 MB",
+    createdOn: "2024-05-01T18:45:00Z",
+    status: "updating",
+  },
+  {
+    id: "bucket-4",
+    name: "user-uploads",
+    region: "us-west-2",
+    size: "0 B",
+    createdOn: "2024-05-10T11:00:00Z",
+    status: "success",
+  },
+]
 
 export default function ObjectStoragePage() {
   const [selectedBucket, setSelectedBucket] = useState<any>(null)
