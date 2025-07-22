@@ -540,6 +540,9 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     } else if (pathname.startsWith("/billing")) {
       setExpandedItem("/administration")
       setExpandedSubItem("/billing")
+    } else if (pathname.startsWith("/administration/kms")) {
+      setExpandedItem("/administration")
+      setExpandedSubItem("/administration/kms")
     } else if (pathname.startsWith("/ai-studio")) {
       setExpandedItem("/ai-studio")
     } else if (pathname.startsWith("/ai-solutions") || pathname.startsWith("/bhashik") || pathname.startsWith("/doc-intelligence")) {
