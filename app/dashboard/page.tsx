@@ -12,6 +12,9 @@ import { DashboardSection } from "@/components/dashboard/dashboard-section"
 import { IdentityVerificationModal } from "@/components/modals/identity-verification-modal"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog"
+import { useEffect } from "react"
 
 // Full access dashboard layout
 function FullAccessDashboard() {
@@ -19,55 +22,6 @@ function FullAccessDashboard() {
     <>
       {/* Existing dashboard content for full access users */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹5,000</div>
-            <p className="text-xs text-muted-foreground">+₹1,000 from last month</p>
-          </CardContent>
-        </Card>
-
-        <FeatureRestriction feature="compute">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Resources</CardTitle>
-              <Server className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">+2 since yesterday</p>
-            </CardContent>
-          </Card>
-        </FeatureRestriction>
-
-        <FeatureRestriction feature="storage">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Storage Used</CardTitle>
-              <Database className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">256 GB</div>
-              <p className="text-xs text-muted-foreground">+12 GB from last week</p>
-            </CardContent>
-          </Card>
-        </FeatureRestriction>
-
-        <FeatureRestriction feature="compute">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">CPU Usage</CardTitle>
-              <Cpu className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">42%</div>
-              <p className="text-xs text-muted-foreground">-8% from average</p>
-            </CardContent>
-          </Card>
-        </FeatureRestriction>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -176,56 +130,6 @@ function LimitedAccessDashboard() {
     <>
       {/* Basic Credits Card - Always accessible */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹5,000</div>
-            <p className="text-xs text-muted-foreground">+₹1,000 from last month</p>
-          </CardContent>
-        </Card>
-
-        {/* Restricted Resource Cards with overlay */}
-        <DashboardSection section="Compute Resources" feature="compute">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Resources</CardTitle>
-              <Server className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground">Verify identity to access</p>
-            </CardContent>
-          </Card>
-        </DashboardSection>
-
-        <DashboardSection section="Storage" feature="storage">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Storage Used</CardTitle>
-              <Database className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground">Verify identity to access</p>
-            </CardContent>
-          </Card>
-        </DashboardSection>
-
-        <DashboardSection section="Infrastructure" feature="infrastructure">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">CPU Usage</CardTitle>
-              <Cpu className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground">Verify identity to access</p>
-            </CardContent>
-          </Card>
-        </DashboardSection>
       </div>
 
       {/* Allowed Services Section */}
@@ -238,6 +142,7 @@ export default function DashboardPage() {
   const { user } = useAuth()
   const { toast } = useToast()
   const [isIdentityModalOpen, setIsIdentityModalOpen] = useState(false)
+  const [isEnterpriseModalOpen, setIsEnterpriseModalOpen] = useState(false)
 
   const handleVerifyIdentity = () => {
     setIsIdentityModalOpen(true)
@@ -250,21 +155,19 @@ export default function DashboardPage() {
     })
   }
 
+  // Get first name fallback
+  const firstName = user?.firstName || user?.name?.split(" ")[0] || "there"
+
   return (
     <CommandPaletteProvider>
-      <div className="space-y-6">
+      <div className="space-y-6 flex flex-col min-h-screen pb-12">
         <AccessBanner onCompleteProfile={handleVerifyIdentity} />
 
-        <div>
-          <div className="mb-4">
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-sm text-muted-foreground">Last updated: 5 minutes ago</span>
-            </div>
-          </div>
+        {/* Welcome Message (now plain text, styled like Available Services) */}
+        <div className="mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 text-left mb-1">Hey Rakesh,</h2>
+          <div className="text-lg text-gray-700 font-normal text-left mb-1">Welcome back to Krutrim Cloud</div>
         </div>
-
-
 
         {/* Conditional rendering based on access level */}
         <DashboardSection section="Dashboard Content" requiredAccess="limited">
@@ -288,6 +191,49 @@ export default function DashboardPage() {
             }}
           />
         )}
+
+        {/* Spacer to push banner to bottom */}
+        <div className="flex-1" />
+
+        {/* Corporate Enquiry Banner using Card with blueish gradient and extra bottom spacing */}
+        <Card className="w-full max-w-4xl mx-auto mb-16 border-0" style={{ background: 'linear-gradient(265deg, #E0E7FF 0%, #F0F7FF 100%)' }}>
+          <CardContent className="flex flex-col md:flex-row items-center justify-between gap-4 py-6">
+            <div className="text-base md:text-lg font-medium text-gray-900">Need help with enterprise deployments, custom solutions, or pricing?</div>
+            <Button variant="default" size="default" onClick={() => setIsEnterpriseModalOpen(true)}>
+              Contact Us &rarr;
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Enterprise Query Modal using AlertDialog */}
+        <AlertDialog open={isEnterpriseModalOpen} onOpenChange={setIsEnterpriseModalOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Enterprise Query Form</AlertDialogTitle>
+              <AlertDialogDescription>
+                Fill out the form and our team will get in touch with you for enterprise solutions.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input type="text" className="w-full border rounded px-3 py-2" defaultValue={user?.name || ''} readOnly />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input type="email" className="w-full border rounded px-3 py-2" defaultValue={user?.email || ''} readOnly />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Message</label>
+                <textarea className="w-full border rounded px-3 py-2" rows={4} placeholder="Tell us about your requirements..." />
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel type="button">Cancel</AlertDialogCancel>
+                <AlertDialogAction type="submit">Submit</AlertDialogAction>
+              </AlertDialogFooter>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </CommandPaletteProvider>
   )

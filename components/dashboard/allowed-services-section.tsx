@@ -6,7 +6,10 @@ import { StatusBadge } from "@/components/status-badge"
 import { 
   BookOpen, 
   ArrowRight,
-  Map
+  Map,
+  Cpu,
+  Database,
+  Server
 } from "lucide-react"
 import { CpuChipIcon } from "@heroicons/react/24/outline"
 import Link from "next/link"
@@ -21,6 +24,36 @@ export function AllowedServicesSection() {
   }
 
   const allowedServices = [
+    {
+      id: 'compute',
+      title: 'Compute Resources',
+      description: 'Launch and scale virtual machines, manage workloads, and monitor compute usage.',
+      icon: Server,
+      href: '/compute',
+      color: 'bg-green-100 text-green-700',
+      available: true,
+      features: ['VMs & Servers', 'Auto-scaling', 'Monitoring', 'Resource Management']
+    },
+    {
+      id: 'storage',
+      title: 'Storage',
+      description: 'Save, back up, and access your data securely with scalable storage solutions.',
+      icon: Database,
+      href: '/storage',
+      color: 'bg-yellow-100 text-yellow-700',
+      available: true,
+      features: ['Block Storage', 'Object Storage', 'Snapshots', 'Backups']
+    },
+    {
+      id: 'infrastructure',
+      title: 'Infrastructure',
+      description: 'Manage networks, firewalls, and monitoring tools for your cloud environment.',
+      icon: Cpu,
+      href: '/infrastructure',
+      color: 'bg-blue-100 text-blue-700',
+      available: true,
+      features: ['Networking', 'Firewalls', 'Monitoring', 'Security Groups']
+    },
     {
       id: 'documentation',
       title: 'Documentation',
@@ -56,8 +89,8 @@ export function AllowedServicesSection() {
   return (
     <div className="space-y-6 pb-16">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">Available Services</h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h2 className="text-xl font-semibold text-gray-900 text-left">Available Services</h2>
+        <p className="text-sm text-muted-foreground mt-1 text-left">
           Services you can access with your current profile status
         </p>
       </div>
@@ -112,7 +145,7 @@ export function AllowedServicesSection() {
                 <Button 
                   asChild
                   className="w-full"
-                  variant="default"
+                  variant="secondary"
                 >
                   <Link href={service.href} className="flex items-center justify-center">
                     Explore {service.title}
