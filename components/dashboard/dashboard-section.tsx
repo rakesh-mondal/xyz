@@ -58,25 +58,13 @@ function RestrictedFeatureCard({ section }: { section: string }) {
       <div className="absolute inset-0 bg-gray-50/80 backdrop-blur-[2px] z-10 rounded-md border border-gray-200 border-dashed">
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-6">
-            <div className="w-12 h-12 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-              </svg>
-            </div>
+            {/* Removed lock icon and Finish Setup button */}
             <h3 className="text-sm font-semibold text-gray-900 mb-2">
               {section}
             </h3>
-            <p className="text-xs text-gray-600 mb-4 max-w-sm">
+            <p className="text-xs text-gray-600 mb-0 max-w-sm">
               {getDescription(section)}
             </p>
-            <Button 
-              onClick={handleCompleteProfile}
-              variant="secondary"
-              size="sm"
-              className="text-xs"
-            >
-              Finish Setup →
-            </Button>
           </div>
         </div>
       </div>
