@@ -64,17 +64,21 @@ const navigationStructure: NavigationCategory[] = [
     title: "CORE INFRASTRUCTURE",
     items: [
       {
-        title: "Home",
-        href: "/dashboard",
-        icon: <LayoutDashboard className="h-5 w-5" />,
-      },
-      {
         title: "Compute & Scaling",
         href: "/compute",
         icon: <Server className="h-5 w-5" />,
         items: [
           { title: "Machines", href: "/compute/machines" },
           { title: "AI Pods", href: "/compute/ai-pods" },
+        ],
+      },
+      {
+        title: "Storage",
+        href: "/storage",
+        icon: <Database className="h-5 w-5" />,
+        items: [
+          { title: "Object Storage", href: "/storage/object" },
+          { title: "Block Storage", href: "/storage/block" },
         ],
       },
       {
@@ -85,15 +89,6 @@ const navigationStructure: NavigationCategory[] = [
           { title: "Network Security", href: "/networking/security" },
           { title: "Load Balancing", href: "/networking/load-balancing" },
           { title: "DNS Management", href: "/networking/dns" },
-        ],
-      },
-      {
-        title: "Storage",
-        href: "/storage",
-        icon: <Database className="h-5 w-5" />,
-        items: [
-          { title: "Object Storage", href: "/storage/object" },
-          { title: "Block Storage", href: "/storage/block" },
         ],
       },
       {

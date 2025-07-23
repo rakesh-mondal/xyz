@@ -60,7 +60,7 @@ const navigationConfig = {
   },
   coreInfrastructure: {
     href: "/core-infrastructure",
-    icon: <ServerIcon className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: <ServerIcon className="h-[18px] w-[18px] text-muted-foreground" />, 
     label: "Core Infrastructure",
     isCategory: true,
     subItems: [
@@ -88,16 +88,6 @@ const navigationConfig = {
         ],
       },
       {
-        href: "/networking",
-        label: "Networking",
-        subItems: [
-          { href: "/networking/vpc", label: "VPC" },
-          { href: "/networking/subnets", label: "Subnets" },
-          { href: "/networking/security-groups", label: "Security Groups" },
-          { href: "/networking/static-ips", label: "Static IP Addresses" },
-        ],
-      },
-      {
         href: "/storage",
         label: "Storage",
         subItems: [
@@ -119,6 +109,16 @@ const navigationConfig = {
               { href: "/storage/object/properties", label: "Properties" },
             ],
           },
+        ],
+      },
+      {
+        href: "/networking",
+        label: "Networking",
+        subItems: [
+          { href: "/networking/vpc", label: "VPC" },
+          { href: "/networking/subnets", label: "Subnets" },
+          { href: "/networking/security-groups", label: "Security Groups" },
+          { href: "/networking/static-ips", label: "Static IP Addresses" },
         ],
       },
     ],
