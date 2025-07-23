@@ -220,7 +220,7 @@ const navigationConfig = {
         subItems: [
           { href: "/administration/kms/storage", label: "Storage" },
           { href: "/administration/kms/models", label: "Models" },
-          { href: "/administration/kms/ssh", label: "SSH Key" },
+          { href: "/administration/kms/ssh", label: "SSH Keys" },
         ],
       },
     ],

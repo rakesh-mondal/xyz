@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { sshKeys as mockSshKeys } from "@/lib/data"
 import { CreateButton } from "@/components/create-button"
+import { MoreVertical } from "lucide-react"
 
 const regions = [
   { value: "us-east-1", label: "US East 1" },
@@ -78,31 +79,43 @@ export default function SshKeysPage() {
       key: "createdOn",
       label: "Created on",
       sortable: true,
-      render: (value) => new Date(value).toLocaleString(),
+      render: (value) => (
+        <div className="text-muted-foreground leading-5">
+          {new Date(value).toLocaleString()}
+        </div>
+      ),
     },
     {
       key: "actions",
       label: "Actions",
       align: "right",
       render: (_: any, row: any) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">Actions</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              disabled={!row.isExpired}
-              onClick={() => { setSelectedKey(row); setForm({ region: row.region, name: row.name, publicKey: '' }); setShowRotate(true); }}
-            >
-              Rotate key
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => { setSelectedKey(row); setShowDelete(true); setDeleteError(''); }}
-            >
-              Delete key
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                disabled={!row.isExpired}
+                onClick={() => { setSelectedKey(row); setForm({ region: row.region, name: row.name, publicKey: '' }); setShowRotate(true); }}
+                className="flex items-center"
+              >
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4.05 11A8.001 8.001 0 0 1 12 4a8 8 0 0 1 8 8"/><polyline points="21 7 21 12 16 12"/></svg>
+                <span>Rotate key</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => { setSelectedKey(row); setShowDelete(true); setDeleteError(''); }}
+                className="flex items-center text-destructive focus:text-destructive"
+              >
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6m-6 0V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"/></svg>
+                <span>Delete key</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       ),
     },
   ]
@@ -238,8 +251,8 @@ export default function SshKeysPage() {
             <div className="mb-2 text-sm">Are you sure you want to delete this SSH key?</div>
           )}
           <DialogFooter className="mt-4">
-            <Button onClick={handleDelete} variant="destructive" disabled={!!deleteError || !selectedKey}>Delete</Button>
             <Button variant="outline" onClick={() => setShowDelete(false)}>Cancel</Button>
+            <Button onClick={handleDelete} variant="destructive" disabled={!!deleteError || !selectedKey}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
