@@ -12,12 +12,13 @@ interface AddPolicyModalProps {
   mode: "add" | "edit";
   type: "snapshot" | "backup";
   initialPolicy?: any;
+  volume?: { name: string; size: string; type: string };
 }
 
 const maxOptions = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
 const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-export function AddPolicyModal({ open, onClose, onSave, mode, type, initialPolicy }: AddPolicyModalProps) {
+export function AddPolicyModal({ open, onClose, onSave, mode, type, initialPolicy, volume }: AddPolicyModalProps) {
   const [suffix, setSuffix] = useState("");
   const [maxAllowed, setMaxAllowed] = useState("5");
   const [incremental, setIncremental] = useState(false);
@@ -75,6 +76,24 @@ export function AddPolicyModal({ open, onClose, onSave, mode, type, initialPolic
               : `Update the ${type} policy settings.`}
           </DialogDescription>
         </DialogHeader>
+        {volume && (
+          <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg mb-4">
+            <div className="space-y-3 mb-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Volume Name:</span>
+                <span className="text-sm font-medium">{volume.name}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Size:</span>
+                <span className="text-sm font-medium">{volume.size} GB</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Volume Type:</span>
+                <span className="text-sm font-medium">{volume.type}</span>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="bg-gray-50 border rounded-lg p-6">
           <div className="space-y-6 mb-6">
             <div className="space-y-2">

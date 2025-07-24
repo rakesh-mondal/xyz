@@ -967,6 +967,7 @@ function BackupSection() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false)
   const [restoreInProgress, setRestoreInProgress] = useState(false)
+  const [restoreVolumeName, setRestoreVolumeName] = useState("");
   const { toast } = useToast()
 
   // Filter data based on user type for demo
@@ -980,6 +981,7 @@ function BackupSection() {
 
   const handleRestoreClick = (backup: any) => {
     setSelectedBackup(backup)
+    setRestoreVolumeName("")
     setIsRestoreModalOpen(true)
   }
 
@@ -1015,9 +1017,10 @@ function BackupSection() {
       setIsRestoreModalOpen(false)
       toast({
         title: "Restore started (mock)",
-        description: `Restoring backup \"${selectedBackup?.name}\" and all previous deltas up to the primary for volume \"${selectedBackup?.volumeName}\".`,
+        description: `Restoring backup \"${selectedBackup?.name}\" to new volume \"${restoreVolumeName}\" and all previous deltas up to the primary for volume \"${selectedBackup?.volumeName}\".`,
       })
       setSelectedBackup(null)
+      setRestoreVolumeName("")
     }, 1500)
   }
 
@@ -1149,16 +1152,28 @@ function BackupSection() {
           <DialogHeader>
             <DialogTitle>Restore Backup</DialogTitle>
           </DialogHeader>
-          <div className="py-2">
-            Are you sure you want to restore <b>{selectedBackup?.name}</b>?
-            <br />
-            This will restore all delta backups up to the primary backup for volume <b>{selectedBackup?.volumeName}</b>.
-            <br />
+          <div className="py-2 space-y-4">
+            <div>
+              Are you sure you want to restore <b>{selectedBackup?.name}</b>?
+              <br />
+              This will restore all delta backups up to the primary backup for volume <b>{selectedBackup?.volumeName}</b>.
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">New Volume Name <span className="text-destructive">*</span></label>
+              <input
+                type="text"
+                className="border rounded px-3 py-2 w-full"
+                placeholder="Enter new volume name"
+                value={restoreVolumeName}
+                onChange={e => setRestoreVolumeName(e.target.value)}
+                required
+              />
+            </div>
             <span className="text-xs text-muted-foreground">(Design mode: this is a mock operation)</span>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsRestoreModalOpen(false)} disabled={restoreInProgress}>Cancel</Button>
-            <Button onClick={handleRestoreConfirm} disabled={restoreInProgress}>
+            <Button onClick={handleRestoreConfirm} disabled={restoreInProgress || !restoreVolumeName}>
               {restoreInProgress ? "Restoring..." : "Restore"}
             </Button>
           </DialogFooter>

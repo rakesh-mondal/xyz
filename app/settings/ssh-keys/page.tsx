@@ -10,6 +10,7 @@ import { useState } from "react"
 import { sshKeys as mockSshKeys } from "@/lib/data"
 import { CreateButton } from "@/components/create-button"
 import { MoreVertical } from "lucide-react"
+import { StatusBadge } from "@/components/status-badge"
 
 const regions = [
   { value: "us-east-1", label: "US East 1" },
@@ -42,22 +43,8 @@ export default function SshKeysPage() {
       label: "Status",
       sortable: true,
       render: (value, row) => (
-        <span className={
-          value === 'active' ? 'text-green-600' : 'text-red-600'
-        }>
-          {value.charAt(0).toUpperCase() + value.slice(1)}
-        </span>
+        <StatusBadge status={value} />
       ),
-    },
-    {
-      key: "isActive",
-      label: "Active",
-      render: (value) => value ? 'Yes' : 'No',
-    },
-    {
-      key: "isExpired",
-      label: "Expired",
-      render: (value) => value ? 'Yes' : 'No',
     },
     {
       key: "attachedVMs",
