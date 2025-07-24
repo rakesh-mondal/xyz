@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus, FolderDown } from "lucide-react"
+import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus, FolderDown, CameraIcon } from "lucide-react"
 import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { TooltipWrapper } from "./ui/tooltip-wrapper"
@@ -25,6 +25,7 @@ interface ActionMenuProps {
   onEditBucket?: () => void  // New prop for edit bucket action
   onAddRule?: () => void  // Deprecated, use onCreateInstantBackup for backup action
   onCreateInstantBackup?: () => void  // For instant backup action
+  onCreateInstantSnapshot?: () => void // For instant snapshot action
   onRestore?: () => void  // New prop for restore backup action
 }
 
@@ -57,6 +58,7 @@ export function ActionMenu({
   onEditBucket,
   onAddRule,
   onCreateInstantBackup,
+  onCreateInstantSnapshot,
   onRestore,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -112,6 +114,12 @@ export function ActionMenu({
             <DropdownMenuItem onClick={onCreateInstantBackup} className="flex items-center cursor-pointer">
               <FolderDown className="mr-2 h-4 w-4" />
               <span>Create Instant Backup</span>
+            </DropdownMenuItem>
+          )}
+          {onCreateInstantSnapshot && (
+            <DropdownMenuItem onClick={onCreateInstantSnapshot} className="flex items-center cursor-pointer">
+              <CameraIcon className="mr-2 h-4 w-4" />
+              <span>Create Instant Snapshot</span>
             </DropdownMenuItem>
           )}
           {onExtend && (

@@ -21,6 +21,7 @@ import { snapshots } from "@/lib/data"
 import Link from "next/link"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { CreateBackupModal } from "@/components/modals/create-backup-modal"
+import { CreateSnapshotModal } from "@/components/modals/create-snapshot-modal"
 
 const volumeIcon = (
   <svg width="467" height="218" viewBox="0 0 467 218" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-72">
@@ -490,6 +491,8 @@ function VolumesSection() {
   const [volumeToExtend, setVolumeToExtend] = useState<any>(null)
   const [showBackupModal, setShowBackupModal] = useState(false)
   const [instantBackupVolume, setInstantBackupVolume] = useState<any>(null)
+  const [showSnapshotModal, setShowSnapshotModal] = useState(false)
+  const [instantSnapshotVolume, setInstantSnapshotVolume] = useState<any>(null)
   const { toast } = useToast()
 
   // Filter data based on user type for demo
@@ -580,6 +583,11 @@ function VolumesSection() {
     setShowBackupModal(true)
   }
 
+  const handleCreateInstantSnapshot = (volume: any) => {
+    setInstantSnapshotVolume(volume)
+    setShowSnapshotModal(true)
+  }
+
   const columns = [
     {
       key: "name",
@@ -656,7 +664,7 @@ function VolumesSection() {
             resourceType="Volume"
             deleteLabel="Delete Volume"
             onCreateInstantBackup={() => handleCreateInstantBackup(row)}
-            createLabel="Create Instant Backup"
+            onCreateInstantSnapshot={() => handleCreateInstantSnapshot(row)}
           />
         </div>
       ),
@@ -759,6 +767,20 @@ function VolumesSection() {
         }}
         price={instantBackupVolume ? `$${(Number(instantBackupVolume.size) * 0.10).toFixed(2)}` : undefined}
         volume={instantBackupVolume}
+      />
+      <CreateSnapshotModal
+        open={showSnapshotModal}
+        onClose={() => { setShowSnapshotModal(false); setInstantSnapshotVolume(null); }}
+        volume={instantSnapshotVolume}
+        price={instantSnapshotVolume ? `$${(Number(instantSnapshotVolume.size) * 0.05).toFixed(2)}` : undefined}
+        onCreate={async ({ volume, name, description }) => {
+          toast({
+            title: "Snapshot Created",
+            description: `Snapshot '${name}' for volume '${volume}' created.`,
+          });
+          setShowSnapshotModal(false);
+          setInstantSnapshotVolume(null);
+        }}
       />
     </div>
   )
