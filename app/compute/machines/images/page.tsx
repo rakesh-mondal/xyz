@@ -13,22 +13,13 @@ import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@
 import { ImageUpload } from "@/components/ui/image-upload";
 import { EmptyState } from "@/components/ui/empty-state"
 import { Card, CardContent } from "@/components/ui/card"
+import { useAuth } from "@/components/auth/auth-provider";
 
 export default function MachineImagesPage() {
-  // Simulate getting the current user (replace with your actual auth logic if available)
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
-  useEffect(() => {
-    // In real app, get from auth context/session
-    // For design mode, hardcode or simulate
-    // Try to get from localStorage, fallback to 'new.user@krutrim.com' for demo
-    setCurrentUser(
-      typeof window !== "undefined"
-        ? window.localStorage.getItem("currentUser") || "new.user@krutrim.com"
-        : "new.user@krutrim.com"
-    );
-  }, []);
+  const { user, isLoading: authLoading } = useAuth();
+  const [loading, setLoading] = useState(true);
 
-  const isNewUser = currentUser === "new.user@krutrim.com";
+  const isNewUser = user?.email === "new.user@krutrim.com";
   const [machineImages, setMachineImages] = useState<any[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<any>(null)
@@ -39,10 +30,18 @@ export default function MachineImagesPage() {
   const [file, setFile] = useState<File | null>(null)
   const [uploadError, setUploadError] = useState("")
 
-  // When currentUser changes, update machineImages accordingly
   useEffect(() => {
-    setMachineImages(isNewUser ? [] : initialMachineImages);
-  }, [isNewUser]);
+    if (!authLoading && user) {
+      console.log("Setting machineImages based on user:", user.email);
+      console.log("Is new user:", isNewUser);
+      const images = isNewUser ? [] : initialMachineImages;
+      console.log("Setting machineImages to:", images);
+      setMachineImages(images);
+      setLoading(false);
+    }
+  }, [user, authLoading, isNewUser]);
+
+  console.log("Render state - user email:", user?.email, "isNewUser:", isNewUser, "machineImages length:", machineImages.length);
 
   const handleDeleteClick = (image: any) => {
     setSelectedImage(image)
@@ -99,8 +98,8 @@ export default function MachineImagesPage() {
   const columns = [
     { key: "name", label: "Machine Image Name", sortable: true, searchable: true },
     { key: "type", label: "Type", sortable: true },
-    { key: "size", label: "Size", sortable: true },
     { key: "createdOn", label: "Created On", sortable: true, render: (value: string) => new Date(value).toLocaleString() },
+    { key: "size", label: "Size", sortable: true },
     { key: "actions", label: "Action", render: (_: any, row: any) => (
       <div className="flex justify-end">
         <ActionMenu
@@ -111,6 +110,16 @@ export default function MachineImagesPage() {
       </div>
     ), align: "right" as const },
   ]
+
+  if (loading || !user) {
+    return (
+      <PageLayout title="Machine Images" description="Manage your machine images">
+        <div className="flex items-center justify-center h-64">
+          <span className="text-gray-500">Loading...</span>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout
