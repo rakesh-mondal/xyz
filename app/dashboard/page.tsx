@@ -314,7 +314,6 @@ function DocumentationHub() {
       items: [
         { name: "Models", href: "/documentation/models" },
         { name: "Bhashik", href: "/documentation/bhashik" },
-        { name: "Document Intelligence", href: "/documentation/doc-intelligence" },
         { name: "Object Storage", href: "/documentation/storage" }
       ]
     }

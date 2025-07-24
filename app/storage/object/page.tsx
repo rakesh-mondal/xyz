@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { useToast } from "@/hooks/use-toast"
 import { EmptyState } from "@/components/ui/empty-state"
+import { Card, CardContent } from "@/components/ui/card"
 
 // Mock data for object storage buckets - empty for new users
 const mockBuckets: any[] = [
@@ -336,13 +337,17 @@ export default function ObjectStoragePage() {
     >
       <div className="space-y-6">
         {mockBuckets.length === 0 ? (
-          <EmptyState
-            title="No Storage Buckets Yet"
-            description="Create your first storage bucket to start storing and managing your files in the cloud. Storage buckets provide scalable object storage with built-in redundancy and security."
-            actionText="Create Your First Bucket"
-            onAction={handleCreateBucket}
-            icon={objectStorageIcon}
-          />
+          <Card className="mt-8">
+            <CardContent>
+              <EmptyState
+                title="No Storage Buckets Yet"
+                description="Create your first storage bucket to start storing and managing your files in the cloud. Storage buckets provide scalable object storage with built-in redundancy and security."
+                actionText="Create Your First Bucket"
+                onAction={handleCreateBucket}
+                icon={objectStorageIcon}
+              />
+            </CardContent>
+          </Card>
         ) : (
           <ShadcnDataTable
             columns={columns}

@@ -15,6 +15,7 @@ import { DeleteConfirmationModal } from "../../../components/delete-confirmation
 import { useToast } from "../../../hooks/use-toast"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "../../../lib/demo-data-filter"
 import { EmptyState } from "../../../components/ui/empty-state"
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function SecurityGroupListPage() {
   const router = useRouter()
@@ -257,11 +258,15 @@ export default function SecurityGroupListPage() {
       }
     >
       {showEmptyState ? (
-        <EmptyState
-          {...getEmptyStateMessage('security-group')}
-          icon={securityGroupIcon}
-          onAction={() => window.location.href = '/networking/security-groups/create'}
-        />
+        <Card className="mt-8">
+          <CardContent>
+            <EmptyState
+              {...getEmptyStateMessage('security-group')}
+              icon={securityGroupIcon}
+              onAction={() => window.location.href = '/networking/security-groups/create'}
+            />
+          </CardContent>
+        </Card>
       ) : (
         <ShadcnDataTable
           columns={columns}

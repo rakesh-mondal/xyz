@@ -1,19 +1,35 @@
 "use client"
-import { useState } from "react"
-import { PageLayout } from "@/components/page-layout"
-import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { machineImages as initialMachineImages } from "@/lib/data"
-import { ActionMenu } from "@/components/action-menu"
-import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ImageUpload } from "@/components/ui/image-upload"
+import { useEffect, useState } from "react";
+import { PageLayout } from "@/components/page-layout";
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { machineImages as initialMachineImages } from "@/lib/data";
+import { ActionMenu } from "@/components/action-menu";
+import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { EmptyState } from "@/components/ui/empty-state"
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function MachineImagesPage() {
-  const [machineImages, setMachineImages] = useState(initialMachineImages)
+  // Simulate getting the current user (replace with your actual auth logic if available)
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  useEffect(() => {
+    // In real app, get from auth context/session
+    // For design mode, hardcode or simulate
+    // Try to get from localStorage, fallback to 'new.user@krutrim.com' for demo
+    setCurrentUser(
+      typeof window !== "undefined"
+        ? window.localStorage.getItem("currentUser") || "new.user@krutrim.com"
+        : "new.user@krutrim.com"
+    );
+  }, []);
+
+  const isNewUser = currentUser === "new.user@krutrim.com";
+  const [machineImages, setMachineImages] = useState<any[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<any>(null)
   const [uploadOpen, setUploadOpen] = useState(false)
@@ -22,6 +38,11 @@ export default function MachineImagesPage() {
   const [type, setType] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [uploadError, setUploadError] = useState("")
+
+  // When currentUser changes, update machineImages accordingly
+  useEffect(() => {
+    setMachineImages(isNewUser ? [] : initialMachineImages);
+  }, [isNewUser]);
 
   const handleDeleteClick = (image: any) => {
     setSelectedImage(image)
@@ -163,7 +184,20 @@ export default function MachineImagesPage() {
         </Dialog>
       }
     >
-      <ShadcnDataTable columns={columns} data={machineImages} enableSearch enablePagination />
+      {isNewUser && machineImages.length === 0 ? (
+        <Card className="mt-8">
+          <CardContent className="p-0">
+            <EmptyState
+              title="No Machine Images"
+              description="You have not uploaded any machine images yet. Get started by uploading your first machine image."
+              actionText="Upload Machine Image"
+              onAction={() => setUploadOpen(true)}
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <ShadcnDataTable columns={columns} data={machineImages} enableSearch enablePagination />
+      )}
       <DeleteConfirmationModal
         isOpen={deleteModalOpen}
         onClose={handleDeleteCancel}

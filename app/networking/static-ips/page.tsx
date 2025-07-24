@@ -15,6 +15,7 @@ import { useToast } from "../../../hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../components/ui/dialog"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "../../../lib/demo-data-filter"
 import { EmptyState } from "../../../components/ui/empty-state"
+import { Card, CardContent } from "../../../components/ui/card"
 
 const staticIpIcon = (
   <svg width="467" height="219" viewBox="0 0 467 219" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-72">
@@ -285,10 +286,14 @@ export default function StaticIPListPage() {
       }
     >
       {showEmptyState ? (
-        <EmptyState
-          {...getEmptyStateMessage('static-ips')}
-          icon={staticIpIcon}
-        />
+        <Card className="mt-8">
+          <CardContent>
+            <EmptyState
+              {...getEmptyStateMessage('static-ips')}
+              icon={staticIpIcon}
+            />
+          </CardContent>
+        </Card>
       ) : (
         <ShadcnDataTable
           columns={columns}

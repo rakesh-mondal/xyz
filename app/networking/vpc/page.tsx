@@ -14,6 +14,7 @@ import { ShadcnDataTable } from "../../../components/ui/shadcn-data-table"
 import { DeleteVPCResourceWarningModal, DeleteVPCConfirmationModal } from "../../../components/modals/delete-vpc-modals"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "../../../lib/demo-data-filter"
 import { EmptyState } from "../../../components/ui/empty-state"
+import { Card, CardContent } from "../../../components/ui/card"
 
 export default function VPCListPage() {
   const [deleteStep, setDeleteStep] = useState<"warning" | "confirmation" | null>(null)
@@ -274,11 +275,15 @@ export default function VPCListPage() {
       }
     >
       {showEmptyState ? (
-        <EmptyState
-          {...getEmptyStateMessage('vpc')}
-          onAction={() => window.location.href = '/networking/vpc/create'}
-          icon={vpcIcon}
-        />
+        <Card className="mt-8">
+          <CardContent>
+            <EmptyState
+              {...getEmptyStateMessage('vpc')}
+              onAction={() => window.location.href = '/networking/vpc/create'}
+              icon={vpcIcon}
+            />
+          </CardContent>
+        </Card>
       ) : (
         <ShadcnDataTable 
           columns={columns} 

@@ -22,6 +22,7 @@ import Link from "next/link"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { CreateBackupModal } from "@/components/modals/create-backup-modal"
 import { CreateSnapshotModal } from "@/components/modals/create-snapshot-modal"
+import { Card, CardContent } from "@/components/ui/card"
 
 const volumeIcon = (
   <svg width="467" height="218" viewBox="0 0 467 218" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-72">
@@ -688,10 +689,14 @@ function VolumesSection() {
   return (
     <div className="space-y-6">
       {showEmptyState ? (
-        <EmptyState
-          {...getEmptyStateMessage('volumes')}
-          icon={volumeIcon}
-        />
+        <Card className="mt-8">
+          <CardContent>
+            <EmptyState
+              {...getEmptyStateMessage('volumes')}
+              icon={volumeIcon}
+            />
+          </CardContent>
+        </Card>
       ) : (
         <ShadcnDataTable
           columns={columns}
@@ -922,9 +927,13 @@ function SnapshotsSection() {
   return (
     <div className="space-y-6">
       {showEmptyState ? (
-        <EmptyState
-          {...getEmptyStateMessage('snapshots')}
-        />
+        <Card className="mt-8">
+          <CardContent>
+            <EmptyState
+              {...getEmptyStateMessage('snapshots')}
+            />
+          </CardContent>
+        </Card>
       ) : (
         <ShadcnDataTable
           columns={columns}
@@ -1120,9 +1129,13 @@ function BackupSection() {
   return (
     <div>
       {showEmptyState ? (
-        <EmptyState
-          {...getEmptyStateMessage('backup')}
-        />
+        <Card className="mt-8">
+          <CardContent>
+            <EmptyState
+              {...getEmptyStateMessage('backup')}
+            />
+          </CardContent>
+        </Card>
       ) : (
         <ShadcnDataTable
           columns={columns}
