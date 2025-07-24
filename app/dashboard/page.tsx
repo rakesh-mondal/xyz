@@ -19,6 +19,7 @@ import Link from "next/link"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import React from "react"
+import { StatusBadge } from "@/components/status-badge"
 
 // Resource Tables Component
 function ResourceTables({ isNewUser = false }: { isNewUser?: boolean }) {
@@ -92,25 +93,25 @@ function ResourceTables({ isNewUser = false }: { isNewUser?: boolean }) {
   ];
   const aiPodColumns = [
     { key: "name", label: "Pod Name", sortable: true, searchable: true, render: (value: string) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
+    { key: "status", label: "Status", sortable: true, render: (value: string) => <StatusBadge status={value} /> },
     { key: "template", label: "Template", sortable: true },
-    { key: "status", label: "Status", sortable: true, render: (value: string) => <Badge variant={value === 'running' ? 'default' : 'secondary'}>{value}</Badge> },
   ];
   // Table columns
   const vmColumns = [
     { key: "name", label: "Machine Name", sortable: true, searchable: true, render: (value: string, row: any) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
-    { key: "status", label: "Status", sortable: true, render: (value: string) => <Badge variant={value === 'running' ? 'default' : 'secondary'}>{value}</Badge> },
+    { key: "status", label: "Status", sortable: true, render: (value: string) => <StatusBadge status={value} /> },
     { key: "vpc", label: "VPC", sortable: true },
   ];
   const vpcColumns = [
     { key: "name", label: "Name", sortable: true, searchable: true, render: (value: string, row: any) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
-    { key: "status", label: "Status", sortable: true, render: (value: string) => <Badge variant={value === 'active' ? 'default' : 'secondary'}>{value}</Badge> },
+    { key: "status", label: "Status", sortable: true, render: (value: string) => <StatusBadge status={value} /> },
     { key: "description", label: "Description", sortable: false },
   ];
   const bucketColumns = [
     { key: "name", label: "Bucket Name", sortable: true, searchable: true, render: (value: string, row: any) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
+    { key: "status", label: "Status", sortable: true, render: (value: string) => <StatusBadge status={value} /> },
     { key: "region", label: "Region", sortable: true },
     { key: "sizeUsed", label: "Size Used", sortable: true },
-    { key: "status", label: "Status", sortable: true, render: (value: string) => <Badge variant={value === 'active' ? 'default' : 'secondary'}>{value}</Badge> },
   ];
 
   return (
