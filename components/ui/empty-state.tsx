@@ -19,7 +19,7 @@ export function EmptyState({
   icon
 }: EmptyStateProps) {
   return (
-    <div className={cn("bg-card text-card-foreground border-border border rounded-lg p-6", className)}>
+    <div className={cn("bg-card text-card-foreground rounded-lg p-6", className)}>
       <div className="flex flex-col items-center justify-center py-12">
         {/* SVG Illustration or Custom Icon */}
         <div className="mb-6">
