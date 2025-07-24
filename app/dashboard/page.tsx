@@ -73,130 +73,49 @@ function ResourceTables({ isNewUser = false }: { isNewUser?: boolean }) {
     { id: "vm-001", name: "AI-Training-VM", status: "running", vpc: "prod-vpc" },
     { id: "vm-002", name: "Web-Server-01", status: "stopped", vpc: "dev-vpc" },
     { id: "vm-003", name: "DB-Node-1", status: "running", vpc: "prod-vpc" },
-  ]
+  ];
   const vpcs = [
-    { id: "vpc-001", name: "prod-vpc", status: "active" },
-    { id: "vpc-002", name: "dev-vpc", status: "active" },
-    { id: "vpc-003", name: "test-vpc", status: "inactive" },
-  ]
+    { name: "prod-vpc", status: "active", description: "Production network for main workloads" },
+    { name: "dev-vpc", status: "active", description: "Development environment network" },
+    { name: "test-vpc", status: "inactive", description: "Testing and QA network" },
+  ];
   const buckets = [
     { id: "bucket-001", name: "ml-datasets", region: "ap-south-1", sizeUsed: "12 GB", status: "active" },
     { id: "bucket-002", name: "logs", region: "us-east-1", sizeUsed: "2 GB", status: "active" },
     { id: "bucket-003", name: "backups", region: "eu-west-1", sizeUsed: "30 GB", status: "active" },
-  ]
-
+  ];
+  // AI Pods mock data
+  const aiPods = [
+    { name: "VisionPod-01", template: "Image Classification", status: "running" },
+    { name: "NLP-Pod-02", template: "Text Generation", status: "stopped" },
+    { name: "SpeechPod-03", template: "Speech Recognition", status: "running" },
+  ];
+  const aiPodColumns = [
+    { key: "name", label: "Pod Name", sortable: true, searchable: true, render: (value: string) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
+    { key: "template", label: "Template", sortable: true },
+    { key: "status", label: "Status", sortable: true, render: (value: string) => <Badge variant={value === 'running' ? 'default' : 'secondary'}>{value}</Badge> },
+  ];
   // Table columns
   const vmColumns = [
     { key: "name", label: "Machine Name", sortable: true, searchable: true, render: (value: string, row: any) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
     { key: "status", label: "Status", sortable: true, render: (value: string) => <Badge variant={value === 'running' ? 'default' : 'secondary'}>{value}</Badge> },
     { key: "vpc", label: "VPC", sortable: true },
-  ]
+  ];
   const vpcColumns = [
     { key: "name", label: "Name", sortable: true, searchable: true, render: (value: string, row: any) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
-    { key: "id", label: "ID", sortable: true, render: (value: string) => <span className="font-mono text-sm">{value}</span> },
     { key: "status", label: "Status", sortable: true, render: (value: string) => <Badge variant={value === 'active' ? 'default' : 'secondary'}>{value}</Badge> },
-  ]
+    { key: "description", label: "Description", sortable: false },
+  ];
   const bucketColumns = [
     { key: "name", label: "Bucket Name", sortable: true, searchable: true, render: (value: string, row: any) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
     { key: "region", label: "Region", sortable: true },
     { key: "sizeUsed", label: "Size Used", sortable: true },
     { key: "status", label: "Status", sortable: true, render: (value: string) => <Badge variant={value === 'active' ? 'default' : 'secondary'}>{value}</Badge> },
-  ]
-
-  // Billing summary with chart (mock data)
-  function BillingSummaryWithChart({ isNewUser }: { isNewUser: boolean }) {
-    if (isNewUser) {
-      return (
-        <Card className="mb-6">
-          <CardContent className="p-6 w-full flex items-center justify-center">
-            <div className="w-full text-center">
-              <div className="text-lg font-semibold mb-2">Welcome to Krutrim Cloud</div>
-              <div className="text-base text-muted-foreground mb-1">
-                Start building on Krutrim Cloud by deploying your first virtual machine, setting up your network, or connecting to object storage.
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-    // Usage Metrics style mock data
-    const totalAvailableCredits = 69187.32;
-    const totalUsedCredits = 67093.66;
-    const remainingCredits = totalAvailableCredits - totalUsedCredits;
-    const chartData = [
-      { label: "DIS", value: 43810 },
-      { label: "Bhashik", value: 17900 },
-      { label: "Deployment", value: 2973 },
-      { label: "Compute", value: 1292 },
-      { label: "Industrial Solutions", value: 1051 },
-      { label: "Model Catalogue", value: 30 },
-      { label: "Finetuning", value: 21 },
-      { label: "Evaluation", value: 15 },
-      { label: "Storage", value: 3 },
-      { label: "Network", value: 0 },
-    ]
-    return (
-      <Card className="mb-6">
-        <CardContent className="p-6 w-full flex flex-col lg:flex-row gap-8 items-stretch justify-between">
-        {/* Remaining Balance Card - Usage Metrics style */}
-        <div className="flex flex-col items-center justify-center flex-shrink-0 w-full max-w-xs">
-          <div style={{
-            borderRadius: '16px',
-            border: '4px solid #FFF',
-            background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
-            boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-            padding: '1.5rem',
-            width: '100%',
-            minWidth: '220px',
-            textAlign: 'center',
-          }}>
-            <div className="mb-3">
-              <div className="text-lg text-muted-foreground">Remaining Balance</div>
-            </div>
-            <div className="text-3xl font-bold text-black mb-2">
-              ₹{remainingCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-            <div className="text-sm text-black bg-green-100 rounded-full px-3 py-1 inline-block">
-              Available for use
-            </div>
-          </div>
-        </div>
-        {/* Divider for large screens */}
-        <div className="hidden lg:block h-80 border-l border-gray-200 mx-4" />
-        {/* Total Credits Used and Bar Chart */}
-        <div className="flex-1 w-full flex flex-col justify-between">
-          <div className="flex flex-col items-start mb-4 mt-4">
-            <span className="text-sm text-muted-foreground">Total Credits Used</span>
-            <span className="text-2xl font-bold text-gray-900 mt-1">₹{totalUsedCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-          </div>
-          <div className="space-y-2 mt-2">
-            {chartData.map((item) => (
-              <div key={item.label} className="flex items-center gap-2">
-                <span className="w-40 text-sm text-gray-700 flex-shrink-0">{item.label}</span>
-                <div className="flex-1 bg-gray-100 rounded h-4 relative">
-                  <div
-                    className="bg-blue-500 h-4 rounded"
-                    style={{ width: `${(item.value / totalUsedCredits) * 100}%`, minWidth: item.value > 0 ? 24 : 0 }}
-                  ></div>
-                  {item.value > 0 && (
-                    <span className="absolute right-2 top-0 text-sm text-gray-900 font-medium h-4 flex items-center">₹{item.value.toLocaleString()}</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        </CardContent>
-      </Card>
-    )
-  }
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Billing Summary with Chart */}
-      <BillingSummaryWithChart isNewUser={isNewUser} />
-
-      {/* Resource Cards in one row, responsive */}
+      {/* Resource Cards in two columns per row */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 items-stretch">
         {/* Virtual Machines Table */}
         <Card className="bg-white rounded-lg min-w-0 flex-1 flex flex-col h-full">
@@ -229,15 +148,32 @@ function ResourceTables({ isNewUser = false }: { isNewUser?: boolean }) {
             <ShadcnDataTable
               columns={vpcColumns}
               data={vpcs}
-              searchableColumns={["name", "id"]}
+              searchableColumns={["name", "description"]}
               pageSize={5}
               enableSearch={false}
               enablePagination={false}
             />
           </CardContent>
         </Card>
-      </div>
-      <div className="grid gap-6 grid-cols-1 items-stretch mt-6">
+        {/* AI Pods Table */}
+        <Card className="bg-white rounded-lg min-w-0 flex-1 flex flex-col h-full">
+          <CardHeader>
+            <h2 className="text-lg font-semibold mb-1 flex items-center gap-2">
+              <Cpu className="h-5 w-5" />
+              AI Pods
+            </h2>
+          </CardHeader>
+          <CardContent className="p-1 flex-1 w-full flex flex-col">
+            <ShadcnDataTable
+              columns={aiPodColumns}
+              data={aiPods}
+              searchableColumns={["name", "template"]}
+              pageSize={5}
+              enableSearch={false}
+              enablePagination={false}
+            />
+          </CardContent>
+        </Card>
         {/* Object Storage Table */}
         <Card className="bg-white rounded-lg min-w-0 flex-1 flex flex-col h-full">
           <CardHeader>
@@ -259,7 +195,7 @@ function ResourceTables({ isNewUser = false }: { isNewUser?: boolean }) {
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
 // Services Available Component
