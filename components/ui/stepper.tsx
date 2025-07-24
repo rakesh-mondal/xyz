@@ -1,10 +1,12 @@
-"use client"
+/* eslint-disable react-hooks/exhaustive-deps */
 
-import { cn } from "@/lib/utils"
-import { LoaderCircle } from "lucide-react"
-import * as React from "react"
-import { createContext, useContext } from "react"
-import { CheckIcon } from "@radix-ui/react-icons"
+'use client';
+
+import * as React from 'react';
+import { createContext, useContext } from 'react';
+import { cn } from '@/lib/utils';
+import { CheckIcon } from '@radix-ui/react-icons';
+import { LoaderCircle } from 'lucide-react';
 
 // Types
 type StepperContextValue = {
@@ -231,4 +233,58 @@ const StepperSeparator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<H
 )
 StepperSeparator.displayName = "StepperSeparator"
 
-export { Stepper, StepperDescription, StepperIndicator, StepperItem, StepperSeparator, StepperTitle, StepperTrigger }
+// StepperNav
+function StepperNav({ children, className }: React.ComponentProps<'nav'>) {
+  const { activeStep, orientation } = useStepper();
+  return (
+    <nav
+      data-slot="stepper-nav"
+      data-state={activeStep}
+      data-orientation={orientation}
+      className={cn(
+        'group/stepper-nav inline-flex data-[orientation=horizontal]:w-full data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col',
+        className,
+      )}
+    >
+      {children}
+    </nav>
+  );
+}
+StepperNav.displayName = 'StepperNav';
+
+// StepperPanel
+function StepperPanel({ children, className }: React.ComponentProps<'div'>) {
+  const { activeStep } = useStepper();
+  return (
+    <div data-slot="stepper-panel" data-state={activeStep} className={cn('w-full', className)}>
+      {children}
+    </div>
+  );
+}
+StepperPanel.displayName = 'StepperPanel';
+
+// StepperContent
+interface StepperContentProps extends React.ComponentProps<'div'> {
+  value: number;
+  forceMount?: boolean;
+}
+function StepperContent({ value, forceMount, children, className }: StepperContentProps) {
+  const { activeStep } = useStepper();
+  const isActive = value === activeStep;
+  if (!forceMount && !isActive) {
+    return null;
+  }
+  return (
+    <div
+      data-slot="stepper-content"
+      data-state={activeStep}
+      className={cn('w-full', className, !isActive && forceMount && 'hidden')}
+      hidden={!isActive && forceMount}
+    >
+      {children}
+    </div>
+  );
+}
+StepperContent.displayName = 'StepperContent';
+
+export { Stepper, StepperDescription, StepperIndicator, StepperItem, StepperSeparator, StepperTitle, StepperTrigger, StepperNav, StepperPanel, StepperContent }

@@ -7,6 +7,7 @@ import { CommandPaletteProvider } from "@/components/command/command-palette-pro
 import { AccessBanner } from "@/components/access-control/access-banner"
 import { FeatureRestriction } from "@/components/access-control/feature-restriction"
 import { Button } from "@/components/ui/button"
+import { Stepper, StepperItem, StepperIndicator, StepperTitle, StepperDescription, StepperSeparator, StepperNav, StepperPanel, StepperContent } from '@/components/ui/stepper'
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { IdentityVerificationModal } from "@/components/modals/identity-verification-modal"
@@ -17,9 +18,56 @@ import { useEffect } from "react"
 import Link from "next/link"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
+import React from "react"
 
 // Resource Tables Component
-function ResourceTables() {
+function ResourceTables({ isNewUser = false }: { isNewUser?: boolean }) {
+  if (isNewUser) {
+    const steps = [
+      { title: 'Add Credits', description: 'Fund your account to get started.', button: 'Add Credits', docs: '/billing/quickstart' },
+      { title: 'Create VPC', description: 'Set up your first Virtual Private Cloud.', button: 'Create VPC', docs: '/networking/vpc/quickstart' },
+      { title: 'Attach Block Storage', description: 'Provision storage for your workloads.', button: 'Attach Storage', docs: '/storage/block/quickstart' },
+      { title: 'Create Virtual Machine', description: 'Launch your first VM instance.', button: 'Create VM', docs: '/compute/vms/quickstart' },
+    ];
+    return (
+      <div className="space-y-6">
+        <Card className="mb-6">
+          <CardContent className="p-6 w-full flex flex-col items-center justify-center">
+            <div className="w-full max-w-3xl mx-auto">
+              <h2 className="text-2xl font-bold mb-4 text-center">Cloud Onboarding Assistant</h2>
+              <div className="text-base text-muted-foreground mb-6 text-center">
+                A guided, step-by-step onboarding panel to help you provision your first service.
+              </div>
+              <Stepper defaultValue={1} orientation="horizontal" className="space-y-8">
+                <StepperNav className="gap-8 mb-8">
+                  {steps.map((step, index) => (
+                    <React.Fragment key={index}>
+                      <StepperItem step={index + 1} className="relative flex-1 items-start">
+                        <div className="flex flex-col gap-3 items-center">
+                          <StepperIndicator>{index + 1}</StepperIndicator>
+                          <StepperTitle className="text-center font-semibold group-data-[state=inactive]/step:text-muted-foreground">
+                            {step.title}
+                          </StepperTitle>
+                          <StepperDescription className="text-center text-xs text-muted-foreground">
+                            {step.description}
+                          </StepperDescription>
+                          <Button variant="default" size="sm" className="mt-2 w-full">{step.button}</Button>
+                          <a href={step.docs} target="_blank" rel="noopener noreferrer" className="text-primary underline text-xs flex items-center">Docs</a>
+                        </div>
+                        {steps.length > index + 1 && (
+                          <StepperSeparator className="absolute top-3 left-[calc(100%+0.5rem)] w-[calc(100%-2rem)] h-0.5 bg-muted group-data-[state=completed]/step:bg-primary" />
+                        )}
+                      </StepperItem>
+                    </React.Fragment>
+                  ))}
+                </StepperNav>
+              </Stepper>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
   // Mock data for existing users
   const vms = [
     { id: "vm-001", name: "AI-Training-VM", status: "running", vpc: "prod-vpc" },
@@ -56,7 +104,21 @@ function ResourceTables() {
   ]
 
   // Billing summary with chart (mock data)
-  function BillingSummaryWithChart() {
+  function BillingSummaryWithChart({ isNewUser }: { isNewUser: boolean }) {
+    if (isNewUser) {
+      return (
+        <Card className="mb-6">
+          <CardContent className="p-6 w-full flex items-center justify-center">
+            <div className="w-full text-center">
+              <div className="text-lg font-semibold mb-2">Welcome to Krutrim Cloud</div>
+              <div className="text-base text-muted-foreground mb-1">
+                Start building on Krutrim Cloud by deploying your first virtual machine, setting up your network, or connecting to object storage.
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )
+    }
     // Usage Metrics style mock data
     const totalAvailableCredits = 69187.32;
     const totalUsedCredits = 67093.66;
@@ -132,7 +194,7 @@ function ResourceTables() {
   return (
     <div className="space-y-6">
       {/* Billing Summary with Chart */}
-      <BillingSummaryWithChart />
+      <BillingSummaryWithChart isNewUser={isNewUser} />
 
       {/* Resource Cards in one row, responsive */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 items-stretch">
@@ -389,6 +451,8 @@ function OlaMapsBanner() {
 
 export default function DashboardPage() {
   const { user } = useAuth()
+  // Determine if the user is the special new user
+  const isNewUser = user?.email === "new.user@krutrim.com"
   const { toast } = useToast()
   const [isIdentityModalOpen, setIsIdentityModalOpen] = useState(false)
   const [isEnterpriseModalOpen, setIsEnterpriseModalOpen] = useState(false)
@@ -419,7 +483,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Resource Tables */}
-        <ResourceTables />
+        <ResourceTables isNewUser={isNewUser} />
 
         {/* Services Available */}
         <ServicesAvailable />
