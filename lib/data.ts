@@ -1325,3 +1325,30 @@ export const sshKeys = [
     publicKey: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC...standalone",
   },
 ]
+
+export const machineImages = [
+  {
+    id: "mi-001",
+    name: "Ubuntu 22.04 LTS",
+    type: "Linux",
+    createdOn: "2024-01-10T09:00:00Z",
+    size: "8 GB",
+    fileUrl: "/mock-images/ubuntu-22.04.img"
+  },
+  {
+    id: "mi-002",
+    name: "Windows Server 2019",
+    type: "Windows",
+    createdOn: "2024-02-15T14:30:00Z",
+    size: "16 GB",
+    fileUrl: "/mock-images/windows-server-2019.img"
+  },
+  {
+    id: "mi-003",
+    name: "CentOS 7 Minimal",
+    type: "Linux",
+    createdOn: "2024-03-20T11:45:00Z",
+    size: "4 GB",
+    fileUrl: "/mock-images/centos-7.img"
+  }
+];

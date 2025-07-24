@@ -75,7 +75,6 @@ const navigationConfig = {
               { href: "/compute/vms/cpu", label: "CPU VM" },
               { href: "/compute/vms/gpu", label: "GPU VM" },
               { href: "/compute/vms/instances", label: "My Instances" },
-              { href: "/compute/vms/images", label: "Machine Images" },
             ],
           },
           {
@@ -84,6 +83,10 @@ const navigationConfig = {
             subItems: [
               { href: "/compute/ai-pods/my-pods", label: "My Pods" },
             ],
+          },
+          {
+            href: "/compute/machines/images",
+            label: "Machine Images",
           },
         ],
       },

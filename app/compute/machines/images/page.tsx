@@ -1,14 +1,176 @@
+"use client"
+import { useState } from "react"
 import { PageLayout } from "@/components/page-layout"
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { machineImages as initialMachineImages } from "@/lib/data"
+import { ActionMenu } from "@/components/action-menu"
+import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ImageUpload } from "@/components/ui/image-upload"
 
 export default function MachineImagesPage() {
-  return (
-    <PageLayout title="Machine Images" description="Manage your machine images">
-      <div className="flex items-center justify-center h-[400px] border rounded-lg">
-        <div className="text-center">
-          <h3 className="text-xl font-bold mb-2">Machine Images</h3>
-          <p className="text-muted-foreground">This is a placeholder for the Machine Images content</p>
-        </div>
+  const [machineImages, setMachineImages] = useState(initialMachineImages)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<any>(null)
+  const [uploadOpen, setUploadOpen] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [name, setName] = useState("")
+  const [type, setType] = useState("")
+  const [file, setFile] = useState<File | null>(null)
+  const [uploadError, setUploadError] = useState("")
+
+  const handleDeleteClick = (image: any) => {
+    setSelectedImage(image)
+    setDeleteModalOpen(true)
+  }
+
+  const handleDeleteConfirm = () => {
+    setMachineImages((prev) => prev.filter((img) => img.id !== selectedImage.id))
+    setDeleteModalOpen(false)
+    setSelectedImage(null)
+  }
+
+  const handleDeleteCancel = () => {
+    setDeleteModalOpen(false)
+    setSelectedImage(null)
+  }
+
+  const handleUpload = (e: React.FormEvent) => {
+    e.preventDefault()
+    setUploadError("")
+    if (!name.trim()) {
+      setUploadError("Machine Image Name is required.")
+      return
+    }
+    if (!type) {
+      setUploadError("Image type is required.")
+      return
+    }
+    if (!file) {
+      setUploadError("Please select a file to upload.")
+      return
+    }
+    setUploading(true)
+    setTimeout(() => {
+      setMachineImages(prev => [
+        {
+          id: `mi-${Date.now()}`,
+          name,
+          type,
+          createdOn: new Date().toISOString(),
+          size: `${(file.size / (1024 * 1024 * 1024)).toFixed(1)} GB`,
+          fileUrl: ""
+        },
+        ...prev
+      ])
+      setUploading(false)
+      setUploadOpen(false)
+      setName("")
+      setType("")
+      setFile(null)
+    }, 1200)
+  }
+
+  const columns = [
+    { key: "name", label: "Machine Image Name", sortable: true, searchable: true },
+    { key: "type", label: "Type", sortable: true },
+    { key: "size", label: "Size", sortable: true },
+    { key: "createdOn", label: "Created On", sortable: true, render: (value: string) => new Date(value).toLocaleString() },
+    { key: "actions", label: "Action", render: (_: any, row: any) => (
+      <div className="flex justify-end">
+        <ActionMenu
+          onCustomDelete={() => handleDeleteClick(row)}
+          resourceName={row.name}
+          resourceType="Machine Image"
+        />
       </div>
+    ), align: "right" as const },
+  ]
+
+  return (
+    <PageLayout
+      title="Machine Images"
+      description="Manage your machine images"
+      headerActions={
+        <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+          <DialogTrigger asChild>
+            <Button>Upload Machine Image</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Upload Machine Image</DialogTitle>
+              <DialogDescription>Upload a new machine image for your account.</DialogDescription>
+            </DialogHeader>
+            <form className="space-y-5" onSubmit={handleUpload} id="machine-image-upload-form">
+              <div>
+                <label className="block text-base font-medium mb-1" htmlFor="mi-name">Machine Image Name<span className="text-red-500">*</span></label>
+                <Input id="mi-name" value={name} onChange={e => setName(e.target.value)} required disabled={uploading} />
+              </div>
+              <div>
+                <label className="block text-base font-medium mb-1" htmlFor="mi-type">Image Type<span className="text-red-500">*</span></label>
+                <Select value={type} onValueChange={setType} disabled={uploading} required>
+                  <SelectTrigger id="mi-type">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Linux">Linux</SelectItem>
+                    <SelectItem value="Windows">Windows</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-base font-medium mb-1">Upload Image<span className="text-red-500">*</span></label>
+                <ImageUpload
+                  onFileChange={f => {
+                    setFile(f);
+                    setUploadError("");
+                    if (f) {
+                      // File size check (max 1024 GB)
+                      const maxBytes = 1024 * 1024 * 1024 * 1024;
+                      if (f.size > maxBytes) {
+                        setUploadError("File size exceeds 1024 GB limit.");
+                        setFile(null);
+                        return;
+                      }
+                      // Magic byte (MIME) check (mocked)
+                      const allowedTypes = ["application/octet-stream", "application/x-iso9660-image", "application/x-img"];
+                      if (!allowedTypes.includes(f.type) && !f.name.endsWith(".img") && !f.name.endsWith(".iso")) {
+                        setUploadError("File type not allowed. Only valid disk images are accepted.");
+                        setFile(null);
+                        return;
+                      }
+                    }
+                  }}
+                  error={uploadError}
+                  disabled={uploading}
+                  accept=".img,.iso"
+                  maxSizeGB={1024}
+                />
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline" disabled={uploading}>Cancel</Button>
+                </DialogClose>
+                <Button type="submit" disabled={uploading}>{uploading ? "Uploading..." : "Confirm"}</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      }
+    >
+      <ShadcnDataTable columns={columns} data={machineImages} enableSearch enablePagination />
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={handleDeleteCancel}
+        resourceName={selectedImage?.name || ""}
+        resourceType="Machine Image"
+        onConfirm={handleDeleteConfirm}
+      />
     </PageLayout>
   )
 }
