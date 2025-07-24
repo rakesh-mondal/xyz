@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus, FolderDown, CameraIcon } from "lucide-react"
+import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus, FolderDown, CameraIcon, Download } from "lucide-react"
 import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { TooltipWrapper } from "./ui/tooltip-wrapper"
@@ -27,6 +27,7 @@ interface ActionMenuProps {
   onCreateInstantBackup?: () => void  // For instant backup action
   onCreateInstantSnapshot?: () => void // For instant snapshot action
   onRestore?: () => void  // New prop for restore backup action
+  onDownload?: () => void  // New prop for download action
 }
 
 /**
@@ -60,6 +61,7 @@ export function ActionMenu({
   onCreateInstantBackup,
   onCreateInstantSnapshot,
   onRestore,
+  onDownload,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -150,6 +152,12 @@ export function ActionMenu({
             <DropdownMenuItem onClick={onRestore} className="flex items-center cursor-pointer">
               <ArrowUpRight className="mr-2 h-4 w-4" />
               <span>Restore</span>
+            </DropdownMenuItem>
+          )}
+          {onDownload && (
+            <DropdownMenuItem onClick={onDownload} className="flex items-center cursor-pointer">
+              <Download className="mr-2 h-4 w-4" />
+              <span>Download</span>
             </DropdownMenuItem>
           )}
           {(deleteHref || onCustomDelete) && (

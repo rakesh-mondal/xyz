@@ -44,20 +44,43 @@ export default function MachineImagesPage() {
   console.log("Render state - user email:", user?.email, "isNewUser:", isNewUser, "machineImages length:", machineImages.length);
 
   const handleDeleteClick = (image: any) => {
-    setSelectedImage(image)
-    setDeleteModalOpen(true)
-  }
-
-  const handleDeleteConfirm = () => {
-    setMachineImages((prev) => prev.filter((img) => img.id !== selectedImage.id))
-    setDeleteModalOpen(false)
-    setSelectedImage(null)
-  }
+    setSelectedImage(image);
+    setDeleteModalOpen(true);
+  };
 
   const handleDeleteCancel = () => {
-    setDeleteModalOpen(false)
-    setSelectedImage(null)
-  }
+    setDeleteModalOpen(false);
+    setSelectedImage(null);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedImage) {
+      setMachineImages(prev => prev.filter(img => img.id !== selectedImage.id));
+      setDeleteModalOpen(false);
+      setSelectedImage(null);
+      // Show success toast (mock)
+      console.log(`Machine image "${selectedImage.name}" deleted successfully`);
+    }
+  };
+
+  const handleDownload = (image: any) => {
+    // Mock download implementation for design mode
+    console.log(`Downloading machine image: ${image.name}`);
+    
+    // Create a mock download link
+    const link = document.createElement('a');
+    link.href = image.fileUrl || '#';
+    link.download = `${image.name.replace(/\s+/g, '_')}.img`;
+    link.style.display = 'none';
+    
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show success toast (mock)
+    console.log(`Download started for "${image.name}"`);
+  };
 
   const handleUpload = (e: React.FormEvent) => {
     e.preventDefault()
@@ -106,6 +129,7 @@ export default function MachineImagesPage() {
           onCustomDelete={() => handleDeleteClick(row)}
           resourceName={row.name}
           resourceType="Machine Image"
+          onDownload={() => handleDownload(row)}
         />
       </div>
     ), align: "right" as const },
