@@ -75,7 +75,7 @@ function ResourceTables() {
     ]
     return (
       <Card className="mb-6">
-        <CardContent className="w-full flex flex-col lg:flex-row gap-8 items-stretch justify-between">
+        <CardContent className="p-6 w-full flex flex-col lg:flex-row gap-8 items-stretch justify-between">
         {/* Remaining Balance Card - Usage Metrics style */}
         <div className="flex flex-col items-center justify-center flex-shrink-0 w-full max-w-xs">
           <div style={{
