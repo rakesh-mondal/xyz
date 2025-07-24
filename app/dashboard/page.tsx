@@ -293,8 +293,6 @@ function DocumentationHub() {
       items: [
         { name: "Virtual Private Cloud", href: "/documentation/vpc" },
         { name: "Virtual Machines", href: "/documentation/vms" },
-        { name: "GPU Baremetals", href: "/documentation/gpu" },
-        { name: "Object Storage", href: "/documentation/storage" },
         { name: "Security Groups", href: "/documentation/security" }
       ]
     },
@@ -305,8 +303,7 @@ function DocumentationHub() {
       items: [
         { name: "SSH Keys", href: "/documentation/ssh" },
         { name: "SDK Reference", href: "/documentation/sdk" },
-        { name: "CIDR Guidelines", href: "/documentation/cidr" },
-        { name: "API Documentation", href: "/documentation/api" }
+        { name: "CIDR Guidelines", href: "/documentation/cidr" }
       ]
     },
     {
@@ -316,7 +313,8 @@ function DocumentationHub() {
       items: [
         { name: "Models", href: "/documentation/models" },
         { name: "Bhashik", href: "/documentation/bhashik" },
-        { name: "Document Intelligence", href: "/documentation/doc-intelligence" }
+        { name: "Document Intelligence", href: "/documentation/doc-intelligence" },
+        { name: "Object Storage", href: "/documentation/storage" }
       ]
     }
   ]
