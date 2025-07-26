@@ -206,6 +206,22 @@ export default function MachineImagesPage() {
                   maxSizeGB={1024}
                 />
               </div>
+              {/* Pricing Summary */}
+              <div 
+                className="p-4 rounded-lg mt-2" 
+                style={{
+                  boxShadow: "rgba(14, 114, 180, 0.1) 0px 0px 0px 1px inset",
+                  background: "linear-gradient(263deg, rgba(15, 123, 194, 0.08) 6.86%, rgba(15, 123, 194, 0.02) 96.69%)"
+                }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm font-medium text-black">Pricing Summary</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-black">Image Upload Price:</span>
+                  <span className="font-semibold text-black">₹15.00</span>
+                </div>
+              </div>
               <DialogFooter>
                 <DialogClose asChild>
                   <Button type="button" variant="outline" disabled={uploading}>Cancel</Button>
