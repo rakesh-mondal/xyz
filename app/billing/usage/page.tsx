@@ -1095,9 +1095,107 @@ export default function UsageMetricsPage() {
   };
 
   const headerActions = (
-    <Link href="/billing/add-credits">
-      <Button variant="default">Add Credits</Button>
-    </Link>
+    <>
+      <Button variant="outline">
+        Export
+      </Button>
+      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="flex items-center gap-2 min-w-[260px] justify-start text-left font-normal">
+            <CalendarIcon className="h-4 w-4" />
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                </>
+              ) : (
+                <span className="text-blue-600">
+                  From: {format(date.from, "LLL dd, y")} | Select end
+                </span>
+              )
+            ) : (
+              "Pick a date range"
+            )}
+            <ChevronDownIcon className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0 flex" align="end">
+          {/* Quick Presets Sidebar */}
+          <div className="w-48 p-3 border-r bg-gray-50">
+            <h4 className="font-medium text-sm mb-3 text-gray-700">Quick Select</h4>
+            <div className="space-y-1">
+              {datePresets.map((preset) => (
+                <Button
+                  key={preset.label}
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start h-8 text-sm"
+                  onClick={() => handleHeaderPresetSelect(preset)}
+                >
+                  {preset.label}
+                </Button>
+              ))}
+            </div>
+            
+            {/* Current Selection Status */}
+            {date?.from && (
+              <div className="mt-4 pt-3 border-t">
+                <h5 className="font-medium text-xs text-gray-600 mb-2">Current Selection</h5>
+                <div className="text-xs text-gray-500 space-y-1">
+                  <div>Start: {format(date.from, "MMM dd, y")}</div>
+                  {date.to ? (
+                    <div>End: {format(date.to, "MMM dd, y")}</div>
+                  ) : (
+                    <div className="text-blue-600">Select end date →</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Calendar Section */}
+          <div className="p-3">
+            {/* Selection Progress Indicator */}
+            {isDateSelecting && date?.from && (
+              <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-sm text-blue-700">
+                <span className="font-medium">Start:</span> {format(date.from, "LLL dd, y")}
+                <br />
+                <span className="text-blue-600">Now select an end date</span>
+              </div>
+            )}
+            
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={date?.from}
+              selected={date}
+              onSelect={handleHeaderDateSelect}
+              numberOfMonths={2}
+              className="rounded-md"
+              modifiers={{
+                ...(date?.from && { start: date.from }),
+                ...(date?.to && { end: date.to }),
+              }}
+              modifiersStyles={{
+                start: { 
+                  backgroundColor: '#3b82f6', 
+                  color: 'white',
+                  fontWeight: 'bold'
+                },
+                end: { 
+                  backgroundColor: '#ef4444', 
+                  color: 'white',
+                  fontWeight: 'bold'
+                },
+              }}
+            />
+          </div>
+        </PopoverContent>
+      </Popover>
+      <Link href="/billing/add-credits">
+        <Button variant="default">Add Credits</Button>
+      </Link>
+    </>
   )
 
   return (
