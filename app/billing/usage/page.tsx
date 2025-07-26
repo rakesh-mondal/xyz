@@ -1096,9 +1096,6 @@ export default function UsageMetricsPage() {
 
   const headerActions = (
     <>
-      <Button variant="outline">
-        Export
-      </Button>
       <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="flex items-center gap-2 min-w-[260px] justify-start text-left font-normal">
