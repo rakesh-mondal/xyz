@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Switch } from "@/components/ui/switch"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { HelpCircle, Copy } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -210,19 +209,12 @@ export default function CreateSnapshotPolicyPage() {
   const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   
-  // Policy scheduler state
-  const [minute, setMinute] = useState("10")
-  const [hour, setHour] = useState("4")
-  const [dayOfMonth, setDayOfMonth] = useState("23")
-  const [month, setMonth] = useState("Jan")
+  // Policy scheduler state (simplified - "*" or empty means "any", filled means "specific")
+  const [minute, setMinute] = useState("")
+  const [hour, setHour] = useState("")
+  const [dayOfMonth, setDayOfMonth] = useState("*")
+  const [month, setMonth] = useState("*")
   const [dayOfWeek, setDayOfWeek] = useState("*")
-  
-  // Policy scheduler mode state (specific value vs any value)
-  const [minuteMode, setMinuteMode] = useState<"specific" | "any">("specific")
-  const [hourMode, setHourMode] = useState<"specific" | "any">("specific")
-  const [dayOfMonthMode, setDayOfMonthMode] = useState<"specific" | "any">("specific")
-  const [monthMode, setMonthMode] = useState<"specific" | "any">("specific")
-  const [dayOfWeekMode, setDayOfWeekMode] = useState<"specific" | "any">("any")
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -237,24 +229,51 @@ export default function CreateSnapshotPolicyPage() {
       "Jul": "7", "Aug": "8", "Sep": "9", "Oct": "10", "Nov": "11", "Dec": "12"
     }
     
-    const cronMinute = minuteMode === "any" ? "*" : minute
-    const cronHour = hourMode === "any" ? "*" : hour
-    const cronDayOfMonth = dayOfMonthMode === "any" ? "*" : dayOfMonth
-    const cronMonth = monthMode === "any" ? "*" : (monthMap[month] || month)
-    const cronDayOfWeek = dayOfWeekMode === "any" ? "*" : dayOfWeek
+    const cronMinute = minute.trim() === "" || minute === "*" ? "*" : minute
+    const cronHour = hour.trim() === "" || hour === "*" ? "*" : hour
+    const cronDayOfMonth = dayOfMonth.trim() === "" || dayOfMonth === "*" ? "*" : dayOfMonth
+    const cronMonth = month.trim() === "" || month === "*" ? "*" : (monthMap[month] || month)
+    const cronDayOfWeek = dayOfWeek.trim() === "" || dayOfWeek === "*" ? "*" : dayOfWeek
     
     return `${cronMinute} ${cronHour} ${cronDayOfMonth} ${cronMonth} ${cronDayOfWeek}`
   }
 
-  // Generate CRON explanation
+  // Generate CRON explanation with better logic
   const generateCronExplanation = () => {
-    const minuteText = minuteMode === "any" ? "every minute" : `minute ${minute}`
-    const hourText = hourMode === "any" ? "every hour" : `hour ${hour}`
-    const dayOfMonthText = dayOfMonthMode === "any" ? "every day" : `day ${dayOfMonth} of the month`
-    const monthText = monthMode === "any" ? "every month" : `in ${month}`
-    const dayOfWeekText = dayOfWeekMode === "any" ? "every day of the week" : `on day ${dayOfWeek} of the week`
+    const conditions = []
     
-    return `This job will run at ${minuteText} of ${hourText} on ${dayOfMonthText} ${monthText} ${dayOfWeekText}.`
+    // Build conditions based on what's specified (ignore "*" and empty values)
+    if (minute.trim() !== "" && minute !== "*") {
+      conditions.push(`at minute ${minute}`)
+    }
+    
+    if (hour.trim() !== "" && hour !== "*") {
+      conditions.push(`at hour ${hour}`)
+    }
+    
+    if (dayOfMonth.trim() !== "" && dayOfMonth !== "*") {
+      conditions.push(`on day ${dayOfMonth} of the month`)
+    }
+    
+    if (month.trim() !== "" && month !== "*") {
+      conditions.push(`in ${month}`)
+    }
+    
+    if (dayOfWeek.trim() !== "" && dayOfWeek !== "*") {
+      const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+      const dayName = dayNames[parseInt(dayOfWeek)] || `day ${dayOfWeek}`
+      conditions.push(`on ${dayName}`)
+    }
+    
+    if (conditions.length === 0) {
+      return "This policy will run every minute (no constraints specified)."
+    }
+    
+    if (conditions.length === 1) {
+      return `This policy will run ${conditions[0]}.`
+    }
+    
+    return `This policy will run when all these conditions are met: ${conditions.join(", ")}.`
   }
 
   // Calculate next snapshot number and name based on existing snapshots
@@ -613,117 +632,71 @@ export default function CreateSnapshotPolicyPage() {
                     Policy Scheduler <span className="text-destructive">*</span>
                   </Label>
                   
-                  <div className="grid grid-cols-3 gap-4">
-                    {/* Minute */}
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Minute</Label>
-                      <div className="flex items-center space-x-1 mb-3">
-                        <Switch
-                          checked={minuteMode === "specific"}
-                          onCheckedChange={(checked) => setMinuteMode(checked ? "specific" : "any")}
-                          className="scale-75 flex-shrink-0"
-                        />
-                        <span className="text-xs text-muted-foreground leading-none">
-                          {minuteMode === "specific" ? "Specific" : "Any"}
-                        </span>
-                      </div>
-                      {minuteMode === "specific" ? (
+                  <div className="space-y-4">
+                    <div className="text-sm text-muted-foreground mb-4">
+                      Leave fields empty for "any" value, or fill in specific values to create constraints. All specified constraints must be met.
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4">
+                      {/* Minute */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">
+                          Minute <span className="text-xs text-muted-foreground">(0-59)</span>
+                        </Label>
                         <Input
                           type="number"
                           value={minute}
                           onChange={(e) => setMinute(e.target.value)}
-                          placeholder="0-59"
+                          placeholder="Any minute"
                           min="0"
                           max="59"
                           className="text-sm h-8"
                         />
-                      ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
-                          Every minute
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Hour */}
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Hour</Label>
-                      <div className="flex items-center space-x-1 mb-3">
-                        <Switch
-                          checked={hourMode === "specific"}
-                          onCheckedChange={(checked) => setHourMode(checked ? "specific" : "any")}
-                          className="scale-75 flex-shrink-0"
-                        />
-                        <span className="text-xs text-muted-foreground leading-none">
-                          {hourMode === "specific" ? "Specific" : "Any"}
-                        </span>
                       </div>
-                      {hourMode === "specific" ? (
+
+                      {/* Hour */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">
+                          Hour <span className="text-xs text-muted-foreground">(0-23)</span>
+                        </Label>
                         <Input
                           type="number"
                           value={hour}
                           onChange={(e) => setHour(e.target.value)}
-                          placeholder="0-23"
+                          placeholder="Any hour"
                           min="0"
                           max="23"
                           className="text-sm h-8"
                         />
-                      ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
-                          Every hour
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Day */}
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Day</Label>
-                      <div className="flex items-center space-x-1 mb-3">
-                        <Switch
-                          checked={dayOfMonthMode === "specific"}
-                          onCheckedChange={(checked) => setDayOfMonthMode(checked ? "specific" : "any")}
-                          className="scale-75 flex-shrink-0"
-                        />
-                        <span className="text-xs text-muted-foreground leading-none">
-                          {dayOfMonthMode === "specific" ? "Specific" : "Any"}
-                        </span>
                       </div>
-                      {dayOfMonthMode === "specific" ? (
+
+                      {/* Day */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">
+                          Day <span className="text-xs text-muted-foreground">(1-31)</span>
+                        </Label>
                         <Select value={dayOfMonth} onValueChange={setDayOfMonth}>
                           <SelectTrigger className="h-8 text-sm">
-                            <SelectValue placeholder="Day" />
+                            <SelectValue placeholder="Any day" />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value="*">Any day</SelectItem>
                             {Array.from({length: 31}, (_, i) => (
                               <SelectItem key={i+1} value={String(i+1)}>{i+1}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                      ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
-                          Every day
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Month */}
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Month</Label>
-                      <div className="flex items-center space-x-1 mb-3">
-                        <Switch
-                          checked={monthMode === "specific"}
-                          onCheckedChange={(checked) => setMonthMode(checked ? "specific" : "any")}
-                          className="scale-75 flex-shrink-0"
-                        />
-                        <span className="text-xs text-muted-foreground leading-none">
-                          {monthMode === "specific" ? "Specific" : "Any"}
-                        </span>
                       </div>
-                      {monthMode === "specific" ? (
+
+                      {/* Month */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Month</Label>
                         <Select value={month} onValueChange={setMonth}>
                           <SelectTrigger className="h-8 text-sm">
-                            <SelectValue placeholder="Month" />
+                            <SelectValue placeholder="Any month" />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value="*">Any month</SelectItem>
                             {[
                               "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
@@ -732,50 +705,42 @@ export default function CreateSnapshotPolicyPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                      ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
-                          Every month
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Day of Week */}
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Weekday</Label>
-                      <div className="flex items-center space-x-1 mb-3">
-                        <Switch
-                          checked={dayOfWeekMode === "specific"}
-                          onCheckedChange={(checked) => setDayOfWeekMode(checked ? "specific" : "any")}
-                          className="scale-75 flex-shrink-0"
-                        />
-                        <span className="text-xs text-muted-foreground leading-none">
-                          {dayOfWeekMode === "specific" ? "Specific" : "Any"}
-                        </span>
                       </div>
-                      {dayOfWeekMode === "specific" ? (
+
+                      {/* Day of Week */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Weekday</Label>
                         <Select value={dayOfWeek} onValueChange={setDayOfWeek}>
                           <SelectTrigger className="h-8 text-sm">
-                            <SelectValue placeholder="Day" />
+                            <SelectValue placeholder="Any weekday" />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value="*">Any weekday</SelectItem>
                             {[
-                              {value: "0", label: "Sun"},
-                              {value: "1", label: "Mon"},
-                              {value: "2", label: "Tue"},
-                              {value: "3", label: "Wed"},
-                              {value: "4", label: "Thu"},
-                              {value: "5", label: "Fri"},
-                              {value: "6", label: "Sat"}
+                              {value: "0", label: "Sunday"},
+                              {value: "1", label: "Monday"},
+                              {value: "2", label: "Tuesday"},
+                              {value: "3", label: "Wednesday"},
+                              {value: "4", label: "Thursday"},
+                              {value: "5", label: "Friday"},
+                              {value: "6", label: "Saturday"}
                             ].map((day) => (
                               <SelectItem key={day.value} value={day.value}>{day.label}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                      ) : (
-                        <div className="text-center py-2 bg-muted/50 rounded text-muted-foreground text-xs border min-h-[32px] flex items-center justify-center">
-                          Any weekday
-                        </div>
-                      )}
+                      </div>
+                    </div>
+
+                    {/* Common Examples */}
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <h4 className="text-sm font-medium mb-2">Common Examples:</h4>
+                      <div className="text-xs space-y-1 text-muted-foreground">
+                        <div>• <strong>Every 30 minutes:</strong> Minute: 30, leave others empty</div>
+                        <div>• <strong>Daily at 2:30 AM:</strong> Minute: 30, Hour: 2, leave others empty</div>
+                        <div>• <strong>Weekly backup on Sunday at 3:00 AM:</strong> Minute: 0, Hour: 3, Weekday: Sunday</div>
+                        <div>• <strong>Monthly on 1st at midnight:</strong> Minute: 0, Hour: 0, Day: 1</div>
+                      </div>
                     </div>
                   </div>
 
