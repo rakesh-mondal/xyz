@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus, FolderDown, CameraIcon, Download, Square, RotateCcw, Image, RefreshCw } from "lucide-react"
+import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus, FolderDown, CameraIcon, Download, Square, RotateCcw, Image, RefreshCw, HardDrive, Shield, Wifi } from "lucide-react"
 import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { TooltipWrapper } from "./ui/tooltip-wrapper"
@@ -33,6 +33,10 @@ interface ActionMenuProps {
   onRestart?: () => void  // For restarting VMs
   onCreateImage?: () => void  // For creating machine images
   onReboot?: () => void  // For rebooting VMs
+  // New VM management actions for instance attachment/detachment
+  onAttachDetachVolumes?: () => void  // For volume management
+  onAttachDetachSecurityGroups?: () => void  // For security group management
+  onAttachDetachPublicIP?: () => void  // For IP address management
 }
 
 /**
@@ -71,6 +75,9 @@ export function ActionMenu({
   onRestart,
   onCreateImage,
   onReboot,
+  onAttachDetachVolumes,
+  onAttachDetachSecurityGroups,
+  onAttachDetachPublicIP,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -143,6 +150,24 @@ export function ActionMenu({
             <DropdownMenuItem onClick={onCreateImage} className="flex items-center cursor-pointer">
               <Image className="mr-2 h-4 w-4" />
               <span>Create Machine Image</span>
+            </DropdownMenuItem>
+          )}
+          {onAttachDetachVolumes && (
+            <DropdownMenuItem onClick={onAttachDetachVolumes} className="flex items-center cursor-pointer">
+              <HardDrive className="mr-2 h-4 w-4" />
+              <span>Attach/Detach Volumes</span>
+            </DropdownMenuItem>
+          )}
+          {onAttachDetachSecurityGroups && (
+            <DropdownMenuItem onClick={onAttachDetachSecurityGroups} className="flex items-center cursor-pointer">
+              <Shield className="mr-2 h-4 w-4" />
+              <span>Attach/Detach Security Groups</span>
+            </DropdownMenuItem>
+          )}
+          {onAttachDetachPublicIP && (
+            <DropdownMenuItem onClick={onAttachDetachPublicIP} className="flex items-center cursor-pointer">
+              <Wifi className="mr-2 h-4 w-4" />
+              <span>Attach/Detach Public IP</span>
             </DropdownMenuItem>
           )}
           {onCreateInstantBackup && (

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Server, Play, Square, RotateCcw, Settings, Monitor, Activity, Lock, Unlock } from "lucide-react"
 import { CpuPricingCards } from "./cpu/components/pricing-cards"
 import { GpuPricingCards } from "./gpu/components/pricing-cards"
-import { vmInstances } from "@/lib/data"
+import { vmInstances, getVMVolumes, getAvailableVolumes, getVMSecurityGroups, getAvailableSecurityGroups, getVMPublicIPs, getAvailablePublicIPs } from "@/lib/data"
 import { Tooltip } from "@/components/ui/tooltip"
 import { TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -31,6 +31,11 @@ import {
   CreateMachineImageModal,
   RebootMachineModal
 } from "@/components/modals/vm-management-modals"
+import { 
+  VolumeManagementModal, 
+  SecurityGroupManagementModal, 
+  PublicIPManagementModal 
+} from "@/components/modals/vm-attachment-modals"
 
 // VM Data and interfaces
 interface VirtualMachine {
@@ -184,6 +189,11 @@ function MyInstancesSection() {
   const [createImageModalOpen, setCreateImageModalOpen] = useState(false);
   const [rebootModalOpen, setRebootModalOpen] = useState(false);
   
+  // New VM attachment modal states
+  const [volumeManagementModalOpen, setVolumeManagementModalOpen] = useState(false);
+  const [securityGroupManagementModalOpen, setSecurityGroupManagementModalOpen] = useState(false);
+  const [publicIPManagementModalOpen, setPublicIPManagementModalOpen] = useState(false);
+  
   // Loading states
   const [isStoppingMachine, setIsStoppingMachine] = useState(false);
   const [isRestartingMachine, setIsRestartingMachine] = useState(false);
@@ -236,6 +246,24 @@ function MyInstancesSection() {
   const handleRebootMachine = (vm: any) => {
     setSelectedVM(vm);
     setRebootModalOpen(true);
+  };
+
+  // Volume Management Handler
+  const handleVolumeManagement = (vm: any) => {
+    setSelectedVM(vm);
+    setVolumeManagementModalOpen(true);
+  };
+
+  // Security Group Management Handler  
+  const handleSecurityGroupManagement = (vm: any) => {
+    setSelectedVM(vm);
+    setSecurityGroupManagementModalOpen(true);
+  };
+
+  // Public IP Management Handler
+  const handlePublicIPManagement = (vm: any) => {
+    setSelectedVM(vm);
+    setPublicIPManagementModalOpen(true);
   };
 
   // Stop Machine Confirm
@@ -449,6 +477,9 @@ function MyInstancesSection() {
     setDisableProtectionModalOpen(false);
     setCreateImageModalOpen(false);
     setRebootModalOpen(false);
+    setVolumeManagementModalOpen(false);
+    setSecurityGroupManagementModalOpen(false);
+    setPublicIPManagementModalOpen(false);
     setSelectedVM(null);
   };
 
@@ -581,6 +612,9 @@ function MyInstancesSection() {
               onTerminate={() => handleTerminateMachine(row)}
               onCreateImage={() => handleCreateMachineImage(row)}
               onReboot={() => handleRebootMachine(row)}
+              onAttachDetachVolumes={() => handleVolumeManagement(row)}
+              onAttachDetachSecurityGroups={() => handleSecurityGroupManagement(row)}
+              onAttachDetachPublicIP={() => handlePublicIPManagement(row)}
             />
           </div>
         );
@@ -669,6 +703,35 @@ function MyInstancesSection() {
         machineName={selectedVM?.name || ""}
         isLoading={isRebootingMachine}
       />
+
+      {/* New VM attachment/detachment modals */}
+      {selectedVM && (
+        <>
+          <VolumeManagementModal
+            open={volumeManagementModalOpen}
+            onClose={() => setVolumeManagementModalOpen(false)}
+            vmName={selectedVM.name}
+            attachedVolumes={getVMVolumes(selectedVM.id)}
+            availableVolumes={getAvailableVolumes()}
+          />
+          
+          <SecurityGroupManagementModal
+            open={securityGroupManagementModalOpen}
+            onClose={() => setSecurityGroupManagementModalOpen(false)}
+            vmName={selectedVM.name}
+            attachedSecurityGroups={getVMSecurityGroups(selectedVM.id)}
+            availableSecurityGroups={getAvailableSecurityGroups(selectedVM.id)}
+          />
+          
+          <PublicIPManagementModal
+            open={publicIPManagementModalOpen}
+            onClose={() => setPublicIPManagementModalOpen(false)}
+            vmName={selectedVM.name}
+            attachedIPs={getVMPublicIPs(selectedVM.id)}
+            availableIPs={getAvailablePublicIPs()}
+          />
+        </>
+      )}
     </>
   );
 }
@@ -684,6 +747,9 @@ interface VMActionMenuProps {
   onTerminate: () => void;
   onCreateImage: () => void;
   onReboot: () => void;
+  onAttachDetachVolumes: () => void;
+  onAttachDetachSecurityGroups: () => void;
+  onAttachDetachPublicIP: () => void;
 }
 
 function VMActionMenu({ 
@@ -695,7 +761,10 @@ function VMActionMenu({
   onRestart, 
   onTerminate,
   onCreateImage,
-  onReboot
+  onReboot,
+  onAttachDetachVolumes,
+  onAttachDetachSecurityGroups,
+  onAttachDetachPublicIP
 }: VMActionMenuProps) {
   return (
     <ActionMenu
@@ -713,6 +782,10 @@ function VMActionMenu({
       {...(isRunning && { onReboot: onReboot })}
       // Create Image action available for all VMs
       onCreateImage={onCreateImage}
+      // New VM attachment/detachment actions
+      onAttachDetachVolumes={onAttachDetachVolumes}
+      onAttachDetachSecurityGroups={onAttachDetachSecurityGroups}
+      onAttachDetachPublicIP={onAttachDetachPublicIP}
     />
   );
 }

@@ -1352,3 +1352,304 @@ export const machineImages = [
     fileUrl: "/mock-images/centos-7.img"
   }
 ];
+
+// Volume data for VM attachment/detachment
+export const volumes = [
+  {
+    id: "vol-001",
+    name: "Web Server Boot",
+    size: "50 GB",
+    type: "bootable" as const,
+    status: "attached" as const,
+    source: "machine-image",
+    attachedTo: "vm-001",
+    createdOn: "2023-12-01T10:00:00Z",
+  },
+  {
+    id: "vol-002", 
+    name: "AI Training Boot",
+    size: "100 GB",
+    type: "bootable" as const,
+    status: "attached" as const,
+    source: "machine-image",
+    attachedTo: "vm-002",
+    createdOn: "2023-12-05T14:30:00Z",
+  },
+  {
+    id: "vol-003",
+    name: "Database Boot",
+    size: "80 GB", 
+    type: "bootable" as const,
+    status: "attached" as const,
+    source: "machine-image",
+    attachedTo: "vm-003",
+    createdOn: "2023-12-10T09:15:00Z",
+  },
+  {
+    id: "vol-004",
+    name: "Dev Sandbox Boot",
+    size: "30 GB",
+    type: "bootable" as const,
+    status: "attached" as const,
+    source: "machine-image", 
+    attachedTo: "vm-004",
+    createdOn: "2023-12-12T11:45:00Z",
+  },
+  {
+    id: "vol-005",
+    name: "Database Storage",
+    size: "500 GB",
+    type: "storage" as const,
+    status: "attached" as const,
+    source: "volume",
+    attachedTo: "vm-003",
+    createdOn: "2023-12-10T09:30:00Z",
+  },
+  {
+    id: "vol-006",
+    name: "Web Storage Volume",
+    size: "200 GB",
+    type: "storage" as const,
+    status: "attached" as const,
+    source: "volume",
+    attachedTo: "vm-001",
+    createdOn: "2023-12-01T10:15:00Z",
+  },
+  {
+    id: "vol-007",
+    name: "Backup Boot Volume",
+    size: "40 GB",
+    type: "bootable" as const,
+    status: "available" as const,
+    source: "machine-image",
+    attachedTo: null,
+    createdOn: "2024-01-15T14:20:00Z",
+  },
+  {
+    id: "vol-008",
+    name: "Staging Boot Volume",
+    size: "60 GB",
+    type: "bootable" as const,
+    status: "available" as const,
+    source: "machine-image",
+    attachedTo: null,
+    createdOn: "2024-01-20T16:45:00Z",
+  },
+  {
+    id: "vol-009",
+    name: "Analytics Storage",
+    size: "1 TB",
+    type: "storage" as const,
+    status: "available" as const,
+    source: "snapshot",
+    attachedTo: null,
+    createdOn: "2024-01-25T11:30:00Z",
+  },
+  {
+    id: "vol-010",
+    name: "Temp Storage Volume",
+    size: "100 GB",
+    type: "storage" as const,
+    status: "available" as const,
+    source: "volume",
+    attachedTo: null,
+    createdOn: "2024-02-01T09:00:00Z",
+  },
+];
+
+// Security Group data for VM attachment/detachment
+export const vmSecurityGroups = [
+  {
+    id: "sg-001",
+    name: "web-server-sg",
+    description: "Security group for web servers allowing HTTP/HTTPS traffic",
+    rules: 4,
+    attachedTo: ["vm-001"],
+    createdOn: "2023-11-15T10:00:00Z",
+    ingressRules: [
+      { protocol: "TCP", port: "80", source: "0.0.0.0/0" },
+      { protocol: "TCP", port: "443", source: "0.0.0.0/0" },
+      { protocol: "TCP", port: "22", source: "10.0.0.0/8" }
+    ],
+    egressRules: [
+      { protocol: "All", port: "All", destination: "0.0.0.0/0" }
+    ]
+  },
+  {
+    id: "sg-002", 
+    name: "database-sg",
+    description: "Security group for database servers with restricted access",
+    rules: 3,
+    attachedTo: ["vm-003"],
+    createdOn: "2023-11-20T14:30:00Z",
+    ingressRules: [
+      { protocol: "TCP", port: "3306", source: "10.0.0.0/8" },
+      { protocol: "TCP", port: "22", source: "10.0.0.0/8" }
+    ],
+    egressRules: [
+      { protocol: "All", port: "All", destination: "0.0.0.0/0" }
+    ]
+  },
+  {
+    id: "sg-003",
+    name: "ai-training-sg",
+    description: "Security group for AI training nodes with GPU access",
+    rules: 5,
+    attachedTo: ["vm-002"],
+    createdOn: "2023-12-01T09:15:00Z",
+    ingressRules: [
+      { protocol: "TCP", port: "8080", source: "10.0.0.0/8" },
+      { protocol: "TCP", port: "22", source: "10.0.0.0/8" },
+      { protocol: "TCP", port: "6006", source: "10.0.0.0/8" },
+      { protocol: "TCP", port: "8888", source: "10.0.0.0/8" }
+    ],
+    egressRules: [
+      { protocol: "All", port: "All", destination: "0.0.0.0/0" }
+    ]
+  },
+  {
+    id: "sg-004",
+    name: "development-sg", 
+    description: "Security group for development environments",
+    rules: 6,
+    attachedTo: ["vm-004"],
+    createdOn: "2023-12-05T11:45:00Z",
+    ingressRules: [
+      { protocol: "TCP", port: "80", source: "10.0.0.0/8" },
+      { protocol: "TCP", port: "443", source: "10.0.0.0/8" },
+      { protocol: "TCP", port: "22", source: "10.0.0.0/8" },
+      { protocol: "TCP", port: "3000", source: "10.0.0.0/8" },
+      { protocol: "TCP", port: "8000", source: "10.0.0.0/8" }
+    ],
+    egressRules: [
+      { protocol: "All", port: "All", destination: "0.0.0.0/0" }
+    ]
+  },
+  {
+    id: "sg-005",
+    name: "monitoring-sg",
+    description: "Security group for monitoring and logging services",
+    rules: 3,
+    attachedTo: [],
+    createdOn: "2024-01-10T08:20:00Z",
+    ingressRules: [
+      { protocol: "TCP", port: "9090", source: "10.0.0.0/8" },
+      { protocol: "TCP", port: "3000", source: "10.0.0.0/8" }
+    ],
+    egressRules: [
+      { protocol: "All", port: "All", destination: "0.0.0.0/0" }
+    ]
+  },
+  {
+    id: "sg-006",
+    name: "load-balancer-sg",
+    description: "Security group for load balancers",
+    rules: 4,
+    attachedTo: [],
+    createdOn: "2024-01-15T16:30:00Z",
+    ingressRules: [
+      { protocol: "TCP", port: "80", source: "0.0.0.0/0" },
+      { protocol: "TCP", port: "443", source: "0.0.0.0/0" },
+      { protocol: "TCP", port: "8080", source: "10.0.0.0/8" }
+    ],
+    egressRules: [
+      { protocol: "All", port: "All", destination: "0.0.0.0/0" }
+    ]
+  }
+];
+
+// Public IP Address data for VM attachment/detachment  
+export const publicIPs = [
+  {
+    id: "ip-001",
+    address: "34.201.10.5",
+    type: "reserved" as const,
+    status: "attached" as const,
+    attachedTo: "vm-001",
+    region: "us-east-1",
+    createdOn: "2023-11-20T10:00:00Z",
+  },
+  {
+    id: "ip-002",
+    address: "52.14.22.8", 
+    type: "reserved" as const,
+    status: "attached" as const,
+    attachedTo: "vm-002",
+    region: "us-west-2",
+    createdOn: "2023-12-01T14:30:00Z",
+  },
+  {
+    id: "ip-003",
+    address: "34.201.10.12",
+    type: "reserved" as const,
+    status: "attached" as const,
+    attachedTo: "vm-003",
+    region: "us-east-1",
+    createdOn: "2023-12-05T09:15:00Z",
+  },
+  {
+    id: "ip-004",
+    address: "18.222.33.3",
+    type: "random" as const,
+    status: "attached" as const,
+    attachedTo: "vm-004",
+    region: "us-central-1",
+    createdOn: "2023-12-12T11:45:00Z",
+  },
+  {
+    id: "ip-005",
+    address: "54.230.123.45",
+    type: "reserved" as const,
+    status: "available" as const,
+    attachedTo: null,
+    region: "us-east-1",
+    createdOn: "2024-01-15T13:20:00Z",
+  },
+  {
+    id: "ip-006",
+    address: "52.88.177.92",
+    type: "reserved" as const,
+    status: "available" as const,
+    attachedTo: null,
+    region: "us-west-2",
+    createdOn: "2024-01-20T16:45:00Z",
+  },
+  {
+    id: "ip-007",
+    address: "13.56.147.203",
+    type: "reserved" as const,
+    status: "available" as const,
+    attachedTo: null,
+    region: "us-west-1",
+    createdOn: "2024-02-01T09:30:00Z",
+  }
+];
+
+// Helper functions to get attachment data for VMs
+export const getVMVolumes = (vmId: string) => {
+  const attachedVolumes = volumes.filter(vol => vol.attachedTo === vmId);
+  return {
+    bootable: attachedVolumes.filter(vol => vol.type === "bootable"),
+    storage: attachedVolumes.filter(vol => vol.type === "storage")
+  };
+};
+
+export const getAvailableVolumes = () => {
+  return volumes.filter(vol => vol.status === "available");
+};
+
+export const getVMSecurityGroups = (vmId: string) => {
+  return vmSecurityGroups.filter(sg => sg.attachedTo.includes(vmId));
+};
+
+export const getAvailableSecurityGroups = (vmId: string) => {
+  return vmSecurityGroups.filter(sg => !sg.attachedTo.includes(vmId));
+};
+
+export const getVMPublicIPs = (vmId: string) => {
+  return publicIPs.filter(ip => ip.attachedTo === vmId);
+};
+
+export const getAvailablePublicIPs = () => {
+  return publicIPs.filter(ip => ip.status === "available");
+};

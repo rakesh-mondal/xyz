@@ -1,0 +1,899 @@
+"use client"
+
+import { useState } from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
+import { ExclamationTriangleIcon, InformationCircleIcon } from "@heroicons/react/24/outline"
+import { HardDrive, Shield, Wifi, Plus, Trash2 } from "lucide-react"
+
+// Types for the modals
+interface Volume {
+  id: string
+  name: string
+  size: string
+  type: "bootable" | "storage"
+  status: "available" | "attached"
+  source?: string
+}
+
+interface SecurityGroup {
+  id: string
+  name: string
+  description: string
+  rules: number
+}
+
+interface PublicIP {
+  id: string
+  address: string
+  type: "reserved" | "random"
+  status: "available" | "attached"
+}
+
+// Volume Management Modal
+interface VolumeManagementModalProps {
+  open: boolean
+  onClose: () => void
+  vmName: string
+  attachedVolumes: { bootable: Volume[]; storage: Volume[] }
+  availableVolumes: Volume[]
+}
+
+export function VolumeManagementModal({ 
+  open, 
+  onClose, 
+  vmName, 
+  attachedVolumes, 
+  availableVolumes 
+}: VolumeManagementModalProps) {
+  const [changeBootableModalOpen, setChangeBootableModalOpen] = useState(false)
+  const [attachStorageModalOpen, setAttachStorageModalOpen] = useState(false)
+  const [detachVolumeModalOpen, setDetachVolumeModalOpen] = useState(false)
+  const [selectedVolume, setSelectedVolume] = useState<Volume | null>(null)
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <HardDrive className="h-5 w-5" />
+              Manage Volumes - {vmName}
+            </DialogTitle>
+            <DialogDescription>
+              Attach or detach volumes from your virtual machine
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Bootable Volumes Section */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-medium">Bootable Volume</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setChangeBootableModalOpen(true)}
+                >
+                  Change Bootable Volume
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {attachedVolumes.bootable.map((volume) => (
+                  <div key={volume.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">{volume.name}</div>
+                      <div className="text-sm text-muted-foreground">{volume.size} - {volume.type}</div>
+                    </div>
+                    <Badge variant="secondary">Attached</Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Storage Volumes Section */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-medium">Storage Volumes</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAttachStorageModalOpen(true)}
+                >
+                  Attach Storage Volume
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {attachedVolumes.storage.length === 0 ? (
+                  <div className="text-center py-4 text-muted-foreground">
+                    No storage volumes attached
+                  </div>
+                ) : (
+                  attachedVolumes.storage.map((volume) => (
+                    <div key={volume.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <div className="font-medium">{volume.name}</div>
+                        <div className="text-sm text-muted-foreground">{volume.size} - {volume.type}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">Attached</Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedVolume(volume)
+                            setDetachVolumeModalOpen(true)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Bootable Volume Modal */}
+      <ChangeBootableVolumeModal
+        open={changeBootableModalOpen}
+        onClose={() => setChangeBootableModalOpen(false)}
+        vmName={vmName}
+        availableVolumes={availableVolumes.filter(v => v.type === "bootable")}
+      />
+
+      {/* Attach Storage Volume Modal */}
+      <AttachStorageVolumeModal
+        open={attachStorageModalOpen}
+        onClose={() => setAttachStorageModalOpen(false)}
+        vmName={vmName}
+        availableVolumes={availableVolumes.filter(v => v.type === "storage")}
+      />
+
+      {/* Detach Volume Modal */}
+      {selectedVolume && (
+        <DetachVolumeModal
+          open={detachVolumeModalOpen}
+          onClose={() => {
+            setDetachVolumeModalOpen(false)
+            setSelectedVolume(null)
+          }}
+          volume={selectedVolume}
+        />
+      )}
+    </>
+  )
+}
+
+// Change Bootable Volume Modal
+interface ChangeBootableVolumeModalProps {
+  open: boolean
+  onClose: () => void
+  vmName: string
+  availableVolumes: Volume[]
+}
+
+function ChangeBootableVolumeModal({ open, onClose, vmName, availableVolumes }: ChangeBootableVolumeModalProps) {
+  const [selectedVolumeId, setSelectedVolumeId] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleConfirm = async () => {
+    if (!selectedVolumeId) return
+    setLoading(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setLoading(false)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Change Bootable Volume</DialogTitle>
+          <DialogDescription>
+            A new bootable volume has to be attached with the VM. Please select from the below volumes to attach to the VM. Please note that this will restart the machine.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <Alert>
+            <InformationCircleIcon className="h-4 w-4" />
+            <AlertDescription>
+              This action will restart your virtual machine.
+            </AlertDescription>
+          </Alert>
+
+          {availableVolumes.length === 0 ? (
+            <div className="text-center py-4">
+              <p className="text-muted-foreground mb-4">No bootable volumes available</p>
+              <Button variant="outline">
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Bootable Volume
+              </Button>
+            </div>
+          ) : (
+            <RadioGroup value={selectedVolumeId} onValueChange={setSelectedVolumeId}>
+              <div className="space-y-2">
+                {availableVolumes.map((volume) => (
+                  <div key={volume.id} className="flex items-center space-x-2 p-3 border rounded-lg">
+                    <RadioGroupItem value={volume.id} id={volume.id} className="accent-black" />
+                    <Label htmlFor={volume.id} className="flex-1 cursor-pointer">
+                      <div className="font-medium">{volume.name}</div>
+                      <div className="text-sm text-muted-foreground">{volume.size}</div>
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </RadioGroup>
+          )}
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirm} 
+            disabled={!selectedVolumeId || loading}
+          >
+            {loading ? "Confirming..." : "Confirm"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// Attach Storage Volume Modal
+interface AttachStorageVolumeModalProps {
+  open: boolean
+  onClose: () => void
+  vmName: string
+  availableVolumes: Volume[]
+}
+
+function AttachStorageVolumeModal({ open, onClose, vmName, availableVolumes }: AttachStorageVolumeModalProps) {
+  const [selectedVolumeId, setSelectedVolumeId] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleConfirm = async () => {
+    if (!selectedVolumeId) return
+    setLoading(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setLoading(false)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Attach Storage Volume</DialogTitle>
+          <DialogDescription>
+            A new storage volume has to be attached with the VM. Please select from the below volumes to attach to the VM. Please note that this will restart the machine.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <Alert>
+            <InformationCircleIcon className="h-4 w-4" />
+            <AlertDescription>
+              This action will restart your virtual machine.
+            </AlertDescription>
+          </Alert>
+
+          {availableVolumes.length === 0 ? (
+            <div className="text-center py-4">
+              <p className="text-muted-foreground mb-4">No storage volumes available</p>
+              <Button variant="outline">
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Storage Volume
+              </Button>
+            </div>
+          ) : (
+            <RadioGroup value={selectedVolumeId} onValueChange={setSelectedVolumeId}>
+              <div className="space-y-2">
+                {availableVolumes.map((volume) => (
+                  <div key={volume.id} className="flex items-center space-x-2 p-3 border rounded-lg">
+                    <RadioGroupItem value={volume.id} id={volume.id} className="accent-black" />
+                    <Label htmlFor={volume.id} className="flex-1 cursor-pointer">
+                      <div className="font-medium">{volume.name}</div>
+                      <div className="text-sm text-muted-foreground">{volume.size}</div>
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </RadioGroup>
+          )}
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirm} 
+            disabled={!selectedVolumeId || loading}
+          >
+            {loading ? "Confirming..." : "Confirm"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// Detach Volume Modal
+interface DetachVolumeModalProps {
+  open: boolean
+  onClose: () => void
+  volume: Volume
+}
+
+function DetachVolumeModal({ open, onClose, volume }: DetachVolumeModalProps) {
+  const [loading, setLoading] = useState(false)
+
+  const handleConfirm = async () => {
+    setLoading(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setLoading(false)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Are you sure you want to detach the volume?</DialogTitle>
+          <DialogDescription>
+            The VM won't be able access the data present in the volume. Please note that this will restart the machine.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <Alert variant="destructive">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertDescription>
+              Detaching <strong>{volume.name}</strong> will restart your VM and make the data inaccessible.
+            </AlertDescription>
+          </Alert>
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button 
+            variant="destructive"
+            onClick={handleConfirm} 
+            disabled={loading}
+          >
+            {loading ? "Detaching..." : "Confirm"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// Security Group Management Modal
+interface SecurityGroupManagementModalProps {
+  open: boolean
+  onClose: () => void
+  vmName: string
+  attachedSecurityGroups: SecurityGroup[]
+  availableSecurityGroups: SecurityGroup[]
+}
+
+export function SecurityGroupManagementModal({ 
+  open, 
+  onClose, 
+  vmName, 
+  attachedSecurityGroups, 
+  availableSecurityGroups 
+}: SecurityGroupManagementModalProps) {
+  const [attachModalOpen, setAttachModalOpen] = useState(false)
+  const [detachModalOpen, setDetachModalOpen] = useState(false)
+  const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<SecurityGroup | null>(null)
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Manage Security Groups - {vmName}
+            </DialogTitle>
+            <DialogDescription>
+              Attach or detach security groups from your virtual machine
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Attached Security Groups</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAttachModalOpen(true)}
+              >
+                Attach Security Group
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {attachedSecurityGroups.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  No security groups attached
+                </div>
+              ) : (
+                attachedSecurityGroups.map((sg) => (
+                  <div key={sg.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1 cursor-pointer" onClick={() => {/* Show details */}}>
+                      <div className="font-medium">{sg.name}</div>
+                      <div className="text-sm text-muted-foreground">{sg.description}</div>
+                      <div className="text-sm text-muted-foreground">{sg.rules} rules</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">Attached</Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedSecurityGroup(sg)
+                          setDetachModalOpen(true)
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Attach Security Group Modal */}
+      <AttachSecurityGroupModal
+        open={attachModalOpen}
+        onClose={() => setAttachModalOpen(false)}
+        vmName={vmName}
+        availableSecurityGroups={availableSecurityGroups}
+      />
+
+      {/* Detach Security Group Modal */}
+      {selectedSecurityGroup && (
+        <DetachSecurityGroupModal
+          open={detachModalOpen}
+          onClose={() => {
+            setDetachModalOpen(false)
+            setSelectedSecurityGroup(null)
+          }}
+          securityGroup={selectedSecurityGroup}
+        />
+      )}
+    </>
+  )
+}
+
+// Attach Security Group Modal
+interface AttachSecurityGroupModalProps {
+  open: boolean
+  onClose: () => void
+  vmName: string
+  availableSecurityGroups: SecurityGroup[]
+}
+
+function AttachSecurityGroupModal({ open, onClose, vmName, availableSecurityGroups }: AttachSecurityGroupModalProps) {
+  const [selectedGroupId, setSelectedGroupId] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleConfirm = async () => {
+    if (!selectedGroupId) return
+    setLoading(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setLoading(false)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Attach Security Group</DialogTitle>
+          <DialogDescription>
+            Select a security group to attach to your virtual machine
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          {availableSecurityGroups.length === 0 ? (
+            <div className="text-center py-4">
+              <p className="text-muted-foreground mb-4">No security groups available</p>
+              <Button variant="outline">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Security Group
+              </Button>
+            </div>
+          ) : (
+            <RadioGroup value={selectedGroupId} onValueChange={setSelectedGroupId}>
+              <div className="space-y-2">
+                {availableSecurityGroups.map((sg) => (
+                  <div key={sg.id} className="flex items-center space-x-2 p-3 border rounded-lg">
+                    <RadioGroupItem value={sg.id} id={sg.id} className="accent-black" />
+                    <Label htmlFor={sg.id} className="flex-1 cursor-pointer">
+                      <div className="font-medium">{sg.name}</div>
+                      <div className="text-sm text-muted-foreground">{sg.description}</div>
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </RadioGroup>
+          )}
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirm} 
+            disabled={!selectedGroupId || loading}
+          >
+            {loading ? "Attaching..." : "Attach"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// Detach Security Group Modal
+interface DetachSecurityGroupModalProps {
+  open: boolean
+  onClose: () => void
+  securityGroup: SecurityGroup
+}
+
+function DetachSecurityGroupModal({ open, onClose, securityGroup }: DetachSecurityGroupModalProps) {
+  const [loading, setLoading] = useState(false)
+
+  const handleConfirm = async () => {
+    setLoading(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setLoading(false)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Are you sure you want to detach the security group?</DialogTitle>
+          <DialogDescription>
+            This will affect Ingress and Egress traffic to and from your VM
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <Alert variant="destructive">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertDescription>
+              Detaching <strong>{securityGroup.name}</strong> will affect network traffic rules for your VM.
+            </AlertDescription>
+          </Alert>
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button 
+            variant="destructive"
+            onClick={handleConfirm} 
+            disabled={loading}
+          >
+            {loading ? "Detaching..." : "Detach"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// Public IP Management Modal
+interface PublicIPManagementModalProps {
+  open: boolean
+  onClose: () => void
+  vmName: string
+  attachedIPs: PublicIP[]
+  availableIPs: PublicIP[]
+}
+
+export function PublicIPManagementModal({ 
+  open, 
+  onClose, 
+  vmName, 
+  attachedIPs, 
+  availableIPs 
+}: PublicIPManagementModalProps) {
+  const [attachModalOpen, setAttachModalOpen] = useState(false)
+  const [detachModalOpen, setDetachModalOpen] = useState(false)
+  const [selectedIP, setSelectedIP] = useState<PublicIP | null>(null)
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wifi className="h-5 w-5" />
+              Manage Public IP - {vmName}
+            </DialogTitle>
+            <DialogDescription>
+              Attach or detach public IP addresses from your virtual machine
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Attached Public IPs</h3>
+              {attachedIPs.length === 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAttachModalOpen(true)}
+                >
+                  Attach Public IP
+                </Button>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              {attachedIPs.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  No public IP addresses attached
+                </div>
+              ) : (
+                <>
+                  {attachedIPs.map((ip) => (
+                    <div key={ip.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <div className="font-medium">{ip.address}</div>
+                        <div className="text-sm text-muted-foreground">Type: {ip.type}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">Attached</Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedIP(ip)
+                            setDetachModalOpen(true)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Attach Public IP Modal */}
+      <AttachPublicIPModal
+        open={attachModalOpen}
+        onClose={() => setAttachModalOpen(false)}
+        vmName={vmName}
+        availableIPs={availableIPs}
+      />
+
+      {/* Detach Public IP Modal */}
+      {selectedIP && (
+        <DetachPublicIPModal
+          open={detachModalOpen}
+          onClose={() => {
+            setDetachModalOpen(false)
+            setSelectedIP(null)
+          }}
+          publicIP={selectedIP}
+        />
+      )}
+    </>
+  )
+}
+
+// Attach Public IP Modal
+interface AttachPublicIPModalProps {
+  open: boolean
+  onClose: () => void
+  vmName: string
+  availableIPs: PublicIP[]
+}
+
+function AttachPublicIPModal({ open, onClose, vmName, availableIPs }: AttachPublicIPModalProps) {
+  const [selectedIPId, setSelectedIPId] = useState("")
+  const [assignRandomIP, setAssignRandomIP] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const handleConfirm = async () => {
+    if (!selectedIPId && !assignRandomIP) return
+    setLoading(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setLoading(false)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Attach Public IP</DialogTitle>
+          <DialogDescription>
+            Select a reserved IP address or assign a random one to your virtual machine
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          {/* Random IP Checkbox */}
+          <div className="flex items-center space-x-2 p-3 border rounded-lg">
+            <Checkbox 
+              id="random-ip" 
+              checked={assignRandomIP}
+              onCheckedChange={(checked) => {
+                setAssignRandomIP(checked as boolean)
+                if (checked) setSelectedIPId("")
+              }}
+              className="accent-black"
+            />
+            <Label htmlFor="random-ip" className="flex-1 cursor-pointer">
+              <div className="font-medium">Assign a random Public IP address</div>
+            </Label>
+          </div>
+
+          {assignRandomIP && (
+            <Alert>
+              <InformationCircleIcon className="h-4 w-4" />
+              <AlertDescription>
+                Please note that you will be charged Rs 0.28 per hour extra for the IP address
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!assignRandomIP && (
+            <>
+              {availableIPs.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-muted-foreground mb-4">No reserved IP addresses available</p>
+                  <Button variant="outline">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Reserve Public IP
+                  </Button>
+                </div>
+              ) : (
+                <RadioGroup value={selectedIPId} onValueChange={setSelectedIPId}>
+                  <div className="space-y-2">
+                    {availableIPs.map((ip) => (
+                      <div key={ip.id} className="flex items-center space-x-2 p-3 border rounded-lg">
+                        <RadioGroupItem value={ip.id} id={ip.id} className="accent-black" />
+                        <Label htmlFor={ip.id} className="flex-1 cursor-pointer">
+                          <div className="font-medium">{ip.address}</div>
+                          <div className="text-sm text-muted-foreground">Reserved IP</div>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </RadioGroup>
+              )}
+            </>
+          )}
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirm} 
+            disabled={(!selectedIPId && !assignRandomIP) || loading}
+          >
+            {loading ? "Attaching..." : "Attach"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// Detach Public IP Modal
+interface DetachPublicIPModalProps {
+  open: boolean
+  onClose: () => void
+  publicIP: PublicIP
+}
+
+function DetachPublicIPModal({ open, onClose, publicIP }: DetachPublicIPModalProps) {
+  const [loading, setLoading] = useState(false)
+
+  const handleConfirm = async () => {
+    setLoading(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setLoading(false)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Are you sure you want to detach the Public IP address?</DialogTitle>
+          <DialogDescription>
+            This will affect Ingress and Egress traffic to and from and the access to your VM
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <Alert variant="destructive">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertDescription>
+              Detaching <strong>{publicIP.address}</strong> will affect network access to your VM.
+            </AlertDescription>
+          </Alert>
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button 
+            variant="destructive"
+            onClick={handleConfirm} 
+            disabled={loading}
+          >
+            {loading ? "Detaching..." : "Detach"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+} 
