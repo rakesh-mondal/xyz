@@ -7,19 +7,30 @@ import { VercelTabs } from "@/components/ui/vercel-tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Server, Play, Square, RotateCcw, Settings, Monitor, Activity } from "lucide-react"
+import { Server, Play, Square, RotateCcw, Settings, Monitor, Activity, Lock, Unlock } from "lucide-react"
 import { CpuPricingCards } from "./cpu/components/pricing-cards"
 import { GpuPricingCards } from "./gpu/components/pricing-cards"
 import { vmInstances } from "@/lib/data"
 import { Tooltip } from "@/components/ui/tooltip"
 import { TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
-import { Lock, Unlock } from "lucide-react"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { StatusBadge } from "@/components/status-badge"
 import { ActionMenu } from "@/components/action-menu"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
+import { useToast } from "@/hooks/use-toast"
+import { 
+  StopMachineModal, 
+  RestartMachineModal, 
+  RestartErrorModal, 
+  TerminateMachineModal, 
+  DeleteProtectionErrorModal,
+  EnableDeleteProtectionModal,
+  DisableDeleteProtectionModal,
+  CreateMachineImageModal,
+  RebootMachineModal
+} from "@/components/modals/vm-management-modals"
 
 // VM Data and interfaces
 interface VirtualMachine {
@@ -159,16 +170,256 @@ function GpuBaremetalSection() {
 
 function MyInstancesSection() {
   const router = useRouter();
+  const { toast } = useToast();
+  
+  // Modal states
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [stopModalOpen, setStopModalOpen] = useState(false);
+  const [restartModalOpen, setRestartModalOpen] = useState(false);
+  const [restartErrorModalOpen, setRestartErrorModalOpen] = useState(false);
+  const [terminateModalOpen, setTerminateModalOpen] = useState(false);
+  const [deleteProtectionErrorModalOpen, setDeleteProtectionErrorModalOpen] = useState(false);
+  const [enableProtectionModalOpen, setEnableProtectionModalOpen] = useState(false);
+  const [disableProtectionModalOpen, setDisableProtectionModalOpen] = useState(false);
+  const [createImageModalOpen, setCreateImageModalOpen] = useState(false);
+  const [rebootModalOpen, setRebootModalOpen] = useState(false);
+  
+  // Loading states
+  const [isStoppingMachine, setIsStoppingMachine] = useState(false);
+  const [isRestartingMachine, setIsRestartingMachine] = useState(false);
+  const [isTerminatingMachine, setIsTerminatingMachine] = useState(false);
+  const [isTogglingProtection, setIsTogglingProtection] = useState(false);
+  const [isCreatingImage, setIsCreatingImage] = useState(false);
+  const [isRebootingMachine, setIsRebootingMachine] = useState(false);
+  
   const [selectedVM, setSelectedVM] = useState<any>(null);
 
-  const handleDeleteClick = (vm: any) => {
+  // Delete Protection Toggle Handler
+  const handleDeleteProtectionToggle = (vm: any) => {
     setSelectedVM(vm);
-    setDeleteModalOpen(true);
+    if (vm.deleteProtection) {
+      setDisableProtectionModalOpen(true);
+    } else {
+      setEnableProtectionModalOpen(true);
+    }
+  };
+
+  // Stop Machine Handler
+  const handleStopMachine = (vm: any) => {
+    setSelectedVM(vm);
+    setStopModalOpen(true);
+  };
+
+  // Restart Machine Handler
+  const handleRestartMachine = (vm: any) => {
+    setSelectedVM(vm);
+    setRestartModalOpen(true);
+  };
+
+  // Terminate Machine Handler  
+  const handleTerminateMachine = (vm: any) => {
+    setSelectedVM(vm);
+    if (vm.deleteProtection) {
+      setDeleteProtectionErrorModalOpen(true);
+    } else {
+      setTerminateModalOpen(true);
+    }
+  };
+
+  // Create Machine Image Handler
+  const handleCreateMachineImage = (vm: any) => {
+    setSelectedVM(vm);
+    setCreateImageModalOpen(true);
+  };
+
+  // Reboot Machine Handler
+  const handleRebootMachine = (vm: any) => {
+    setSelectedVM(vm);
+    setRebootModalOpen(true);
+  };
+
+  // Stop Machine Confirm
+  const handleStopConfirm = async () => {
+    setIsStoppingMachine(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      toast({
+        title: "Machine stopped successfully",
+        description: `${selectedVM?.name} has been stopped.`
+      });
+      setStopModalOpen(false);
+      setSelectedVM(null);
+    } catch (error) {
+      toast({
+        title: "Failed to stop machine",
+        description: "Please try again later."
+      });
+    } finally {
+      setIsStoppingMachine(false);
+    }
+  };
+
+  // Restart Machine Confirm
+  const handleRestartConfirm = async () => {
+    setIsRestartingMachine(true);
+    try {
+      // Simulate API call with potential failure
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const shouldFail = Math.random() < 0.3; // 30% chance of failure for demo
+      
+      if (shouldFail) {
+        setRestartModalOpen(false);
+        setRestartErrorModalOpen(true);
+      } else {
+        toast({
+          title: "Machine restarted successfully",
+          description: `${selectedVM?.name} has been restarted.`
+        });
+        setRestartModalOpen(false);
+        setSelectedVM(null);
+      }
+    } catch (error) {
+      setRestartModalOpen(false);
+      setRestartErrorModalOpen(true);
+    } finally {
+      setIsRestartingMachine(false);
+    }
+  };
+
+  // Restart Try Again
+  const handleRestartTryAgain = () => {
+    setRestartErrorModalOpen(false);
+    setRestartModalOpen(true);
+  };
+
+  // Terminate Machine Confirm
+  const handleTerminateConfirm = async () => {
+    setIsTerminatingMachine(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      toast({
+        title: "Machine terminated successfully",
+        description: `${selectedVM?.name} has been terminated.`
+      });
+      setTerminateModalOpen(false);
+      setSelectedVM(null);
+    } catch (error) {
+      toast({
+        title: "Failed to terminate machine",
+        description: "Please try again later."
+      });
+    } finally {
+      setIsTerminatingMachine(false);
+    }
+  };
+
+  // Enable Delete Protection Confirm
+  const handleEnableProtectionConfirm = async () => {
+    setIsTogglingProtection(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast({
+        title: "Delete protection enabled",
+        description: `${selectedVM?.name} is now protected from deletion.`
+      });
+      setEnableProtectionModalOpen(false);
+      setSelectedVM(null);
+    } catch (error) {
+      toast({
+        title: "Failed to enable delete protection",
+        description: "Please try again later."
+      });
+    } finally {
+      setIsTogglingProtection(false);
+    }
+  };
+
+  // Disable Delete Protection Confirm
+  const handleDisableProtectionConfirm = async () => {
+    setIsTogglingProtection(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast({
+        title: "Delete protection disabled",
+        description: `${selectedVM?.name} can now be deleted.`
+      });
+      setDisableProtectionModalOpen(false);
+      setSelectedVM(null);
+    } catch (error) {
+      toast({
+        title: "Failed to disable delete protection",
+        description: "Please try again later."
+      });
+    } finally {
+      setIsTogglingProtection(false);
+    }
+  };
+
+  // Create Machine Image Confirm
+  const handleCreateImageConfirm = async (imageName: string) => {
+    setIsCreatingImage(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2500));
+      toast({
+        title: "Machine image created successfully",
+        description: `"${imageName}" has been created from ${selectedVM?.name}.`
+      });
+      setCreateImageModalOpen(false);
+      setSelectedVM(null);
+    } catch (error) {
+      toast({
+        title: "Failed to create machine image",
+        description: "Please try again later."
+      });
+    } finally {
+      setIsCreatingImage(false);
+    }
+  };
+
+  // Reboot Machine Confirm
+  const handleRebootConfirm = async () => {
+    setIsRebootingMachine(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      toast({
+        title: "Machine rebooted successfully",
+        description: `${selectedVM?.name} has been rebooted.`
+      });
+      setRebootModalOpen(false);
+      setSelectedVM(null);
+    } catch (error) {
+      toast({
+        title: "Failed to reboot machine",
+        description: "Please try again later."
+      });
+    } finally {
+      setIsRebootingMachine(false);
+    }
+  };
+
+  // Regular Delete Handler (for backward compatibility)
+  const handleDeleteClick = (vm: any) => {
+    if (vm.deleteProtection) {
+      setSelectedVM(vm);
+      setDeleteProtectionErrorModalOpen(true);
+    } else {
+      setSelectedVM(vm);
+      setDeleteModalOpen(true);
+    }
   };
 
   const handleDeleteConfirm = () => {
     setTimeout(() => {
+      toast({
+        title: "Machine deleted successfully",
+        description: `${selectedVM?.name} has been deleted.`
+      });
       setDeleteModalOpen(false);
       setSelectedVM(null);
     }, 1000);
@@ -180,9 +431,25 @@ function MyInstancesSection() {
   };
 
   const handleRefresh = () => {
-    // Simulate refresh logic (in real app, refetch data)
     console.log("🔄 Refreshing VM data at:", new Date().toLocaleTimeString());
-    // Optionally show a toast or loading indicator
+    toast({
+      title: "Data refreshed",
+      description: "VM instances have been updated."
+    });
+  };
+
+  // Close all modals
+  const closeAllModals = () => {
+    setStopModalOpen(false);
+    setRestartModalOpen(false);
+    setRestartErrorModalOpen(false);
+    setTerminateModalOpen(false);
+    setDeleteProtectionErrorModalOpen(false);
+    setEnableProtectionModalOpen(false);
+    setDisableProtectionModalOpen(false);
+    setCreateImageModalOpen(false);
+    setRebootModalOpen(false);
+    setSelectedVM(null);
   };
 
   const columns = [
@@ -274,19 +541,21 @@ function MyInstancesSection() {
     {
       key: "deleteProtection",
       label: "Delete Protection",
-      render: (value: any) => (
-        <TooltipWrapper content={value ? "Delete protection enabled" : "Delete protection disabled"}>
-          {value ? (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11v2m0 4h.01M17 8V7a5 5 0 00-10 0v1a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2v-7a2 2 0 00-2-2z" /></svg>
-              Enabled
-            </span>
-          ) : (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-50 text-gray-400">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11v2m0 4h.01M17 8V7a5 5 0 00-10 0v1a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2v-7a2 2 0 00-2-2z" /></svg>
-              Disabled
-            </span>
-          )}
+      render: (value: any, row: any) => (
+        <TooltipWrapper content={value ? "Disable delete protection" : "Enable delete protection"}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteProtectionToggle(row);
+            }}
+            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors"
+          >
+            {value ? (
+              <Lock className="w-4 h-4 text-red-600" />
+            ) : (
+              <Unlock className="w-4 h-4 text-gray-400" />
+            )}
+          </button>
         </TooltipWrapper>
       ),
     },
@@ -294,23 +563,36 @@ function MyInstancesSection() {
       key: "actions",
       label: "Actions",
       align: "right" as const,
-      render: (value: any, row: any) => (
-        <div className="flex justify-end">
-          <ActionMenu
-            viewHref={`/compute/vms/instances/${row.id}`}
-            editHref={`/compute/vms/instances/${row.id}/edit`}
-            onCustomDelete={() => handleDeleteClick(row)}
-            resourceName={row.name}
-            resourceType="VM Instance"
-          />
-        </div>
-      ),
+      render: (value: any, row: any) => {
+        // Determine available actions based on VM status
+        const isRunning = row.status === "Active";
+        const isStopped = row.status === "Stopped";
+        const isRestarting = row.status === "Restarting";
+        
+        return (
+          <div className="flex justify-end">
+            <VMActionMenu
+              vm={row}
+              isRunning={isRunning}
+              isStopped={isStopped}
+              isRestarting={isRestarting}
+              onStop={() => handleStopMachine(row)}
+              onRestart={() => handleRestartMachine(row)}
+              onTerminate={() => handleTerminateMachine(row)}
+              onCreateImage={() => handleCreateMachineImage(row)}
+              onReboot={() => handleRebootMachine(row)}
+            />
+          </div>
+        );
+      },
     },
   ];
 
   return (
     <>
       <ShadcnDataTable columns={columns} data={vmInstances} onRefresh={handleRefresh} />
+      
+      {/* All VM Management Modals */}
       <DeleteConfirmationModal
         isOpen={deleteModalOpen}
         onClose={handleDeleteCancel}
@@ -318,7 +600,120 @@ function MyInstancesSection() {
         resourceName={selectedVM?.name}
         resourceType="VM Instance"
       />
+      
+      <StopMachineModal
+        open={stopModalOpen}
+        onClose={closeAllModals}
+        onConfirm={handleStopConfirm}
+        machineName={selectedVM?.name || ""}
+        isLoading={isStoppingMachine}
+      />
+      
+      <RestartMachineModal
+        open={restartModalOpen}
+        onClose={closeAllModals}
+        onConfirm={handleRestartConfirm}
+        machineName={selectedVM?.name || ""}
+        isLoading={isRestartingMachine}
+      />
+      
+      <RestartErrorModal
+        open={restartErrorModalOpen}
+        onClose={closeAllModals}
+        onTryAgain={handleRestartTryAgain}
+        machineName={selectedVM?.name || ""}
+      />
+      
+      <TerminateMachineModal
+        open={terminateModalOpen}
+        onClose={closeAllModals}
+        onConfirm={handleTerminateConfirm}
+        machineName={selectedVM?.name || ""}
+        isLoading={isTerminatingMachine}
+      />
+      
+      <DeleteProtectionErrorModal
+        open={deleteProtectionErrorModalOpen}
+        onClose={closeAllModals}
+        machineName={selectedVM?.name || ""}
+      />
+      
+      <EnableDeleteProtectionModal
+        open={enableProtectionModalOpen}
+        onClose={closeAllModals}
+        onConfirm={handleEnableProtectionConfirm}
+        machineName={selectedVM?.name || ""}
+        isLoading={isTogglingProtection}
+      />
+      
+      <DisableDeleteProtectionModal
+        open={disableProtectionModalOpen}
+        onClose={closeAllModals}
+        onConfirm={handleDisableProtectionConfirm}
+        machineName={selectedVM?.name || ""}
+        isLoading={isTogglingProtection}
+      />
+      
+      <CreateMachineImageModal
+        open={createImageModalOpen}
+        onClose={closeAllModals}
+        onConfirm={handleCreateImageConfirm}
+        machineName={selectedVM?.name || ""}
+        isLoading={isCreatingImage}
+      />
+      
+      <RebootMachineModal
+        open={rebootModalOpen}
+        onClose={closeAllModals}
+        onConfirm={handleRebootConfirm}
+        machineName={selectedVM?.name || ""}
+        isLoading={isRebootingMachine}
+      />
     </>
+  );
+}
+
+// Enhanced Action Menu Component for VMs
+interface VMActionMenuProps {
+  vm: any;
+  isRunning: boolean;
+  isStopped: boolean;
+  isRestarting: boolean;
+  onStop: () => void;
+  onRestart: () => void;
+  onTerminate: () => void;
+  onCreateImage: () => void;
+  onReboot: () => void;
+}
+
+function VMActionMenu({ 
+  vm, 
+  isRunning, 
+  isStopped, 
+  isRestarting, 
+  onStop, 
+  onRestart, 
+  onTerminate,
+  onCreateImage,
+  onReboot
+}: VMActionMenuProps) {
+  return (
+    <ActionMenu
+      viewHref={`/compute/vms/instances/${vm.id}`}
+      editHref={`/compute/vms/instances/${vm.id}/edit`}
+      resourceName={vm.name}
+      resourceType="VM Instance"
+      deleteLabel="Terminate Machine"
+      onCustomDelete={onTerminate}
+      // Show Stop action only for running VMs
+      {...(isRunning && { onStop: onStop })}
+      // Show Restart action only for stopped VMs
+      {...(isStopped && { onRestart: onRestart })}
+      // Show Reboot action for running VMs
+      {...(isRunning && { onReboot: onReboot })}
+      // Create Image action available for all VMs
+      onCreateImage={onCreateImage}
+    />
   );
 }
 

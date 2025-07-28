@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus, FolderDown, CameraIcon, Download } from "lucide-react"
+import { MoreVertical, Eye, Edit, Trash2, ArrowUpRight, AlertTriangle, Network, Copy, Settings, Plus, FolderDown, CameraIcon, Download, Square, RotateCcw, Image, RefreshCw } from "lucide-react"
 import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { TooltipWrapper } from "./ui/tooltip-wrapper"
@@ -28,6 +28,11 @@ interface ActionMenuProps {
   onCreateInstantSnapshot?: () => void // For instant snapshot action
   onRestore?: () => void  // New prop for restore backup action
   onDownload?: () => void  // New prop for download action
+  // New VM-specific actions
+  onStop?: () => void  // For stopping VMs
+  onRestart?: () => void  // For restarting VMs
+  onCreateImage?: () => void  // For creating machine images
+  onReboot?: () => void  // For rebooting VMs
 }
 
 /**
@@ -62,6 +67,10 @@ export function ActionMenu({
   onCreateInstantSnapshot,
   onRestore,
   onDownload,
+  onStop,
+  onRestart,
+  onCreateImage,
+  onReboot,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -110,6 +119,30 @@ export function ActionMenu({
             <DropdownMenuItem onClick={onEditBucket} className="flex items-center cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               <span>Edit Bucket</span>
+            </DropdownMenuItem>
+          )}
+          {onStop && (
+            <DropdownMenuItem onClick={onStop} className="flex items-center cursor-pointer">
+              <Square className="mr-2 h-4 w-4" />
+              <span>Stop Machine</span>
+            </DropdownMenuItem>
+          )}
+          {onRestart && (
+            <DropdownMenuItem onClick={onRestart} className="flex items-center cursor-pointer">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              <span>Restart Machine</span>
+            </DropdownMenuItem>
+          )}
+          {onReboot && (
+            <DropdownMenuItem onClick={onReboot} className="flex items-center cursor-pointer">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              <span>Reboot Machine</span>
+            </DropdownMenuItem>
+          )}
+          {onCreateImage && (
+            <DropdownMenuItem onClick={onCreateImage} className="flex items-center cursor-pointer">
+              <Image className="mr-2 h-4 w-4" />
+              <span>Create Machine Image</span>
             </DropdownMenuItem>
           )}
           {onCreateInstantBackup && (
