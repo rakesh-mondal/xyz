@@ -36,6 +36,7 @@ import {
   SecurityGroupManagementModal, 
   PublicIPManagementModal 
 } from "@/components/modals/vm-attachment-modals"
+import { VMEditModal } from "@/components/modals/vm-edit-modal"
 
 // VM Data and interfaces
 interface VirtualMachine {
@@ -194,6 +195,9 @@ function MyInstancesSection() {
   const [securityGroupManagementModalOpen, setSecurityGroupManagementModalOpen] = useState(false);
   const [publicIPManagementModalOpen, setPublicIPManagementModalOpen] = useState(false);
   
+  // VM edit modal state
+  const [vmEditModalOpen, setVmEditModalOpen] = useState(false);
+  
   // Loading states
   const [isStoppingMachine, setIsStoppingMachine] = useState(false);
   const [isRestartingMachine, setIsRestartingMachine] = useState(false);
@@ -264,6 +268,12 @@ function MyInstancesSection() {
   const handlePublicIPManagement = (vm: any) => {
     setSelectedVM(vm);
     setPublicIPManagementModalOpen(true);
+  };
+
+  // VM Edit Handler
+  const handleVMEdit = (vm: any) => {
+    setSelectedVM(vm);
+    setVmEditModalOpen(true);
   };
 
   // Stop Machine Confirm
@@ -480,6 +490,7 @@ function MyInstancesSection() {
     setVolumeManagementModalOpen(false);
     setSecurityGroupManagementModalOpen(false);
     setPublicIPManagementModalOpen(false);
+    setVmEditModalOpen(false);
     setSelectedVM(null);
   };
 
@@ -615,6 +626,7 @@ function MyInstancesSection() {
               onAttachDetachVolumes={() => handleVolumeManagement(row)}
               onAttachDetachSecurityGroups={() => handleSecurityGroupManagement(row)}
               onAttachDetachPublicIP={() => handlePublicIPManagement(row)}
+              onEdit={() => handleVMEdit(row)}
             />
           </div>
         );
@@ -704,6 +716,18 @@ function MyInstancesSection() {
         isLoading={isRebootingMachine}
       />
 
+      {/* VM Edit Modal */}
+      {selectedVM && (
+        <VMEditModal
+          open={vmEditModalOpen}
+          onClose={() => setVmEditModalOpen(false)}
+          vmId={selectedVM.id}
+          vmName={selectedVM.name}
+          initialDescription={selectedVM.description || ""}
+          initialTags={selectedVM.tags || []}
+        />
+      )}
+
       {/* New VM attachment/detachment modals */}
       {selectedVM && (
         <>
@@ -750,6 +774,7 @@ interface VMActionMenuProps {
   onAttachDetachVolumes: () => void;
   onAttachDetachSecurityGroups: () => void;
   onAttachDetachPublicIP: () => void;
+  onEdit: () => void;
 }
 
 function VMActionMenu({ 
@@ -764,16 +789,17 @@ function VMActionMenu({
   onReboot,
   onAttachDetachVolumes,
   onAttachDetachSecurityGroups,
-  onAttachDetachPublicIP
+  onAttachDetachPublicIP,
+  onEdit
 }: VMActionMenuProps) {
   return (
     <ActionMenu
       viewHref={`/compute/vms/instances/${vm.id}`}
-      editHref={`/compute/vms/instances/${vm.id}/edit`}
       resourceName={vm.name}
       resourceType="VM Instance"
       deleteLabel="Terminate Machine"
       onCustomDelete={onTerminate}
+      onEdit={onEdit}
       // Show Stop action only for running VMs
       {...(isRunning && { onStop: onStop })}
       // Show Restart action only for stopped VMs

@@ -1229,6 +1229,12 @@ export const vmInstances = [
     publicIp: "34.201.10.5",
     createdOn: "2023-12-01T10:00:00Z",
     deleteProtection: true,
+    description: "Main production web server handling customer traffic and API requests",
+    tags: [
+      { key: "Environment", value: "Production" },
+      { key: "Team", value: "DevOps" },
+      { key: "Cost-Center", value: "Engineering" }
+    ]
   },
   {
     id: "vm-002",
@@ -1241,6 +1247,12 @@ export const vmInstances = [
     publicIp: "52.14.22.8",
     createdOn: "2023-12-05T14:30:00Z",
     deleteProtection: false,
+    description: "High-performance GPU instance for machine learning model training and inference",
+    tags: [
+      { key: "Environment", value: "Development" },
+      { key: "Team", value: "ML Engineering" },
+      { key: "Purpose", value: "Training" }
+    ]
   },
   {
     id: "vm-003",
@@ -1253,6 +1265,12 @@ export const vmInstances = [
     publicIp: "34.201.10.12",
     createdOn: "2023-12-10T09:15:00Z",
     deleteProtection: true,
+    description: "Primary PostgreSQL database server with automated backups and high availability",
+    tags: [
+      { key: "Environment", value: "Production" },
+      { key: "Team", value: "Database" },
+      { key: "Backup", value: "Enabled" }
+    ]
   },
   {
     id: "vm-004",
@@ -1265,6 +1283,11 @@ export const vmInstances = [
     publicIp: "18.222.33.3",
     createdOn: "2023-12-12T11:45:00Z",
     deleteProtection: false,
+    description: "Development environment for testing new features and bug fixes",
+    tags: [
+      { key: "Environment", value: "Development" },
+      { key: "Team", value: "Frontend" }
+    ]
   },
 ];
 
