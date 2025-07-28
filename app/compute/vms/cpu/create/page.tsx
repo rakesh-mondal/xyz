@@ -14,9 +14,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
-import { HelpCircle, RefreshCw, Plus, X } from "lucide-react"
+import { HelpCircle, RefreshCw, Plus, X, ChevronDown, Search, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { CreateVPCModal, CreateSubnetModal, CreateSecurityGroupModal } from "@/components/modals/vm-creation-modals"
+import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
 
 // Mock data
 const vpcs = [
@@ -105,8 +105,6 @@ export default function CreateVMPage() {
   })
 
   const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
-  const [showCreateSubnetModal, setShowCreateSubnetModal] = useState(false)
-  const [showCreateSecurityGroupModal, setShowCreateSecurityGroupModal] = useState(false)
   const [step, setStep] = useState<"form" | "confirmation">("form")
 
   const selectedVPC = vpcs.find(vpc => vpc.id === formData.vpcId)
@@ -146,17 +144,10 @@ export default function CreateVMPage() {
   const handleVPCCreated = (vpcId: string) => {
     // In real app, refetch VPCs and select the new one
     handleInputChange("vpcId", vpcId)
+    setShowCreateVPCModal(false)
   }
 
-  const handleSubnetCreated = (subnetId: string) => {
-    // In real app, refetch subnets and select the new one
-    handleInputChange("subnetId", subnetId)
-  }
 
-  const handleSecurityGroupCreated = (sgId: string) => {
-    // In real app, refetch security groups and select the new one
-    handleInputChange("securityGroupId", sgId)
-  }
 
   const calculatePricing = () => {
     // Base VM pricing (4 vCPU, 16 GB RAM configuration)
@@ -321,40 +312,20 @@ export default function CreateVMPage() {
                     </p>
                   </div>
 
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label className="font-medium">
-                        VPC <span className="text-destructive">*</span>
-                      </Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowCreateVPCModal(true)}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Create New VPC
-                      </Button>
-                    </div>
-                    <Select value={formData.vpcId} onValueChange={(value) => handleInputChange("vpcId", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select VPC" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {vpcs.map((vpc) => (
-                          <SelectItem key={vpc.id} value={vpc.id}>
-                            {vpc.name} ({vpc.region})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <VPCSelectorInline
+                    value={formData.vpcId}
+                    onChange={(value) => {
+                      if (value === "__create_new__") {
+                        setShowCreateVPCModal(true)
+                      } else {
+                        handleInputChange("vpcId", value)
+                      }
+                    }}
+                  />
                 </div>
 
-                <Separator className="my-6" />
-
                 {/* Volume Configuration */}
-                <div className="space-y-6">
+                <div className="space-y-6 mb-6">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-semibold">Volume Configuration</h3>
                     <TooltipWrapper content="Refresh volume lists">
@@ -503,10 +474,8 @@ export default function CreateVMPage() {
                   </div>
                 </div>
 
-                <Separator className="my-6" />
-
                 {/* SSH Key */}
-                <div>
+                <div className="mb-6">
                   <Label className="block mb-2 font-medium">
                     SSH Key <span className="text-destructive">*</span>
                   </Label>
@@ -525,7 +494,7 @@ export default function CreateVMPage() {
                 </div>
 
                 {/* Startup Script */}
-                <div>
+                <div className="mb-6">
                   <Label htmlFor="startup-script" className="block mb-2 font-medium">
                     Startup Script
                   </Label>
@@ -542,7 +511,7 @@ export default function CreateVMPage() {
                 </div>
 
                 {/* Tags */}
-                <div>
+                <div className="mb-6">
                   <div className="flex items-center justify-between mb-2">
                     <Label className="font-medium">Tags</Label>
                     <Button type="button" variant="outline" size="sm" onClick={addTag}>
@@ -580,27 +549,13 @@ export default function CreateVMPage() {
                   )}
                 </div>
 
-                <Separator className="my-6" />
-
                 {/* Network Configuration */}
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Network Configuration</h3>
 
                   {/* Subnet */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label className="font-medium">Subnet</Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowCreateSubnetModal(true)}
-                        disabled={!formData.vpcId}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Create New Subnet
-                      </Button>
-                    </div>
+                  <div className="mb-6">
+                    <Label className="block mb-2 font-medium">Subnet</Label>
                     <Select value={formData.subnetId} onValueChange={(value) => handleInputChange("subnetId", value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select subnet" />
@@ -677,22 +632,10 @@ export default function CreateVMPage() {
                   )}
 
                   {/* Security Group */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label className="font-medium">
-                        Security Group <span className="text-destructive">*</span>
-                      </Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowCreateSecurityGroupModal(true)}
-                        disabled={!formData.vpcId}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Create New Security Group
-                      </Button>
-                    </div>
+                  <div className="mb-6">
+                    <Label className="block mb-2 font-medium">
+                      Security Group <span className="text-destructive">*</span>
+                    </Label>
                     <Select value={formData.securityGroupId} onValueChange={(value) => handleInputChange("securityGroupId", value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select security group" />
@@ -817,22 +760,95 @@ export default function CreateVMPage() {
         onSuccess={handleVPCCreated}
         preselectedRegion={selectedVPC?.region}
       />
-
-      <CreateSubnetModal
-        open={showCreateSubnetModal}
-        onClose={() => setShowCreateSubnetModal(false)}
-        onSuccess={handleSubnetCreated}
-        vpcId={formData.vpcId}
-        vpcName={selectedVPC?.name}
-      />
-
-      <CreateSecurityGroupModal
-        open={showCreateSecurityGroupModal}
-        onClose={() => setShowCreateSecurityGroupModal(false)}
-        onSuccess={handleSecurityGroupCreated}
-        vpcId={formData.vpcId}
-        vpcName={selectedVPC?.name}
-      />
     </PageLayout>
+  )
+}
+
+// VPC Selector Component (same pattern as Create Subnet)
+function VPCSelectorInline({ value, onChange }: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  
+  const filteredVPCs = vpcs.filter(vpc =>
+    vpc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vpc.id.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  
+  const selectedVPC = vpcs.find(vpc => vpc.id === value)
+  
+  return (
+    <div className="mb-6">
+      <Label className="block mb-2 font-medium">
+        VPC <span className="text-destructive">*</span>
+      </Label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className={selectedVPC ? "text-foreground" : "text-muted-foreground"}>
+            {selectedVPC ? `${selectedVPC.name} (${selectedVPC.region})` : "Select VPC"}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </button>
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search VPCs..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("__create_new__")
+                  setOpen(false)
+                }}
+                className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+              >
+                Create new VPC
+              </button>
+              {filteredVPCs.map((vpc) => (
+                <button
+                  key={vpc.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(vpc.id)
+                    setOpen(false)
+                    setSearchTerm("")
+                  }}
+                  className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{vpc.name}</span>
+                    <span className="text-xs text-muted-foreground">{vpc.id} • {vpc.region}</span>
+                  </div>
+                  {value === vpc.id && <Check className="h-4 w-4" />}
+                </button>
+              ))}
+              {filteredVPCs.length === 0 && searchTerm && (
+                <div className="px-2 py-2 text-sm text-muted-foreground">
+                  No VPCs found matching "{searchTerm}"
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground mt-1">
+        Select the VPC where you want to create this VM, or create a new one.
+      </p>
+    </div>
   )
 } 
