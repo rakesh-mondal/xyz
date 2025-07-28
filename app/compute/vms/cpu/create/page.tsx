@@ -209,75 +209,162 @@ export default function CreateVMPage() {
         description="Review your configuration and confirm VM creation"
       >
         <div className="max-w-4xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle>VM Configuration Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-3">Basic Configuration</h3>
-                  <div className="space-y-2 text-sm">
-                    <div><span className="font-medium">Name:</span> {formData.name}</div>
-                    <div><span className="font-medium">VPC:</span> {selectedVPC?.name}</div>
-                    <div><span className="font-medium">SSH Key:</span> {sshKeys.find(k => k.id === formData.sshKeyId)?.name}</div>
-                    <div><span className="font-medium">Security Group:</span> {securityGroups.find(sg => sg.id === formData.securityGroupId)?.name}</div>
-                  </div>
+          {/* VM Configuration Summary */}
+          <div className="mb-6" style={{
+            borderRadius: '16px',
+            border: '4px solid #FFF',
+            background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+            boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+            padding: '1.5rem'
+          }}>
+            <h2 className="text-xl font-semibold mb-6">VM Configuration Summary</h2>
+            
+            <div className="grid grid-cols-1 gap-6">
+              {/* Basic Configuration Row */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VM Name</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>{formData.name}</div>
                 </div>
-                
-                <div>
-                  <h3 className="font-semibold mb-3">Network Configuration</h3>
-                  <div className="space-y-2 text-sm">
-                    <div><span className="font-medium">Subnet:</span> {selectedSubnet?.name} ({selectedSubnet?.type})</div>
-                    <div><span className="font-medium">IP Type:</span> {formData.ipAddressType === "floating" ? "Floating IP" : "Reserved IP"}</div>
-                    {formData.ipAddressType === "reserved" && formData.reservedIpId && (
-                      <div><span className="font-medium">Reserved IP:</span> {reservedIPs.find(ip => ip.id === formData.reservedIpId)?.address}</div>
-                    )}
-                  </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VPC</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>{selectedVPC?.name}</div>
                 </div>
-
-                <div>
-                  <h3 className="font-semibold mb-3">Storage Configuration</h3>
-                  <div className="space-y-2 text-sm">
-                    <div><span className="font-medium">Bootable Volume:</span> {formData.bootableVolumeType === "existing" ? "Existing" : "New"}</div>
-                    {formData.storageVolumeType !== "none" && (
-                      <div><span className="font-medium">Storage Volume:</span> {formData.storageVolumeType === "existing" ? "Existing" : "New"}</div>
-                    )}
-                  </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>SSH Key</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>{sshKeys.find(k => k.id === formData.sshKeyId)?.name}</div>
                 </div>
-
-                <div>
-                  <h3 className="font-semibold mb-3">Pricing</h3>
-                  <div className="space-y-2 text-sm">
-                    <div><span className="font-medium">VM:</span> ₹{pricing.vm}/hr</div>
-                    {pricing.storage > 0 && (
-                      <div><span className="font-medium">Storage:</span> ₹{pricing.storage}/hr</div>
-                    )}
-                    {pricing.ip > 0 && (
-                      <div><span className="font-medium">IP Address:</span> ₹{pricing.ip}/hr</div>
-                    )}
-                    <div className="pt-2 border-t"><span className="font-medium">Total:</span> ₹{pricing.total}/hr</div>
-                  </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Security Group</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>{securityGroups.find(sg => sg.id === formData.securityGroupId)?.name}</div>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-4 pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStep("form")}
-                >
-                  Back to Edit
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  className="bg-black text-white hover:bg-black/90"
-                >
-                  Create VM
-                </Button>
+              {/* Network Configuration Row */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnet</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>{selectedSubnet?.name} ({selectedSubnet?.type})</div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>IP Address Type</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>
+                    {showIPAddressType ? (
+                      formData.ipAddressType === "floating" ? "Floating IP" : "Reserved IP"
+                    ) : (
+                      selectedSubnet?.type === "Public" ? "Floating IP (Default)" : "Private"
+                    )}
+                  </div>
+                </div>
+                {formData.ipAddressType === "reserved" && formData.reservedIpId && (
+                  <div className="space-y-1">
+                    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Reserved IP</label>
+                    <div className="font-medium" style={{ fontSize: '14px' }}>{reservedIPs.find(ip => ip.id === formData.reservedIpId)?.address}</div>
+                  </div>
+                )}
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Machine Type</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>CPU VM (4 vCPU, 16 GB RAM)</div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Storage Configuration Row */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Bootable Volume</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>
+                    {formData.bootableVolumeType === "existing" 
+                      ? `Existing (${bootableVolumes.find(v => v.id === formData.existingBootableVolume)?.name || "Selected"})`
+                      : `New (${formData.newBootableVolumeSize || "20"} GB)`
+                    }
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Storage Volume</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>
+                    {formData.storageVolumeType === "none" 
+                      ? "None"
+                      : formData.storageVolumeType === "existing"
+                        ? `${formData.existingStorageVolumes.length} Selected`
+                        : `New (${formData.newStorageVolumeSize || "100"} GB)`
+                    }
+                  </div>
+                </div>
+                {formData.bootableVolumeType === "new" && formData.newBootableVolumeImage && (
+                  <div className="space-y-1">
+                    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Machine Image</label>
+                    <div className="font-medium" style={{ fontSize: '14px' }}>{machineImages.find(img => img.id === formData.newBootableVolumeImage)?.name}</div>
+                  </div>
+                )}
+                {formData.tags && formData.tags.length > 0 && (
+                  <div className="space-y-1">
+                    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Tags</label>
+                    <div className="font-medium" style={{ fontSize: '14px' }}>
+                      {formData.tags.filter(tag => tag.key).length > 0 
+                        ? `${formData.tags.filter(tag => tag.key).length} tag(s)`
+                        : "None"
+                      }
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Startup Script (if provided) */}
+              {formData.startupScript && (
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Startup Script</label>
+                    <div className="font-medium p-3 bg-gray-50 rounded border font-mono text-xs max-h-32 overflow-y-auto">
+                      {formData.startupScript}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Pricing Summary */}
+              <div className="pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VM Cost</label>
+                    <div className="font-medium" style={{ fontSize: '14px' }}>₹{pricing.vm}/hr</div>
+                  </div>
+                  {pricing.storage > 0 && (
+                    <div className="space-y-1">
+                      <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Storage Cost</label>
+                      <div className="font-medium" style={{ fontSize: '14px' }}>₹{pricing.storage}/hr</div>
+                    </div>
+                  )}
+                  {pricing.ip > 0 && (
+                    <div className="space-y-1">
+                      <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>IP Address Cost</label>
+                      <div className="font-medium" style={{ fontSize: '14px' }}>₹{pricing.ip}/hr</div>
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Total Cost</label>
+                    <div className="font-semibold text-lg text-blue-600">₹{pricing.total}/hr</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setStep("form")}
+            >
+              Back to Edit
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              className="bg-black text-white hover:bg-black/90"
+            >
+              Create VM
+            </Button>
+          </div>
         </div>
       </PageLayout>
     )
