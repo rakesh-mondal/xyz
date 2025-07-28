@@ -88,20 +88,32 @@ function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCar
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium justify-start text-left">
-          <span><span className="text-foreground">{vcpus}</span> <span className="text-muted-foreground">vCPUs</span></span>
-          <span className="text-muted-foreground">•</span>
-          <span><span className="text-foreground">{memory}</span> <span className="text-muted-foreground">GB RAM</span></span>
-          <span className="text-muted-foreground">•</span>
-          <span><span className="text-foreground">{storage}</span> <span className="text-muted-foreground">SSD</span></span>
-          <span className="text-muted-foreground">•</span>
-          <span><span className="text-foreground">up to 10</span> <span className="text-muted-foreground">Gbps</span></span>
+      <div className="flex flex-col gap-3">
+        {/* Main specs in a cleaner 2x2 grid */}
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex items-center gap-1">
+            <span className="text-foreground font-semibold">{vcpus}</span>
+            <span className="text-muted-foreground">vCPUs</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-foreground font-semibold">{memory} GB</span>
+            <span className="text-muted-foreground">RAM</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-foreground font-semibold">{storage}</span>
+            <span className="text-muted-foreground">SSD</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-foreground font-semibold">up to 10</span>
+            <span className="text-muted-foreground">Gbps</span>
+          </div>
         </div>
-        <div className="flex items-center justify-between">
-          <div className="text-sm font-medium break-words text-left">
-            <span className="text-muted-foreground">ARCHITECTURE: </span>
-            <span className="text-black">{architecture}</span>
+        
+        {/* Architecture and button */}
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <div className="text-xs text-muted-foreground">
+            <span className="uppercase tracking-wider">ARCH:</span>
+            <span className="ml-1 text-foreground font-medium">{architecture}</span>
           </div>
           <Button
             className="text-sm font-semibold transition-all duration-200"
