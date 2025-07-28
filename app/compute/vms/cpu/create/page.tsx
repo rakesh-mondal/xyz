@@ -730,27 +730,42 @@ export default function CreateVMPage() {
         </div>
 
         {/* Side Panel - Price Summary */}
-        <div className="lg:w-80 lg:flex-shrink-0">
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Price Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
+        <div className="w-full lg:w-80 lg:flex-shrink-0 space-y-6">
+          {/* Price Summary */}
+          <div 
+            className="sticky top-6"
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Price Summary</h3>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="text-2xl font-bold">₹{pricing.total}</div>
+              <p className="text-sm text-muted-foreground">per hour</p>
+              
+              <div className="text-xs text-muted-foreground pt-2 border-t space-y-1">
+                <div className="flex justify-between">
                   <span>VM Instance (4 vCPU, 16 GB RAM)</span>
                   <span>₹{pricing.vm}/hr</span>
                 </div>
                 
                 {pricing.storage > 0 && (
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between">
                     <span>Storage</span>
                     <span>₹{pricing.storage}/hr</span>
                   </div>
                 )}
                 
                 {pricing.ip > 0 && (
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between">
                     <span>
                       {formData.ipAddressType === "floating" ? "Floating IP" : 
                        formData.ipAddressType === "reserved" ? "Reserved IP" : "Public IP"}
@@ -759,25 +774,37 @@ export default function CreateVMPage() {
                   </div>
                 )}
                 
-                <Separator />
-                <div className="flex justify-between font-semibold">
-                  <span>Total</span>
-                  <span>₹{pricing.total}/hr</span>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  ~₹{(pricing.total * 24 * 30).toLocaleString()}/month
+                <div className="pt-1 mt-2 border-t">
+                  <span>Monthly estimate: ~₹{(pricing.total * 24 * 30).toLocaleString()}</span>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div className="pt-4 space-y-3">
-                <h4 className="font-medium text-sm">Configuration Tips</h4>
-                <ul className="text-xs text-muted-foreground space-y-1">
-                  <li>• Choose appropriate storage size for your workload</li>
-                  <li>• Private subnets provide better security</li>
-                  <li>• Reserved IPs are recommended for production</li>
-                  <li>• Configure security groups to control access</li>
-                </ul>
-              </div>
+          {/* Configuration Tips */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose appropriate storage size for your workload</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Private subnets provide better security isolation</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Reserved IPs are recommended for production workloads</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Configure security groups to control network access</span>
+                </li>
+              </ul>
             </CardContent>
           </Card>
         </div>
