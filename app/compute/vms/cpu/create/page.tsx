@@ -349,13 +349,15 @@ export default function CreateVMPage() {
                                 onCheckedChange={() => handleInputChange("bootableVolumeType", "existing")}
                                 className="mt-1"
                               />
-                              <div className="flex-1 space-y-2">
-                                <Label htmlFor="existing-bootable" className="text-sm font-medium leading-relaxed">
-                                  Select an existing bootable volume
-                                </Label>
-                                <p className="text-xs text-muted-foreground">
-                                  Choose from your existing bootable volumes to launch this VM
-                                </p>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <Label htmlFor="existing-bootable" className="text-sm font-medium leading-relaxed">
+                                    Select an existing bootable volume
+                                  </Label>
+                                  <TooltipWrapper content="Choose from your existing bootable volumes to launch this VM">
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                  </TooltipWrapper>
+                                </div>
                               </div>
                             </div>
                             {formData.bootableVolumeType === "existing" && (
@@ -384,13 +386,15 @@ export default function CreateVMPage() {
                                 onCheckedChange={() => handleInputChange("bootableVolumeType", "new")}
                                 className="mt-1"
                               />
-                              <div className="flex-1 space-y-2">
-                                <Label htmlFor="new-bootable" className="text-sm font-medium leading-relaxed">
-                                  Create a new bootable volume
-                                </Label>
-                                <p className="text-xs text-muted-foreground">
-                                  Create a fresh bootable volume with your preferred machine image
-                                </p>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <Label htmlFor="new-bootable" className="text-sm font-medium leading-relaxed">
+                                    Create a new bootable volume
+                                  </Label>
+                                  <TooltipWrapper content="Create a fresh bootable volume with your preferred machine image">
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                  </TooltipWrapper>
+                                </div>
                               </div>
                             </div>
                             {formData.bootableVolumeType === "new" && (
@@ -448,13 +452,15 @@ export default function CreateVMPage() {
                                 onCheckedChange={() => handleInputChange("storageVolumeType", "none")}
                                 className="mt-1"
                               />
-                              <div className="flex-1 space-y-2">
-                                <Label htmlFor="no-storage" className="text-sm font-medium leading-relaxed">
-                                  No additional storage
-                                </Label>
-                                <p className="text-xs text-muted-foreground">
-                                  Use only the bootable volume for this VM
-                                </p>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <Label htmlFor="no-storage" className="text-sm font-medium leading-relaxed">
+                                    No additional storage
+                                  </Label>
+                                  <TooltipWrapper content="Use only the bootable volume for this VM">
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                  </TooltipWrapper>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -467,13 +473,15 @@ export default function CreateVMPage() {
                                 onCheckedChange={() => handleInputChange("storageVolumeType", "existing")}
                                 className="mt-1"
                               />
-                              <div className="flex-1 space-y-2">
-                                <Label htmlFor="existing-storage" className="text-sm font-medium leading-relaxed">
-                                  Select existing storage volumes
-                                </Label>
-                                <p className="text-xs text-muted-foreground">
-                                  Attach one or more existing storage volumes to this VM
-                                </p>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <Label htmlFor="existing-storage" className="text-sm font-medium leading-relaxed">
+                                    Select existing storage volumes
+                                  </Label>
+                                  <TooltipWrapper content="Attach one or more existing storage volumes to this VM">
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                  </TooltipWrapper>
+                                </div>
                               </div>
                             </div>
                             {formData.storageVolumeType === "existing" && (
@@ -510,13 +518,15 @@ export default function CreateVMPage() {
                                 onCheckedChange={() => handleInputChange("storageVolumeType", "new")}
                                 className="mt-1"
                               />
-                              <div className="flex-1 space-y-2">
-                                <Label htmlFor="new-storage" className="text-sm font-medium leading-relaxed">
-                                  Create a new storage volume
-                                </Label>
-                                <p className="text-xs text-muted-foreground">
-                                  Create a new storage volume for additional data storage
-                                </p>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <Label htmlFor="new-storage" className="text-sm font-medium leading-relaxed">
+                                    Create a new storage volume
+                                  </Label>
+                                  <TooltipWrapper content="Create a new storage volume for additional data storage">
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                  </TooltipWrapper>
+                                </div>
                               </div>
                             </div>
                             {formData.storageVolumeType === "new" && (
