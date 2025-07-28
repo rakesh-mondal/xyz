@@ -335,7 +335,7 @@ export default function CreateVMPage() {
                     </TooltipWrapper>
                   </div>
 
-                  <div className="space-y-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Bootable Volume */}
                     <Card className="p-6">
                       <div className="space-y-6">
@@ -355,7 +355,7 @@ export default function CreateVMPage() {
                                     Select an existing bootable volume
                                   </Label>
                                   <TooltipWrapper content="Choose from your existing bootable volumes to launch this VM">
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-pointer" />
                                   </TooltipWrapper>
                                 </div>
                               </div>
@@ -392,7 +392,7 @@ export default function CreateVMPage() {
                                     Create a new bootable volume
                                   </Label>
                                   <TooltipWrapper content="Create a fresh bootable volume with your preferred machine image">
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-pointer" />
                                   </TooltipWrapper>
                                 </div>
                               </div>
@@ -458,7 +458,7 @@ export default function CreateVMPage() {
                                     No additional storage
                                   </Label>
                                   <TooltipWrapper content="Use only the bootable volume for this VM">
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-pointer" />
                                   </TooltipWrapper>
                                 </div>
                               </div>
@@ -479,7 +479,7 @@ export default function CreateVMPage() {
                                     Select existing storage volumes
                                   </Label>
                                   <TooltipWrapper content="Attach one or more existing storage volumes to this VM">
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-pointer" />
                                   </TooltipWrapper>
                                 </div>
                               </div>
@@ -524,7 +524,7 @@ export default function CreateVMPage() {
                                     Create a new storage volume
                                   </Label>
                                   <TooltipWrapper content="Create a new storage volume for additional data storage">
-                                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-pointer" />
                                   </TooltipWrapper>
                                 </div>
                               </div>
