@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
 
 // NVIDIA Logo Component
 function NvidiaLogo({ className }: { className?: string }) {
@@ -121,13 +120,8 @@ function getAvailabilityColor(availability: string) {
 }
 
 function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availability, gpuType }: GpuPricingCardProps) {
-  const { toast } = useToast();
-
-  const handleNotifyMe = () => {
-    toast({
-      title: "Notification Set",
-      description: "You will be notified over email once this GPU is available.",
-    });
+  const handleCreateVM = () => {
+    window.location.href = '/compute/vms/gpu/create';
   };
 
   return (
@@ -152,10 +146,6 @@ function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availabil
         {/* Basic Specs */}
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
-            <span className="text-muted-foreground block text-xs uppercase tracking-wide">Type</span>
-            <span className="font-medium">GPU</span>
-          </div>
-          <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">vCPUs</span>
             <span className="font-medium">{vcpus}</span>
           </div>
@@ -163,14 +153,14 @@ function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availabil
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">RAM</span>
             <span className="font-medium">{memory} GB</span>
           </div>
-        </div>
-
-        {/* GPU Specs */}
-        <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">GPUs</span>
             <span className="font-medium">{gpus}</span>
           </div>
+        </div>
+
+        {/* Additional Specs */}
+        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">GPU Memory</span>
             <span className="font-medium">{gpuMemory}</span>
@@ -188,10 +178,10 @@ function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availabil
         <Button
           className="w-full text-sm font-semibold transition-all duration-200"
           size="sm"
-          variant="outline"
-          onClick={handleNotifyMe}
+          variant="default"
+          onClick={handleCreateVM}
         >
-          Notify Me
+          Create VM
         </Button>
       </CardFooter>
     </Card>

@@ -969,8 +969,35 @@ export default function CreateVMClient() {
           </Card>
         </div>
 
-        {/* Side Panel - Price Summary */}
+        {/* Side Panel */}
         <div className="w-full lg:w-80 lg:flex-shrink-0 space-y-6">
+          {/* Configuration Tips */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose appropriate storage size for your workload</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Private subnets provide better security isolation</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Reserved IPs are recommended for production workloads</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Configure security groups to control network access</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
           {/* Price Summary */}
           <div 
             className="sticky top-6"
@@ -1020,33 +1047,6 @@ export default function CreateVMClient() {
               </div>
             </div>
           </div>
-
-          {/* Configuration Tips */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose appropriate storage size for your workload</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Private subnets provide better security isolation</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Reserved IPs are recommended for production workloads</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Configure security groups to control network access</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
         </div>
       </div>
 

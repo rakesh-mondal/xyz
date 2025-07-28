@@ -671,36 +671,6 @@ export default function CreateVolumePage() {
 
         {/* Side Panel */}
         <div className="w-80 flex-shrink-0 space-y-6">
-          {/* Pricing Summary */}
-          <div 
-            style={{
-              borderRadius: '16px',
-              border: '4px solid #FFF',
-              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
-              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-              padding: '1.5rem'
-            }}
-          >
-            <div className="pb-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-semibold">Price Summary</h3>
-              </div>
-            </div>
-            <div>
-              <div className="space-y-3">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold">₹{calculatePrice()}</span>
-                  <span className="text-sm text-muted-foreground">per month</span>
-                </div>
-                <div className="text-xs text-muted-foreground pt-2 border-t">
-                  <p>• Volume ({size[0]} GB): ₹{calculatePrice()}/month</p>
-                  <p>• Storage type: HNSS</p>
-                  <p>• Additional charges may apply for snapshots and backups</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Configuration Tips */}
           <Card>
             <CardHeader>
@@ -731,6 +701,36 @@ export default function CreateVolumePage() {
               </ul>
             </CardContent>
           </Card>
+
+          {/* Pricing Summary */}
+          <div 
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Price Summary</h3>
+              </div>
+            </div>
+            <div>
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold">₹{calculatePrice()}</span>
+                  <span className="text-sm text-muted-foreground">per month</span>
+                </div>
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• Volume ({size[0]} GB): ₹{calculatePrice()}/month</p>
+                  <p>• Storage type: HNSS</p>
+                  <p>• Additional charges may apply for snapshots and backups</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </PageLayout>

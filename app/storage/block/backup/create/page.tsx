@@ -231,6 +231,33 @@ export default function CreateBackupPage() {
         </div>
         {/* Side Panel */}
         <div className="w-full md:w-80 space-y-6">
+          {/* Configuration Tips */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose a descriptive backup name for easy identification</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select the correct volume to back up</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Primary backups are the first for a volume; others are incremental</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Maximum {MAX_BACKUPS} backups per volume; older incremental backups are rotated</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
           {/* Price Summary */}
           <div
             style={{
@@ -259,32 +286,6 @@ export default function CreateBackupPage() {
               </div>
             </div>
           </div>
-          {/* Configuration Tips */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose a descriptive backup name for easy identification</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select the correct volume to back up</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Primary backups are the first for a volume; others are incremental</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Maximum {MAX_BACKUPS} backups per volume; older incremental backups are rotated</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </PageLayout>

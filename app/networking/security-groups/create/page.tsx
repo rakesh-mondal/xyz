@@ -16,6 +16,7 @@ import { Dialog, DialogContent } from "../../../../components/ui/dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../components/ui/accordion"
 import { TooltipWrapper } from "../../../../components/ui/tooltip-wrapper"
 import { HelpCircle, ChevronDown, Check, Search } from "lucide-react"
+import { vpcs } from "../../../../lib/data"
 
 import Link from "next/link"
 
@@ -506,6 +507,36 @@ export default function CreateSecurityGroupPage() {
               </ul>
             </CardContent>
           </Card>
+
+          {/* Price Summary */}
+          <div 
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Price Summary</h3>
+              </div>
+            </div>
+            <div>
+              <div className="space-y-3">
+                <div className="text-2xl font-bold text-green-600">Free</div>
+                <p className="text-sm text-muted-foreground">
+                  Security groups are free to create and manage in your VPC.
+                </p>
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• Security Group Creation: ₹0.00</p>
+                  <p>• Rule Management: ₹0.00</p>
+                  <p>• No additional charges for security groups</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

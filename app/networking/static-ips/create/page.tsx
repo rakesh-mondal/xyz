@@ -146,6 +146,37 @@ export default function CreateStaticIPPage() {
 
         {/* Right Sidebar */}
         <div className="w-full md:w-80 space-y-6">
+          {/* Configuration Tips */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Static IPs provide permanent addresses for your resources</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Only assign to resources in public subnets</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Required for internet-facing applications</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Billing continues while IP is reserved</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use descriptive names for easy identification</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
           {/* Price Summary */}
           <div 
             style={{
@@ -174,24 +205,6 @@ export default function CreateStaticIPPage() {
               </div>
             </div>
           </div>
-
-          {/* Help Information */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="font-semibold mb-4">Static IP Information</div>
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <p>
-                  Static IP addresses provide a permanent IP address for your cloud resources that won't change when you stop and start your instances.
-                </p>
-                <p>
-                  Static IPs can only be assigned to resources in public subnets and are required for internet-facing applications.
-                </p>
-                <p>
-                  You'll be charged for the static IP as long as it's reserved, even if it's not attached to any resource.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
 
@@ -1071,6 +1084,33 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
 
         {/* Side Panel */}
         <div className="w-80 flex-shrink-0 space-y-6">
+          {/* Configuration Tips */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose a descriptive VPC name for easy identification</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select the region closest to your users for better performance</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use private networks for better security</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Plan your CIDR blocks to avoid IP conflicts</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
           {/* Price Summary */}
           <div 
             style={{
@@ -1114,33 +1154,6 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
               )}
             </div>
           </div>
-
-          {/* Configuration Tips */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose a descriptive VPC name for easy identification</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select the region closest to your users for better performance</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use private networks for better security</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Plan your CIDR blocks to avoid IP conflicts</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

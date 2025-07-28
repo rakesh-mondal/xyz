@@ -5,138 +5,183 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+
+// AMD Logo Component
+function AmdLogo({ className }: { className?: string }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      fill="none" 
+      viewBox="0 0 24 24" 
+      height="24" 
+      width="24"
+      className={className}
+    >
+      <path 
+        fill="#000000" 
+        fillRule="evenodd" 
+        d="M5 1a4 4 0 0 0 -4 4v14a4 4 0 0 0 4 4h14a4 4 0 0 0 4 -4V5a4 4 0 0 0 -4 -4H5Zm14.5 3.5h-15l4.09 4.09h6.82v6.82l4.09 4.09v-15Zm-15 9.546 4.09 -4.091v5.454h5.796l-4.09 4.091H4.5v-5.454Z" 
+        clipRule="evenodd" 
+        strokeWidth="1"
+      />
+    </svg>
+  );
+}
 
 interface PricingCardProps {
+  name: string;
   vcpus: number;
   memory: number;
   price: number;
   storage: string;
   architecture: string;
+  availability: "Low" | "Medium" | "High";
+  networkSpeed: string;
 }
 
 const pricingConfigs: PricingCardProps[] = [
   {
+    name: "CPU-2vCPU-8GB",
     vcpus: 2,
     memory: 8,
     price: 6,
     storage: "8 GB+",
-    architecture: "AMD EPYC 9554"
+    architecture: "AMD EPYC 9554",
+    availability: "High",
+    networkSpeed: "up to 10 Gbps"
   },
   {
+    name: "CPU-4vCPU-16GB",
     vcpus: 4,
     memory: 16,
     price: 12,
     storage: "16 GB+",
-    architecture: "AMD EPYC 9554"
+    architecture: "AMD EPYC 9554",
+    availability: "High",
+    networkSpeed: "up to 10 Gbps"
   },
   {
+    name: "CPU-8vCPU-32GB",
     vcpus: 8,
     memory: 32,
     price: 24,
     storage: "32 GB+",
-    architecture: "AMD EPYC 9554"
+    architecture: "AMD EPYC 9554",
+    availability: "Medium",
+    networkSpeed: "up to 10 Gbps"
   },
   {
+    name: "CPU-16vCPU-64GB",
     vcpus: 16,
     memory: 64,
     price: 48,
     storage: "64 GB+",
-    architecture: "AMD EPYC 9554"
+    architecture: "AMD EPYC 9554",
+    availability: "Medium",
+    networkSpeed: "up to 10 Gbps"
   },
   {
+    name: "CPU-32vCPU-128GB",
     vcpus: 32,
     memory: 128,
     price: 96,
     storage: "128 GB+",
-    architecture: "AMD EPYC 9554"
+    architecture: "AMD EPYC 9554",
+    availability: "Low",
+    networkSpeed: "up to 10 Gbps"
   }
 ];
 
-function Spec({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
-  return (
-    <div className="flex items-center gap-3">
-      <Icon className="h-4 w-4 text-primary" />
-      <div className="flex flex-col justify-center">
-        <span className="text-[11px] font-medium tracking-wider uppercase text-muted-foreground">
-          {label}
-        </span>
-        <span className="text-sm font-medium text-foreground">{value}</span>
-      </div>
-    </div>
-  );
+function getAvailabilityColor(availability: string) {
+  switch (availability) {
+    case "High":
+      return "bg-green-100 text-green-800 border-green-200";
+    case "Medium":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    case "Low":
+      return "bg-red-100 text-red-800 border-red-200";
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-200";
+  }
 }
 
-function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCardProps) {
+function PricingCard({ name, vcpus, memory, price, storage, architecture, availability, networkSpeed }: PricingCardProps) {
   return (
-    <div 
-      className="relative w-full transition-all duration-200"
-      style={{
-        borderRadius: '16px',
-        border: '4px solid #FFF',
-        background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
-        boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-        padding: '1.5rem'
-      }}
-    >
-      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between pb-4 gap-2 sm:gap-0">
-        <h3 className="text-lg font-medium text-foreground text-left sm:whitespace-nowrap">
-          {`${vcpus} vCPU • ${memory} GB RAM`}
-        </h3>
-        <div className="flex items-baseline gap-1 sm:justify-end">
-          <span className="text-lg font-medium leading-none">₹{price}</span>
-          <span className="text-lg text-muted-foreground">/hr</span>
+    <Card className="relative w-full transition-all duration-200">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <AmdLogo className="h-5 w-5" />
+          <h3 className="text-base font-medium text-foreground">
+            {architecture}
+          </h3>
         </div>
-      </div>
+        <div className="flex justify-between items-center">
+          <h4 className="text-lg font-semibold text-foreground">{name}</h4>
+          <div className="flex items-baseline gap-1">
+            <span className="text-lg font-medium">₹{price}</span>
+            <span className="text-sm text-muted-foreground">/hour</span>
+          </div>
+        </div>
+      </CardHeader>
 
-      <div className="flex flex-col gap-3">
-        {/* Main specs in a cleaner 2x2 grid */}
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="flex items-center gap-1">
-            <span className="text-foreground font-semibold">{vcpus}</span>
-            <span className="text-muted-foreground">vCPUs</span>
+      <CardContent className="space-y-4">
+        {/* Basic Specs */}
+        <div className="grid grid-cols-3 gap-4 text-sm">
+          <div>
+            <span className="text-muted-foreground block text-xs uppercase tracking-wide">vCPUs</span>
+            <span className="font-medium">{vcpus}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-foreground font-semibold">{memory} GB</span>
-            <span className="text-muted-foreground">RAM</span>
+          <div>
+            <span className="text-muted-foreground block text-xs uppercase tracking-wide">RAM</span>
+            <span className="font-medium">{memory} GB</span>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-foreground font-semibold">{storage}</span>
-            <span className="text-muted-foreground">SSD</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">Network Value -</span>
-            <span className="text-foreground font-semibold">up to 10 Gbps</span>
+          <div>
+            <span className="text-muted-foreground block text-xs uppercase tracking-wide">Storage</span>
+            <span className="font-medium">{storage}</span>
           </div>
         </div>
-        
-        {/* Architecture and button */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <div className="text-xs text-muted-foreground">
-            <span className="uppercase tracking-wider">ARCH:</span>
-            <span className="ml-1 text-foreground font-medium">{architecture}</span>
+
+        {/* Additional Specs */}
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-muted-foreground block text-xs uppercase tracking-wide">Network</span>
+            <span className="font-medium">{networkSpeed}</span>
           </div>
-          <Button
-            className="text-sm font-semibold transition-all duration-200"
-            size="sm"
-            variant="default"
-            onClick={() => window.location.href = '/compute/vms/cpu/create'}
-          >
-            Reserve Now
-          </Button>
+          <div>
+            <span className="text-muted-foreground block text-xs uppercase tracking-wide">Availability</span>
+            <Badge className={`${getAvailabilityColor(availability)} text-xs px-2 py-0.5`}>
+              {availability}
+            </Badge>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+
+      <CardFooter>
+        <Button
+          className="w-full text-sm font-semibold transition-all duration-200"
+          size="sm"
+          variant="default"
+          onClick={() => window.location.href = '/compute/vms/cpu/create'}
+        >
+          Create VM
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
 
 export function CpuPricingCards() {
   const [search, setSearch] = useState("");
+  
   const filteredConfigs = pricingConfigs.filter(config => {
     const searchLower = search.toLowerCase();
     return (
+      config.name.toLowerCase().includes(searchLower) ||
+      config.architecture.toLowerCase().includes(searchLower) ||
       config.vcpus.toString().includes(searchLower) ||
       config.memory.toString().includes(searchLower) ||
-      config.architecture.toLowerCase().includes(searchLower)
+      config.availability.toLowerCase().includes(searchLower)
     );
   });
 

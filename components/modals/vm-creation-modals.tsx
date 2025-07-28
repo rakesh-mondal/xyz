@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
@@ -316,8 +317,36 @@ export function CreateVPCModal({ open, onClose, onSuccess, preselectedRegion }: 
             </form>
           </div>
 
-          {/* Side Panel - Price Summary */}
-          <div className="w-80 flex-shrink-0">
+          {/* Side Panel */}
+          <div className="w-80 flex-shrink-0 space-y-6">
+            {/* Configuration Tips */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose a descriptive VPC name for easy identification</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select the region closest to your users for better performance</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use private networks for better security</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                    <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Plan your CIDR blocks to avoid IP conflicts</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Price Summary */}
             <div 
               style={{
                 borderRadius: '16px',
