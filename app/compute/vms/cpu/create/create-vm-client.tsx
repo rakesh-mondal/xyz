@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { HelpCircle, RefreshCw, Plus, X, ChevronDown, Search, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
+import { CreateVPCModal, CreateSSHKeyModal } from "@/components/modals/vm-creation-modals"
 
 // Mock data
 const vpcs = [
@@ -45,6 +45,8 @@ const sshKeys = [
   { id: "ssh-1", name: "prod-admin-key" },
   { id: "ssh-2", name: "dev-key" },
   { id: "ssh-3", name: "backup-key" },
+  { id: "ssh-4", name: "test-environment-key" },
+  { id: "ssh-5", name: "deployment-key" },
 ]
 
 const subnets = [
@@ -115,6 +117,7 @@ export default function CreateVMClient() {
   })
 
   const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
+  const [showCreateSSHKeyModal, setShowCreateSSHKeyModal] = useState(false)
   const [step, setStep] = useState<"form" | "confirmation">("form")
 
   const selectedVPC = vpcs.find(vpc => vpc.id === formData.vpcId)
@@ -153,6 +156,11 @@ export default function CreateVMClient() {
   const handleVPCCreated = (vpcId: string) => {
     handleInputChange("vpcId", vpcId)
     setShowCreateVPCModal(false)
+  }
+
+  const handleSSHKeyCreated = (sshKeyId: string) => {
+    handleInputChange("sshKeyId", sshKeyId)
+    setShowCreateSSHKeyModal(false)
   }
 
   const calculatePricing = () => {
@@ -725,7 +733,7 @@ export default function CreateVMClient() {
                   </Label>
                   <Select value={formData.sshKeyId} onValueChange={(value) => {
                     if (value === "__create_new__") {
-                      router.push("/settings/ssh-keys?create=true&return=/compute/vms/cpu/create")
+                      setShowCreateSSHKeyModal(true)
                     } else {
                       handleInputChange("sshKeyId", value)
                     }
@@ -1048,6 +1056,12 @@ export default function CreateVMClient() {
         onClose={() => setShowCreateVPCModal(false)}
         onSuccess={handleVPCCreated}
         preselectedRegion={selectedVPC?.region}
+      />
+
+      <CreateSSHKeyModal
+        open={showCreateSSHKeyModal}
+        onClose={() => setShowCreateSSHKeyModal(false)}
+        onSuccess={handleSSHKeyCreated}
       />
     </PageLayout>
   )

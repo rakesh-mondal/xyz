@@ -657,4 +657,292 @@ export function CreateSecurityGroupModal({ open, onClose, onSuccess, vpcId, vpcN
       </DialogContent>
     </Dialog>
   )
+}
+
+// Create SSH Key Modal within VM Creation
+interface CreateSSHKeyModalProps {
+  open: boolean
+  onClose: () => void
+  onSuccess: (sshKeyId: string) => void
+}
+
+export function CreateSSHKeyModal({ open, onClose, onSuccess }: CreateSSHKeyModalProps) {
+  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    keyName: "",
+    description: "",
+    keyType: "rsa",
+    keySize: "2048"
+  })
+
+  const keyTypes = [
+    { id: "rsa", name: "RSA", description: "Most widely supported, recommended for compatibility" },
+    { id: "ed25519", name: "Ed25519", description: "Modern, more secure and efficient" },
+    { id: "ecdsa", name: "ECDSA", description: "Elliptic curve, good balance of security and performance" }
+  ]
+
+  const keySizes = {
+    rsa: ["2048", "3072", "4096"],
+    ed25519: ["256"],
+    ecdsa: ["256", "384", "521"]
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target
+    const field = id.replace('ssh-', '')
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleSelectChange = (field: string, value: string) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      [field]: value,
+      // Reset key size when key type changes
+      ...(field === 'keyType' && { keySize: keySizes[value as keyof typeof keySizes][0] })
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    
+    try {
+      // Simulate SSH key creation
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      const newKeyId = `ssh-${Date.now()}`
+      toast({
+        title: "SSH key created successfully",
+        description: `${formData.keyName} has been created and is ready for use.`
+      })
+      
+      onSuccess(newKeyId)
+      onClose()
+      
+      // Reset form
+      setFormData({
+        keyName: "",
+        description: "",
+        keyType: "rsa",
+        keySize: "2048"
+      })
+    } catch (error) {
+      toast({
+        title: "Failed to create SSH key",
+        description: "Please try again later."
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="p-0 bg-white max-w-[80vw] max-h-[85vh] w-[80vw] h-[85vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0 p-6 border-b">
+          <DialogTitle className="text-2xl font-semibold">Create SSH Key</DialogTitle>
+        </DialogHeader>
+        
+        <div className="flex-1 flex gap-6 min-h-0 p-6">
+          {/* Main Content */}
+          <div className="flex-1 overflow-y-auto" style={{ scrollBehavior: 'auto', overflowAnchor: 'none' }}>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* SSH Key Configuration */}
+              <div className="space-y-5">
+                <div>
+                  <Label htmlFor="ssh-keyName" className="block mb-2 font-medium">
+                    SSH Key Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="ssh-keyName"
+                    placeholder="Enter SSH key name"
+                    value={formData.keyName}
+                    onChange={handleChange}
+                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Only alphanumeric characters, hyphens, and underscores allowed.
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="ssh-keyType" className="block mb-2 font-medium">
+                    Key Type <span className="text-destructive">*</span>
+                  </Label>
+                  <Select 
+                    value={formData.keyType} 
+                    onValueChange={(value) => handleSelectChange("keyType", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select key type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {keyTypes.map((type) => (
+                        <SelectItem key={type.id} value={type.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{type.name}</span>
+                            <span className="text-xs text-muted-foreground">{type.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="ssh-keySize" className="block mb-2 font-medium">
+                    Key Size (bits) <span className="text-destructive">*</span>
+                  </Label>
+                  <Select 
+                    value={formData.keySize} 
+                    onValueChange={(value) => handleSelectChange("keySize", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select key size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {keySizes[formData.keyType as keyof typeof keySizes].map((size) => (
+                        <SelectItem key={size} value={size}>
+                          {size} bits
+                          {formData.keyType === "rsa" && size === "2048" && " (Recommended)"}
+                          {formData.keyType === "ed25519" && " (Fixed)"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formData.keyType === "rsa" && "Higher key sizes provide better security but may have compatibility issues with older systems."}
+                    {formData.keyType === "ed25519" && "Ed25519 uses a fixed 256-bit key size for optimal security."}
+                    {formData.keyType === "ecdsa" && "ECDSA key sizes represent the curve bit length."}
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="ssh-description" className="block mb-2 font-medium">
+                    Description
+                  </Label>
+                  <Textarea
+                    id="ssh-description"
+                    placeholder="Enter a description for this SSH key"
+                    value={formData.description}
+                    onChange={handleChange}
+                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[100px]"
+                  />
+                </div>
+
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-blue-800" style={{ fontSize: '13px' }}>
+                    <strong>Important:</strong> The private key will be automatically downloaded after creation. 
+                    Store it securely as it cannot be recovered once lost.
+                  </p>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          {/* Side Panel - SSH Key Information */}
+          <div className="w-80 flex-shrink-0 space-y-6">
+            {/* Quick Info */}
+            <div 
+              className="p-4 rounded-lg"
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white'
+              }}
+            >
+              <h3 className="font-semibold mb-3">SSH Key Configuration</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="opacity-90">Type:</span>
+                  <span className="font-medium">{formData.keyType.toUpperCase()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="opacity-90">Size:</span>
+                  <span className="font-medium">{formData.keySize} bits</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="opacity-90">Security:</span>
+                  <span className="font-medium">
+                    {formData.keyType === "ed25519" ? "High" : 
+                     formData.keyType === "rsa" && parseInt(formData.keySize) >= 3072 ? "High" :
+                     formData.keyType === "rsa" && parseInt(formData.keySize) >= 2048 ? "Medium" : "Standard"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Security Tips */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-gray-900">Security Best Practices</h4>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>
+                    Use unique SSH keys for different environments
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>
+                    Store private keys securely and never share them
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>
+                    Regularly rotate SSH keys for enhanced security
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>
+                    Use Ed25519 for new deployments when possible
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Key Type Comparison */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-gray-900">Key Type Guide</h4>
+              <div className="space-y-3">
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="font-medium text-green-800 text-sm">RSA</div>
+                  <div className="text-green-700 text-xs mt-1">Most compatible, widely supported</div>
+                </div>
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="font-medium text-blue-800 text-sm">Ed25519</div>
+                  <div className="text-blue-700 text-xs mt-1">Modern, secure, and efficient</div>
+                </div>
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="font-medium text-yellow-800 text-sm">ECDSA</div>
+                  <div className="text-yellow-700 text-xs mt-1">Good balance of security and performance</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="flex-shrink-0 p-6 border-t bg-gray-50">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isLoading || !formData.keyName}
+            className="bg-black text-white hover:bg-black/90"
+          >
+            {isLoading ? "Creating..." : "Create SSH Key"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
 } 
