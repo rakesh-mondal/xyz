@@ -105,6 +105,7 @@ function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCar
             className="text-sm font-semibold transition-all duration-200"
             size="sm"
             variant="default"
+            onClick={() => window.location.href = '/compute/vms/cpu/create'}
           >
             Reserve Now
           </Button>

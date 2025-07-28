@@ -1,0 +1,811 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { PageLayout } from "@/components/page-layout"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
+import { Separator } from "@/components/ui/separator"
+import { Checkbox } from "@/components/ui/checkbox"
+import { HelpCircle, RefreshCw, Plus, X } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { CreateVPCModal, CreateSubnetModal, CreateSecurityGroupModal } from "@/components/modals/vm-creation-modals"
+
+// Mock data
+const vpcs = [
+  { id: "vpc-1", name: "production-vpc", region: "us-east-1" },
+  { id: "vpc-2", name: "development-vpc", region: "us-west-2" },
+  { id: "vpc-3", name: "staging-vpc", region: "us-east-1" },
+]
+
+const bootableVolumes = [
+  { id: "vol-1", name: "ubuntu-22.04-boot", size: "20 GB", image: "Ubuntu 22.04 LTS" },
+  { id: "vol-2", name: "centos-8-boot", size: "25 GB", image: "CentOS 8" },
+]
+
+const storageVolumes = [
+  { id: "vol-s1", name: "data-storage-1", size: "100 GB" },
+  { id: "vol-s2", name: "backup-storage", size: "500 GB" },
+]
+
+const machineImages = [
+  { id: "img-1", name: "Ubuntu 22.04 LTS", type: "Linux" },
+  { id: "img-2", name: "CentOS 8", type: "Linux" },
+  { id: "img-3", name: "Windows Server 2022", type: "Windows" },
+]
+
+const sshKeys = [
+  { id: "ssh-1", name: "prod-admin-key" },
+  { id: "ssh-2", name: "dev-key" },
+  { id: "ssh-3", name: "backup-key" },
+]
+
+const subnets = [
+  { id: "subnet-1", name: "public-subnet-1", type: "Public", cidr: "10.0.1.0/24" },
+  { id: "subnet-2", name: "private-subnet-1", type: "Private", cidr: "10.0.2.0/24" },
+]
+
+const reservedIPs = [
+  { id: "ip-1", address: "203.0.113.1", subnet: "subnet-1" },
+  { id: "ip-2", address: "203.0.113.2", subnet: "subnet-1" },
+]
+
+const securityGroups = [
+  { id: "sg-1", name: "web-servers", description: "Web server security group" },
+  { id: "sg-2", name: "database", description: "Database security group" },
+]
+
+interface FormData {
+  name: string
+  vpcId: string
+  bootableVolumeType: "existing" | "new"
+  existingBootableVolume: string
+  newBootableVolumeSize: string
+  newBootableVolumeImage: string
+  storageVolumeType: "existing" | "new" | "none"
+  existingStorageVolumes: string[]
+  newStorageVolumeSize: string
+  sshKeyId: string
+  startupScript: string
+  tags: { key: string; value: string }[]
+  subnetId: string
+  ipAddressType: "floating" | "reserved"
+  reservedIpId: string
+  securityGroupId: string
+}
+
+export default function CreateVMPage() {
+  const router = useRouter()
+  const { toast } = useToast()
+  
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    vpcId: "",
+    bootableVolumeType: "existing",
+    existingBootableVolume: "",
+    newBootableVolumeSize: "20",
+    newBootableVolumeImage: "",
+    storageVolumeType: "none",
+    existingStorageVolumes: [],
+    newStorageVolumeSize: "100",
+    sshKeyId: "",
+    startupScript: "",
+    tags: [],
+    subnetId: "",
+    ipAddressType: "floating",
+    reservedIpId: "",
+    securityGroupId: "",
+  })
+
+  const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
+  const [showCreateSubnetModal, setShowCreateSubnetModal] = useState(false)
+  const [showCreateSecurityGroupModal, setShowCreateSecurityGroupModal] = useState(false)
+  const [step, setStep] = useState<"form" | "confirmation">("form")
+
+  const selectedVPC = vpcs.find(vpc => vpc.id === formData.vpcId)
+  const selectedSubnet = subnets.find(subnet => subnet.id === formData.subnetId)
+  const isPrivateSubnet = selectedSubnet?.type === "Private"
+  const showIPAddressType = selectedSubnet?.type === "Public"
+  const availableReservedIPs = reservedIPs.filter(ip => ip.subnet === formData.subnetId)
+
+  const handleInputChange = (field: keyof FormData, value: string | string[]) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const addTag = () => {
+    setFormData(prev => ({
+      ...prev,
+      tags: [...prev.tags, { key: "", value: "" }]
+    }))
+  }
+
+  const removeTag = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter((_, i) => i !== index)
+    }))
+  }
+
+  const updateTag = (index: number, field: "key" | "value", value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.map((tag, i) => 
+        i === index ? { ...tag, [field]: value } : tag
+      )
+    }))
+  }
+
+  // Modal handlers
+  const handleVPCCreated = (vpcId: string) => {
+    // In real app, refetch VPCs and select the new one
+    handleInputChange("vpcId", vpcId)
+  }
+
+  const handleSubnetCreated = (subnetId: string) => {
+    // In real app, refetch subnets and select the new one
+    handleInputChange("subnetId", subnetId)
+  }
+
+  const handleSecurityGroupCreated = (sgId: string) => {
+    // In real app, refetch security groups and select the new one
+    handleInputChange("securityGroupId", sgId)
+  }
+
+  const calculatePricing = () => {
+    // Base VM pricing (4 vCPU, 16 GB RAM configuration)
+    const basePricing = 12 // ₹12/hr for the VM
+    
+    // Storage pricing
+    let storagePricing = 0
+    if (formData.bootableVolumeType === "new") {
+      const bootableSize = parseInt(formData.newBootableVolumeSize) || 20
+      storagePricing += bootableSize * 0.05 // ₹0.05/GB/hr for bootable storage
+    }
+    if (formData.storageVolumeType === "new") {
+      const storageSize = parseInt(formData.newStorageVolumeSize) || 100
+      storagePricing += storageSize * 0.03 // ₹0.03/GB/hr for storage volume
+    }
+    
+    // IP pricing
+    let ipPricing = 0
+    if (showIPAddressType) {
+      if (formData.ipAddressType === "floating") {
+        ipPricing = 1 // ₹1/hr for floating IP
+      } else if (formData.ipAddressType === "reserved") {
+        ipPricing = 2 // ₹2/hr for reserved IP
+      }
+    } else if (selectedSubnet?.type === "Public") {
+      ipPricing = 1 // Default floating IP for public subnet
+    }
+    
+    const total = basePricing + storagePricing + ipPricing
+    
+    return { 
+      vm: basePricing, 
+      storage: storagePricing, 
+      ip: ipPricing, 
+      total: parseFloat(total.toFixed(2))
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (step === "form") {
+      setStep("confirmation")
+    } else {
+      // Create VM
+      toast({
+        title: "VM creation initiated",
+        description: `${formData.name} is being created. This may take a few minutes.`
+      })
+      router.push("/compute/vms")
+    }
+  }
+
+  const pricing = calculatePricing()
+
+  if (step === "confirmation") {
+    return (
+      <PageLayout
+        title="Confirm VM Creation"
+        description="Review your configuration and confirm VM creation"
+      >
+        <div className="max-w-4xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>VM Configuration Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-3">Basic Configuration</h3>
+                  <div className="space-y-2 text-sm">
+                    <div><span className="font-medium">Name:</span> {formData.name}</div>
+                    <div><span className="font-medium">VPC:</span> {selectedVPC?.name}</div>
+                    <div><span className="font-medium">SSH Key:</span> {sshKeys.find(k => k.id === formData.sshKeyId)?.name}</div>
+                    <div><span className="font-medium">Security Group:</span> {securityGroups.find(sg => sg.id === formData.securityGroupId)?.name}</div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-semibold mb-3">Network Configuration</h3>
+                  <div className="space-y-2 text-sm">
+                    <div><span className="font-medium">Subnet:</span> {selectedSubnet?.name} ({selectedSubnet?.type})</div>
+                    <div><span className="font-medium">IP Type:</span> {formData.ipAddressType === "floating" ? "Floating IP" : "Reserved IP"}</div>
+                    {formData.ipAddressType === "reserved" && formData.reservedIpId && (
+                      <div><span className="font-medium">Reserved IP:</span> {reservedIPs.find(ip => ip.id === formData.reservedIpId)?.address}</div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-3">Storage Configuration</h3>
+                  <div className="space-y-2 text-sm">
+                    <div><span className="font-medium">Bootable Volume:</span> {formData.bootableVolumeType === "existing" ? "Existing" : "New"}</div>
+                    {formData.storageVolumeType !== "none" && (
+                      <div><span className="font-medium">Storage Volume:</span> {formData.storageVolumeType === "existing" ? "Existing" : "New"}</div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-3">Pricing</h3>
+                  <div className="space-y-2 text-sm">
+                    <div><span className="font-medium">VM:</span> ₹{pricing.vm}/hr</div>
+                    {pricing.storage > 0 && (
+                      <div><span className="font-medium">Storage:</span> ₹{pricing.storage}/hr</div>
+                    )}
+                    {pricing.ip > 0 && (
+                      <div><span className="font-medium">IP Address:</span> ₹{pricing.ip}/hr</div>
+                    )}
+                    <div className="pt-2 border-t"><span className="font-medium">Total:</span> ₹{pricing.total}/hr</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-4 pt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep("form")}
+                >
+                  Back to Edit
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  className="bg-black text-white hover:bg-black/90"
+                >
+                  Create VM
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </PageLayout>
+    )
+  }
+
+  return (
+    <PageLayout
+      title="Create Virtual Machine"
+      description="Configure and deploy a new virtual machine instance"
+    >
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Main Content */}
+        <div className="flex-1 space-y-6">
+          <Card>
+            <CardContent className="space-y-6 pt-6">
+              <form onSubmit={handleSubmit}>
+                {/* Basic Configuration */}
+                <div className="space-y-6">
+                  <div>
+                    <Label htmlFor="name" className="block mb-2 font-medium">
+                      VM Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="name"
+                      placeholder="Enter VM name"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange("name", e.target.value)}
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Only alphanumeric characters, hyphens, and underscores allowed.
+                    </p>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="font-medium">
+                        VPC <span className="text-destructive">*</span>
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCreateVPCModal(true)}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Create New VPC
+                      </Button>
+                    </div>
+                    <Select value={formData.vpcId} onValueChange={(value) => handleInputChange("vpcId", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select VPC" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {vpcs.map((vpc) => (
+                          <SelectItem key={vpc.id} value={vpc.id}>
+                            {vpc.name} ({vpc.region})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                {/* Volume Configuration */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold">Volume Configuration</h3>
+                    <TooltipWrapper content="Refresh volume lists">
+                      <Button type="button" variant="ghost" size="sm">
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </TooltipWrapper>
+                  </div>
+
+                  {/* Bootable Volume */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Bootable Volume</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="existing-bootable"
+                          checked={formData.bootableVolumeType === "existing"}
+                          onCheckedChange={() => handleInputChange("bootableVolumeType", "existing")}
+                        />
+                        <Label htmlFor="existing-bootable">Select an existing bootable volume</Label>
+                      </div>
+                      {formData.bootableVolumeType === "existing" && (
+                        <Select value={formData.existingBootableVolume} onValueChange={(value) => handleInputChange("existingBootableVolume", value)}>
+                          <SelectTrigger className="ml-6">
+                            <SelectValue placeholder="Select bootable volume" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {bootableVolumes.map((volume) => (
+                              <SelectItem key={volume.id} value={volume.id}>
+                                {volume.name} - {volume.size} ({volume.image})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="new-bootable"
+                          checked={formData.bootableVolumeType === "new"}
+                          onCheckedChange={() => handleInputChange("bootableVolumeType", "new")}
+                        />
+                        <Label htmlFor="new-bootable">Create a new bootable volume</Label>
+                      </div>
+                      {formData.bootableVolumeType === "new" && (
+                        <div className="ml-6 space-y-3">
+                          <div>
+                            <Label htmlFor="bootable-size">Size (GB)</Label>
+                            <Input
+                              id="bootable-size"
+                              type="number"
+                              value={formData.newBootableVolumeSize}
+                              onChange={(e) => handleInputChange("newBootableVolumeSize", e.target.value)}
+                              min="10"
+                              max="1000"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="machine-image">Machine Image</Label>
+                            <Select value={formData.newBootableVolumeImage} onValueChange={(value) => handleInputChange("newBootableVolumeImage", value)}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select machine image" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {machineImages.map((image) => (
+                                  <SelectItem key={image.id} value={image.id}>
+                                    {image.name} ({image.type})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Storage Volume */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Storage Volume</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="no-storage"
+                          checked={formData.storageVolumeType === "none"}
+                          onCheckedChange={() => handleInputChange("storageVolumeType", "none")}
+                        />
+                        <Label htmlFor="no-storage">No additional storage</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="existing-storage"
+                          checked={formData.storageVolumeType === "existing"}
+                          onCheckedChange={() => handleInputChange("storageVolumeType", "existing")}
+                        />
+                        <Label htmlFor="existing-storage">Select existing storage volumes</Label>
+                      </div>
+                      {formData.storageVolumeType === "existing" && (
+                        <div className="ml-6">
+                          <div className="space-y-2">
+                            {storageVolumes.map((volume) => (
+                              <div key={volume.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`storage-${volume.id}`}
+                                  checked={formData.existingStorageVolumes.includes(volume.id)}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      handleInputChange("existingStorageVolumes", [...formData.existingStorageVolumes, volume.id])
+                                    } else {
+                                      handleInputChange("existingStorageVolumes", formData.existingStorageVolumes.filter(id => id !== volume.id))
+                                    }
+                                  }}
+                                />
+                                <Label htmlFor={`storage-${volume.id}`}>
+                                  {volume.name} - {volume.size}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="new-storage"
+                          checked={formData.storageVolumeType === "new"}
+                          onCheckedChange={() => handleInputChange("storageVolumeType", "new")}
+                        />
+                        <Label htmlFor="new-storage">Create a new storage volume</Label>
+                      </div>
+                      {formData.storageVolumeType === "new" && (
+                        <div className="ml-6">
+                          <Label htmlFor="storage-size">Size (GB)</Label>
+                          <Input
+                            id="storage-size"
+                            type="number"
+                            value={formData.newStorageVolumeSize}
+                            onChange={(e) => handleInputChange("newStorageVolumeSize", e.target.value)}
+                            min="10"
+                            max="10000"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                {/* SSH Key */}
+                <div>
+                  <Label className="block mb-2 font-medium">
+                    SSH Key <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={formData.sshKeyId} onValueChange={(value) => handleInputChange("sshKeyId", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select SSH key" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sshKeys.map((key) => (
+                        <SelectItem key={key.id} value={key.id}>
+                          {key.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Startup Script */}
+                <div>
+                  <Label htmlFor="startup-script" className="block mb-2 font-medium">
+                    Startup Script
+                  </Label>
+                  <Textarea
+                    id="startup-script"
+                    placeholder="#!/bin/bash&#10;# Enter your bash script here"
+                    value={formData.startupScript}
+                    onChange={(e) => handleInputChange("startupScript", e.target.value)}
+                    rows={4}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Only bash format is supported. Script will run on first boot.
+                  </p>
+                </div>
+
+                {/* Tags */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="font-medium">Tags</Label>
+                    <Button type="button" variant="outline" size="sm" onClick={addTag}>
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Tag
+                    </Button>
+                  </div>
+                  {formData.tags.length > 0 && (
+                    <div className="space-y-2">
+                      {formData.tags.map((tag, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Input
+                            placeholder="Key"
+                            value={tag.key}
+                            onChange={(e) => updateTag(index, "key", e.target.value)}
+                            className="flex-1"
+                          />
+                          <Input
+                            placeholder="Value"
+                            value={tag.value}
+                            onChange={(e) => updateTag(index, "value", e.target.value)}
+                            className="flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeTag(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <Separator className="my-6" />
+
+                {/* Network Configuration */}
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold">Network Configuration</h3>
+
+                  {/* Subnet */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="font-medium">Subnet</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCreateSubnetModal(true)}
+                        disabled={!formData.vpcId}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Create New Subnet
+                      </Button>
+                    </div>
+                    <Select value={formData.subnetId} onValueChange={(value) => handleInputChange("subnetId", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select subnet" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subnets.map((subnet) => (
+                          <SelectItem key={subnet.id} value={subnet.id}>
+                            {subnet.name} - {subnet.type} ({subnet.cidr})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {isPrivateSubnet && (
+                      <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                        <p className="text-sm text-yellow-800">
+                          <strong>Note:</strong> You have selected a private subnet. Only your VMs present in this private subnet will be able to access this VM. You won't be able to SSH into this VM directly.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* IP Address Type */}
+                  {showIPAddressType && (
+                    <div className="space-y-4">
+                      <Label className="font-medium">IP Address Type</Label>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="floating-ip"
+                            checked={formData.ipAddressType === "floating"}
+                            onCheckedChange={() => handleInputChange("ipAddressType", "floating")}
+                          />
+                          <Label htmlFor="floating-ip" className="flex items-center gap-2">
+                            Floating IP
+                            <TooltipWrapper content="Dynamic Public IP address that is automatically assigned to the VM from the IP address pool. You will be only billed for the IP address as long as the VM is not stopped. Please note that this IP address is not reserved and it can't be guaranteed that you will get the same IP address again once you restart your VM">
+                              <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                            </TooltipWrapper>
+                          </Label>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="reserved-ip"
+                            checked={formData.ipAddressType === "reserved"}
+                            onCheckedChange={() => handleInputChange("ipAddressType", "reserved")}
+                          />
+                          <Label htmlFor="reserved-ip" className="flex items-center gap-2">
+                            Reserved IP
+                            <TooltipWrapper content="Fixed IP that is assigned to your VM. You will be billed as long as you have not deleted the IP address. The same IP address will be assigned to the VM even if you restart your VM">
+                              <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                            </TooltipWrapper>
+                          </Label>
+                        </div>
+
+                        {formData.ipAddressType === "reserved" && (
+                          <div className="ml-6">
+                            <Label htmlFor="reserved-ip-select">Select Reserved IP</Label>
+                            <Select value={formData.reservedIpId} onValueChange={(value) => handleInputChange("reservedIpId", value)}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select reserved IP" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {availableReservedIPs.map((ip) => (
+                                  <SelectItem key={ip.id} value={ip.id}>
+                                    {ip.address}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Security Group */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="font-medium">
+                        Security Group <span className="text-destructive">*</span>
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCreateSecurityGroupModal(true)}
+                        disabled={!formData.vpcId}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Create New Security Group
+                      </Button>
+                    </div>
+                    <Select value={formData.securityGroupId} onValueChange={(value) => handleInputChange("securityGroupId", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select security group" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {securityGroups.map((sg) => (
+                          <SelectItem key={sg.id} value={sg.id}>
+                            {sg.name} - {sg.description}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-4 pt-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.push("/compute/vms")}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-black text-white hover:bg-black/90"
+                    disabled={!formData.name || !formData.vpcId || !formData.sshKeyId || !formData.securityGroupId}
+                  >
+                    Review Configuration
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Side Panel - Price Summary */}
+        <div className="lg:w-80 lg:flex-shrink-0">
+          <Card className="sticky top-6">
+            <CardHeader>
+              <CardTitle className="text-lg">Price Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span>VM Instance (4 vCPU, 16 GB RAM)</span>
+                  <span>₹{pricing.vm}/hr</span>
+                </div>
+                
+                {pricing.storage > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span>Storage</span>
+                    <span>₹{pricing.storage}/hr</span>
+                  </div>
+                )}
+                
+                {pricing.ip > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span>
+                      {formData.ipAddressType === "floating" ? "Floating IP" : 
+                       formData.ipAddressType === "reserved" ? "Reserved IP" : "Public IP"}
+                    </span>
+                    <span>₹{pricing.ip}/hr</span>
+                  </div>
+                )}
+                
+                <Separator />
+                <div className="flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span>₹{pricing.total}/hr</span>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  ~₹{(pricing.total * 24 * 30).toLocaleString()}/month
+                </div>
+              </div>
+
+              <div className="pt-4 space-y-3">
+                <h4 className="font-medium text-sm">Configuration Tips</h4>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li>• Choose appropriate storage size for your workload</li>
+                  <li>• Private subnets provide better security</li>
+                  <li>• Reserved IPs are recommended for production</li>
+                  <li>• Configure security groups to control access</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Creation Modals */}
+      <CreateVPCModal
+        open={showCreateVPCModal}
+        onClose={() => setShowCreateVPCModal(false)}
+        onSuccess={handleVPCCreated}
+        preselectedRegion={selectedVPC?.region}
+      />
+
+      <CreateSubnetModal
+        open={showCreateSubnetModal}
+        onClose={() => setShowCreateSubnetModal(false)}
+        onSuccess={handleSubnetCreated}
+        vpcId={formData.vpcId}
+        vpcName={selectedVPC?.name}
+      />
+
+      <CreateSecurityGroupModal
+        open={showCreateSecurityGroupModal}
+        onClose={() => setShowCreateSecurityGroupModal(false)}
+        onSuccess={handleSecurityGroupCreated}
+        vpcId={formData.vpcId}
+        vpcName={selectedVPC?.name}
+      />
+    </PageLayout>
+  )
+} 
