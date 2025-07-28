@@ -108,7 +108,7 @@ export default function CreateVMClient() {
     newStorageVolumeDescription: "",
     sshKeyId: "",
     startupScript: "",
-    tags: [],
+    tags: [{ key: "", value: "" }],
     subnetId: "",
     ipAddressType: "floating",
     reservedIpId: "",
@@ -414,14 +414,10 @@ export default function CreateVMClient() {
                 </div>
 
                 {/* Volume Configuration */}
-                <div className="space-y-8 mb-8 mt-8">
+                <div className="space-y-6 mb-6">
+                  <Separator className="my-6" />
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-semibold">Volume Configuration</h3>
-                    <TooltipWrapper content="Refresh volume lists">
-                      <Button type="button" variant="ghost" size="sm">
-                        <RefreshCw className="h-4 w-4" />
-                      </Button>
-                    </TooltipWrapper>
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -739,7 +735,7 @@ export default function CreateVMClient() {
                     }
                   }}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select SSH key" />
+                      <SelectValue placeholder="Select SSH key" className="!text-[#64748b]" />
                     </SelectTrigger>
                     <SelectContent>
                       {sshKeys.map((key) => (
@@ -753,82 +749,15 @@ export default function CreateVMClient() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-
-                {/* Startup Script */}
-                <div className="mb-6">
-                  <Label htmlFor="startup-script" className="block mb-2 font-medium">
-                    Startup Script
-                  </Label>
-                  <Textarea
-                    id="startup-script"
-                    placeholder="#!/bin/bash&#10;# Enter your bash script here"
-                    value={formData.startupScript}
-                    onChange={(e) => handleInputChange("startupScript", e.target.value)}
-                    rows={4}
-                  />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Only bash format is supported. Script will run on first boot.
+                    Select SSH Key to securely access your VMs
                   </p>
                 </div>
 
-                {/* Tags */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <Label className="font-medium">Tags</Label>
-                    <Button type="button" variant="outline" size="sm" onClick={addTag}>
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Tag
-                    </Button>
-                  </div>
-                  {formData.tags.length > 0 && (
-                    <div className="space-y-2">
-                      {formData.tags.map((tag, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <Input
-                            placeholder="Key"
-                            value={tag.key}
-                            onChange={(e) => updateTag(index, "key", e.target.value)}
-                            className="flex-1"
-                          />
-                          <Input
-                            placeholder="Value"
-                            value={tag.value}
-                            onChange={(e) => updateTag(index, "value", e.target.value)}
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeTag(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
                 {/* Network Configuration */}
-                <div className="space-y-6">
+                <div className="space-y-6 mb-6">
+                  <Separator className="my-6" />
                   <h3 className="text-lg font-semibold">Network Configuration</h3>
-
-                  {/* Network Speed */}
-                  <div className="mb-6">
-                    <Label className="block mb-2 font-medium">Network Speed</Label>
-                    <Select value={formData.networkSpeed} onValueChange={(value) => handleInputChange("networkSpeed", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select network speed" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="100 Mbps">100 Mbps (Standard)</SelectItem>
-                        <SelectItem value="1 Gbps">1 Gbps (High Performance)</SelectItem>
-                        <SelectItem value="10 Gbps">10 Gbps (Ultra Performance)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
 
                   {/* Subnet */}
                   <div className="mb-6">
@@ -841,7 +770,7 @@ export default function CreateVMClient() {
                       }
                     }}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select subnet" />
+                        <SelectValue placeholder="Select subnet" className="!text-[#64748b]" />
                       </SelectTrigger>
                       <SelectContent>
                         {subnets.map((subnet) => (
@@ -855,6 +784,9 @@ export default function CreateVMClient() {
                         </SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Select the subnet to access your VM
+                    </p>
                     {isPrivateSubnet && (
                       <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                         <p className="text-sm text-yellow-800">
@@ -931,7 +863,7 @@ export default function CreateVMClient() {
                       }
                     }}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select security group" />
+                        <SelectValue placeholder="Select security group" className="!text-[#64748b]" />
                       </SelectTrigger>
                       <SelectContent>
                         {securityGroups.map((sg) => (
@@ -945,6 +877,64 @@ export default function CreateVMClient() {
                         </SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Select Security group to control traffic to and from your VM
+                    </p>
+                  </div>
+                </div>
+
+                {/* Startup Script */}
+                <div className="mb-6">
+                  <Separator className="my-6" />
+                  <Label htmlFor="startup-script" className="block mb-2 font-medium">
+                    Startup Script
+                  </Label>
+                  <Textarea
+                    id="startup-script"
+                    placeholder="#!/bin/bash&#10;# Enter your bash script here"
+                    value={formData.startupScript}
+                    onChange={(e) => handleInputChange("startupScript", e.target.value)}
+                    rows={4}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Only bash format is supported. Script will run on first boot.
+                  </p>
+                </div>
+
+                {/* Tags */}
+                <div className="mb-6">
+                  <Label className="block mb-2 font-medium">Tags</Label>
+                  <div className="space-y-3">
+                    {formData.tags.map((tag, index) => (
+                      <div key={index} className="grid grid-cols-2 gap-3">
+                        <Input
+                          placeholder="Key"
+                          value={tag.key}
+                          onChange={(e) => updateTag(index, "key", e.target.value)}
+                        />
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Value"
+                            value={tag.value}
+                            onChange={(e) => updateTag(index, "value", e.target.value)}
+                          />
+                          {formData.tags.length > 1 ? (
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => removeTag(index)}
+                            >
+                              Remove
+                            </Button>
+                          ) : (
+                            <Button type="button" variant="outline" size="sm" onClick={addTag}>
+                              Add Tag
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -1093,7 +1083,7 @@ function VPCSelectorInline({ value, onChange }: {
           onClick={() => setOpen(!open)}
           className="w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <span className={selectedVPC ? "text-foreground" : "text-muted-foreground"}>
+          <span className={selectedVPC ? "text-foreground" : "!text-[#64748b]"}>
             {selectedVPC ? `${selectedVPC.name} (${selectedVPC.region})` : "Select VPC"}
           </span>
           <ChevronDown className="h-4 w-4 opacity-50" />
@@ -1149,6 +1139,9 @@ function VPCSelectorInline({ value, onChange }: {
           </div>
         )}
       </div>
+      <p className="text-xs text-muted-foreground mt-1">
+        Select VPC to isolate your workload
+      </p>
     </div>
   )
 } 

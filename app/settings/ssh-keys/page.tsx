@@ -36,7 +36,7 @@ export default function SshKeysPage() {
       label: "Key name",
       sortable: true,
       searchable: true,
-      render: (value) => <span className="font-medium text-sm">{value}</span>,
+      render: (value) => <span className="text-sm leading-5">{value}</span>,
     },
     {
       key: "status",
