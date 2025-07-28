@@ -30,66 +30,60 @@ function AmdLogo({ className }: { className?: string }) {
 }
 
 interface PricingCardProps {
-  name: string;
+  flavour: string;
   vcpus: number;
   memory: number;
   price: number;
-  storage: string;
   architecture: string;
   availability: "Low" | "Medium" | "High";
-  networkSpeed: string;
+  network: string;
 }
 
 const pricingConfigs: PricingCardProps[] = [
   {
-    name: "CPU-2vCPU-8GB",
+    flavour: "CPU-1x-4GB",
+    vcpus: 1,
+    memory: 4,
+    price: 3,
+    architecture: "AMD EPYC 9554",
+    availability: "High",
+    network: "Upto 10GBps"
+  },
+  {
+    flavour: "CPU-2x-8GB",
     vcpus: 2,
     memory: 8,
     price: 6,
-    storage: "8 GB+",
     architecture: "AMD EPYC 9554",
     availability: "High",
-    networkSpeed: "up to 10 Gbps"
+    network: "Upto 10GBps"
   },
   {
-    name: "CPU-4vCPU-16GB",
+    flavour: "CPU-4x-16GB",
     vcpus: 4,
     memory: 16,
     price: 12,
-    storage: "16 GB+",
     architecture: "AMD EPYC 9554",
     availability: "High",
-    networkSpeed: "up to 10 Gbps"
+    network: "Upto 10GBps"
   },
   {
-    name: "CPU-8vCPU-32GB",
+    flavour: "CPU-8x-32GB",
     vcpus: 8,
     memory: 32,
     price: 24,
-    storage: "32 GB+",
     architecture: "AMD EPYC 9554",
     availability: "Medium",
-    networkSpeed: "up to 10 Gbps"
+    network: "Upto 10GBps"
   },
   {
-    name: "CPU-16vCPU-64GB",
+    flavour: "CPU-16x-64GB",
     vcpus: 16,
     memory: 64,
     price: 48,
-    storage: "64 GB+",
-    architecture: "AMD EPYC 9554",
-    availability: "Medium",
-    networkSpeed: "up to 10 Gbps"
-  },
-  {
-    name: "CPU-32vCPU-128GB",
-    vcpus: 32,
-    memory: 128,
-    price: 96,
-    storage: "128 GB+",
     architecture: "AMD EPYC 9554",
     availability: "Low",
-    networkSpeed: "up to 10 Gbps"
+    network: "Upto 10GBps"
   }
 ];
 
@@ -106,7 +100,7 @@ function getAvailabilityColor(availability: string) {
   }
 }
 
-function PricingCard({ name, vcpus, memory, price, storage, architecture, availability, networkSpeed }: PricingCardProps) {
+function PricingCard({ flavour, vcpus, memory, price, architecture, availability, network }: PricingCardProps) {
   return (
     <Card className="relative w-full transition-all duration-200">
       <CardHeader className="pb-4">
@@ -117,7 +111,7 @@ function PricingCard({ name, vcpus, memory, price, storage, architecture, availa
           </h3>
         </div>
         <div className="flex justify-between items-center">
-          <h4 className="text-lg font-semibold text-foreground">{name}</h4>
+          <h4 className="text-lg font-semibold text-foreground">{flavour}</h4>
           <div className="flex items-baseline gap-1">
             <span className="text-lg font-medium">₹{price}</span>
             <span className="text-sm text-muted-foreground">/hour</span>
@@ -127,7 +121,7 @@ function PricingCard({ name, vcpus, memory, price, storage, architecture, availa
 
       <CardContent className="space-y-4">
         {/* Basic Specs */}
-        <div className="grid grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">vCPUs</span>
             <span className="font-medium">{vcpus}</span>
@@ -136,17 +130,13 @@ function PricingCard({ name, vcpus, memory, price, storage, architecture, availa
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">RAM</span>
             <span className="font-medium">{memory} GB</span>
           </div>
-          <div>
-            <span className="text-muted-foreground block text-xs uppercase tracking-wide">Storage</span>
-            <span className="font-medium">{storage}</span>
-          </div>
         </div>
 
         {/* Additional Specs */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">Network</span>
-            <span className="font-medium">{networkSpeed}</span>
+            <span className="font-medium">{network}</span>
           </div>
           <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">Availability</span>
@@ -159,9 +149,9 @@ function PricingCard({ name, vcpus, memory, price, storage, architecture, availa
 
       <CardFooter>
         <Button
-          className="w-full text-sm font-semibold transition-all duration-200"
+          className="w-full text-sm font-semibold transition-all duration-200 hover:bg-primary hover:text-primary-foreground hover:border-primary border border-primary"
           size="sm"
-          variant="default"
+          variant="secondary"
           onClick={() => window.location.href = '/compute/vms/cpu/create'}
         >
           Create VM
@@ -177,7 +167,7 @@ export function CpuPricingCards() {
   const filteredConfigs = pricingConfigs.filter(config => {
     const searchLower = search.toLowerCase();
     return (
-      config.name.toLowerCase().includes(searchLower) ||
+      config.flavour.toLowerCase().includes(searchLower) ||
       config.architecture.toLowerCase().includes(searchLower) ||
       config.vcpus.toString().includes(searchLower) ||
       config.memory.toString().includes(searchLower) ||

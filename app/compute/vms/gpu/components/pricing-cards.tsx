@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Zap, MemoryStick, HardDrive, Server, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -37,76 +38,61 @@ function NvidiaLogo({ className }: { className?: string }) {
 }
 
 interface GpuPricingCardProps {
-  name: string;
-  price: number;
+  flavour: string;
+  gpus: number;
   vcpus: number;
   memory: number;
-  gpus: number;
   gpuMemory: number;
   availability: "Low" | "Medium" | "High";
-  gpuType: string;
+  architecture: string;
+  price: number;
+  network: string;
 }
 
 const gpuConfigs: GpuPricingCardProps[] = [
   {
-    name: "A100-40GB-NVLINK-1x",
-    price: 105,
+    flavour: "A100-40GB-NVLINK-1x",
+    gpus: 1,
     vcpus: 24,
     memory: 96,
-    gpus: 1,
     gpuMemory: 40,
-    availability: "Low",
-    gpuType: "NVIDIA - A100"
+    availability: "High",
+    architecture: "Nvidia A100 40 GB",
+    price: 170,
+    network: "Upto 10GBps"
   },
   {
-    name: "A100-80GB-NVLINK-1x", 
-    price: 160,
+    flavour: "A100-80GB-NVLINK-1x", 
+    gpus: 1,
     vcpus: 24,
     memory: 96,
-    gpus: 1,
     gpuMemory: 80,
-    availability: "Low",
-    gpuType: "NVIDIA - A100"
+    availability: "High",
+    architecture: "Nvidia A100 80 GB",
+    price: 200,
+    network: "Upto 10GBps"
   },
   {
-    name: "A100-40GB-NVLINK-2x",
-    price: 210,
+    flavour: "A100-40GB-NVLINK-2x",
+    gpus: 2,
     vcpus: 48,
     memory: 192,
-    gpus: 2,
     gpuMemory: 80,
-    availability: "Low",
-    gpuType: "NVIDIA - A100"
+    availability: "Medium",
+    architecture: "Nvidia A100 40 GB",
+    price: 340,
+    network: "Upto 10GBps"
   },
   {
-    name: "H100-80GB-NVLINK-1x",
-    price: 280,
+    flavour: "H100-80GB-NVLINK-1x",
+    gpus: 1,
     vcpus: 32,
     memory: 128,
-    gpus: 1,
     gpuMemory: 80,
     availability: "Low",
-    gpuType: "NVIDIA - H100"
-  },
-  {
-    name: "H100-80GB-NVLINK-2x",
-    price: 560,
-    vcpus: 64,
-    memory: 256,
-    gpus: 2,
-    gpuMemory: 160,
-    availability: "Low",
-    gpuType: "NVIDIA - H100"
-  },
-  {
-    name: "A6000-48GB-1x",
-    price: 80,
-    vcpus: 16,
-    memory: 64,
-    gpus: 1,
-    gpuMemory: 48,
-    availability: "Medium",
-    gpuType: "NVIDIA - A6000"
+    architecture: "Nvidia H100 80 GB",
+    price: 400,
+    network: "Upto 10GBps"
   }
 ];
 
@@ -119,9 +105,15 @@ function getAvailabilityColor(availability: string) {
   }
 }
 
-function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availability, gpuType }: GpuPricingCardProps) {
+function GpuPricingCard({ flavour, gpus, vcpus, memory, gpuMemory, availability, architecture, price, network }: GpuPricingCardProps) {
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+
   const handleCreateVM = () => {
-    window.location.href = '/compute/vms/gpu/create';
+    if (availability === "Low") {
+      setShowNotifyModal(true);
+    } else {
+      window.location.href = '/compute/vms/gpu/create';
+    }
   };
 
   return (
@@ -130,11 +122,11 @@ function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availabil
         <div className="flex items-center gap-2 mb-2">
           <NvidiaLogo className="h-5 w-5" />
           <h3 className="text-base font-medium text-foreground">
-            {gpuType}
+            {architecture}
           </h3>
         </div>
         <div className="flex justify-between items-center">
-          <h4 className="text-lg font-semibold text-foreground">{name}</h4>
+          <h4 className="text-lg font-semibold text-foreground">{flavour}</h4>
           <div className="flex items-baseline gap-1">
             <span className="text-lg font-medium">₹{price}</span>
             <span className="text-sm text-muted-foreground">/hour</span>
@@ -160,10 +152,14 @@ function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availabil
         </div>
 
         {/* Additional Specs */}
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">GPU Memory</span>
-            <span className="font-medium">{gpuMemory}</span>
+            <span className="font-medium">{gpuMemory} GB</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground block text-xs uppercase tracking-wide">Network</span>
+            <span className="font-medium">{network}</span>
           </div>
           <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">Availability</span>
@@ -176,14 +172,50 @@ function GpuPricingCard({ name, price, vcpus, memory, gpus, gpuMemory, availabil
 
       <CardFooter>
         <Button
-          className="w-full text-sm font-semibold transition-all duration-200"
+          className={`w-full text-sm font-semibold transition-all duration-200 hover:bg-primary hover:text-primary-foreground hover:border-primary ${
+            availability === "Low" ? "" : "border border-primary"
+          }`}
           size="sm"
-          variant="default"
+          variant={availability === "Low" ? "outline" : "secondary"}
           onClick={handleCreateVM}
         >
-          Create VM
+          {availability === "Low" ? "Notify Me" : "Create VM"}
         </Button>
       </CardFooter>
+
+      {/* Notify Me Modal */}
+      <Dialog open={showNotifyModal} onOpenChange={setShowNotifyModal}>
+        <DialogContent className="sm:max-w-md" style={{ boxShadow: 'rgba(31, 34, 37, 0.09) 0px 0px 0px 1px, rgba(0, 0, 0, 0.16) 0px 16px 40px -6px, rgba(0, 0, 0, 0.04) 0px 12px 24px -6px' }}>
+          <DialogHeader className="space-y-3 pb-4">
+            <DialogTitle className="text-base font-semibold text-black pr-8">
+              Request Submitted
+            </DialogTitle>
+            <hr className="border-border" />
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <div className="text-sm leading-6">
+              <p className="font-medium mb-3">Thank you for your interest.</p>
+              <p className="mb-3">We have shared your request with our team.</p>
+              <p className="mb-4">You will receive an email once the machine becomes available.</p>
+              <p className="text-muted-foreground">
+                Contact: <a href="mailto:cloudsupport@olakrutrim.com" className="text-primary hover:underline">cloudsupport@olakrutrim.com</a>
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex gap-3 sm:justify-end" style={{ paddingTop: '.5rem' }}>
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => setShowNotifyModal(false)}
+              className="min-w-20"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
@@ -194,8 +226,8 @@ export function GpuPricingCards() {
   const filteredConfigs = gpuConfigs.filter(config => {
     const searchLower = search.toLowerCase();
     return (
-      config.name.toLowerCase().includes(searchLower) ||
-      config.gpuType.toLowerCase().includes(searchLower) ||
+      config.flavour.toLowerCase().includes(searchLower) ||
+      config.architecture.toLowerCase().includes(searchLower) ||
       config.vcpus.toString().includes(searchLower) ||
       config.memory.toString().includes(searchLower) ||
       config.gpus.toString().includes(searchLower)
