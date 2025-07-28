@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { HelpCircle, RefreshCw, Plus, X, ChevronDown, Search, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
+import { CreateVPCModal, CreateSSHKeyModal, CreateSubnetModal, CreateSecurityGroupModal } from "@/components/modals/vm-creation-modals"
 
 // Mock data
 const vpcs = [
@@ -69,9 +69,13 @@ interface FormData {
   existingBootableVolume: string
   newBootableVolumeSize: string
   newBootableVolumeImage: string
+  newBootableVolumeName: string
   storageVolumeType: "existing" | "new" | "none"
   existingStorageVolumes: string[]
+  newStorageVolumeName: string
   newStorageVolumeSize: string
+  newStorageVolumeType: "ssd" | "hdd"
+  newStorageVolumeDescription: string
   sshKeyId: string
   startupScript: string
   tags: { key: string; value: string }[]
@@ -79,6 +83,7 @@ interface FormData {
   ipAddressType: "floating" | "reserved"
   reservedIpId: string
   securityGroupId: string
+  networkSpeed: string
 }
 
 export default function CreateVMPage() {
@@ -92,9 +97,13 @@ export default function CreateVMPage() {
     existingBootableVolume: "",
     newBootableVolumeSize: "20",
     newBootableVolumeImage: "",
+    newBootableVolumeName: "",
     storageVolumeType: "none",
     existingStorageVolumes: [],
+    newStorageVolumeName: "",
     newStorageVolumeSize: "100",
+    newStorageVolumeType: "ssd",
+    newStorageVolumeDescription: "",
     sshKeyId: "",
     startupScript: "",
     tags: [],
@@ -102,9 +111,13 @@ export default function CreateVMPage() {
     ipAddressType: "floating",
     reservedIpId: "",
     securityGroupId: "",
+    networkSpeed: "100 Mbps",
   })
 
   const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
+  const [showCreateSSHKeyModal, setShowCreateSSHKeyModal] = useState(false)
+  const [showCreateSubnetModal, setShowCreateSubnetModal] = useState(false)
+  const [showCreateSecurityGroupModal, setShowCreateSecurityGroupModal] = useState(false)
   const [step, setStep] = useState<"form" | "confirmation">("form")
 
   const selectedVPC = vpcs.find(vpc => vpc.id === formData.vpcId)
@@ -145,6 +158,24 @@ export default function CreateVMPage() {
     // In real app, refetch VPCs and select the new one
     handleInputChange("vpcId", vpcId)
     setShowCreateVPCModal(false)
+  }
+
+  const handleSSHKeyCreated = (sshKeyId: string) => {
+    // In real app, refetch SSH keys and select the new one
+    handleInputChange("sshKeyId", sshKeyId)
+    setShowCreateSSHKeyModal(false)
+  }
+
+  const handleSubnetCreated = (subnetId: string) => {
+    // In real app, refetch subnets and select the new one
+    handleInputChange("subnetId", subnetId)
+    setShowCreateSubnetModal(false)
+  }
+
+  const handleSecurityGroupCreated = (sgId: string) => {
+    // In real app, refetch security groups and select the new one
+    handleInputChange("securityGroupId", sgId)
+    setShowCreateSecurityGroupModal(false)
   }
 
 
@@ -264,7 +295,7 @@ export default function CreateVMPage() {
                 )}
                 <div className="space-y-1">
                   <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Machine Type</label>
-                  <div className="font-medium" style={{ fontSize: '14px' }}>CPU VM (4 vCPU, 16 GB RAM)</div>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>CPU VM (4 vCPU, 16 GB RAM, {formData.networkSpeed})</div>
                 </div>
               </div>
 
@@ -458,7 +489,7 @@ export default function CreateVMPage() {
                                   <SelectContent>
                                     {bootableVolumes.map((volume) => (
                                       <SelectItem key={volume.id} value={volume.id}>
-                                        {volume.name} - {volume.size} ({volume.image})
+                                        {volume.name}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
@@ -490,6 +521,18 @@ export default function CreateVMPage() {
                             </div>
                             {formData.bootableVolumeType === "new" && (
                               <div className="ml-8 pt-2 space-y-4">
+                                <div>
+                                  <Label htmlFor="bootable-name" className="block mb-2 text-sm font-medium">
+                                    Volume Name <span className="text-destructive">*</span>
+                                  </Label>
+                                  <Input
+                                    id="bootable-name"
+                                    placeholder="Enter bootable volume name"
+                                    value={formData.newBootableVolumeName}
+                                    onChange={(e) => handleInputChange("newBootableVolumeName", e.target.value)}
+                                    required
+                                  />
+                                </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <div>
                                     <Label htmlFor="bootable-size" className="block mb-2 text-sm font-medium">
@@ -581,26 +624,47 @@ export default function CreateVMPage() {
                             </div>
                             {formData.storageVolumeType === "existing" && (
                               <div className="ml-8 pt-2">
-                                <div className="space-y-3 p-4 bg-gray-50 rounded-lg border">
-                                  {storageVolumes.map((volume) => (
-                                    <div key={volume.id} className="flex items-center space-x-3">
-                                      <Checkbox
-                                        id={`storage-${volume.id}`}
-                                        checked={formData.existingStorageVolumes.includes(volume.id)}
-                                        onCheckedChange={(checked) => {
-                                          if (checked) {
-                                            handleInputChange("existingStorageVolumes", [...formData.existingStorageVolumes, volume.id])
-                                          } else {
-                                            handleInputChange("existingStorageVolumes", formData.existingStorageVolumes.filter(id => id !== volume.id))
-                                          }
-                                        }}
-                                      />
-                                      <Label htmlFor={`storage-${volume.id}`} className="text-sm">
+                                <Label className="block mb-2 text-sm font-medium">
+                                  Select Storage Volumes
+                                </Label>
+                                <Select 
+                                  value={formData.existingStorageVolumes.length > 0 ? formData.existingStorageVolumes[0] : ""}
+                                  onValueChange={(value) => {
+                                    if (value && !formData.existingStorageVolumes.includes(value)) {
+                                      handleInputChange("existingStorageVolumes", [...formData.existingStorageVolumes, value])
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select storage volumes" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {storageVolumes.map((volume) => (
+                                      <SelectItem key={volume.id} value={volume.id}>
                                         {volume.name} - {volume.size}
-                                      </Label>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {formData.existingStorageVolumes.length > 0 && (
+                                  <div className="mt-2 space-y-1">
+                                    <p className="text-sm text-muted-foreground">Selected volumes:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {formData.existingStorageVolumes.map((volumeId) => {
+                                        const volume = storageVolumes.find(v => v.id === volumeId)
+                                        return volume ? (
+                                          <Badge key={volumeId} variant="secondary" className="flex items-center gap-1">
+                                            {volume.name}
+                                            <X 
+                                              className="h-3 w-3 cursor-pointer" 
+                                              onClick={() => handleInputChange("existingStorageVolumes", formData.existingStorageVolumes.filter(id => id !== volumeId))}
+                                            />
+                                          </Badge>
+                                        ) : null
+                                      })}
                                     </div>
-                                  ))}
-                                </div>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
@@ -627,19 +691,59 @@ export default function CreateVMPage() {
                               </div>
                             </div>
                             {formData.storageVolumeType === "new" && (
-                              <div className="ml-8 pt-2">
-                                <div className="max-w-xs">
-                                  <Label htmlFor="storage-size" className="block mb-2 text-sm font-medium">
-                                    Size (GB)
+                              <div className="ml-8 pt-2 space-y-4">
+                                <div>
+                                  <Label htmlFor="storage-name" className="block mb-2 text-sm font-medium">
+                                    Volume Name <span className="text-destructive">*</span>
                                   </Label>
                                   <Input
-                                    id="storage-size"
-                                    type="number"
-                                    value={formData.newStorageVolumeSize}
-                                    onChange={(e) => handleInputChange("newStorageVolumeSize", e.target.value)}
-                                    min="10"
-                                    max="10000"
-                                    placeholder="100"
+                                    id="storage-name"
+                                    placeholder="Enter storage volume name"
+                                    value={formData.newStorageVolumeName}
+                                    onChange={(e) => handleInputChange("newStorageVolumeName", e.target.value)}
+                                    required
+                                  />
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                  <div>
+                                    <Label htmlFor="storage-size" className="block mb-2 text-sm font-medium">
+                                      Size (GB)
+                                    </Label>
+                                    <Input
+                                      id="storage-size"
+                                      type="number"
+                                      value={formData.newStorageVolumeSize}
+                                      onChange={(e) => handleInputChange("newStorageVolumeSize", e.target.value)}
+                                      min="10"
+                                      max="10000"
+                                      placeholder="100"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="storage-type" className="block mb-2 text-sm font-medium">
+                                      Volume Type
+                                    </Label>
+                                    <Select value={formData.newStorageVolumeType} onValueChange={(value) => handleInputChange("newStorageVolumeType", value)}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select volume type" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="ssd">SSD (High Performance)</SelectItem>
+                                        <SelectItem value="hdd">HDD (Standard)</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label htmlFor="storage-description" className="block mb-2 text-sm font-medium">
+                                    Description
+                                  </Label>
+                                  <Textarea
+                                    id="storage-description"
+                                    placeholder="Enter volume description (optional)"
+                                    value={formData.newStorageVolumeDescription}
+                                    onChange={(e) => handleInputChange("newStorageVolumeDescription", e.target.value)}
+                                    rows={2}
                                   />
                                 </div>
                               </div>
@@ -652,23 +756,16 @@ export default function CreateVMPage() {
                 </div>
 
                 {/* SSH Key */}
-                <div className="mb-6">
-                  <Label className="block mb-2 font-medium">
-                    SSH Key <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={formData.sshKeyId} onValueChange={(value) => handleInputChange("sshKeyId", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select SSH key" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sshKeys.map((key) => (
-                        <SelectItem key={key.id} value={key.id}>
-                          {key.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <SSHKeySelectorInline
+                  value={formData.sshKeyId}
+                  onChange={(value) => {
+                    if (value === "__create_new__") {
+                      setShowCreateSSHKeyModal(true)
+                    } else {
+                      handleInputChange("sshKeyId", value)
+                    }
+                  }}
+                />
 
                 {/* Startup Script */}
                 <div className="mb-6">
@@ -730,21 +827,32 @@ export default function CreateVMPage() {
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Network Configuration</h3>
 
-                  {/* Subnet */}
+                  {/* Network Speed */}
                   <div className="mb-6">
-                    <Label className="block mb-2 font-medium">Subnet</Label>
-                    <Select value={formData.subnetId} onValueChange={(value) => handleInputChange("subnetId", value)}>
+                    <Label className="block mb-2 font-medium">Network Speed</Label>
+                    <Select value={formData.networkSpeed} onValueChange={(value) => handleInputChange("networkSpeed", value)}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select subnet" />
+                        <SelectValue placeholder="Select network speed" />
                       </SelectTrigger>
                       <SelectContent>
-                        {subnets.map((subnet) => (
-                          <SelectItem key={subnet.id} value={subnet.id}>
-                            {subnet.name} - {subnet.type} ({subnet.cidr})
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="100 Mbps">100 Mbps (Standard)</SelectItem>
+                        <SelectItem value="1 Gbps">1 Gbps (High Performance)</SelectItem>
+                        <SelectItem value="10 Gbps">10 Gbps (Ultra Performance)</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  {/* Subnet */}
+                  <SubnetSelectorInline
+                    value={formData.subnetId}
+                    onChange={(value) => {
+                      if (value === "__create_new__") {
+                        setShowCreateSubnetModal(true)
+                      } else {
+                        handleInputChange("subnetId", value)
+                      }
+                    }}
+                  />
                     {isPrivateSubnet && (
                       <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                         <p className="text-sm text-yellow-800">
@@ -809,23 +917,16 @@ export default function CreateVMPage() {
                   )}
 
                   {/* Security Group */}
-                  <div className="mb-6">
-                    <Label className="block mb-2 font-medium">
-                      Security Group <span className="text-destructive">*</span>
-                    </Label>
-                    <Select value={formData.securityGroupId} onValueChange={(value) => handleInputChange("securityGroupId", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select security group" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {securityGroups.map((sg) => (
-                          <SelectItem key={sg.id} value={sg.id}>
-                            {sg.name} - {sg.description}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <SecurityGroupSelectorInline
+                    value={formData.securityGroupId}
+                    onChange={(value) => {
+                      if (value === "__create_new__") {
+                        setShowCreateSecurityGroupModal(true)
+                      } else {
+                        handleInputChange("securityGroupId", value)
+                      }
+                    }}
+                  />
                 </div>
 
                 <div className="flex justify-end gap-4 pt-6">
@@ -873,7 +974,7 @@ export default function CreateVMPage() {
               
               <div className="text-xs text-muted-foreground pt-2 border-t space-y-1">
                 <div className="flex justify-between">
-                  <span>VM Instance (4 vCPU, 16 GB RAM)</span>
+                  <span>VM Instance (4 vCPU, 16 GB RAM, {formData.networkSpeed})</span>
                   <span>₹{pricing.vm}/hr</span>
                 </div>
                 
@@ -936,6 +1037,25 @@ export default function CreateVMPage() {
         onClose={() => setShowCreateVPCModal(false)}
         onSuccess={handleVPCCreated}
         preselectedRegion={selectedVPC?.region}
+      />
+      <CreateSSHKeyModal
+        open={showCreateSSHKeyModal}
+        onClose={() => setShowCreateSSHKeyModal(false)}
+        onSuccess={handleSSHKeyCreated}
+      />
+      <CreateSubnetModal
+        open={showCreateSubnetModal}
+        onClose={() => setShowCreateSubnetModal(false)}
+        onSuccess={handleSubnetCreated}
+        vpcId={formData.vpcId}
+        vpcName={selectedVPC?.name || ""}
+      />
+      <CreateSecurityGroupModal
+        open={showCreateSecurityGroupModal}
+        onClose={() => setShowCreateSecurityGroupModal(false)}
+        onSuccess={handleSecurityGroupCreated}
+        vpcId={formData.vpcId}
+        vpcName={selectedVPC?.name || ""}
       />
     </PageLayout>
   )
@@ -1026,4 +1146,245 @@ function VPCSelectorInline({ value, onChange }: {
 
     </div>
   )
-} 
+}
+
+// SSH Key Selector Component
+function SSHKeySelectorInline({ value, onChange }: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  
+  const filteredSSHKeys = sshKeys.filter(key =>
+    key.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    key.id.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  
+  const selectedKey = sshKeys.find(key => key.id === value)
+  
+  return (
+    <div className="mb-6">
+      <Label className="block mb-2 font-medium">
+        SSH Key <span className="text-destructive">*</span>
+      </Label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className={selectedKey ? "text-foreground" : "text-muted-foreground"}>
+            {selectedKey ? selectedKey.name : "Select SSH key"}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </button>
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search SSH keys..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("__create_new__")
+                  setOpen(false)
+                }}
+                className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+              >
+                Create new SSH key
+              </button>
+              {filteredSSHKeys.map((key) => (
+                <button
+                  key={key.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(key.id)
+                    setOpen(false)
+                    setSearchTerm("")
+                  }}
+                  className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{key.name}</span>
+                    <span className="text-xs text-muted-foreground">{key.id}</span>
+                  </div>
+                  {value === key.id && <Check className="h-4 w-4" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Subnet Selector Component
+function SubnetSelectorInline({ value, onChange }: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  
+  const filteredSubnets = subnets.filter(subnet =>
+    subnet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subnet.id.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  
+  const selectedSubnet = subnets.find(subnet => subnet.id === value)
+  
+  return (
+    <div className="mb-6">
+      <Label className="block mb-2 font-medium">Subnet</Label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className={selectedSubnet ? "text-foreground" : "text-muted-foreground"}>
+            {selectedSubnet ? `${selectedSubnet.name} - ${selectedSubnet.type} (${selectedSubnet.cidr})` : "Select subnet"}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </button>
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search subnets..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("__create_new__")
+                  setOpen(false)
+                }}
+                className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+              >
+                Create new subnet
+              </button>
+              {filteredSubnets.map((subnet) => (
+                <button
+                  key={subnet.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(subnet.id)
+                    setOpen(false)
+                    setSearchTerm("")
+                  }}
+                  className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{subnet.name}</span>
+                    <span className="text-xs text-muted-foreground">{subnet.type} • {subnet.cidr}</span>
+                  </div>
+                  {value === subnet.id && <Check className="h-4 w-4" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Security Group Selector Component
+function SecurityGroupSelectorInline({ value, onChange }: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  
+  const filteredSecurityGroups = securityGroups.filter(sg =>
+    sg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sg.id.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  
+  const selectedSG = securityGroups.find(sg => sg.id === value)
+  
+  return (
+    <div className="mb-6">
+      <Label className="block mb-2 font-medium">
+        Security Group <span className="text-destructive">*</span>
+      </Label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className={selectedSG ? "text-foreground" : "text-muted-foreground"}>
+            {selectedSG ? `${selectedSG.name} - ${selectedSG.description}` : "Select security group"}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </button>
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search security groups..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("__create_new__")
+                  setOpen(false)
+                }}
+                className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+              >
+                Create new security group
+              </button>
+              {filteredSecurityGroups.map((sg) => (
+                <button
+                  key={sg.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(sg.id)
+                    setOpen(false)
+                    setSearchTerm("")
+                  }}
+                  className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{sg.name}</span>
+                    <span className="text-xs text-muted-foreground">{sg.description}</span>
+                  </div>
+                  {value === sg.id && <Check className="h-4 w-4" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
