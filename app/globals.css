@@ -161,3 +161,8 @@ h6 {
 .animate-fade-in {
   animation: fade-in 0.4s ease-out;
 }
+
+/* Ensure radio buttons use black accent color across all browsers */
+input[type="radio"] {
+  accent-color: #000000;
+}
