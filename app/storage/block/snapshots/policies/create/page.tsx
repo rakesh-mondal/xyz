@@ -210,7 +210,7 @@ export default function CreateSnapshotPolicyPage() {
   const [isLoading, setIsLoading] = useState(false)
   
   // Policy scheduler state (simplified - "*" or empty means "any", filled means "specific")
-  const [minute, setMinute] = useState("")
+  const [minute, setMinute] = useState("30")
   const [hour, setHour] = useState("")
   const [dayOfMonth, setDayOfMonth] = useState("*")
   const [month, setMonth] = useState("*")
@@ -796,67 +796,6 @@ export default function CreateSnapshotPolicyPage() {
 
         {/* Side Panel */}
         <div className="w-80 flex-shrink-0 space-y-6">
-          {/* Snapshot Policy Summary */}
-          <div 
-            style={{
-              borderRadius: '16px',
-              border: '4px solid #FFF',
-              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
-              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-              padding: '1.5rem'
-            }}
-          >
-            <div className="pb-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-semibold">Snapshot Policy Summary</h3>
-              </div>
-            </div>
-            <div>
-              <div className="space-y-3">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold">₹5.00</span>
-                  <span className="text-sm text-muted-foreground">per month</span>
-                </div>
-                <div className="text-xs text-muted-foreground pt-2 border-t">
-                  <p>• Policy Management: ₹1.00/month</p>
-                  <p>• Snapshot Storage: ₹0.05/GB/month</p>
-                  <p>• Automated Execution: ₹0.10/run</p>
-                  <p>• Estimated based on policy configuration</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Allowed Formats */}
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Allowed Formats</h3>
-              <div className="space-y-3 text-sm">
-                <div>
-                  <strong className="text-muted-foreground">Single values</strong>
-                  <p className="text-xs mt-1">e.g., 5, MON, JAN</p>
-                </div>
-                <div>
-                  <strong className="text-muted-foreground">Wildcard *</strong>
-                  <p className="text-xs mt-1">any value</p>
-                </div>
-                <div>
-                  <strong className="text-muted-foreground">Step values</strong>
-                  <p className="text-xs mt-1">e.g., */15</p>
-                </div>
-                <div>
-                  <strong className="text-muted-foreground">Ranges</strong>
-                  <p className="text-xs mt-1">e.g., 1-5, MON-FRI</p>
-                </div>
-                <div className="border-t pt-3">
-                  <p className="text-xs text-destructive">
-                    <strong>Note:</strong> Comma-separated values are <strong>not allowed</strong>
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Configuration Tips */}
           <Card>
             <CardContent className="p-6">
@@ -885,6 +824,37 @@ export default function CreateSnapshotPolicyPage() {
               </ul>
             </CardContent>
           </Card>
+
+          {/* Snapshot Pricing Summary */}
+          <div 
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Snapshot Pricing Summary</h3>
+              </div>
+            </div>
+            <div>
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold">₹5.00</span>
+                  <span className="text-sm text-muted-foreground">per GB per month</span>
+                </div>
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• Policy Management: ₹1.00/month</p>
+                  <p>• Snapshot Storage: ₹0.05/GB/month</p>
+                  <p>• Automated Execution: ₹0.10/run</p>
+                  <p>• Estimated based on policy configuration</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </PageLayout>
