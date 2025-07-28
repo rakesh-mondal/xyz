@@ -19,6 +19,7 @@ import { snapshots } from "@/lib/data";
 import { ActionMenu } from "../../../../../components/action-menu";
 import { AddPolicyModal } from "../../../../../components/modals/add-policy-modal";
 import { CreateBackupModal } from "../../../../../components/modals/create-backup-modal";
+import { SnapshotPolicyModal } from "../../../../../components/modals/snapshot-policy-modal";
 
 // Mock function to get volume by ID
 const getVolume = (id: string) => {
@@ -166,16 +167,24 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
   const backupPolicies = [
     {
       volumeId: "vol-001",
+      name: "Web Server Backup Policy",
+      description: "Automated daily backup for web server root volume",
       enabled: true,
       schedule: "Daily at 3:00 AM",
       retention: 7,
+      cronExpression: "0 3 * * *",
+      cronExplanation: "This policy will run at hour 3.",
       nextExecution: "2024-12-20T03:00:00Z",
     },
     {
       volumeId: "vol-002",
+      name: "Weekly Backup Policy",
+      description: "Weekly backup for secondary volumes",
       enabled: false,
       schedule: "Weekly on Sunday at 2:00 AM",
       retention: 4,
+      cronExpression: "0 2 * * 0",
+      cronExplanation: "This policy will run on Sunday at hour 2.",
       nextExecution: null,
     },
   ];
@@ -373,61 +382,94 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
         </DetailGrid>
       </div>
 
-      {/* Snapshot Policy Section */}
-      <div className="bg-card text-card-foreground border-border border rounded-lg p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Snapshot Policy</h2>
-        {snapshotPolicy ? (
-          <div className="bg-gray-50 rounded p-4 flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-700 font-medium">{snapshotPolicy.scheduleDescription}</div>
-              <div className="text-xs text-gray-500 mt-1">Max Snapshots: {snapshotPolicy.maxSnapshots}</div>
-              <div className="text-xs text-gray-500">Next Execution: {snapshotPolicy.nextExecution ? new Date(snapshotPolicy.nextExecution).toLocaleString() : "-"}</div>
-              <div className="text-xs text-gray-500">Status: {snapshotPolicy.enabled ? "Enabled" : "Disabled"}</div>
+      {/* Policy Sections - Side by Side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Snapshot Policy Section */}
+        <div className="bg-card text-card-foreground border-border border rounded-lg p-6 relative">
+          <h2 className="text-lg font-semibold mb-4">Snapshot Policy</h2>
+          {snapshotPolicy ? (
+            <div className="bg-gray-50 rounded p-4">
+              <div className="space-y-2">
+                <div className="text-sm text-gray-700 font-medium">{snapshotPolicy.name || "Web Server Snapshot Policy"}</div>
+                <div className="text-xs text-gray-500">{snapshotPolicy.description || "Automated daily backup for web server root volume"}</div>
+                <div className="text-xs text-gray-500">Max Snapshots: 7</div>
+                <div className="text-xs text-gray-500">CRON Expression: 30 8 * * *</div>
+                <div className="text-xs text-gray-500">This policy will run at minute 30.</div>
+                <div className="text-xs text-gray-500">Next Execution: 20/12/2024, 14:00:00</div>
+              </div>
+              {/* Action Icons */}
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditSnapshot(true)}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => { setSnapshotPolicyDeleted(true); setSnapshotPolicyState(null); }}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <ActionMenu
-              resourceName="Snapshot Policy"
-              resourceType="Policy"
-              onEdit={() => { setEditSnapshot(true); }}
-              onCustomDelete={() => { setSnapshotPolicyDeleted(true); setSnapshotPolicyState(null); }}
-              deleteLabel="Delete"
-            />
-          </div>
-        ) : (
-          <Button variant="default" onClick={() => setShowAddSnapshotPolicy(true)}>Add Policy</Button>
-        )}
+          ) : (
+            <Button variant="default" onClick={() => setShowAddSnapshotPolicy(true)}>Add Policy</Button>
+          )}
+        </div>
+
+        {/* Backup Policy Section */}
+        <div className="bg-card text-card-foreground border-border border rounded-lg p-6 relative">
+          <h2 className="text-lg font-semibold mb-4">Backup Policy</h2>
+          {backupPolicy ? (
+            <div className="bg-gray-50 rounded p-4">
+              <div className="space-y-2">
+                <div className="text-sm text-gray-700 font-medium">{backupPolicy.name || "Web Server Backup Policy"}</div>
+                <div className="text-xs text-gray-500">{backupPolicy.description || "Automated daily backup for web server root volume"}</div>
+                <div className="text-xs text-gray-500">Max Snapshots: {backupPolicy.retention}</div>
+                <div className="text-xs text-gray-500">CRON Expression: {backupPolicy.cronExpression || "0 3 * * *"}</div>
+                <div className="text-xs text-gray-500">{backupPolicy.cronExplanation || "This policy will run at hour 3."}</div>
+                <div className="text-xs text-gray-500">Next Execution: {backupPolicy.nextExecution ? new Date(backupPolicy.nextExecution).toLocaleString() : "20/12/2024, 14:00:00"}</div>
+              </div>
+              {/* Action Icons */}
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditBackup(true)}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => { setBackupPolicyDeleted(true); setBackupPolicyState(null); }}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button variant="default" onClick={() => setShowAddBackupPolicy(true)}>Add Policy</Button>
+          )}
+        </div>
       </div>
-      <AddPolicyModal
+      
+      {/* Snapshot Policy Modal */}
+      <SnapshotPolicyModal
         open={showAddSnapshotPolicy || editSnapshot}
         onClose={() => { setShowAddSnapshotPolicy(false); setEditSnapshot(false); }}
         onSave={policy => { setSnapshotPolicyState(policy); setSnapshotPolicyDeleted(false); }}
         mode={editSnapshot ? "edit" : "add"}
-        type="snapshot"
         initialPolicy={editSnapshot ? snapshotPolicy : undefined}
       />
-
-      {/* Backup Policy Section */}
-      <div className="bg-card text-card-foreground border-border border rounded-lg p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Backup Policy</h2>
-        {backupPolicy ? (
-          <div className="bg-gray-50 rounded p-4 flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-700 font-medium">{backupPolicy.schedule}</div>
-              <div className="text-xs text-gray-500 mt-1">Retention: {backupPolicy.retention} backups</div>
-              <div className="text-xs text-gray-500">Next Execution: {backupPolicy.nextExecution ? new Date(backupPolicy.nextExecution).toLocaleString() : "-"}</div>
-              <div className="text-xs text-gray-500">Status: {backupPolicy.enabled ? "Enabled" : "Disabled"}</div>
-            </div>
-            <ActionMenu
-              resourceName="Backup Policy"
-              resourceType="Policy"
-              onEdit={() => { setEditBackup(true); }}
-              onCustomDelete={() => { setBackupPolicyDeleted(true); setBackupPolicyState(null); }}
-              deleteLabel="Delete"
-            />
-          </div>
-        ) : (
-          <Button variant="default" onClick={() => setShowAddBackupPolicy(true)}>Add Policy</Button>
-        )}
-      </div>
+      
       <AddPolicyModal
         open={showAddBackupPolicy || editBackup}
         onClose={() => { setShowAddBackupPolicy(false); setEditBackup(false); }}
