@@ -436,7 +436,7 @@ export default function CreateVMPage() {
                                 name="bootableVolumeType"
                                 checked={formData.bootableVolumeType === "existing"}
                                 onChange={() => handleInputChange("bootableVolumeType", "existing")}
-                                className="mt-1 h-4 w-4 text-black border-gray-300 focus:ring-gray-900"
+                                className="mt-1 h-4 w-4 accent-black border-gray-300 focus:ring-gray-900"
                               />
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
@@ -475,7 +475,7 @@ export default function CreateVMPage() {
                                 name="bootableVolumeType"
                                 checked={formData.bootableVolumeType === "new"}
                                 onChange={() => handleInputChange("bootableVolumeType", "new")}
-                                className="mt-1 h-4 w-4 text-black border-gray-300 focus:ring-gray-900"
+                                className="mt-1 h-4 w-4 accent-black border-gray-300 focus:ring-gray-900"
                               />
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
@@ -543,7 +543,7 @@ export default function CreateVMPage() {
                                 name="storageVolumeType"
                                 checked={formData.storageVolumeType === "none"}
                                 onChange={() => handleInputChange("storageVolumeType", "none")}
-                                className="mt-1 h-4 w-4 text-black border-gray-300 focus:ring-gray-900"
+                                className="mt-1 h-4 w-4 accent-black border-gray-300 focus:ring-gray-900"
                               />
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
@@ -566,7 +566,7 @@ export default function CreateVMPage() {
                                 name="storageVolumeType"
                                 checked={formData.storageVolumeType === "existing"}
                                 onChange={() => handleInputChange("storageVolumeType", "existing")}
-                                className="mt-1 h-4 w-4 text-black border-gray-300 focus:ring-gray-900"
+                                className="mt-1 h-4 w-4 accent-black border-gray-300 focus:ring-gray-900"
                               />
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
@@ -613,7 +613,7 @@ export default function CreateVMPage() {
                                 name="storageVolumeType"
                                 checked={formData.storageVolumeType === "new"}
                                 onChange={() => handleInputChange("storageVolumeType", "new")}
-                                className="mt-1 h-4 w-4 text-black border-gray-300 focus:ring-gray-900"
+                                className="mt-1 h-4 w-4 accent-black border-gray-300 focus:ring-gray-900"
                               />
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
