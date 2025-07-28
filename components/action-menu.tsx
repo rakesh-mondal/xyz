@@ -108,10 +108,10 @@ export function ActionMenu({
               </Link>
             </DropdownMenuItem>
           )}
-          {onCopyURL && (
-            <DropdownMenuItem onClick={onCopyURL} className="flex items-center cursor-pointer">
-              <Copy className="mr-2 h-4 w-4" />
-              <span>Copy URL</span>
+          {onEdit && (
+            <DropdownMenuItem onClick={onEdit} className="flex items-center cursor-pointer">
+              <Edit className="mr-2 h-4 w-4" />
+              <span>Edit</span>
             </DropdownMenuItem>
           )}
           {editHref && (
@@ -120,6 +120,12 @@ export function ActionMenu({
                 <Edit className="mr-2 h-4 w-4" />
                 <span>Edit</span>
               </Link>
+            </DropdownMenuItem>
+          )}
+          {onCopyURL && (
+            <DropdownMenuItem onClick={onCopyURL} className="flex items-center cursor-pointer">
+              <Copy className="mr-2 h-4 w-4" />
+              <span>Copy URL</span>
             </DropdownMenuItem>
           )}
           {onEditBucket && (
@@ -192,12 +198,6 @@ export function ActionMenu({
             <DropdownMenuItem onClick={onWarning} className="flex items-center cursor-pointer">
               <AlertTriangle className="mr-2 h-4 w-4 text-yellow-600" />
               <span>VM Warning</span>
-            </DropdownMenuItem>
-          )}
-          {onEdit && (
-            <DropdownMenuItem onClick={onEdit} className="flex items-center cursor-pointer">
-              <Edit className="mr-2 h-4 w-4" />
-              <span>Edit</span>
             </DropdownMenuItem>
           )}
           {onConnectSubnet && (

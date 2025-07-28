@@ -96,15 +96,15 @@ export function VMEditModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0 pb-4">
           <DialogTitle className="text-xl font-semibold">Edit VM Details</DialogTitle>
           <p className="text-sm text-muted-foreground mt-1">
             Update description and tags for <span className="font-medium">{vmName}</span>
           </p>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-6 py-4">
+        <div className="flex-1 overflow-y-auto space-y-6 px-1 pb-4" style={{ maxHeight: 'calc(85vh - 180px)' }}>
           {/* Description Section */}
           <div className="space-y-3">
             <Label htmlFor="description" className="text-sm font-medium">
@@ -115,8 +115,8 @@ export function VMEditModal({
               placeholder="Enter a description for this VM..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="resize-none"
+              rows={4}
+              className="resize-none min-h-[100px]"
             />
             <p className="text-xs text-muted-foreground">
               Provide a brief description of this VM's purpose or configuration.
@@ -199,7 +199,7 @@ export function VMEditModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="flex-shrink-0 flex justify-end gap-3 pt-4 border-t">
+        <div className="flex-shrink-0 flex justify-end gap-3 pt-6 mt-4 border-t bg-white">
           <Button
             variant="outline"
             onClick={handleCancel}
