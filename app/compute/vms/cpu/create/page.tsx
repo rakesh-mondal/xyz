@@ -325,7 +325,7 @@ export default function CreateVMPage() {
                 </div>
 
                 {/* Volume Configuration */}
-                <div className="space-y-6 mb-6">
+                <div className="space-y-6 mb-6 mt-8">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-semibold">Volume Configuration</h3>
                     <TooltipWrapper content="Refresh volume lists">
@@ -335,141 +335,143 @@ export default function CreateVMPage() {
                     </TooltipWrapper>
                   </div>
 
-                  {/* Bootable Volume */}
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Bootable Volume</h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="existing-bootable"
-                          checked={formData.bootableVolumeType === "existing"}
-                          onCheckedChange={() => handleInputChange("bootableVolumeType", "existing")}
-                        />
-                        <Label htmlFor="existing-bootable">Select an existing bootable volume</Label>
-                      </div>
-                      {formData.bootableVolumeType === "existing" && (
-                        <Select value={formData.existingBootableVolume} onValueChange={(value) => handleInputChange("existingBootableVolume", value)}>
-                          <SelectTrigger className="ml-6">
-                            <SelectValue placeholder="Select bootable volume" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {bootableVolumes.map((volume) => (
-                              <SelectItem key={volume.id} value={volume.id}>
-                                {volume.name} - {volume.size} ({volume.image})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Bootable Volume */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Bootable Volume</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="existing-bootable"
+                            checked={formData.bootableVolumeType === "existing"}
+                            onCheckedChange={() => handleInputChange("bootableVolumeType", "existing")}
+                          />
+                          <Label htmlFor="existing-bootable">Select an existing bootable volume</Label>
+                        </div>
+                        {formData.bootableVolumeType === "existing" && (
+                          <Select value={formData.existingBootableVolume} onValueChange={(value) => handleInputChange("existingBootableVolume", value)}>
+                            <SelectTrigger className="ml-6">
+                              <SelectValue placeholder="Select bootable volume" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {bootableVolumes.map((volume) => (
+                                <SelectItem key={volume.id} value={volume.id}>
+                                  {volume.name} - {volume.size} ({volume.image})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
 
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="new-bootable"
-                          checked={formData.bootableVolumeType === "new"}
-                          onCheckedChange={() => handleInputChange("bootableVolumeType", "new")}
-                        />
-                        <Label htmlFor="new-bootable">Create a new bootable volume</Label>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="new-bootable"
+                            checked={formData.bootableVolumeType === "new"}
+                            onCheckedChange={() => handleInputChange("bootableVolumeType", "new")}
+                          />
+                          <Label htmlFor="new-bootable">Create a new bootable volume</Label>
+                        </div>
+                        {formData.bootableVolumeType === "new" && (
+                          <div className="ml-6 space-y-3">
+                            <div>
+                              <Label htmlFor="bootable-size">Size (GB)</Label>
+                              <Input
+                                id="bootable-size"
+                                type="number"
+                                value={formData.newBootableVolumeSize}
+                                onChange={(e) => handleInputChange("newBootableVolumeSize", e.target.value)}
+                                min="10"
+                                max="1000"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="machine-image">Machine Image</Label>
+                              <Select value={formData.newBootableVolumeImage} onValueChange={(value) => handleInputChange("newBootableVolumeImage", value)}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select machine image" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {machineImages.map((image) => (
+                                    <SelectItem key={image.id} value={image.id}>
+                                      {image.name} ({image.type})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      {formData.bootableVolumeType === "new" && (
-                        <div className="ml-6 space-y-3">
-                          <div>
-                            <Label htmlFor="bootable-size">Size (GB)</Label>
+                    </div>
+
+                    {/* Storage Volume */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Storage Volume</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="no-storage"
+                            checked={formData.storageVolumeType === "none"}
+                            onCheckedChange={() => handleInputChange("storageVolumeType", "none")}
+                          />
+                          <Label htmlFor="no-storage">No additional storage</Label>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="existing-storage"
+                            checked={formData.storageVolumeType === "existing"}
+                            onCheckedChange={() => handleInputChange("storageVolumeType", "existing")}
+                          />
+                          <Label htmlFor="existing-storage">Select existing storage volumes</Label>
+                        </div>
+                        {formData.storageVolumeType === "existing" && (
+                          <div className="ml-6">
+                            <div className="space-y-2">
+                              {storageVolumes.map((volume) => (
+                                <div key={volume.id} className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={`storage-${volume.id}`}
+                                    checked={formData.existingStorageVolumes.includes(volume.id)}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        handleInputChange("existingStorageVolumes", [...formData.existingStorageVolumes, volume.id])
+                                      } else {
+                                        handleInputChange("existingStorageVolumes", formData.existingStorageVolumes.filter(id => id !== volume.id))
+                                      }
+                                    }}
+                                  />
+                                  <Label htmlFor={`storage-${volume.id}`}>
+                                    {volume.name} - {volume.size}
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="new-storage"
+                            checked={formData.storageVolumeType === "new"}
+                            onCheckedChange={() => handleInputChange("storageVolumeType", "new")}
+                          />
+                          <Label htmlFor="new-storage">Create a new storage volume</Label>
+                        </div>
+                        {formData.storageVolumeType === "new" && (
+                          <div className="ml-6">
+                            <Label htmlFor="storage-size">Size (GB)</Label>
                             <Input
-                              id="bootable-size"
+                              id="storage-size"
                               type="number"
-                              value={formData.newBootableVolumeSize}
-                              onChange={(e) => handleInputChange("newBootableVolumeSize", e.target.value)}
+                              value={formData.newStorageVolumeSize}
+                              onChange={(e) => handleInputChange("newStorageVolumeSize", e.target.value)}
                               min="10"
-                              max="1000"
+                              max="10000"
                             />
                           </div>
-                          <div>
-                            <Label htmlFor="machine-image">Machine Image</Label>
-                            <Select value={formData.newBootableVolumeImage} onValueChange={(value) => handleInputChange("newBootableVolumeImage", value)}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select machine image" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {machineImages.map((image) => (
-                                  <SelectItem key={image.id} value={image.id}>
-                                    {image.name} ({image.type})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Storage Volume */}
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Storage Volume</h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="no-storage"
-                          checked={formData.storageVolumeType === "none"}
-                          onCheckedChange={() => handleInputChange("storageVolumeType", "none")}
-                        />
-                        <Label htmlFor="no-storage">No additional storage</Label>
+                        )}
                       </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="existing-storage"
-                          checked={formData.storageVolumeType === "existing"}
-                          onCheckedChange={() => handleInputChange("storageVolumeType", "existing")}
-                        />
-                        <Label htmlFor="existing-storage">Select existing storage volumes</Label>
-                      </div>
-                      {formData.storageVolumeType === "existing" && (
-                        <div className="ml-6">
-                          <div className="space-y-2">
-                            {storageVolumes.map((volume) => (
-                              <div key={volume.id} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`storage-${volume.id}`}
-                                  checked={formData.existingStorageVolumes.includes(volume.id)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      handleInputChange("existingStorageVolumes", [...formData.existingStorageVolumes, volume.id])
-                                    } else {
-                                      handleInputChange("existingStorageVolumes", formData.existingStorageVolumes.filter(id => id !== volume.id))
-                                    }
-                                  }}
-                                />
-                                <Label htmlFor={`storage-${volume.id}`}>
-                                  {volume.name} - {volume.size}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="new-storage"
-                          checked={formData.storageVolumeType === "new"}
-                          onCheckedChange={() => handleInputChange("storageVolumeType", "new")}
-                        />
-                        <Label htmlFor="new-storage">Create a new storage volume</Label>
-                      </div>
-                      {formData.storageVolumeType === "new" && (
-                        <div className="ml-6">
-                          <Label htmlFor="storage-size">Size (GB)</Label>
-                          <Input
-                            id="storage-size"
-                            type="number"
-                            value={formData.newStorageVolumeSize}
-                            onChange={(e) => handleInputChange("newStorageVolumeSize", e.target.value)}
-                            min="10"
-                            max="10000"
-                          />
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -846,9 +848,7 @@ function VPCSelectorInline({ value, onChange }: {
           </div>
         )}
       </div>
-      <p className="text-xs text-muted-foreground mt-1">
-        Select the VPC where you want to create this VM, or create a new one.
-      </p>
+
     </div>
   )
 } 
