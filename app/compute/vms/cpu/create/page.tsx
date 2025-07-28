@@ -1,6 +1,9 @@
 "use client"
 
 import { useState } from "react"
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
 import { useRouter } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
