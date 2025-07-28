@@ -104,8 +104,8 @@ function PricingCard({ vcpus, memory, price, storage, architecture }: PricingCar
             <span className="text-muted-foreground">SSD</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-foreground font-semibold">up to 10</span>
-            <span className="text-muted-foreground">Gbps</span>
+            <span className="text-muted-foreground">Network Value -</span>
+            <span className="text-foreground font-semibold">up to 10 Gbps</span>
           </div>
         </div>
         
