@@ -19,6 +19,7 @@ import { snapshots } from "@/lib/data";
 import { ActionMenu } from "../../../../../components/action-menu";
 import { AddPolicyModal } from "../../../../../components/modals/add-policy-modal";
 import { CreateBackupModal } from "../../../../../components/modals/create-backup-modal";
+import { CreateSnapshotModal } from "../../../../../components/modals/create-snapshot-modal";
 import { SnapshotPolicyModal } from "../../../../../components/modals/snapshot-policy-modal";
 
 // Mock function to get volume by ID
@@ -84,6 +85,7 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
   const [editBackup, setEditBackup] = useState(false);
   const volume = getVolume(params.id)
   const [showBackupModal, setShowBackupModal] = useState(false);
+  const [showSnapshotModal, setShowSnapshotModal] = useState(false);
 
   if (!volume) {
     notFound()
@@ -276,6 +278,9 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
       hideViewDocs={true}
       headerActions={
         <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setShowSnapshotModal(true)}>
+            Create Instant Snapshot
+          </Button>
           <Button variant="outline" onClick={() => setShowBackupModal(true)}>
             Create Instant Backup
           </Button>
@@ -285,6 +290,20 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
         </div>
       }
     >
+      <CreateSnapshotModal
+        open={showSnapshotModal}
+        onClose={() => setShowSnapshotModal(false)}
+        volume={volume}
+        onCreate={async ({ volume: volumeName, name, description }) => {
+          const price = `$${(Number(volume.size) * 0.05).toFixed(2)}`;
+          toast({
+            title: "Snapshot Created",
+            description: `Snapshot '${name}' for volume '${volumeName}' created. Price: ${price}`,
+          });
+          setShowSnapshotModal(false);
+        }}
+        price={`$${(Number(volume.size) * 0.05).toFixed(2)}`}
+      />
       <CreateBackupModal
         open={showBackupModal}
         onClose={() => setShowBackupModal(false)}
@@ -365,7 +384,7 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
               <div className="font-medium" style={{ fontSize: '14px' }}>{volume.role}</div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Attached VM Names</label>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Attached VM</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>
                 {volume.attachedInstances.length > 0 ? volume.attachedInstances.join(", ") : "Not attached"}
               </div>

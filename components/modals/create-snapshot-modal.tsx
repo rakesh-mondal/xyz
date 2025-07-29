@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CameraIcon } from "@heroicons/react/24/outline"
+
 
 interface CreateSnapshotModalProps {
   open: boolean
@@ -42,8 +42,7 @@ export function CreateSnapshotModal({ open, onClose, volumes = [], volume, onCre
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <CameraIcon className="h-5 w-5" />
+          <DialogTitle>
             Create Instant Snapshot
           </DialogTitle>
           <DialogDescription>

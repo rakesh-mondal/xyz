@@ -9,7 +9,7 @@ import { FolderIcon } from "@heroicons/react/24/outline"
 interface CreateBackupModalProps {
   open: boolean
   onClose: () => void
-  onCreate: (data: { name: string; description: string; tags: string[] }) => Promise<void>
+  onCreate: (data: { name: string; description: string; tags: { key: string; value: string }[] }) => Promise<void>
   price?: string
   volume?: { name: string; size: string; type: string }
 }
@@ -17,17 +17,19 @@ interface CreateBackupModalProps {
 export function CreateBackupModal({ open, onClose, onCreate, price, volume }: CreateBackupModalProps) {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
-  const [tags, setTags] = useState<string[]>([])
-  const [tagInput, setTagInput] = useState("")
+  const [tags, setTags] = useState<{ key: string; value: string }[]>([])
+  const [tagKey, setTagKey] = useState("")
+  const [tagValue, setTagValue] = useState("")
   const [loading, setLoading] = useState(false)
 
   const handleAddTag = () => {
-    if (tagInput && !tags.includes(tagInput)) {
-      setTags([...tags, tagInput])
-      setTagInput("")
+    if (tagKey && tagValue && !tags.some(tag => tag.key === tagKey)) {
+      setTags([...tags, { key: tagKey, value: tagValue }])
+      setTagKey("")
+      setTagValue("")
     }
   }
-  const handleRemoveTag = (tag: string) => setTags(tags.filter(t => t !== tag))
+  const handleRemoveTag = (tagKey: string) => setTags(tags.filter(t => t.key !== tagKey))
 
   const handleCreate = async () => {
     if (!name) return
@@ -38,7 +40,8 @@ export function CreateBackupModal({ open, onClose, onCreate, price, volume }: Cr
       setName("")
       setDescription("")
       setTags([])
-      setTagInput("")
+      setTagKey("")
+      setTagValue("")
     } catch (error) {
       console.error("Error creating backup:", error)
     } finally {
@@ -97,21 +100,29 @@ export function CreateBackupModal({ open, onClose, onCreate, price, volume }: Cr
           </div>
           <div className="space-y-2">
             <Label>Tags</Label>
-            <div className="flex gap-2 mb-2 flex-wrap">
+            <div className="space-y-2">
               {tags.map(tag => (
-                <span key={tag} className="bg-gray-200 rounded px-2 py-1 text-sm flex items-center gap-1">
-                  {tag}
-                  <button type="button" onClick={() => handleRemoveTag(tag)} className="text-gray-500 hover:text-red-500 ml-1">×</button>
+                <span key={tag.key} className="bg-gray-200 rounded px-2 py-1 text-sm flex items-center gap-1">
+                  <span className="font-medium">{tag.key}:</span>
+                  <span>{tag.value}</span>
+                  <button type="button" onClick={() => handleRemoveTag(tag.key)} className="text-gray-500 hover:text-red-500 ml-1">×</button>
                 </span>
               ))}
-              <Input
-                value={tagInput}
-                onChange={e => setTagInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); }}}
-                placeholder="Add tag"
-                className="w-32"
-              />
-              <Button type="button" size="sm" variant="outline" onClick={handleAddTag}>Add</Button>
+              <div className="flex gap-2">
+                <Input
+                  value={tagKey}
+                  onChange={e => setTagKey(e.target.value)}
+                  placeholder="Key"
+                  className="flex-1"
+                />
+                <Input
+                  value={tagValue}
+                  onChange={e => setTagValue(e.target.value)}
+                  placeholder="Value"
+                  className="flex-1"
+                />
+                <Button type="button" size="sm" variant="outline" onClick={handleAddTag}>Add</Button>
+              </div>
             </div>
           </div>
           {price && (
