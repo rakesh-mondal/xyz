@@ -58,11 +58,7 @@ export default function CreateBackupPage() {
     return Math.min(maxNum + 1, MAX_BACKUPS)
   }
 
-  // Helper to determine if this is a primary backup
-  function isPrimaryBackup(volumeId: string) {
-    const backups = mockBackups.filter(b => b.volumeId === volumeId)
-    return backups.length === 0
-  }
+
 
   // Handle form field changes
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -98,7 +94,6 @@ export default function CreateBackupPage() {
   // Get selected volume details
   const selectedVolume = mockVolumes.find(v => v.id === formData.volumeId)
   const nextBackupNumber = formData.volumeId ? getNextBackupNumber(formData.volumeId) : 1
-  const isPrimary = formData.volumeId ? isPrimaryBackup(formData.volumeId) : true
 
   return (
     <PageLayout
@@ -177,24 +172,7 @@ export default function CreateBackupPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <Label className="block mb-2 font-medium flex items-center gap-1">
-                        Primary
-                        <TooltipWrapper content={<span>
-                          Is this backup the primary (first or instant) backup for the selected volume/VM?
-                        </span>}>
-                          <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                        </TooltipWrapper>
-                      </Label>
-                      <Input
-                        value={isPrimary ? "Yes (Primary)" : "No (Incremental)"}
-                        readOnly
-                        className="bg-gray-50 cursor-not-allowed"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        The first backup for a volume or instant backup is always primary (number 1). Subsequent backups are incremental.
-                      </p>
-                    </div>
+
                   </div>
                 </div>
               </form>
@@ -231,7 +209,7 @@ export default function CreateBackupPage() {
                   <div><b>Volume:</b> {selectedVolume?.name}</div>
                   <div><b>Size:</b> {summaryData.size} GB</div>
                   <div><b>Type:</b> {summaryData.type}</div>
-                  <div><b>Primary:</b> {isPrimary ? "Yes" : "No"}</div>
+
                 </div>
               </CardContent>
               <CardFooter>
@@ -257,10 +235,7 @@ export default function CreateBackupPage() {
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select the correct volume to back up</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Primary backups are the first for a volume; others are incremental</span>
-                </li>
+
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Maximum {MAX_BACKUPS} backups per volume; older incremental backups are rotated</span>
