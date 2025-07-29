@@ -412,16 +412,11 @@ function ServicesAvailable() {
               <CardContent>
                 <div className="space-y-3">
                   {service.items.map((item) => (
-                    <div key={item.name} className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-sm">{item.name}</p>
-                        <p className="text-xs text-gray-600">{item.description}</p>
-                      </div>
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href={item.href}>
-                          <ExternalLink className="h-4 w-4" />
-                        </Link>
-                      </Button>
+                    <div key={item.name} className="space-y-1">
+                      <Link href={item.href} className="block">
+                        <p className="font-medium text-sm hover:underline">{item.name}</p>
+                      </Link>
+                      <p className="text-xs text-gray-600">{item.description}</p>
                     </div>
                   ))}
                 </div>
@@ -489,13 +484,10 @@ function DocumentationHub() {
               <CardContent>
                 <div className="space-y-2">
                   {doc.items.map((item) => (
-                    <div key={item.name} className="flex items-center justify-between">
-                      <p className="text-sm font-medium">{item.name}</p>
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href={item.href}>
-                          <ExternalLink className="h-4 w-4" />
-                        </Link>
-                      </Button>
+                    <div key={item.name}>
+                      <Link href={item.href} className="block">
+                        <p className="text-sm font-medium hover:underline">{item.name}</p>
+                      </Link>
                     </div>
                   ))}
                 </div>
