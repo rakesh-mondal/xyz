@@ -698,17 +698,8 @@ export function PublicIPManagementModal({
           </DialogHeader>
           
           <div className="space-y-6 py-4">
-            <div className="flex items-center justify-between">
+            <div>
               <h3 className="text-lg font-medium">Public IP Status</h3>
-              {!showAttachedState && attachedIPs.length === 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleAttachIP}
-                >
-                  Attach Public IP
-                </Button>
-              )}
             </div>
 
             <div className="space-y-2">
