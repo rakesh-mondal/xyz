@@ -70,7 +70,17 @@ export default function CreateBackupPage() {
     setFormData(prev => ({ ...prev, [id]: value }))
   }
   function handleSelectChange(id: string, value: string) {
-    setFormData(prev => ({ ...prev, [id]: value }))
+    if (id === "volumeId") {
+      // Auto-fill size when volume is selected
+      const selectedVolume = mockVolumes.find(v => v.id === value)
+      setFormData(prev => ({ 
+        ...prev, 
+        [id]: value,
+        size: selectedVolume ? selectedVolume.size : ""
+      }))
+    } else {
+      setFormData(prev => ({ ...prev, [id]: value }))
+    }
   }
 
   // Handle form submit (simulate backup creation)
@@ -137,17 +147,19 @@ export default function CreateBackupPage() {
                     </div>
                     <div>
                       <Label htmlFor="size" className="block mb-2 font-medium">
-                        Size (GB) <span className="text-destructive">*</span>
+                        Size (GB)
                       </Label>
                       <Input
                         id="size"
                         type="number"
-                        min={1}
-                        placeholder="Enter backup size"
                         value={formData.size}
-                        onChange={handleChange}
-                        required
+                        readOnly
+                        className="bg-gray-50 cursor-not-allowed"
+                        placeholder="Auto-filled from selected volume"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Size is automatically set based on the selected volume
+                      </p>
                     </div>
                   </div>
                   {/* Right column */}
@@ -202,7 +214,7 @@ export default function CreateBackupPage() {
                 type="submit"
                 className="bg-black text-white hover:bg-black/90 transition-colors hover:scale-105"
                 form="backup-form"
-                disabled={isSubmitting || !formData.volumeId || !formData.size}
+                disabled={isSubmitting || !formData.volumeId}
               >
                 {isSubmitting ? "Creating..." : "Create Backup"}
               </Button>
@@ -275,12 +287,14 @@ export default function CreateBackupPage() {
             </div>
             <div>
               <div className="space-y-3">
-                <div className="text-2xl font-bold">₹0.00</div>
+                <div className="text-2xl font-bold">
+                  {formData.size ? `₹${(Number(formData.size) * 1.8).toFixed(2)}` : "₹0.00"}
+                </div>
                 <p className="text-sm text-muted-foreground">
-                  Backup creation is free in design mode. Pricing will be shown here in production.
+                  {formData.size ? `per month (${formData.size} GB × ₹1.8/GB)` : "Select a volume to see pricing"}
                 </p>
                 <div className="text-xs text-muted-foreground pt-2 border-t">
-                  <p>• Backup: ₹0.00 (mock)</p>
+                  <p>• Backup: ₹1.8 per GB per month</p>
                   <p>• Storage charges may apply</p>
                 </div>
               </div>
