@@ -170,10 +170,6 @@ export default function CreateStaticIPPage() {
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Billing continues while IP is reserved</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use descriptive names for easy identification</span>
-                </li>
               </ul>
             </CardContent>
           </Card>
