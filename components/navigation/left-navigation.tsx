@@ -55,12 +55,12 @@ interface NavItemProps {
 const navigationConfig = {
   home: {
     href: "/",
-    icon: <HomeIcon className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: <HomeIcon className="h-[18px] w-[18px] text-[#64748b]" />,
     label: "Home",
   },
   coreInfrastructure: {
     href: "/core-infrastructure",
-    icon: <ServerIcon className="h-[18px] w-[18px] text-muted-foreground" />, 
+    icon: <ServerIcon className="h-[18px] w-[18px] text-[#64748b]" />, 
     label: "Core Infrastructure",
     isCategory: true,
     subItems: [
@@ -128,7 +128,11 @@ const navigationConfig = {
   },
   aiStudio: {
     href: "/ai-studio",
-    icon: <CpuChipIcon className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.2" stroke="currentColor" aria-hidden="true" data-slot="icon" className="h-[18px] w-[18px] text-[#64748b]">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m21 7.5-2.25-1.313M21 7.5v2.25m0-2.25-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3 2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75 2.25-1.313M12 21.75V19.5m0 2.25-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25"></path>
+      </svg>
+    ),
     label: "AI Studio",
     isCategory: true,
     subItems: [
@@ -146,7 +150,11 @@ const navigationConfig = {
   },
   aiSolutions: {
     href: "/ai-solutions",
-    icon: <CpuChipIcon className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" aria-hidden="true" data-slot="icon" className="h-[18px] w-[18px] text-[#64748b]">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"></path>
+      </svg>
+    ),
     label: "AI Solutions",
     isCategory: true,
     subItems: [
@@ -192,12 +200,12 @@ const navigationConfig = {
   },
   maps: {
     href: "/maps",
-    icon: <MapIcon className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: <MapIcon className="h-[18px] w-[18px] text-[#64748b]" />,
     label: "Maps",
   },
   administration: {
     href: "/administration",
-    icon: <Settings className="h-[18px] w-[18px] text-muted-foreground" />,
+    icon: <Settings className="h-[18px] w-[18px] text-[#64748b]" />,
     label: "Administration",
     isCategory: true,
     subItems: [
