@@ -118,7 +118,7 @@ export function ImageUpload({
           <div className="text-center">
             <p className="text-sm font-medium">Click to select or drag and drop file here</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Only .img, .iso files. Max size: {maxSizeGB} GB. Magic Byte (MIME) check enforced.
+              Machine image files (.img, .iso). Max size: {maxSizeGB} GB.
             </p>
           </div>
         </div>
