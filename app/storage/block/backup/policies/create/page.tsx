@@ -731,7 +731,7 @@ export default function CreateBackupPolicyPage() {
                     </div>
 
                     {/* Common Examples */}
-                    <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="bg-blue-50 p-3 rounded-lg mt-4">
                       <h4 className="text-sm font-medium mb-2">Common Examples:</h4>
                       <div className="text-xs space-y-1 text-muted-foreground">
                         <div>• <strong>Every 30 minutes:</strong> Minute: 30, leave others empty</div>
@@ -748,7 +748,9 @@ export default function CreateBackupPolicyPage() {
                       <span className="text-sm font-medium">CRON Expression:</span>
                       <TooltipWrapper 
                         content="Copy CRON expression to clipboard" 
-                        side="top"
+                        side="left"
+                        align="center"
+                        inModal={true}
                       >
                         <button
                           type="button"

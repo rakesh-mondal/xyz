@@ -139,8 +139,10 @@ export function AddPolicyModal({ open, onClose, onSave, mode, type, initialPolic
                     Policy Name
                   </Label>
                   <TooltipWrapper 
-                    content="Leave empty to use the auto-generated name. Only alphanumeric characters, hyphens, and underscores allowed." 
-                    side="top"
+                    content="Leave empty for auto-generated name. Only alphanumeric, hyphens, and underscores allowed." 
+                    side="right"
+                    align="start"
+                    inModal={true}
                   >
                     <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
                   </TooltipWrapper>
@@ -177,6 +179,7 @@ export function AddPolicyModal({ open, onClose, onSave, mode, type, initialPolic
                   <TooltipWrapper 
                     content="When this limit is reached, the oldest backup will be replaced." 
                     side="top"
+                    inModal={true}
                   >
                     <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
                   </TooltipWrapper>
@@ -202,6 +205,7 @@ export function AddPolicyModal({ open, onClose, onSave, mode, type, initialPolic
                   <TooltipWrapper 
                     content="Incremental backups only store changes since the last backup, saving storage space." 
                     side="top"
+                    inModal={true}
                   >
                     <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
                   </TooltipWrapper>
@@ -327,7 +331,7 @@ export function AddPolicyModal({ open, onClose, onSave, mode, type, initialPolic
                 </div>
 
                 {/* Common Examples */}
-                <div className="bg-blue-50 p-3 rounded-lg">
+                <div className="bg-blue-50 p-3 rounded-lg mt-4">
                   <h4 className="text-sm font-medium mb-2">Common Examples:</h4>
                   <div className="text-xs space-y-1 text-muted-foreground">
                     <div>• <strong>Every 30 minutes:</strong> Minute: 30, leave others empty</div>
@@ -343,7 +347,9 @@ export function AddPolicyModal({ open, onClose, onSave, mode, type, initialPolic
                     <span className="text-sm font-medium">CRON Expression:</span>
                     <TooltipWrapper 
                       content="Copy CRON expression to clipboard" 
-                      side="top"
+                      side="left"
+                      align="center"
+                      inModal={true}
                     >
                       <button
                         type="button"

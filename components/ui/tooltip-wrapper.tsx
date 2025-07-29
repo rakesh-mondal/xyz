@@ -15,6 +15,7 @@ interface TooltipWrapperProps {
   align?: "start" | "center" | "end"
   delayDuration?: number
   disabled?: boolean
+  inModal?: boolean
 }
 
 export function TooltipWrapper({ 
@@ -23,7 +24,8 @@ export function TooltipWrapper({
   side = "top", 
   align = "center",
   delayDuration = 300,
-  disabled = false
+  disabled = false,
+  inModal = false
 }: TooltipWrapperProps) {
   if (disabled) {
     return <>{children}</>
@@ -39,9 +41,10 @@ export function TooltipWrapper({
           side={side} 
           align={align}
           avoidCollisions={true}
-          collisionPadding={20}
+          collisionPadding={inModal ? 50 : 20}
           sticky="always"
-          className="max-w-xs"
+          className={`max-w-xs z-[9999] ${inModal ? 'modal-tooltip' : ''}`}
+          sideOffset={inModal ? 16 : 8}
         >
           {typeof content === 'string' ? <p className="whitespace-normal">{content}</p> : content}
         </TooltipContent>
