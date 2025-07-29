@@ -751,9 +751,14 @@ function VolumesSection() {
       key: "createdOn",
       label: "Created On",
       sortable: true,
-      render: (value: string) => (
-        <div className="leading-5">{new Date(value).toLocaleDateString()}</div>
-      ),
+      render: (value: string) => {
+        const date = new Date(value);
+        return (
+          <div className="text-muted-foreground leading-5">
+            {date.toLocaleDateString()} {date.toLocaleTimeString()}
+          </div>
+        );
+      },
     },
     {
       key: "status",
