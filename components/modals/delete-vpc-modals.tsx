@@ -280,14 +280,6 @@ export function DeleteVPCConfirmationModal({
               Pasting is disabled. You must type the name manually.
             </p>
           </div>
-
-          <Alert variant="destructive">
-            <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Warning:</strong> This will permanently delete VPC "{vpc.name}" and all its resources. 
-              This action cannot be undone.
-            </AlertDescription>
-          </Alert>
         </div>
         
         <DialogFooter className="flex gap-3 sm:justify-end" style={{ paddingTop: '.5rem' }}>
