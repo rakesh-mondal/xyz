@@ -1081,8 +1081,10 @@ export default function CreateVMClient() {
               </div>
             </div>
             <div className="space-y-3">
-              <div className="text-2xl font-bold">₹{pricing.total}</div>
-              <p className="text-sm text-muted-foreground">per hour</p>
+              <div className="flex items-baseline gap-2">
+                <div className="text-2xl font-bold">₹{pricing.total}</div>
+                <p className="text-sm text-muted-foreground">per hour</p>
+              </div>
               
               <div className="text-xs text-muted-foreground pt-2 border-t space-y-1">
                 <div className="flex justify-between">
