@@ -814,14 +814,7 @@ export default function CreateBackupPolicyPage() {
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use descriptive names to easily identify policy purpose</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Monitor policy execution logs to ensure proper functionality</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Test restore procedures regularly to verify backup integrity</span>
-                </li>
+
               </ul>
             </CardContent>
           </Card>
