@@ -360,7 +360,7 @@ export function IndustrySolutionsMockup() {
                       <p className="text-sm text-muted-foreground">Improvement in documentation accuracy</p>
                     </div>
                     <div className="bg-green-50 dark:bg-green-900/10 rounded-lg p-4 text-center">
-                      <p className="text-3xl font-bold text-green-700">$4.2M</p>
+                      <p className="text-3xl font-bold text-green-700">₹35.2Cr</p>
                       <p className="text-sm text-muted-foreground">Annual cost savings</p>
                     </div>
                   </div>

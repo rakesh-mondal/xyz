@@ -74,7 +74,7 @@ function WarningModal({ isOpen, onClose, onConfirm, volume, newSize, priceDiffer
             <Separator />
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Additional Cost:</span>
-              <span className="text-sm font-medium text-black">₹{(priceDifference * 83).toFixed(2)}/month</span>
+              <span className="text-sm font-medium text-black">₹{priceDifference.toFixed(2)}/month</span>
             </div>
           </div>
         </div>
@@ -102,8 +102,8 @@ export function ExtendVolumeModal({ isOpen, onClose, volume, onConfirm }: Extend
   const currentSize = parseInt(volume.size)
   const newSizeNumber = parseInt(newSize)
   
-  // Calculate pricing (example: $0.10 per GB per month for HNSS)
-  const pricePerGB = 0.10
+  // Calculate pricing (₹1.8 per GB per month for volumes)
+  const pricePerGB = 1.8
   const currentCost = currentSize * pricePerGB
   const newCost = newSizeNumber * pricePerGB
   const priceDifference = newCost - currentCost
@@ -249,16 +249,16 @@ export function ExtendVolumeModal({ isOpen, onClose, volume, onConfirm }: Extend
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="text-black">Current Cost:</span>
-                    <span className="font-medium text-black">₹{(currentCost * 83).toFixed(2)}/month</span>
+                    <span className="font-medium text-black">₹{currentCost.toFixed(2)}/month</span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-black">New Cost:</span>
-                    <span className="font-medium text-black">₹{(newCost * 83).toFixed(2)}/month</span>
+                    <span className="font-medium text-black">₹{newCost.toFixed(2)}/month</span>
                   </div>
                   <Separator style={{ backgroundColor: "rgba(14, 114, 180, 0.2)" }} />
                   <div className="flex justify-between text-xs">
                     <span className="font-medium text-black">Additional Cost:</span>
-                    <span className="font-semibold text-black">₹{(priceDifference * 83).toFixed(2)}/month</span>
+                    <span className="font-semibold text-black">₹{priceDifference.toFixed(2)}/month</span>
                   </div>
                 </div>
               </div>

@@ -118,7 +118,7 @@ export default function CreateVolumePage() {
   }
 
   const calculatePrice = () => {
-    const pricePerGB = 0.10
+    const pricePerGB = 1.8
     const totalPrice = size[0] * pricePerGB
     return totalPrice.toFixed(2)
   }

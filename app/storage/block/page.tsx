@@ -915,7 +915,7 @@ function VolumesSection() {
         open={showSnapshotModal}
         onClose={() => { setShowSnapshotModal(false); setInstantSnapshotVolume(null); }}
         volume={instantSnapshotVolume}
-        price={instantSnapshotVolume ? `$${(Number(instantSnapshotVolume.size) * 0.05).toFixed(2)}` : undefined}
+        price={instantSnapshotVolume ? `₹${(Number(instantSnapshotVolume.size) * 2.50).toFixed(2)} per GB per month` : undefined}
         onCreate={async ({ volume, name, description }) => {
           toast({
             title: "Snapshot Created",
