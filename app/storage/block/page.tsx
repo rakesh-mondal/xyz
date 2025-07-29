@@ -1162,7 +1162,7 @@ function BackupSection() {
       setRestoreInProgress(false)
       setIsRestoreModalOpen(false)
       toast({
-        title: "Restore started (mock)",
+        title: "Restore started",
         description: `Restoring backup \"${selectedBackup?.name}\" to new volume \"${restoreVolumeName}\" and all previous deltas up to the primary for volume \"${selectedBackup?.volumeName}\".`,
       })
       setSelectedBackup(null)
