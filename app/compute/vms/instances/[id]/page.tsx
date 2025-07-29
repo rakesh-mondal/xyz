@@ -359,8 +359,8 @@ export default function VMInstanceDetailsPage() {
               </div>
             </div>
             
-            {/* Status, Region in one row */}
-            <div className="col-span-full grid grid-cols-2 gap-4">
+            {/* Status, Region, Created On, Delete Protection in one row */}
+            <div className="col-span-full grid grid-cols-4 gap-4">
               <div className="space-y-1">
                 <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
                 <div>
@@ -371,16 +371,6 @@ export default function VMInstanceDetailsPage() {
                 <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Region</label>
                 <div className="font-medium" style={{ fontSize: '14px' }}>{config.region}</div>
               </div>
-            </div>
-            
-            {/* Description, Created On, Delete Protection in one row */}
-            <div className="col-span-full grid grid-cols-3 gap-4">
-              {vm.description && (
-                <div className="space-y-1">
-                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Description</label>
-                  <div className="font-medium" style={{ fontSize: '14px' }}>{vm.description}</div>
-                </div>
-              )}
               <div className="space-y-1">
                 <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Created On</label>
                 <div className="font-medium" style={{ fontSize: '14px' }}>{formatDate(vm.createdOn)}</div>
@@ -390,6 +380,16 @@ export default function VMInstanceDetailsPage() {
                 <div className="font-medium" style={{ fontSize: '14px' }}>{vm.deleteProtection ? "Enabled" : "Disabled"}</div>
               </div>
             </div>
+            
+            {/* Description */}
+            {vm.description && (
+              <div className="col-span-full">
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Description</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>{vm.description}</div>
+                </div>
+              </div>
+            )}
           </DetailGrid>
         </div>
 
