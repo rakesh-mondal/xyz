@@ -430,13 +430,15 @@ export function SecurityGroupManagementModal({
           <div className="space-y-6 py-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Attached Security Groups</h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setAttachModalOpen(true)}
-              >
-                Attach Security Group
-              </Button>
+              {attachedSecurityGroups.length === 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAttachModalOpen(true)}
+                >
+                  Attach Security Group
+                </Button>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -445,28 +447,34 @@ export function SecurityGroupManagementModal({
                   No security groups attached
                 </div>
               ) : (
-                attachedSecurityGroups.map((sg) => (
-                  <div key={sg.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex-1 cursor-pointer" onClick={() => {/* Show details */}}>
-                      <div className="font-medium">{sg.name}</div>
-                      <div className="text-sm text-muted-foreground">{sg.description}</div>
-                      <div className="text-sm text-muted-foreground">{sg.rules} rules</div>
+                <>
+                  {attachedSecurityGroups.map((sg) => (
+                    <div key={sg.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex-1 cursor-pointer" onClick={() => {/* Show details */}}>
+                        <div className="font-medium">{sg.name}</div>
+                        <div className="text-sm text-muted-foreground">{sg.description}</div>
+                        <div className="text-sm text-muted-foreground">{sg.rules} rules</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">Attached</Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedSecurityGroup(sg)
+                            setDetachModalOpen(true)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">Attached</Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedSecurityGroup(sg)
-                          setDetachModalOpen(true)
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  ))}
+                  <div className="text-sm text-muted-foreground mt-2">
+                    <p>• Only one security group can be attached at a time</p>
+                    <p>• Detach the current security group to attach a different one</p>
                   </div>
-                ))
+                </>
               )}
             </div>
           </div>
