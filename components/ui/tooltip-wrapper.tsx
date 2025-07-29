@@ -41,8 +41,9 @@ export function TooltipWrapper({
           avoidCollisions={true}
           collisionPadding={20}
           sticky="always"
+          className="max-w-xs"
         >
-          {typeof content === 'string' ? <p>{content}</p> : content}
+          {typeof content === 'string' ? <p className="whitespace-normal">{content}</p> : content}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
