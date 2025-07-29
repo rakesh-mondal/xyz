@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { CreateButton } from "@/components/create-button"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { StatusBadge } from "@/components/status-badge"
+import { VolumeDeletionStatus } from "@/components/volume-deletion-status"
 import { ActionMenu } from "@/components/action-menu"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { ExtendVolumeModal } from "@/components/modals/extend-volume-modal"
@@ -210,6 +211,8 @@ const mockVolumes = [
     attachedInstance: "-",
     vpc: "vpc-main-prod",
     status: "deleting",
+    deletionStartedOn: "2024-03-14T09:15:00Z",
+    estimatedDeletionTime: 10,
     createdOn: "2024-03-14T09:15:00Z",
   },
   {
@@ -265,6 +268,8 @@ const mockVolumes = [
     attachedInstance: "-",
     vpc: "vpc-main-prod",
     status: "deleting",
+    deletionStartedOn: "2024-03-14T09:15:00Z",
+    estimatedDeletionTime: 8,
     createdOn: "2024-03-08T14:20:00Z",
   },
   {
@@ -754,21 +759,26 @@ function VolumesSection() {
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value: string, row: any) => (
-        <div className="flex items-center gap-2">
-          <StatusBadge status={value} />
-          {value === "failed" && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleRetryVolume(row)}
-              className="h-6 px-2 text-xs"
-            >
-              Retry
-            </Button>
-          )}
-        </div>
-      ),
+      render: (value: string, row: any) => {
+        if (value === "deleting") {
+          return <VolumeDeletionStatus volume={row} compact={true} />
+        }
+        return (
+          <div className="flex items-center gap-2">
+            <StatusBadge status={value} />
+            {value === "failed" && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleRetryVolume(row)}
+                className="h-6 px-2 text-xs"
+              >
+                Retry
+              </Button>
+            )}
+          </div>
+        )
+      },
     },
     {
       key: "actions",

@@ -11,6 +11,7 @@ import { Button } from "../../../../../components/ui/button"
 import { DeleteConfirmationModal } from "../../../../../components/delete-confirmation-modal"
 import { ShadcnDataTable } from "../../../../../components/ui/shadcn-data-table"
 import { StatusBadge } from "../../../../../components/status-badge"
+import { VolumeDeletionStatus } from "../../../../../components/volume-deletion-status"
 import { Edit, Trash2, Plus } from "lucide-react"
 import { useToast } from "../../../../../hooks/use-toast"
 import { ExtendVolumeModal } from "../../../../../components/modals/extend-volume-modal"
@@ -87,6 +88,8 @@ const getVolume = (id: string) => {
       attachedInstances: [],
       vpc: "vpc-main-prod",
       status: "deleting",
+      deletionStartedOn: "2024-03-14T09:15:00Z",
+      estimatedDeletionTime: 8,
       createdOn: "2024-03-08T14:20:00Z",
       updatedOn: "2024-03-08T14:20:00Z",
     },
@@ -413,22 +416,28 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Volume ID</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{volume.id}</div>
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
-              <div className="flex items-center gap-2">
-                <StatusBadge status={volume.status} />
-                {volume.status === "failed" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleRetryVolume(volume)}
-                    className="h-6 px-2 text-xs"
-                  >
-                    Retry
-                  </Button>
-                )}
-              </div>
-            </div>
+                            <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
+                  <div className="flex items-center gap-2">
+                    {volume.status === "deleting" ? (
+                      <VolumeDeletionStatus volume={volume} compact={true} />
+                    ) : (
+                      <>
+                        <StatusBadge status={volume.status} />
+                        {volume.status === "failed" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleRetryVolume(volume)}
+                            className="h-6 px-2 text-xs"
+                          >
+                            Retry
+                          </Button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Volume Type</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{volume.type}</div>
