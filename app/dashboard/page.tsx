@@ -20,49 +20,118 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import React from "react"
 import { StatusBadge } from "@/components/status-badge"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 
 // Resource Tables Component
 function ResourceTables({ isNewUser = false }: { isNewUser?: boolean }) {
   if (isNewUser) {
+    // Mock credit status - in real app this would come from user data
+    const hasCredits = false // This would be determined by user's credit balance
+    
     const steps = [
-      { title: 'Add Credits', description: 'Fund your account to get started.', button: 'Add Credits', docs: '/billing/quickstart' },
-      { title: 'Create VPC', description: 'Set up your first Virtual Private Cloud.', button: 'Create VPC', docs: '/networking/vpc/quickstart' },
-      { title: 'Attach Block Storage', description: 'Provision storage for your workloads.', button: 'Attach Storage', docs: '/storage/block/quickstart' },
-      { title: 'Create Virtual Machine', description: 'Launch your first VM instance.', button: 'Create VM', docs: '/compute/vms/quickstart' },
+      { 
+        title: 'Add Credits', 
+        description: 'Add credits to start provisioning services', 
+        button: 'Add Credits', 
+        href: '/billing/add-credits',
+        enabled: true, // Always enabled
+        tooltip: null,
+        icon: CreditCard
+      },
+      { 
+        title: 'Create VPC', 
+        description: 'Configure a Virtual Private Cloud to organize and secure your resources', 
+        button: 'Create VPC', 
+        href: '/networking/vpc',
+        enabled: hasCredits,
+        tooltip: hasCredits ? null : 'Add credits to your account to create VPCs',
+        icon: Globe
+      },
+      { 
+        title: 'Add SSH Key', 
+        description: 'Add your SSH Key to create and access your VMs', 
+        button: 'Add SSH Key', 
+        href: '/settings/ssh-keys',
+        enabled: hasCredits,
+        tooltip: hasCredits ? null : 'Add credits to your account to manage SSH keys',
+        icon: Key
+      },
+      { 
+        title: 'Create Virtual Machine', 
+        description: 'Deploy a virtual machine to begin running your applications', 
+        button: 'Create VM', 
+        href: '/compute/vms/cpu/create',
+        enabled: hasCredits,
+        tooltip: hasCredits ? null : 'Add credits to your account to create virtual machines',
+        icon: Server
+      },
     ];
+
     return (
       <div className="space-y-6">
         <Card className="mb-6">
           <CardContent className="p-6 w-full flex flex-col items-center justify-center">
-            <div className="w-full max-w-3xl mx-auto">
-              <h2 className="text-2xl font-bold mb-4 text-center">Cloud Onboarding Assistant</h2>
-              <div className="text-base text-muted-foreground mb-6 text-center">
-                A guided, step-by-step onboarding panel to help you provision your first service.
+            <div className="w-full max-w-4xl mx-auto">
+              {/* Header with title and View Docs button */}
+              <div className="flex items-center justify-between mb-8">
+                <div className="text-center flex-1">
+                  <h2 className="text-2xl font-bold mb-2">Set Up Your Cloud Services</h2>
+                  <div className="text-base text-muted-foreground">
+                    A step-by-step panel to help you configure and launch VM services
+                  </div>
+                </div>
+                <Button variant="outline" asChild className="flex-shrink-0">
+                  <Link href="/getting-started/quickstart">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    View Docs
+                  </Link>
+                </Button>
               </div>
-              <Stepper defaultValue={1} orientation="horizontal" className="space-y-8">
-                <StepperNav className="gap-8 mb-8">
-                  {steps.map((step, index) => (
-                    <React.Fragment key={index}>
-                      <StepperItem step={index + 1} className="relative flex-1 items-start">
-                        <div className="flex flex-col gap-3 items-center">
-                          <StepperIndicator>{index + 1}</StepperIndicator>
-                          <StepperTitle className="text-center font-semibold group-data-[state=inactive]/step:text-muted-foreground">
-                            {step.title}
-                          </StepperTitle>
-                          <StepperDescription className="text-center text-xs text-muted-foreground">
-                            {step.description}
-                          </StepperDescription>
-                          <Button variant="default" size="sm" className="mt-2 w-full">{step.button}</Button>
-                          <a href={step.docs} target="_blank" rel="noopener noreferrer" className="text-primary underline text-xs flex items-center">Docs</a>
-                        </div>
-                        {steps.length > index + 1 && (
-                          <StepperSeparator className="absolute top-3 left-[calc(100%+0.5rem)] w-[calc(100%-2rem)] h-0.5 bg-muted group-data-[state=completed]/step:bg-primary" />
-                        )}
-                      </StepperItem>
-                    </React.Fragment>
-                  ))}
-                </StepperNav>
-              </Stepper>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {steps.map((step, index) => {
+                  const Icon = step.icon;
+                  const stepButton = (
+                    <Button 
+                      variant={step.enabled ? "default" : "outline"}
+                      size="sm" 
+                      className={`w-full ${step.enabled ? '' : 'opacity-60 cursor-not-allowed'}`}
+                      disabled={!step.enabled}
+                      asChild={step.enabled}
+                    >
+                      {step.enabled ? (
+                        <Link href={step.href}>
+                          {step.button}
+                        </Link>
+                      ) : (
+                        <span>{step.button}</span>
+                      )}
+                    </Button>
+                  );
+
+                  return (
+                    <div key={index} className="flex flex-col items-center text-center space-y-3">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg">{step.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {step.description}
+                        </p>
+                      </div>
+                      
+                      {step.tooltip ? (
+                        <TooltipWrapper content={step.tooltip}>
+                          {stepButton}
+                        </TooltipWrapper>
+                      ) : (
+                        stepButton
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </CardContent>
         </Card>

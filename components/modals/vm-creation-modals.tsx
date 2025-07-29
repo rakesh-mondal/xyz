@@ -13,6 +13,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { HelpCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/components/auth/auth-provider"
 
 // Create VPC Modal within VM Creation
 interface CreateVPCModalProps {
@@ -24,8 +25,12 @@ interface CreateVPCModalProps {
 
 export function CreateVPCModal({ open, onClose, onSuccess, preselectedRegion }: CreateVPCModalProps) {
   const { toast } = useToast()
+  const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isFirstVPC] = useState(true) // Mock data
+
+  // Check if user is existing user (existing.user@krutrim.com)
+  const isExistingUser = user?.email === "existing.user@krutrim.com"
   const [formData, setFormData] = useState({
     vpcName: "",
     description: "",
@@ -359,13 +364,25 @@ export function CreateVPCModal({ open, onClose, onSuccess, preselectedRegion }: 
               <div className="pb-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-semibold">Price Summary</h3>
-                  {isFirstVPC && (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">First VPC</span>
-                  )}
                 </div>
               </div>
               <div>
-                {isFirstVPC ? (
+                {isExistingUser ? (
+                  <div className="space-y-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold">₹0.28</span>
+                      <span className="text-sm text-muted-foreground">per hour</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      This includes the basic VPC setup and one subnet.
+                    </p>
+                    <div className="text-xs text-muted-foreground pt-2 border-t">
+                      <p>• VPC Setup: ₹0.28/hour</p>
+                      <p>• Estimated monthly: ₹204.40</p>
+                      <p>• Additional subnets: ₹0.10/hour each</p>
+                    </div>
+                  </div>
+                ) : isFirstVPC ? (
                   <div className="space-y-3">
                     <div className="text-2xl font-bold text-green-600">Free</div>
                     <p className="text-sm text-muted-foreground">

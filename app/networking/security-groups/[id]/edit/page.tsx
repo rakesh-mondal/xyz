@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { notFound } from "next/navigation"
+import { useAuth } from "@/components/auth/auth-provider"
 import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../../../../components/ui/card"
 import { Button } from "../../../../../components/ui/button"
@@ -585,6 +586,7 @@ function VPCSelector({ value, onChange, onCreateNew }: {
 }
 
 function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     vpcName: "",
     region: "",
@@ -597,6 +599,9 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
   })
   const [loading, setLoading] = useState(false)
   const [isFirstVPC] = useState(true)
+
+  // Check if user is existing user (existing.user@krutrim.com)
+  const isExistingUser = user?.email === "existing.user@krutrim.com"
 
   // Mock region availability data
   const regionAvailability = {
@@ -955,13 +960,25 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
               <div className="pb-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-semibold">Price Summary</h3>
-                  {isFirstVPC && (
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">First VPC</Badge>
-                  )}
                 </div>
               </div>
               <div>
-                {isFirstVPC ? (
+                {isExistingUser ? (
+                  <div className="space-y-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold">₹0.28</span>
+                      <span className="text-sm text-muted-foreground">per hour</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      This includes the basic VPC setup and one subnet.
+                    </p>
+                    <div className="text-xs text-muted-foreground pt-2 border-t">
+                      <p>• VPC Setup: ₹0.28/hour</p>
+                      <p>• Estimated monthly: ₹204.40</p>
+                      <p>• Additional subnets: ₹0.10/hour each</p>
+                    </div>
+                  </div>
+                ) : isFirstVPC ? (
                   <div className="space-y-3">
                     <div className="text-2xl font-bold text-green-600">Free</div>
                     <p className="text-sm text-muted-foreground">
