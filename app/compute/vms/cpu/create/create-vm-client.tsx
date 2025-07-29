@@ -55,8 +55,11 @@ const subnets = [
 ]
 
 const reservedIPs = [
-  { id: "ip-1", address: "203.0.113.1", subnet: "subnet-1" },
-  { id: "ip-2", address: "203.0.113.2", subnet: "subnet-1" },
+  { id: "ip-1", address: "203.0.113.1", subnet: "subnet-1", attached: false },
+  { id: "ip-2", address: "203.0.113.2", subnet: "subnet-1", attached: false },
+  { id: "ip-3", address: "203.0.113.3", subnet: "subnet-1", attached: true },
+  { id: "ip-4", address: "203.0.113.4", subnet: "subnet-1", attached: false },
+  { id: "ip-5", address: "203.0.113.5", subnet: "subnet-1", attached: false },
 ]
 
 const securityGroups = [
@@ -124,7 +127,7 @@ export default function CreateVMClient() {
   const selectedSubnet = subnets.find(subnet => subnet.id === formData.subnetId)
   const isPrivateSubnet = selectedSubnet?.type === "Private"
   const showIPAddressType = selectedSubnet?.type === "Public"
-  const availableReservedIPs = reservedIPs.filter(ip => ip.subnet === formData.subnetId)
+  const availableReservedIPs = reservedIPs.filter(ip => ip.subnet === formData.subnetId && !ip.attached)
 
   const handleInputChange = (field: keyof FormData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -198,6 +201,63 @@ export default function CreateVMClient() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate required fields
+    if (!formData.name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "VM name is required.",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    if (!formData.vpcId) {
+      toast({
+        title: "Validation Error",
+        description: "VPC selection is required.",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    if (!formData.subnetId) {
+      toast({
+        title: "Validation Error",
+        description: "Subnet selection is required.",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    if (!formData.sshKeyId) {
+      toast({
+        title: "Validation Error",
+        description: "SSH key selection is required.",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    if (!formData.securityGroupId) {
+      toast({
+        title: "Validation Error",
+        description: "Security group selection is required.",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    // Validate reserved IP if IP address type is reserved
+    if (showIPAddressType && formData.ipAddressType === "reserved" && !formData.reservedIpId) {
+      toast({
+        title: "Validation Error",
+        description: "Reserved IP selection is required when using reserved IP type.",
+        variant: "destructive"
+      })
+      return
+    }
+    
     if (step === "form") {
       setStep("confirmation")
     } else {
@@ -441,7 +501,7 @@ export default function CreateVMClient() {
                                   <Label htmlFor="existing-bootable" className="text-sm font-medium leading-relaxed cursor-pointer">
                                     Select an existing bootable volume
                                   </Label>
-                                  <TooltipWrapper content="Choose from your existing bootable volumes to launch this VM">
+                                  <TooltipWrapper content="Choose appropriate bootable volume for right OS">
                                     <HelpCircle className="h-4 w-4 text-muted-foreground cursor-pointer" />
                                   </TooltipWrapper>
                                 </div>
@@ -560,7 +620,7 @@ export default function CreateVMClient() {
                                   <Label htmlFor="no-storage" className="text-sm font-medium leading-relaxed cursor-pointer">
                                     No additional storage
                                   </Label>
-                                  <TooltipWrapper content="Use only the bootable volume for this VM">
+                                  <TooltipWrapper content="Choose appropriate storage size for your workload">
                                     <HelpCircle className="h-4 w-4 text-muted-foreground cursor-pointer" />
                                   </TooltipWrapper>
                                 </div>
@@ -761,7 +821,7 @@ export default function CreateVMClient() {
 
                   {/* Subnet */}
                   <div className="mb-6">
-                    <Label className="block mb-2 font-medium">Subnet</Label>
+                    <Label className="block mb-2 font-medium">Subnet <span className="text-destructive">*</span></Label>
                     <Select value={formData.subnetId} onValueChange={(value) => {
                       if (value === "__create_new__") {
                         router.push("/networking/subnets/create?return=/compute/vms/cpu/create")
@@ -796,60 +856,6 @@ export default function CreateVMClient() {
                     )}
                   </div>
 
-                  {/* IP Address Type */}
-                  {showIPAddressType && (
-                    <div className="space-y-4">
-                      <Label className="font-medium">IP Address Type</Label>
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="floating-ip"
-                            checked={formData.ipAddressType === "floating"}
-                            onCheckedChange={() => handleInputChange("ipAddressType", "floating")}
-                          />
-                          <Label htmlFor="floating-ip" className="flex items-center gap-2">
-                            Floating IP
-                            <TooltipWrapper content="Dynamic Public IP address that is automatically assigned to the VM from the IP address pool. You will be only billed for the IP address as long as the VM is not stopped. Please note that this IP address is not reserved and it can't be guaranteed that you will get the same IP address again once you restart your VM">
-                              <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                            </TooltipWrapper>
-                          </Label>
-                        </div>
-
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="reserved-ip"
-                            checked={formData.ipAddressType === "reserved"}
-                            onCheckedChange={() => handleInputChange("ipAddressType", "reserved")}
-                          />
-                          <Label htmlFor="reserved-ip" className="flex items-center gap-2">
-                            Reserved IP
-                            <TooltipWrapper content="Fixed IP that is assigned to your VM. You will be billed as long as you have not deleted the IP address. The same IP address will be assigned to the VM even if you restart your VM">
-                              <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                            </TooltipWrapper>
-                          </Label>
-                        </div>
-
-                        {formData.ipAddressType === "reserved" && (
-                          <div className="ml-6">
-                            <Label htmlFor="reserved-ip-select">Select Reserved IP</Label>
-                            <Select value={formData.reservedIpId} onValueChange={(value) => handleInputChange("reservedIpId", value)}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select reserved IP" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {availableReservedIPs.map((ip) => (
-                                  <SelectItem key={ip.id} value={ip.id}>
-                                    {ip.address}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Security Group */}
                   <div className="mb-6">
                     <Label className="block mb-2 font-medium">
@@ -881,6 +887,60 @@ export default function CreateVMClient() {
                       Select Security group to control traffic to and from your VM
                     </p>
                   </div>
+
+                  {/* IP Address Type */}
+                  {showIPAddressType && (
+                    <div className="mb-6">
+                      <Label className="block mb-2 font-medium">IP Address Type</Label>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="floating-ip"
+                            checked={formData.ipAddressType === "floating"}
+                            onCheckedChange={() => handleInputChange("ipAddressType", "floating")}
+                          />
+                          <Label htmlFor="floating-ip" className="flex items-center gap-2">
+                            Floating IP
+                            <TooltipWrapper content="Dynamic Public IP address that is automatically assigned to the VM from the IP address pool. You will be only billed for the IP address as long as the VM is not stopped. Please note that this IP address is not reserved and it can't be guaranteed that you will get the same IP address again once you restart your VM">
+                              <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                            </TooltipWrapper>
+                          </Label>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="reserved-ip"
+                            checked={formData.ipAddressType === "reserved"}
+                            onCheckedChange={() => handleInputChange("ipAddressType", "reserved")}
+                          />
+                          <Label htmlFor="reserved-ip" className="flex items-center gap-2">
+                            Reserved IP
+                            <TooltipWrapper content="Fixed IP that is assigned to your VM. You will be billed as long as you have not deleted the IP address. The same IP address will be assigned to the VM even if you restart your VM">
+                              <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                            </TooltipWrapper>
+                          </Label>
+                        </div>
+
+                        {formData.ipAddressType === "reserved" && (
+                          <div className="ml-6">
+                            <Label htmlFor="reserved-ip-select">Reserved IP</Label>
+                            <Select value={formData.reservedIpId} onValueChange={(value) => handleInputChange("reservedIpId", value)}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select reserved IP" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {availableReservedIPs.map((ip) => (
+                                  <SelectItem key={ip.id} value={ip.id}>
+                                    {ip.address}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Startup Script */}
