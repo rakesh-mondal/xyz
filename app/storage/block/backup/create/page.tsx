@@ -124,36 +124,38 @@ export default function CreateBackupPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <Label htmlFor="backupName" className="block mb-2 font-medium">
-                        Backup Name <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="backupName"
-                        placeholder="Enter backup name"
-                        value={formData.backupName}
-                        onChange={handleChange}
-                        required
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Enter a descriptive name for your backup
-                      </p>
-                    </div>
-                    <div>
-                      <Label htmlFor="size" className="block mb-2 font-medium">
-                        Size (GB)
-                      </Label>
-                      <Input
-                        id="size"
-                        type="number"
-                        value={formData.size}
-                        readOnly
-                        className="bg-gray-50 cursor-not-allowed"
-                        placeholder="Auto-filled from selected volume"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Size is automatically set based on the selected volume
-                      </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="backupName" className="block mb-2 font-medium">
+                          Backup Name <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="backupName"
+                          placeholder="Enter backup name"
+                          value={formData.backupName}
+                          onChange={handleChange}
+                          required
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Enter a descriptive name for your backup
+                        </p>
+                      </div>
+                      <div>
+                        <Label htmlFor="size" className="block mb-2 font-medium">
+                          Size (GB)
+                        </Label>
+                        <Input
+                          id="size"
+                          type="number"
+                          value={formData.size}
+                          readOnly
+                          className="bg-gray-50 cursor-not-allowed"
+                          placeholder="Auto-filled from selected volume"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Size is automatically set based on the selected volume
+                        </p>
+                      </div>
                     </div>
                   </div>
                   {/* Right column */}
