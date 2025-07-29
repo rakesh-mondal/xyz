@@ -210,7 +210,7 @@ export default function CreateVolumePage() {
                     </Label>
                     <Select value={selectedVpc} onValueChange={(value) => { setSelectedVpc(value); setFormTouched(true); }} required>
                       <SelectTrigger className={formTouched && !selectedVpc ? 'border-red-300 bg-red-50' : ''}>
-                        <SelectValue placeholder="Select VPC" />
+                        <SelectValue placeholder="Select VPC to isolate your workload" />
                       </SelectTrigger>
                       <SelectContent>
                         {vpcs.map((vpc) => (
@@ -220,9 +220,6 @@ export default function CreateVolumePage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Select VPC to isolate your workload
-                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
