@@ -503,39 +503,6 @@ export default function CreateInstantSnapshotPage() {
 
         {/* Side Panel */}
         <div className="w-80 flex-shrink-0 space-y-6">
-          {/* Instant Snapshot Summary */}
-          <div 
-            style={{
-              borderRadius: '16px',
-              border: '4px solid #FFF',
-              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
-              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-              padding: '1.5rem'
-            }}
-          >
-            <div className="pb-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-semibold">Instant Snapshot</h3>
-              </div>
-            </div>
-            <div>
-              <div className="space-y-3">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold">₹2.50</span>
-                  <span className="text-sm text-muted-foreground">per snapshot</span>
-                </div>
-                <div className="text-xs text-muted-foreground pt-2 border-t">
-                  <p>• Snapshot Storage: ₹0.05/GB/month</p>
-                  <p>• Data Transfer: ₹0.02/GB</p>
-                  <p>• API Requests: ₹0.004/1000 requests</p>
-                  <p>• One-time instant snapshot creation</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-
           {/* Best Practices */}
           <Card>
             <CardContent className="p-6">
@@ -560,6 +527,38 @@ export default function CreateInstantSnapshotPage() {
               </ul>
             </CardContent>
           </Card>
+
+          {/* Pricing Summary */}
+          <div 
+            className="sticky top-6"
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Pricing Summary</h3>
+              </div>
+            </div>
+            <div>
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold">₹2.50</span>
+                  <span className="text-sm text-muted-foreground">per snapshot</span>
+                </div>
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• Snapshot Storage: ₹0.05/GB/month</p>
+                  <p>• Data Transfer: ₹0.02/GB</p>
+                  <p>• API Requests: ₹0.004/1000 requests</p>
+                  <p>• One-time instant snapshot creation</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </PageLayout>
