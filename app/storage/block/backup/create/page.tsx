@@ -31,7 +31,7 @@ const mockBackups = [
   { id: "bkp-003", name: "web-server-root-1", volumeId: "vol-001", type: "Primary" },
 ]
 
-const MAX_BACKUPS = 5
+const MAX_BACKUPS = 10
 
 export default function CreateBackupPage() {
   const router = useRouter()
@@ -231,10 +231,10 @@ export default function CreateBackupPage() {
         </div>
         {/* Side Panel */}
         <div className="w-full md:w-80 space-y-6">
-          {/* Configuration Tips */}
+          {/* Best Practices */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+              <CardTitle className="text-base font-normal">Best Practices</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
