@@ -818,7 +818,7 @@ export default function CreateVMClient() {
                     }
                   }}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select SSH key" className="!text-[#64748b]" />
+                      <SelectValue placeholder="Select SSH Key to securely access your VMs" className="!text-[#64748b]" />
                     </SelectTrigger>
                     <SelectContent>
                       {sshKeys.map((key) => (
@@ -832,9 +832,6 @@ export default function CreateVMClient() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Select SSH Key to securely access your VMs
-                  </p>
                 </div>
 
                 {/* Network Configuration */}
@@ -853,7 +850,7 @@ export default function CreateVMClient() {
                       }
                     }}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select subnet" className="!text-[#64748b]" />
+                        <SelectValue placeholder="Select the subnet to access your VM" className="!text-[#64748b]" />
                       </SelectTrigger>
                       <SelectContent>
                         {subnets.map((subnet) => (
@@ -867,9 +864,6 @@ export default function CreateVMClient() {
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Select the subnet to access your VM
-                    </p>
                     {isPrivateSubnet && (
                       <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                         <p className="text-sm text-yellow-800">
@@ -892,7 +886,7 @@ export default function CreateVMClient() {
                       }
                     }}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select security group" className="!text-[#64748b]" />
+                        <SelectValue placeholder="Select Security group to control traffic to and from your VM" className="!text-[#64748b]" />
                       </SelectTrigger>
                       <SelectContent>
                         {securityGroups.map((sg) => (
@@ -906,9 +900,6 @@ export default function CreateVMClient() {
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Select Security group to control traffic to and from your VM
-                    </p>
                   </div>
 
                   {/* IP Address Type */}
@@ -1046,10 +1037,10 @@ export default function CreateVMClient() {
 
         {/* Side Panel */}
         <div className="w-full lg:w-80 lg:flex-shrink-0 space-y-6">
-          {/* Configuration Tips */}
+          {/* Best Practices */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+              <CardTitle className="text-base font-normal">Best Practices</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
@@ -1169,7 +1160,7 @@ function VPCSelectorInline({ value, onChange }: {
           className="w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <span className={selectedVPC ? "text-foreground" : "!text-[#64748b]"}>
-            {selectedVPC ? `${selectedVPC.name} (${selectedVPC.region})` : "Select VPC"}
+            {selectedVPC ? `${selectedVPC.name} (${selectedVPC.region})` : "Select VPC to isolate your workload"}
           </span>
           <ChevronDown className="h-4 w-4 opacity-50" />
         </button>
@@ -1224,9 +1215,6 @@ function VPCSelectorInline({ value, onChange }: {
           </div>
         )}
       </div>
-      <p className="text-xs text-muted-foreground mt-1">
-        Select VPC to isolate your workload
-      </p>
     </div>
   )
 } 

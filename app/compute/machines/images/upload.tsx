@@ -166,7 +166,7 @@ export default function UploadMachineImagePage() {
           {/* Configuration Tips */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Configuration Tips</h3>
+              <h3 className="text-lg font-semibold mb-4">Best Practices</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>

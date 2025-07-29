@@ -326,7 +326,7 @@ export default function CreateSubnetPage() {
         <div className="w-full lg:w-80 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+                              <CardTitle className="text-base font-normal">Best Practices</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">

@@ -265,7 +265,7 @@ export default function EditSubnetPage({ params }: { params: { id: string } }) {
         <div className="w-full lg:w-80 space-y-6">
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-base font-semibold mb-4">Configuration Tips</h3>
+              <h3 className="text-base font-semibold mb-4">Best Practices</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>

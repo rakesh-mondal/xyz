@@ -324,10 +324,10 @@ export function CreateVPCModal({ open, onClose, onSuccess, preselectedRegion }: 
 
           {/* Side Panel */}
           <div className="w-80 flex-shrink-0 space-y-6">
-            {/* Configuration Tips */}
+            {/* Best Practices */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+                <CardTitle className="text-base font-normal">Best Practices</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">

@@ -586,7 +586,7 @@ export default function CreateVolumePage() {
           {/* Configuration Tips */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+                              <CardTitle className="text-base font-normal">Best Practices</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">

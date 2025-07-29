@@ -147,10 +147,10 @@ export default function CreateStaticIPPage() {
 
         {/* Right Sidebar */}
         <div className="w-full md:w-80 space-y-6">
-          {/* Configuration Tips */}
+          {/* Best Practices */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+              <CardTitle className="text-base font-normal">Best Practices</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
@@ -544,10 +544,10 @@ function CreateSubnetModalContent({ onClose }: { onClose: () => void }) {
 
         {/* Side Panel */}
         <div className="w-80 flex-shrink-0 space-y-6">
-          {/* Configuration Tips */}
+          {/* Best Practices */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+              <CardTitle className="text-base font-normal">Best Practices</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
@@ -1089,10 +1089,10 @@ function CreateVPCModalContent({ onClose }: { onClose: () => void }) {
 
         {/* Side Panel */}
         <div className="w-80 flex-shrink-0 space-y-6">
-          {/* Configuration Tips */}
+          {/* Best Practices */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-normal">Configuration Tips</CardTitle>
+              <CardTitle className="text-base font-normal">Best Practices</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
