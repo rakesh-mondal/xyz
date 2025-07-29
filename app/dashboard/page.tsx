@@ -442,7 +442,7 @@ function ServicesAvailable() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <h2 className="text-lg font-semibold text-gray-900">Services Available</h2>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -514,7 +514,7 @@ function DocumentationHub() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <h2 className="text-lg font-semibold text-gray-900">Documentation Hub</h2>
       
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
@@ -615,23 +615,29 @@ export default function DashboardPage() {
 
   return (
     <CommandPaletteProvider>
-      <div className="space-y-6 flex flex-col min-h-screen pb-12">
+      <div className="space-y-4 flex flex-col min-h-screen pb-12">
         <AccessBanner onCompleteProfile={handleVerifyIdentity} />
 
         {/* Welcome Message */}
         <div className="mb-2">
           <h2 className="text-3xl font-bold text-gray-900 text-left mb-1">Hey Rakesh,</h2>
-          <div className="text-lg text-gray-700 font-normal text-left mb-1">Welcome back to Krutrim Cloud</div>
+          <div className="text-lg text-gray-700 font-normal text-left mb-1">
+            {isNewUser ? "Get Started with Krutrim Cloud" : "Welcome back to Krutrim Cloud"}
+          </div>
         </div>
 
         {/* Resource Cards */}
         <ResourceCards isNewUser={isNewUser} />
 
         {/* Services Available */}
-        <ServicesAvailable />
+        <div className="pt-2">
+          <ServicesAvailable />
+        </div>
 
         {/* Documentation Hub */}
-        <DocumentationHub />
+        <div className="pt-2">
+          <DocumentationHub />
+        </div>
 
         {/* Ola Maps Banner */}
         <OlaMapsBanner />
