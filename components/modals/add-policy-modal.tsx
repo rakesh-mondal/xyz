@@ -60,7 +60,7 @@ export function AddPolicyModal({ open, onClose, onSave, mode, type, initialPolic
     const conditions = []
     
     if (minute.trim() !== "" && minute !== "*") {
-      conditions.push(`at minute ${minute}`)
+      conditions.push(`at every ${minute} minutes`)
     }
     
     if (hour.trim() !== "" && hour !== "*") {

@@ -57,7 +57,7 @@ export function SnapshotPolicyModal({ open, onClose, onSave, mode, initialPolicy
     const conditions = []
     
     if (minute.trim() !== "" && minute !== "*") {
-      conditions.push(`at minute ${minute}`)
+      conditions.push(`at every ${minute} minutes`)
     }
     
     if (hour.trim() !== "" && hour !== "*") {

@@ -244,7 +244,7 @@ export default function CreateBackupPolicyPage() {
     
     // Build conditions based on what's specified (ignore "*" and empty values)
     if (minute.trim() !== "" && minute !== "*") {
-      conditions.push(`at minute ${minute}`)
+      conditions.push(`at every ${minute} minutes`)
     }
     
     if (hour.trim() !== "" && hour !== "*") {

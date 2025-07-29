@@ -394,7 +394,7 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
                 <div className="text-xs text-gray-500">{snapshotPolicy.description || "Automated daily backup for web server root volume"}</div>
                 <div className="text-xs text-gray-500">Max Snapshots: 7</div>
                 <div className="text-xs text-gray-500">CRON Expression: 30 8 * * *</div>
-                <div className="text-xs text-gray-500">This policy will run at minute 30.</div>
+                <div className="text-xs text-gray-500">This policy will run at every 30 minutes.</div>
                 <div className="text-xs text-gray-500">Next Execution: 20/12/2024, 14:00:00</div>
               </div>
               {/* Action Icons */}
