@@ -37,17 +37,46 @@ export default function CreateSubnetPage() {
   const [loading, setLoading] = useState(false)
   const [isFirstVPC] = useState(true)
 
+  // State to track if form has been interacted with
+  const [formTouched, setFormTouched] = useState(false)
+
+  // Function to check if all mandatory fields are filled
+  const isFormValid = () => {
+    // Basic subnet fields
+    const hasValidName = formData.name.trim().length > 0
+    const hasValidAccessType = formData.accessType.length > 0
+    const hasValidCidr = formData.cidr.trim().length > 0
+    const hasValidGatewayIp = formData.gatewayIp.trim().length > 0
+
+    // VPC validation
+    let hasValidVpc = false
+    if (creatingNewVpc) {
+      // If creating new VPC, VPC Name and Region are mandatory
+      const hasValidVpcName = formData.vpcName.trim().length > 0
+      const hasValidVpcRegion = formData.vpcRegion.length > 0
+      hasValidVpc = hasValidVpcName && hasValidVpcRegion
+    } else {
+      // If selecting existing VPC, VPC ID is mandatory
+      hasValidVpc = formData.vpcId.length > 0
+    }
+
+    return hasValidName && hasValidAccessType && hasValidCidr && hasValidGatewayIp && hasValidVpc
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
     setFormData((prev) => ({ ...prev, [id]: value }))
+    setFormTouched(true)
   }
 
   const handleSelectChange = (id: string, value: string) => {
     setFormData((prev) => ({ ...prev, [id]: value }))
+    setFormTouched(true)
   }
 
   const handleRadioChange = (value: string) => {
     setFormData((prev) => ({ ...prev, accessType: value }))
+    setFormTouched(true)
   }
 
   const handleVpcSelect = (value: string) => {
@@ -58,6 +87,7 @@ export default function CreateSubnetPage() {
       setCreatingNewVpc(false)
       setFormData((prev) => ({ ...prev, vpcId: value }))
     }
+    setFormTouched(true)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,7 +146,9 @@ export default function CreateSubnetPage() {
                           placeholder="Enter VPC name"
                           value={formData.vpcName}
                           onChange={handleChange}
-                          className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                            formTouched && creatingNewVpc && !formData.vpcName.trim() ? 'border-red-300 bg-red-50' : ''
+                          }`}
                           required
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -128,7 +160,7 @@ export default function CreateSubnetPage() {
                           Region <span className="text-destructive">*</span>
                         </Label>
                         <Select value={formData.vpcRegion} onValueChange={(value) => handleSelectChange("vpcRegion", value)} required>
-                          <SelectTrigger>
+                          <SelectTrigger className={formTouched && creatingNewVpc && !formData.vpcRegion ? 'border-red-300 bg-red-50' : ''}>
                             <SelectValue placeholder="Select a region" />
                           </SelectTrigger>
                           <SelectContent>
@@ -165,7 +197,9 @@ export default function CreateSubnetPage() {
                       placeholder={creatingNewVpc ? "Enter subnet name" : "Enter subnet name"}
                       value={formData.name}
                       onChange={handleChange}
-                      className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                        formTouched && !formData.name.trim() ? 'border-red-300 bg-red-50' : ''
+                      }`}
                       required
                     />
                     <p className="text-xs text-muted-foreground mt-1">
@@ -254,7 +288,9 @@ export default function CreateSubnetPage() {
                         placeholder="e.g., 192.168.1.0/24"
                         value={formData.cidr}
                         onChange={handleChange}
-                        className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                        className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                          formTouched && !formData.cidr.trim() ? 'border-red-300 bg-red-50' : ''
+                        }`}
                         required
                       />
                       <p className="text-xs text-muted-foreground mt-1">
@@ -291,7 +327,9 @@ export default function CreateSubnetPage() {
                         placeholder="e.g., 192.168.1.1"
                         value={formData.gatewayIp}
                         onChange={handleChange}
-                        className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                        className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                          formTouched && !formData.gatewayIp.trim() ? 'border-red-300 bg-red-50' : ''
+                        }`}
                         required
                       />
                       <p className="text-xs text-muted-foreground mt-1">
@@ -313,10 +351,15 @@ export default function CreateSubnetPage() {
               </Button>
               <Button 
                 type="submit" 
-                className="bg-black text-white hover:bg-black/90 transition-colors hover:scale-105"
+                disabled={!isFormValid()}
+                className={`transition-colors ${
+                  isFormValid() 
+                    ? 'bg-black text-white hover:bg-black/90 hover:scale-105' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
                 onClick={handleSubmit}
               >
-                Create Subnet
+                {!isFormValid() ? (formTouched ? "Fill Required Fields" : "Create Subnet") : "Create Subnet"}
               </Button>
             </div>
           </Card>
@@ -345,6 +388,36 @@ export default function CreateSubnetPage() {
               </ul>
             </CardContent>
           </Card>
+
+          {/* Price Summary */}
+          <div 
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Price Summary</h3>
+              </div>
+            </div>
+            <div>
+              <div className="space-y-3">
+                <div className="text-2xl font-bold text-green-600">Free</div>
+                <p className="text-sm text-muted-foreground">
+                  Subnet creation is free! You only pay for the resources you deploy within the subnet.
+                </p>
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• Subnet Creation: ₹0.00</p>
+                  <p>• No monthly charges</p>
+                  <p>• Pay only for resources</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </PageLayout>
