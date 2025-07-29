@@ -786,7 +786,7 @@ export function PublicIPManagementModal({
           
           <DialogFooter>
             <Button variant="outline" onClick={onClose}>
-              Close
+              {showAttachedState ? "Done" : "Close"}
             </Button>
           </DialogFooter>
         </DialogContent>
