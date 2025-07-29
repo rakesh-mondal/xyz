@@ -1234,7 +1234,65 @@ export const vmInstances = [
       { key: "Environment", value: "Production" },
       { key: "Team", value: "DevOps" },
       { key: "Cost-Center", value: "Engineering" }
-    ]
+    ],
+    // Enhanced configuration details
+    configuration: {
+      // Basic Configuration
+      vmName: "Web Server 01",
+      vpcId: "vpc-1",
+      vpcName: "production-vpc",
+      region: "us-east-1",
+      
+      // Volume Configuration
+      bootableVolume: {
+        type: "existing",
+        volumeId: "vol-1",
+        volumeName: "ubuntu-22.04-boot",
+        size: "20 GB",
+        image: "Ubuntu 22.04 LTS"
+      },
+      storageVolumes: [
+        {
+          id: "vol-s1",
+          name: "data-storage-1",
+          size: "100 GB",
+          type: "ssd"
+        }
+      ],
+      
+      // SSH Configuration
+      sshKey: {
+        id: "ssh-1",
+        name: "prod-admin-key"
+      },
+      
+      // Network Configuration
+      subnet: {
+        id: "subnet-1",
+        name: "public-subnet-1",
+        type: "Public",
+        cidr: "10.0.1.0/24"
+      },
+      securityGroup: {
+        id: "sg-1",
+        name: "web-servers",
+        description: "Web server security group"
+      },
+      ipAddressType: "floating",
+      reservedIp: null,
+      networkSpeed: "100 Mbps",
+      
+      // Additional Configuration
+      startupScript: "#!/bin/bash\n# Install nginx\napt-get update\napt-get install -y nginx\nsystemctl enable nginx\nsystemctl start nginx",
+      
+      // Pricing Information
+      pricing: {
+        vm: 12,
+        storage: 3,
+        ip: 1,
+        total: 16
+      }
+    }
   },
   {
     id: "vm-002",
@@ -1252,7 +1310,66 @@ export const vmInstances = [
       { key: "Environment", value: "Development" },
       { key: "Team", value: "ML Engineering" },
       { key: "Purpose", value: "Training" }
-    ]
+    ],
+    configuration: {
+      vmName: "AI Training Node",
+      vpcId: "vpc-17",
+      vpcName: "ai-workload-vpc",
+      region: "us-west-2",
+      
+      bootableVolume: {
+        type: "new",
+        volumeName: "ai-training-boot",
+        size: "50 GB",
+        image: "Ubuntu 22.04 LTS"
+      },
+      storageVolumes: [
+        {
+          id: "vol-s2",
+          name: "training-data",
+          size: "500 GB",
+          type: "ssd"
+        },
+        {
+          id: "vol-s3",
+          name: "model-storage",
+          size: "200 GB",
+          type: "ssd"
+        }
+      ],
+      
+      sshKey: {
+        id: "ssh-1",
+        name: "prod-admin-key"
+      },
+      
+      subnet: {
+        id: "subnet-2",
+        name: "private-subnet-1",
+        type: "Private",
+        cidr: "10.0.2.0/24"
+      },
+      securityGroup: {
+        id: "sg-2",
+        name: "database",
+        description: "Database security group"
+      },
+      ipAddressType: "reserved",
+      reservedIp: {
+        id: "ip-1",
+        address: "203.0.113.1"
+      },
+      networkSpeed: "1 Gbps",
+      
+      startupScript: "#!/bin/bash\n# Install CUDA and ML libraries\napt-get update\napt-get install -y nvidia-cuda-toolkit\npip install torch torchvision",
+      
+      pricing: {
+        vm: 45,
+        storage: 15,
+        ip: 2,
+        total: 62
+      }
+    }
   },
   {
     id: "vm-003",
@@ -1270,7 +1387,64 @@ export const vmInstances = [
       { key: "Environment", value: "Production" },
       { key: "Team", value: "Database" },
       { key: "Backup", value: "Enabled" }
-    ]
+    ],
+    configuration: {
+      vmName: "Database Server",
+      vpcId: "vpc-1",
+      vpcName: "production-vpc",
+      region: "us-east-1",
+      
+      bootableVolume: {
+        type: "existing",
+        volumeId: "vol-2",
+        volumeName: "centos-8-boot",
+        size: "25 GB",
+        image: "CentOS 8"
+      },
+      storageVolumes: [
+        {
+          id: "vol-s4",
+          name: "db-data",
+          size: "200 GB",
+          type: "ssd"
+        },
+        {
+          id: "vol-s5",
+          name: "db-backup",
+          size: "100 GB",
+          type: "hdd"
+        }
+      ],
+      
+      sshKey: {
+        id: "ssh-3",
+        name: "backup-key"
+      },
+      
+      subnet: {
+        id: "subnet-1",
+        name: "public-subnet-1",
+        type: "Public",
+        cidr: "10.0.1.0/24"
+      },
+      securityGroup: {
+        id: "sg-1",
+        name: "web-servers",
+        description: "Web server security group"
+      },
+      ipAddressType: "floating",
+      reservedIp: null,
+      networkSpeed: "100 Mbps",
+      
+      startupScript: "#!/bin/bash\n# Install PostgreSQL\napt-get update\napt-get install -y postgresql postgresql-contrib\nsystemctl enable postgresql\nsystemctl start postgresql",
+      
+      pricing: {
+        vm: 18,
+        storage: 9,
+        ip: 1,
+        total: 28
+      }
+    }
   },
   {
     id: "vm-004",
@@ -1287,7 +1461,50 @@ export const vmInstances = [
     tags: [
       { key: "Environment", value: "Development" },
       { key: "Team", value: "Frontend" }
-    ]
+    ],
+    configuration: {
+      vmName: "Dev Sandbox",
+      vpcId: "vpc-2",
+      vpcName: "development-vpc",
+      region: "us-west-2",
+      
+      bootableVolume: {
+        type: "new",
+        volumeName: "dev-sandbox-boot",
+        size: "20 GB",
+        image: "Ubuntu 22.04 LTS"
+      },
+      storageVolumes: [],
+      
+      sshKey: {
+        id: "ssh-2",
+        name: "dev-key"
+      },
+      
+      subnet: {
+        id: "subnet-2",
+        name: "private-subnet-1",
+        type: "Private",
+        cidr: "10.0.2.0/24"
+      },
+      securityGroup: {
+        id: "sg-2",
+        name: "database",
+        description: "Database security group"
+      },
+      ipAddressType: "floating",
+      reservedIp: null,
+      networkSpeed: "100 Mbps",
+      
+      startupScript: "",
+      
+      pricing: {
+        vm: 6,
+        storage: 0,
+        ip: 1,
+        total: 7
+      }
+    }
   },
 ];
 
