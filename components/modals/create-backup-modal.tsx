@@ -51,7 +51,7 @@ export function CreateBackupModal({ open, onClose, onCreate, price, volume }: Cr
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             Create Instant Backup
@@ -143,7 +143,7 @@ export function CreateBackupModal({ open, onClose, onCreate, price, volume }: Cr
             </div>
           )}
         </div>
-        <DialogFooter className="flex gap-2 sm:justify-end">
+        <DialogFooter className="flex gap-2 sm:justify-end sticky bottom-0 bg-white border-t pt-4 mt-6">
           <Button
             type="button"
             variant="outline"

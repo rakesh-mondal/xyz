@@ -40,7 +40,7 @@ export function CreateSnapshotModal({ open, onClose, volumes = [], volume, onCre
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             Create Instant Snapshot
@@ -122,7 +122,7 @@ export function CreateSnapshotModal({ open, onClose, volumes = [], volume, onCre
             </div>
           )}
         </div>
-        <DialogFooter className="flex gap-2 sm:justify-end">
+        <DialogFooter className="flex gap-2 sm:justify-end sticky bottom-0 bg-white border-t pt-4 mt-6">
           <Button
             type="button"
             variant="outline"
