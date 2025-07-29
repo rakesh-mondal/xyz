@@ -1361,7 +1361,6 @@ function BackupSection() {
                 </div>
               </div>
             )}
-            <span className="text-xs text-muted-foreground">(Design mode: this is a mock operation)</span>
           </div>
           <DialogFooter className="flex gap-2 sm:justify-end sticky bottom-0 bg-white border-t pt-4 mt-6">
             <Button
