@@ -128,6 +128,14 @@ export default function CreateVMClient() {
   const isPrivateSubnet = selectedSubnet?.type === "Private"
   const showIPAddressType = selectedSubnet?.type === "Public"
   const availableReservedIPs = reservedIPs.filter(ip => ip.subnet === formData.subnetId && !ip.attached)
+  
+  // Debug logging
+  console.log('Debug IP Address Type:', {
+    selectedSubnet,
+    subnetId: formData.subnetId,
+    showIPAddressType,
+    selectedSubnetType: selectedSubnet?.type
+  })
 
   const handleInputChange = (field: keyof FormData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -285,7 +293,6 @@ export default function CreateVMClient() {
             boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
             padding: '1.5rem'
           }}>
-            <h2 className="text-xl font-semibold mb-6">VM Configuration Summary</h2>
             
             <div className="grid grid-cols-1 gap-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -385,27 +392,43 @@ export default function CreateVMClient() {
                 </div>
               )}
 
-              <div className="pt-4 border-t border-gray-200">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VM Cost</label>
-                    <div className="font-medium" style={{ fontSize: '14px' }}>₹{pricing.vm}/hr</div>
+              <div className="pt-6">
+                <div className="p-4 rounded-lg" style={{
+                  boxShadow: "rgba(14, 114, 180, 0.1) 0px 0px 0px 1px inset",
+                  background: "linear-gradient(263deg, rgba(15, 123, 194, 0.08) 6.86%, rgba(15, 123, 194, 0.02) 96.69%)"
+                }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-medium text-black">Cost Breakdown</span>
                   </div>
-                  {pricing.storage > 0 && (
-                    <div className="space-y-1">
-                      <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Storage Cost</label>
-                      <div className="font-medium" style={{ fontSize: '14px' }}>₹{pricing.storage}/hr</div>
+                  
+                  <div className="space-y-3 mb-4">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-normal text-black" style={{ fontSize: '13px' }}>VM Cost</label>
+                      <div className="font-semibold text-black" style={{ fontSize: '16px' }}>₹{pricing.vm}/hr</div>
                     </div>
-                  )}
-                  {pricing.ip > 0 && (
-                    <div className="space-y-1">
-                      <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>IP Address Cost</label>
-                      <div className="font-medium" style={{ fontSize: '14px' }}>₹{pricing.ip}/hr</div>
+                    {pricing.storage > 0 && (
+                      <div className="flex justify-between items-center">
+                        <label className="text-sm font-normal text-black" style={{ fontSize: '13px' }}>Storage Cost</label>
+                        <div className="font-semibold text-black" style={{ fontSize: '16px' }}>₹{pricing.storage}/hr</div>
+                      </div>
+                    )}
+                    {pricing.ip > 0 && (
+                      <div className="flex justify-between items-center">
+                        <label className="text-sm font-normal text-black" style={{ fontSize: '13px' }}>IP Address Cost</label>
+                        <div className="font-semibold text-black" style={{ fontSize: '16px' }}>₹{pricing.ip}/hr</div>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-normal text-black" style={{ fontSize: '13px' }}>Total Cost</label>
+                      <div className="font-bold text-black text-xl">₹{pricing.total}/hr</div>
                     </div>
-                  )}
-                  <div className="space-y-1">
-                    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Total Cost</label>
-                    <div className="font-semibold text-lg text-gray-900">₹{pricing.total}/hr</div>
+                  </div>
+                  
+                  <div className="pt-4 border-t" style={{ borderColor: "rgba(14, 114, 180, 0.2)" }}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-black text-sm">Monthly estimate</span>
+                      <span className="text-black font-bold text-lg">₹{(pricing.total * 24 * 30).toLocaleString()}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -889,58 +912,60 @@ export default function CreateVMClient() {
                   </div>
 
                   {/* IP Address Type */}
-                  {showIPAddressType && (
-                    <div className="mb-6">
-                      <Label className="block mb-2 font-medium">IP Address Type</Label>
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="floating-ip"
-                            checked={formData.ipAddressType === "floating"}
-                            onCheckedChange={() => handleInputChange("ipAddressType", "floating")}
-                          />
-                          <Label htmlFor="floating-ip" className="flex items-center gap-2">
-                            Floating IP
-                            <TooltipWrapper content="Dynamic Public IP address that is automatically assigned to the VM from the IP address pool. You will be only billed for the IP address as long as the VM is not stopped. Please note that this IP address is not reserved and it can't be guaranteed that you will get the same IP address again once you restart your VM">
-                              <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                            </TooltipWrapper>
-                          </Label>
-                        </div>
-
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="reserved-ip"
-                            checked={formData.ipAddressType === "reserved"}
-                            onCheckedChange={() => handleInputChange("ipAddressType", "reserved")}
-                          />
-                          <Label htmlFor="reserved-ip" className="flex items-center gap-2">
-                            Reserved IP
-                            <TooltipWrapper content="Fixed IP that is assigned to your VM. You will be billed as long as you have not deleted the IP address. The same IP address will be assigned to the VM even if you restart your VM">
-                              <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                            </TooltipWrapper>
-                          </Label>
-                        </div>
-
-                        {formData.ipAddressType === "reserved" && (
-                          <div className="ml-6">
-                            <Label htmlFor="reserved-ip-select">Reserved IP</Label>
-                            <Select value={formData.reservedIpId} onValueChange={(value) => handleInputChange("reservedIpId", value)}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select reserved IP" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {availableReservedIPs.map((ip) => (
-                                  <SelectItem key={ip.id} value={ip.id}>
-                                    {ip.address}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                  <div className="mb-6">
+                    {showIPAddressType && (
+                      <div>
+                        <Label className="block mb-2 font-medium">IP Address Type</Label>
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="floating-ip"
+                              checked={formData.ipAddressType === "floating"}
+                              onCheckedChange={() => handleInputChange("ipAddressType", "floating")}
+                            />
+                            <Label htmlFor="floating-ip" className="flex items-center gap-2">
+                              Floating IP
+                              <TooltipWrapper content="Dynamic Public IP address that is automatically assigned to the VM from the IP address pool. You will be only billed for the IP address as long as the VM is not stopped. Please note that this IP address is not reserved and it can't be guaranteed that you will get the same IP address again once you restart your VM">
+                                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                              </TooltipWrapper>
+                            </Label>
                           </div>
-                        )}
+
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="reserved-ip"
+                              checked={formData.ipAddressType === "reserved"}
+                              onCheckedChange={() => handleInputChange("ipAddressType", "reserved")}
+                            />
+                            <Label htmlFor="reserved-ip" className="flex items-center gap-2">
+                              Reserved IP
+                              <TooltipWrapper content="Fixed IP that is assigned to your VM. You will be billed as long as you have not deleted the IP address. The same IP address will be assigned to the VM even if you restart your VM">
+                                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                              </TooltipWrapper>
+                            </Label>
+                          </div>
+
+                          {formData.ipAddressType === "reserved" && (
+                            <div className="ml-6">
+                              <Label htmlFor="reserved-ip-select">Reserved IP</Label>
+                              <Select value={formData.reservedIpId} onValueChange={(value) => handleInputChange("reservedIpId", value)}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select reserved IP" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableReservedIPs.map((ip) => (
+                                    <SelectItem key={ip.id} value={ip.id}>
+                                      {ip.address}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
 
                 {/* Startup Script */}
