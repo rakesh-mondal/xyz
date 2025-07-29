@@ -12,6 +12,7 @@ import { getSubnet, getVPC, getVMAttachedToSubnet, getConnectedSubnets, vpcs } f
 import { DeleteConfirmationModal } from "../../../../components/delete-confirmation-modal"
 import { VPCDetailsModal } from "../../../../components/modals/vpc-details-modal"
 import { StatusBadge } from "../../../../components/status-badge"
+import { ShadcnDataTable } from "../../../../components/ui/shadcn-data-table"
 import { Edit, Trash2 } from "lucide-react"
 
 export default function SubnetDetailsPage({ params }: { params: { id: string } }) {
@@ -162,43 +163,55 @@ export default function SubnetDetailsPage({ params }: { params: { id: string } }
 
       {/* Connected Subnets Section */}
       {connectedSubnets.length > 0 && (
-        <div className="mb-6 group relative" style={{
-          borderRadius: '16px',
-          border: '4px solid #FFF',
-          background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
-          boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-          padding: '1.5rem'
-        }}>
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Connected Subnets</h3>
-            <p className="text-sm text-muted-foreground">Subnets that are directly connected to this subnet</p>
-          </div>
-          
-          <div className="space-y-3">
-            {connectedSubnets.map((connectedSubnet) => connectedSubnet && (
-              <div key={connectedSubnet.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{connectedSubnet.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {connectedSubnet.cidr} • {connectedSubnet.type} • {connectedSubnet.vpcName}
-                      </div>
-                    </div>
-                    <StatusBadge status={connectedSubnet.status} />
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push(`/networking/subnets/${connectedSubnet.id}`)}
-                  className="text-primary hover:text-primary/80"
-                >
-                  View Details
-                </Button>
-              </div>
-            ))}
-          </div>
+        <div className="bg-card text-card-foreground border-border border rounded-lg p-6 mb-8">
+          <DetailSection title={`Connected Subnets (${connectedSubnets.length})`}>
+            <ShadcnDataTable
+              columns={[
+                {
+                  key: "name",
+                  label: "Subnet Name",
+                  sortable: true,
+                  searchable: true,
+                  render: (value: string, row: any) => (
+                    <a
+                      href={`/networking/subnets/${row.id}`}
+                      className="text-primary font-medium hover:underline"
+                    >
+                      {value}
+                    </a>
+                  ),
+                },
+                {
+                  key: "cidr",
+                  label: "CIDR Block",
+                  sortable: true,
+                },
+                {
+                  key: "type",
+                  label: "Type",
+                  sortable: true,
+                },
+                {
+                  key: "vpcName",
+                  label: "VPC",
+                  sortable: true,
+                },
+                {
+                  key: "status",
+                  label: "Status",
+                  sortable: true,
+                  render: (value: string) => <StatusBadge status={value} />,
+                },
+              ]}
+              data={connectedSubnets.filter(Boolean)}
+              searchableColumns={["name", "vpcName"]}
+              pageSize={10}
+              enableSearch={true}
+              enableColumnVisibility={false}
+              enablePagination={true}
+              enableVpcFilter={false}
+            />
+          </DetailSection>
         </div>
       )}
 
