@@ -650,6 +650,8 @@ export function PublicIPManagementModal({
   const [selectedIP, setSelectedIP] = useState<PublicIP | null>(null)
   const [isIPAttached, setIsIPAttached] = useState(false)
   const [attachedIP, setAttachedIP] = useState<PublicIP | null>(null)
+  const [isIPDetached, setIsIPDetached] = useState(false)
+  const [detachedIP, setDetachedIP] = useState<PublicIP | null>(null)
 
   // For demo purposes, let's simulate the scenario where IP gets attached
   const handleAttachIP = () => {
@@ -662,6 +664,8 @@ export function PublicIPManagementModal({
       const ipToAttach = availableIPs[0]
       setAttachedIP(ipToAttach)
       setIsIPAttached(true)
+      setIsIPDetached(false)
+      setDetachedIP(null)
     }
     setAttachModalOpen(false)
   }
@@ -675,6 +679,8 @@ export function PublicIPManagementModal({
     if (selectedIP) {
       setIsIPAttached(false)
       setAttachedIP(null)
+      setDetachedIP(selectedIP)
+      setIsIPDetached(true)
       setDetachModalOpen(false)
       setSelectedIP(null)
     }
@@ -682,6 +688,7 @@ export function PublicIPManagementModal({
 
   // Show attached state for demo
   const showAttachedState = isIPAttached && attachedIP
+  const showDetachedState = isIPDetached && detachedIP
 
   return (
     <>
@@ -703,7 +710,34 @@ export function PublicIPManagementModal({
             </div>
 
             <div className="space-y-2">
-              {showAttachedState ? (
+              {showDetachedState ? (
+                // Show detached state
+                <div className="space-y-4">
+                  <Alert>
+                    <InformationCircleIcon className="h-4 w-4" />
+                    <AlertDescription>
+                      The public IP address <strong>{detachedIP.address}</strong> has been detached from this instance. 
+                      You can re-attach it or assign a new IP address.
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <div className="p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-gray-500">{detachedIP.address}</div>
+                        <div className="text-sm text-muted-foreground">Type: {detachedIP.type} (Detached)</div>
+                      </div>
+                      <Badge variant="outline" className="text-gray-500">Detached</Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-muted-foreground">
+                    <p>• The IP address is still reserved and available for re-attachment</p>
+                    <p>• You can also assign a new random IP address</p>
+                    <p>• Network access to this instance may be affected</p>
+                  </div>
+                </div>
+              ) : showAttachedState ? (
                 // Show attached state (after attachment)
                 <div className="space-y-4">
                   <Alert>
@@ -786,7 +820,7 @@ export function PublicIPManagementModal({
           
           <DialogFooter>
             <Button variant="outline" onClick={onClose}>
-              {showAttachedState ? "Done" : "Close"}
+              {showAttachedState ? "Done" : showDetachedState ? "Close" : "Close"}
             </Button>
           </DialogFooter>
         </DialogContent>
