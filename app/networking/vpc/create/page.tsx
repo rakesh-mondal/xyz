@@ -31,11 +31,21 @@ export default function CreateVPCPage() {
     networkAccessibility: "",
   })
 
+  // State to track if form has been interacted with
+  const [formTouched, setFormTouched] = useState(false)
+
   // Mock data to check if this is the first VPC
   const [isFirstVPC] = useState(true) // This would come from your data/API
 
   // Check if user is existing user (existing.user@krutrim.com)
   const isExistingUser = user?.email === "existing.user@krutrim.com"
+
+  // Function to check if all mandatory fields are filled
+  const isFormValid = () => {
+    const hasValidVpcName = formData.vpcName.trim().length > 0
+    const hasValidRegion = formData.region.length > 0
+    return hasValidVpcName && hasValidRegion
+  }
 
   // Mock region availability data
   const regionAvailability = {
@@ -117,10 +127,12 @@ export default function CreateVPCPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
     setFormData((prev) => ({ ...prev, [id]: value }))
+    setFormTouched(true)
   }
 
   const handleSelectChange = (id: string, value: string) => {
     setFormData((prev) => ({ ...prev, [id]: value }))
+    setFormTouched(true)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -152,7 +164,9 @@ export default function CreateVPCPage() {
                       placeholder="Enter VPC name"
                       value={formData.vpcName}
                       onChange={handleChange}
-                      className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                        formTouched && !formData.vpcName.trim() ? 'border-red-300 bg-red-50' : ''
+                      }`}
                       required
                     />
                     <p className="text-xs text-muted-foreground mt-1">
@@ -165,7 +179,7 @@ export default function CreateVPCPage() {
                       Region <span className="text-destructive">*</span>
                     </Label>
                     <Select value={formData.region} onValueChange={(value) => handleSelectChange("region", value)} required>
-                      <SelectTrigger>
+                      <SelectTrigger className={formTouched && !formData.region ? 'border-red-300 bg-red-50' : ''}>
                         <SelectValue placeholder="Select a region" />
                       </SelectTrigger>
                       <SelectContent>
@@ -435,10 +449,15 @@ export default function CreateVPCPage() {
               </Button>
               <Button 
                 type="submit" 
-                className="bg-black text-white hover:bg-black/90 transition-colors hover:scale-105"
+                disabled={!isFormValid()}
+                className={`transition-colors ${
+                  isFormValid() 
+                    ? 'bg-black text-white hover:bg-black/90 hover:scale-105' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
                 onClick={handleSubmit}
               >
-                Create VPC
+                {!isFormValid() ? (formTouched ? "Fill Required Fields" : "Create VPC") : "Create VPC"}
               </Button>
             </div>
           </Card>
@@ -501,7 +520,6 @@ export default function CreateVPCPage() {
                   <div className="text-xs text-muted-foreground pt-2 border-t">
                     <p>• VPC Setup: ₹0.28/hour</p>
                     <p>• Estimated monthly: ₹204.40</p>
-                    <p>• Additional subnets: ₹0.10/hour each</p>
                   </div>
                 </div>
               ) : isFirstVPC ? (

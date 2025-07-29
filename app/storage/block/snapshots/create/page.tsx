@@ -550,10 +550,6 @@ export default function CreateInstantSnapshotPage() {
                   <span className="text-2xl font-bold">₹2.50</span>
                   <span className="text-sm text-muted-foreground">per GB per month</span>
                 </div>
-                <div className="text-xs text-muted-foreground pt-2 border-t">
-                  <p>• Data Transfer: ₹0.02/GB</p>
-                  <p>• API Requests: ₹0.004/1000 requests</p>
-                </div>
               </div>
             </div>
           </div>

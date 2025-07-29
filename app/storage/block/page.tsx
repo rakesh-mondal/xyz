@@ -1044,7 +1044,6 @@ function SnapshotsSection() {
         <div className="flex justify-end">
           <ActionMenu
             viewHref={`/storage/block/snapshots/${row.id}`}
-            editHref={`/storage/block/snapshots/${row.id}/edit`}
             onCustomDelete={() => handleDeleteClick(row)}
             resourceName={row.name}
             resourceType="Snapshot"
@@ -1238,7 +1237,6 @@ function BackupSection() {
         <div className="flex justify-end">
           <ActionMenu
             viewHref={`/storage/block/backup/${row.id}`}
-            editHref={`/storage/block/backup/${row.id}/edit`}
             onCustomDelete={() => handleDeleteClick(row)}
             onRestore={() => handleRestoreClick(row)}
             resourceName={row.name}
