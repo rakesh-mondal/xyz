@@ -244,26 +244,7 @@ export default function VMInstanceDetailsPage() {
   };
 
   return (
-    <PageLayout 
-      title={vm.name} 
-      customBreadcrumbs={customBreadcrumbs} 
-      hideViewDocs={true}
-      headerActions={
-        <div className="flex items-center gap-2">
-          {!config.reservedIp && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handlePublicIPManagement}
-              className="flex items-center gap-2"
-            >
-              <Wifi className="h-4 w-4" />
-              Attach Public IP
-            </Button>
-          )}
-        </div>
-      }
-    >
+    <PageLayout title={vm.name} customBreadcrumbs={customBreadcrumbs} hideViewDocs={true}>
       <div className="space-y-6">
         {/* Basic Information */}
         <div className="mb-6 group relative" style={{
@@ -470,7 +451,7 @@ export default function VMInstanceDetailsPage() {
 
         {/* Network Configuration */}
         <DetailSection title="Network Configuration">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Subnet */}
             <Card>
               <CardHeader className="pb-3">
@@ -514,55 +495,11 @@ export default function VMInstanceDetailsPage() {
                   <span className="text-sm text-muted-foreground">IP Address Type</span>
                   <span className="text-sm font-medium capitalize">{config.ipAddressType} IP</span>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Public IP Address */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Wifi className="h-4 w-4" />
-                  Public IP Address
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {config.reservedIp ? (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">IP Address</span>
-                      <span className="text-sm font-medium font-mono">{config.reservedIp.address}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Type</span>
-                      <span className="text-sm font-medium">Reserved IP</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Status</span>
-                      <Badge variant="secondary" className="text-xs">Attached</Badge>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">IP Address</span>
-                      <span className="text-sm font-medium text-muted-foreground">Not attached</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Status</span>
-                      <Badge variant="outline" className="text-xs">No Public IP</Badge>
-                    </div>
-                    <div className="pt-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={handlePublicIPManagement}
-                        className="w-full"
-                      >
-                        <Wifi className="mr-2 h-3 w-3" />
-                        Attach Public IP
-                      </Button>
-                    </div>
-                  </>
+                {config.reservedIp && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Reserved IP</span>
+                    <span className="text-sm font-medium font-mono">{config.reservedIp.address}</span>
+                  </div>
                 )}
               </CardContent>
             </Card>

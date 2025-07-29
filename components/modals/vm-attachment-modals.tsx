@@ -648,6 +648,36 @@ export function PublicIPManagementModal({
   const [attachModalOpen, setAttachModalOpen] = useState(false)
   const [detachModalOpen, setDetachModalOpen] = useState(false)
   const [selectedIP, setSelectedIP] = useState<PublicIP | null>(null)
+  const [isIPDetached, setIsIPDetached] = useState(false)
+  const [detachedIP, setDetachedIP] = useState<PublicIP | null>(null)
+
+  // For demo purposes, let's simulate the scenario where IP is detached
+  const handleDetachIP = (ip: PublicIP) => {
+    setSelectedIP(ip)
+    setDetachModalOpen(true)
+  }
+
+  const handleDetachConfirm = async () => {
+    if (selectedIP) {
+      setDetachedIP(selectedIP)
+      setIsIPDetached(true)
+      setDetachModalOpen(false)
+      setSelectedIP(null)
+    }
+  }
+
+  const handleAttachIP = () => {
+    setAttachModalOpen(true)
+  }
+
+  const handleAttachConfirm = async () => {
+    setIsIPDetached(false)
+    setDetachedIP(null)
+    setAttachModalOpen(false)
+  }
+
+  // Show detached state for demo
+  const showDetachedState = isIPDetached && detachedIP
 
   return (
     <>
@@ -665,12 +695,12 @@ export function PublicIPManagementModal({
           
           <div className="space-y-6 py-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">Attached Public IPs</h3>
-              {attachedIPs.length === 0 && (
+              <h3 className="text-lg font-medium">Public IP Status</h3>
+              {showDetachedState && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setAttachModalOpen(true)}
+                  onClick={handleAttachIP}
                 >
                   Attach Public IP
                 </Button>
@@ -678,11 +708,39 @@ export function PublicIPManagementModal({
             </div>
 
             <div className="space-y-2">
-              {attachedIPs.length === 0 ? (
+              {showDetachedState ? (
+                // Show detached state
+                <div className="space-y-4">
+                  <Alert>
+                    <InformationCircleIcon className="h-4 w-4" />
+                    <AlertDescription>
+                      The public IP address <strong>{detachedIP.address}</strong> has been detached from this instance. 
+                      You can re-attach it or assign a new IP address.
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <div className="p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-gray-500">{detachedIP.address}</div>
+                        <div className="text-sm text-muted-foreground">Type: {detachedIP.type} (Detached)</div>
+                      </div>
+                      <Badge variant="outline" className="text-gray-500">Detached</Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-muted-foreground">
+                    <p>• The IP address is still reserved and available for re-attachment</p>
+                    <p>• You can also assign a new random IP address</p>
+                    <p>• Network access to this instance may be affected</p>
+                  </div>
+                </div>
+              ) : attachedIPs.length === 0 ? (
                 <div className="text-center py-4 text-muted-foreground">
                   No public IP addresses attached
                 </div>
               ) : (
+                // Show attached state
                 <>
                   {attachedIPs.map((ip) => (
                     <div key={ip.id} className="flex items-center justify-between p-3 border rounded-lg">
@@ -695,10 +753,7 @@ export function PublicIPManagementModal({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            setSelectedIP(ip)
-                            setDetachModalOpen(true)
-                          }}
+                          onClick={() => handleDetachIP(ip)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -724,6 +779,7 @@ export function PublicIPManagementModal({
         onClose={() => setAttachModalOpen(false)}
         vmName={vmName}
         availableIPs={availableIPs}
+        onConfirm={handleAttachConfirm}
       />
 
       {/* Detach Public IP Modal */}
@@ -735,6 +791,7 @@ export function PublicIPManagementModal({
             setSelectedIP(null)
           }}
           publicIP={selectedIP}
+          onConfirm={handleDetachConfirm}
         />
       )}
     </>
@@ -747,9 +804,10 @@ interface AttachPublicIPModalProps {
   onClose: () => void
   vmName: string
   availableIPs: PublicIP[]
+  onConfirm?: () => void
 }
 
-function AttachPublicIPModal({ open, onClose, vmName, availableIPs }: AttachPublicIPModalProps) {
+function AttachPublicIPModal({ open, onClose, vmName, availableIPs, onConfirm }: AttachPublicIPModalProps) {
   const [selectedIPId, setSelectedIPId] = useState("")
   const [assignRandomIP, setAssignRandomIP] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -760,6 +818,9 @@ function AttachPublicIPModal({ open, onClose, vmName, availableIPs }: AttachPubl
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
     setLoading(false)
+    if (onConfirm) {
+      onConfirm()
+    }
     onClose()
   }
 
@@ -849,9 +910,10 @@ interface DetachPublicIPModalProps {
   open: boolean
   onClose: () => void
   publicIP: PublicIP
+  onConfirm?: () => void
 }
 
-function DetachPublicIPModal({ open, onClose, publicIP }: DetachPublicIPModalProps) {
+function DetachPublicIPModal({ open, onClose, publicIP, onConfirm }: DetachPublicIPModalProps) {
   const [loading, setLoading] = useState(false)
 
   const handleConfirm = async () => {
@@ -859,6 +921,9 @@ function DetachPublicIPModal({ open, onClose, publicIP }: DetachPublicIPModalPro
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
     setLoading(false)
+    if (onConfirm) {
+      onConfirm()
+    }
     onClose()
   }
 
