@@ -99,7 +99,6 @@ export default function CreateBackupPage() {
   const selectedVolume = mockVolumes.find(v => v.id === formData.volumeId)
   const nextBackupNumber = formData.volumeId ? getNextBackupNumber(formData.volumeId) : 1
   const isPrimary = formData.volumeId ? isPrimaryBackup(formData.volumeId) : true
-  const autoBackupName = selectedVolume ? `${selectedVolume.name}-${nextBackupNumber}` : ""
 
   return (
     <PageLayout
@@ -136,13 +135,13 @@ export default function CreateBackupPage() {
                       </Label>
                       <Input
                         id="backupName"
-                        placeholder="Auto-generated or enter custom name"
-                        value={formData.backupName || autoBackupName}
+                        placeholder="Enter backup name"
+                        value={formData.backupName}
                         onChange={handleChange}
                         required
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Default: <span className="font-mono">{autoBackupName}</span>
+                        Enter a descriptive name for your backup
                       </p>
                     </div>
                     <div>
@@ -228,7 +227,7 @@ export default function CreateBackupPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div><b>Backup Name:</b> {summaryData.backupName || autoBackupName}</div>
+                  <div><b>Backup Name:</b> {summaryData.backupName}</div>
                   <div><b>Volume:</b> {selectedVolume?.name}</div>
                   <div><b>Size:</b> {summaryData.size} GB</div>
                   <div><b>Type:</b> {summaryData.type}</div>
