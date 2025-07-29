@@ -648,10 +648,24 @@ export function PublicIPManagementModal({
   const [attachModalOpen, setAttachModalOpen] = useState(false)
   const [detachModalOpen, setDetachModalOpen] = useState(false)
   const [selectedIP, setSelectedIP] = useState<PublicIP | null>(null)
-  const [isIPDetached, setIsIPDetached] = useState(false)
-  const [detachedIP, setDetachedIP] = useState<PublicIP | null>(null)
+  const [isIPAttached, setIsIPAttached] = useState(false)
+  const [attachedIP, setAttachedIP] = useState<PublicIP | null>(null)
 
-  // For demo purposes, let's simulate the scenario where IP is detached
+  // For demo purposes, let's simulate the scenario where IP gets attached
+  const handleAttachIP = () => {
+    setAttachModalOpen(true)
+  }
+
+  const handleAttachConfirm = async () => {
+    // Simulate attaching the first available IP
+    if (availableIPs.length > 0) {
+      const ipToAttach = availableIPs[0]
+      setAttachedIP(ipToAttach)
+      setIsIPAttached(true)
+    }
+    setAttachModalOpen(false)
+  }
+
   const handleDetachIP = (ip: PublicIP) => {
     setSelectedIP(ip)
     setDetachModalOpen(true)
@@ -659,25 +673,15 @@ export function PublicIPManagementModal({
 
   const handleDetachConfirm = async () => {
     if (selectedIP) {
-      setDetachedIP(selectedIP)
-      setIsIPDetached(true)
+      setIsIPAttached(false)
+      setAttachedIP(null)
       setDetachModalOpen(false)
       setSelectedIP(null)
     }
   }
 
-  const handleAttachIP = () => {
-    setAttachModalOpen(true)
-  }
-
-  const handleAttachConfirm = async () => {
-    setIsIPDetached(false)
-    setDetachedIP(null)
-    setAttachModalOpen(false)
-  }
-
-  // Show detached state for demo
-  const showDetachedState = isIPDetached && detachedIP
+  // Show attached state for demo
+  const showAttachedState = isIPAttached && attachedIP
 
   return (
     <>
@@ -696,7 +700,7 @@ export function PublicIPManagementModal({
           <div className="space-y-6 py-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Public IP Status</h3>
-              {showDetachedState && (
+              {!showAttachedState && attachedIPs.length === 0 && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -708,36 +712,60 @@ export function PublicIPManagementModal({
             </div>
 
             <div className="space-y-2">
-              {showDetachedState ? (
-                // Show detached state
+              {showAttachedState ? (
+                // Show attached state (after attachment)
                 <div className="space-y-4">
                   <Alert>
                     <InformationCircleIcon className="h-4 w-4" />
                     <AlertDescription>
-                      The public IP address <strong>{detachedIP.address}</strong> has been detached from this instance. 
-                      You can re-attach it or assign a new IP address.
+                      Public IP address <strong>{attachedIP.address}</strong> has been successfully attached to this instance.
                     </AlertDescription>
                   </Alert>
                   
-                  <div className="p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-gray-500">{detachedIP.address}</div>
-                        <div className="text-sm text-muted-foreground">Type: {detachedIP.type} (Detached)</div>
-                      </div>
-                      <Badge variant="outline" className="text-gray-500">Detached</Badge>
+                  <div className="flex items-center justify-between p-3 border rounded-lg bg-green-50">
+                    <div>
+                      <div className="font-medium">{attachedIP.address}</div>
+                      <div className="text-sm text-muted-foreground">Type: {attachedIP.type}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="bg-green-100 text-green-800">Attached</Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDetachIP(attachedIP)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                   
                   <div className="text-sm text-muted-foreground">
-                    <p>• The IP address is still reserved and available for re-attachment</p>
-                    <p>• You can also assign a new random IP address</p>
-                    <p>• Network access to this instance may be affected</p>
+                    <p>• The IP address is now active and accessible</p>
+                    <p>• Network traffic can now reach this instance</p>
+                    <p>• You can detach this IP if needed</p>
                   </div>
                 </div>
               ) : attachedIPs.length === 0 ? (
-                <div className="text-center py-4 text-muted-foreground">
-                  No public IP addresses attached
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <Wifi className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Public IP Attached</h3>
+                    <p className="text-gray-500 mb-4">
+                      This instance doesn't have a public IP address attached. 
+                      Attach one to enable external network access.
+                    </p>
+                    <Button onClick={handleAttachIP}>
+                      Attach Public IP
+                    </Button>
+                  </div>
+                  
+                  <div className="text-sm text-muted-foreground">
+                    <p>• Public IPs allow external access to your instance</p>
+                    <p>• You can choose from reserved IPs or assign a random one</p>
+                    <p>• There may be additional charges for IP addresses</p>
+                  </div>
                 </div>
               ) : (
                 // Show attached state
