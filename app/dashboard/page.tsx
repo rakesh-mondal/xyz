@@ -26,7 +26,8 @@ import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
   if (isNewUser) {
     // Mock credit status - in real app this would come from user data
-    const hasCredits = false // This would be determined by user's credit balance
+    const hasCredits = false // This would be determined by user's credit balance - set to false to test tooltips
+    console.log('hasCredits:', hasCredits); // Debug log
     
     const steps = [
       { 
@@ -40,11 +41,11 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
       },
       { 
         title: 'Configure Your Network', 
-        description: 'Create your first Virtual Private Cloud (VPC) to organize and isolate workloads', 
+        description: 'Create first Virtual Private Cloud (VPC) to organize and isolate workloads', 
         button: 'Create VPC', 
         href: '/networking/vpc',
         enabled: hasCredits,
-        tooltip: hasCredits ? null : 'Add credits to your account to create VPCs',
+        tooltip: hasCredits ? null : 'Add credits to activate this service',
         icon: Globe
       },
       { 
@@ -53,7 +54,7 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
         button: 'Add SSH Key', 
         href: '/settings/ssh-keys',
         enabled: hasCredits,
-        tooltip: hasCredits ? null : 'Add credits to your account to manage SSH keys',
+        tooltip: hasCredits ? null : 'Add credits to activate this service',
         icon: Key
       },
       { 
@@ -62,10 +63,12 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
         button: 'Create VM', 
         href: '/compute/vms/cpu/create',
         enabled: hasCredits,
-        tooltip: hasCredits ? null : 'Add credits to your account to create virtual machines',
+        tooltip: hasCredits ? null : 'Add credits to activate this service',
         icon: Server
       },
     ];
+    
+    console.log('Steps with tooltips:', steps.map(s => ({ title: s.title, tooltip: s.tooltip, enabled: s.enabled }))); // Debug log
 
     return (
       <div className="space-y-6">
@@ -151,7 +154,9 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                         <div className="mt-auto">
                           {step.tooltip ? (
                             <TooltipWrapper content={step.tooltip}>
-                              {stepButton}
+                              <div className="w-full">
+                                {stepButton}
+                              </div>
                             </TooltipWrapper>
                           ) : (
                             stepButton
@@ -199,11 +204,13 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                       </div>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col">
-                      <p className="text-sm text-gray-600 mb-4">{step.description}</p>
+                      <p className="text-sm text-muted-foreground mb-4">{step.description}</p>
                       <div className="mt-auto">
                         {step.tooltip ? (
                           <TooltipWrapper content={step.tooltip}>
-                            {stepButton}
+                            <div className="w-full">
+                              {stepButton}
+                            </div>
                           </TooltipWrapper>
                         ) : (
                           stepButton
@@ -264,7 +271,7 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Resource Overview</h2>
-              <p className="text-sm text-gray-600 mt-1">Monitor and manage your cloud resources at a glance</p>
+              <p className="text-sm text-muted-foreground mt-1">Monitor and manage your cloud resources at a glance</p>
             </div>
           </div>
           
