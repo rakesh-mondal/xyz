@@ -16,7 +16,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { vpcs } from "@/lib/data"
 import { SnapshotPolicyModal } from "@/components/modals/snapshot-policy-modal"
 import { AddPolicyModal } from "@/components/modals/add-policy-modal"
-import { Edit, Trash2 } from "lucide-react"
+import { Edit, Trash2, ChevronDown, Search, Check } from "lucide-react"
+import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
 
 export default function CreateVolumePage() {
   const [loading, setLoading] = useState(false)
@@ -38,6 +39,7 @@ export default function CreateVolumePage() {
   const [editSnapshot, setEditSnapshot] = useState(false)
   const [editBackup, setEditBackup] = useState(false)
   const [formTouched, setFormTouched] = useState(false)
+  const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
   
   // Refs for form fields
   const nameRef = useRef<HTMLInputElement>(null)
@@ -131,6 +133,11 @@ export default function CreateVolumePage() {
     setSelectedVolume("")
   }
 
+  const handleVPCCreated = (vpcId: string) => {
+    setSelectedVpc(vpcId)
+    setShowCreateVPCModal(false)
+  }
+
   // Function to check if all mandatory fields are filled
   const isFormValid = () => {
     const name = nameRef.current?.value.trim() || ""
@@ -204,23 +211,17 @@ export default function CreateVolumePage() {
                   </div>
                   
                   {/* VPC Selection */}
-                  <div className="mb-5">
-                    <Label htmlFor="vpc" className="block mb-2 font-medium">
-                      VPC <span className="text-destructive">*</span>
-                    </Label>
-                    <Select value={selectedVpc} onValueChange={(value) => { setSelectedVpc(value); setFormTouched(true); }} required>
-                      <SelectTrigger className={formTouched && !selectedVpc ? 'border-red-300 bg-red-50' : ''}>
-                        <SelectValue placeholder="Select VPC to isolate your workload" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {vpcs.map((vpc) => (
-                          <SelectItem key={vpc.id} value={vpc.id}>
-                            {vpc.name} ({vpc.id}) - {vpc.region}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <VPCSelectorInline
+                    value={selectedVpc}
+                    onChange={(value) => {
+                      if (value === "__create_new__") {
+                        setShowCreateVPCModal(true)
+                      } else {
+                        setSelectedVpc(value)
+                        setFormTouched(true)
+                      }
+                    }}
+                  />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                     <div>
@@ -691,6 +692,100 @@ export default function CreateVolumePage() {
         type="backup"
         initialPolicy={editBackup ? backupPolicy : undefined}
       />
+
+      {/* Create VPC Modal */}
+      <CreateVPCModal
+        open={showCreateVPCModal}
+        onClose={() => setShowCreateVPCModal(false)}
+        onSuccess={handleVPCCreated}
+        preselectedRegion={undefined}
+      />
     </PageLayout>
+  )
+}
+
+// VPC Selector Component
+function VPCSelectorInline({ value, onChange }: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  
+  const filteredVPCs = vpcs.filter(vpc =>
+    vpc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vpc.id.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  
+  const selectedVPC = vpcs.find(vpc => vpc.id === value)
+  
+  return (
+    <div className="mb-6">
+      <Label className="block mb-2 font-medium">
+        VPC <span className="text-destructive">*</span>
+      </Label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className={selectedVPC ? "text-foreground" : "!text-[#64748b]"}>
+            {selectedVPC ? `${selectedVPC.name} (${selectedVPC.region})` : "Select VPC to isolate your workload"}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </button>
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search VPCs..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("__create_new__")
+                  setOpen(false)
+                }}
+                className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+              >
+                Create new VPC
+              </button>
+              {filteredVPCs.map((vpc) => (
+                <button
+                  key={vpc.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(vpc.id)
+                    setOpen(false)
+                    setSearchTerm("")
+                  }}
+                  className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{vpc.name}</span>
+                    <span className="text-xs text-muted-foreground">{vpc.id} • {vpc.region}</span>
+                  </div>
+                  {value === vpc.id && <Check className="h-4 w-4" />}
+                </button>
+              ))}
+              {filteredVPCs.length === 0 && searchTerm && (
+                <div className="px-2 py-2 text-sm text-muted-foreground">
+                  No VPCs found matching "{searchTerm}"
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   )
 } 
