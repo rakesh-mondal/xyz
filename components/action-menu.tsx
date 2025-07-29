@@ -37,6 +37,7 @@ interface ActionMenuProps {
   onAttachDetachVolumes?: () => void  // For volume management
   onAttachDetachSecurityGroups?: () => void  // For security group management
   onAttachDetachPublicIP?: () => void  // For IP address management
+  onRetry?: () => void  // For retry action (e.g., failed volumes)
 }
 
 /**
@@ -78,6 +79,7 @@ export function ActionMenu({
   onAttachDetachVolumes,
   onAttachDetachSecurityGroups,
   onAttachDetachPublicIP,
+  onRetry,
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -186,6 +188,12 @@ export function ActionMenu({
             <DropdownMenuItem onClick={onCreateInstantSnapshot} className="flex items-center cursor-pointer">
               <CameraIcon className="mr-2 h-4 w-4" />
               <span>Create Instant Snapshot</span>
+            </DropdownMenuItem>
+          )}
+          {onRetry && (
+            <DropdownMenuItem onClick={onRetry} className="flex items-center cursor-pointer">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              <span>Retry</span>
             </DropdownMenuItem>
           )}
           {onExtend && (

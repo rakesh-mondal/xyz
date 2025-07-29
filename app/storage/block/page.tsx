@@ -180,6 +180,50 @@ const mockVolumes = [
     createdOn: "2024-02-01T09:15:00Z",
   },
   {
+    id: "vol-013",
+    name: "creating-volume",
+    type: "High-speed NVME SSD Storage (HNSS)",
+    role: "Storage",
+    size: "80",
+    attachedInstance: "-",
+    vpc: "vpc-main-prod",
+    status: "creating",
+    createdOn: "2024-03-12T10:30:00Z",
+  },
+  {
+    id: "vol-014",
+    name: "failed-volume-2",
+    type: "High-speed NVME SSD Storage (HNSS)",
+    role: "Storage",
+    size: "150",
+    attachedInstance: "-",
+    vpc: "vpc-main-prod",
+    status: "failed",
+    createdOn: "2024-03-13T14:20:00Z",
+  },
+  {
+    id: "vol-015",
+    name: "deleting-volume-2",
+    type: "High-speed NVME SSD Storage (HNSS)",
+    role: "Storage",
+    size: "100",
+    attachedInstance: "-",
+    vpc: "vpc-main-prod",
+    status: "deleting",
+    createdOn: "2024-03-14T09:15:00Z",
+  },
+  {
+    id: "vol-016",
+    name: "detached-volume-2",
+    type: "High-speed NVME SSD Storage (HNSS)",
+    role: "Storage",
+    size: "200",
+    attachedInstance: "-",
+    vpc: "vpc-main-prod",
+    status: "detached",
+    createdOn: "2024-03-15T11:45:00Z",
+  },
+  {
     id: "vol-004",
     name: "temp-processing",
     type: "High-speed NVME SSD Storage (HNSS)",
@@ -699,6 +743,14 @@ function VolumesSection() {
       ),
     },
     {
+      key: "createdOn",
+      label: "Created On",
+      sortable: true,
+      render: (value: string) => (
+        <div className="leading-5">{new Date(value).toLocaleDateString()}</div>
+      ),
+    },
+    {
       key: "status",
       label: "Status",
       sortable: true,
@@ -734,6 +786,7 @@ function VolumesSection() {
             deleteLabel="Delete Volume"
             onCreateInstantBackup={() => handleCreateInstantBackup(row)}
             onCreateInstantSnapshot={() => handleCreateInstantSnapshot(row)}
+            onRetry={row.status === "failed" ? () => handleRetryVolume(row) : undefined}
           />
         </div>
       ),
@@ -770,7 +823,7 @@ function VolumesSection() {
           columns={columns}
           data={dataWithActions}
           searchableColumns={["name", "attachedInstance"]}
-          defaultSort={{ column: "status", direction: "asc" }}
+          defaultSort={{ column: "createdOn", direction: "desc" }}
           pageSize={10}
           enableSearch={true}
           enablePagination={true}
