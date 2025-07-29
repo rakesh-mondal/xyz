@@ -1341,7 +1341,7 @@ function BackupSection() {
               <Input
                 id="restoreVolumeSize"
                 type="number"
-                value={selectedBackup?.size || ""}
+                value={selectedBackup ? parseInt(selectedBackup.size) : ""}
                 readOnly
                 className="bg-gray-50"
               />
@@ -1359,7 +1359,7 @@ function BackupSection() {
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-black">Volume Price:</span>
-                  <span className="font-semibold text-black">₹{(Number(selectedBackup.size) * 1.8).toFixed(2)} per month</span>
+                  <span className="font-semibold text-black">₹{(parseInt(selectedBackup.size) * 1.8).toFixed(2)} per month</span>
                 </div>
               </div>
             )}
