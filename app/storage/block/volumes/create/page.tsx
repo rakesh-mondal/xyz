@@ -14,6 +14,9 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { vpcs } from "@/lib/data"
+import { SnapshotPolicyModal } from "@/components/modals/snapshot-policy-modal"
+import { AddPolicyModal } from "@/components/modals/add-policy-modal"
+import { Edit, Trash2 } from "lucide-react"
 
 export default function CreateVolumePage() {
   const [loading, setLoading] = useState(false)
@@ -27,9 +30,13 @@ export default function CreateVolumePage() {
   const [size, setSize] = useState([100])
   const [tags, setTags] = useState([{ key: "", value: "" }])
   
-  // Advanced settings state
-  const [snapshotPolicies, setSnapshotPolicies] = useState<any[]>([])
-  const [backupPolicies, setBackupPolicies] = useState<any[]>([])
+  // Policy state
+  const [snapshotPolicy, setSnapshotPolicy] = useState<any>(null)
+  const [backupPolicy, setBackupPolicy] = useState<any>(null)
+  const [showAddSnapshotPolicy, setShowAddSnapshotPolicy] = useState(false)
+  const [showAddBackupPolicy, setShowAddBackupPolicy] = useState(false)
+  const [editSnapshot, setEditSnapshot] = useState(false)
+  const [editBackup, setEditBackup] = useState(false)
   
   // Refs for form fields
   const nameRef = useRef<HTMLInputElement>(null)
@@ -115,25 +122,6 @@ export default function CreateVolumePage() {
     return totalPrice.toFixed(2)
   }
 
-  const addSnapshotPolicy = () => {
-    setSnapshotPolicies([...snapshotPolicies, {
-      id: Date.now(),
-      name: "",
-      maxSnapshots: 5,
-      frequency: "daily"
-    }])
-  }
-
-  const addBackupPolicy = () => {
-    setBackupPolicies([...backupPolicies, {
-      id: Date.now(),
-      name: "",
-      maxBackups: 5,
-      incremental: false,
-      frequency: "daily"
-    }])
-  }
-
   const handleSourceChange = (newSource: string) => {
     setSource(newSource)
     // Clear previously selected values when source changes
@@ -206,6 +194,9 @@ export default function CreateVolumePage() {
                         ))}
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Select VPC to isolate your workload
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
@@ -489,162 +480,83 @@ export default function CreateVolumePage() {
                     <AccordionItem value="advanced">
                       <AccordionTrigger>Advanced Settings</AccordionTrigger>
                       <AccordionContent className="space-y-6">
-                        {/* Snapshot Policies */}
-                        <div>
-                          <Label className="block mb-2 font-medium">Snapshot Policies</Label>
-                          {snapshotPolicies.length > 0 ? (
-                            <div className="space-y-4 mb-4">
-                              {snapshotPolicies.map((policy, index) => (
-                                <Card key={policy.id}>
-                                  <CardContent className="pt-4 space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div>
-                                        <Label>Snapshot name (suffix)</Label>
-                                        <Input placeholder="Enter suffix" />
-                                      </div>
-                                      <div>
-                                        <Label>Maximum snapshots allowed</Label>
-                                        <Select defaultValue="5">
-                                          <SelectTrigger>
-                                            <SelectValue />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            {Array.from({length: 10}, (_, i) => (
-                                              <SelectItem key={i+1} value={String(i+1)}>{i+1}</SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <Label className="block mb-2">Scheduler</Label>
-                                      <div className="grid grid-cols-1 gap-4">
-                                        <div>
-                                          <Label>Once every</Label>
-                                          <Select defaultValue="daily">
-                                            <SelectTrigger>
-                                              <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectItem value="30-minutes">30 Minutes</SelectItem>
-                                              <SelectItem value="hourly">Hour</SelectItem>
-                                              <SelectItem value="daily">Day</SelectItem>
-                                              <SelectItem value="monthly">Month</SelectItem>
-                                            </SelectContent>
-                                          </Select>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-center py-6">
-                              <div className="mb-3">
-                                <svg width="80" height="50" viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
-                                  <rect width="80" height="50" fill="#FFFFFF"/>
-                                  <rect x="15" y="15" width="50" height="20" fill="none" stroke="#E5E7EB" strokeWidth="2" rx="3"/>
-                                  <path d="M22 22H58" stroke="#E5E7EB" strokeWidth="1.5"/>
-                                  <path d="M22 28H48" stroke="#E5E7EB" strokeWidth="1.5"/>
-                                  <circle cx="19" cy="25" r="1.5" fill="#E5E7EB"/>
-                                </svg>
+                        {/* Policy Sections - Side by Side */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Snapshot Policy Section */}
+                          <div className="bg-card text-card-foreground border-border border rounded-lg p-6 relative">
+                            <h2 className="block mb-2 font-medium">Snapshot Policy</h2>
+                            {snapshotPolicy ? (
+                              <div className="bg-gray-50 rounded p-4">
+                                <div className="space-y-2">
+                                  <div className="text-sm text-gray-700 font-medium">{snapshotPolicy.name || "Snapshot Policy"}</div>
+                                  <div className="text-xs text-gray-500">{snapshotPolicy.description || "Automated snapshot policy for volume protection"}</div>
+                                  <div className="text-xs text-gray-500">Max Snapshots: {snapshotPolicy.maxSnapshots}</div>
+                                  <div className="text-xs text-gray-500">CRON Expression: {snapshotPolicy.cronExpression}</div>
+                                  <div className="text-xs text-gray-500">{snapshotPolicy.cronExplanation}</div>
+                                  <div className="text-xs text-gray-500">Next Execution: {snapshotPolicy.nextExecution}</div>
+                                </div>
+                                {/* Action Icons */}
+                                <div className="absolute top-4 right-4 flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setEditSnapshot(true)}
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSnapshotPolicy(null)}
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
-                              <h4 className="font-medium text-sm mb-2">No Snapshot Policies</h4>
-                              <p className="text-xs text-muted-foreground mb-3">
-                                No snapshot policies configured. Add policies to automate volume snapshot creation and management.
-                              </p>
-                              <Button type="button" variant="outline" size="sm" onClick={addSnapshotPolicy}>
-                                Add Snapshot Policy
-                              </Button>
-                            </div>
-                          )}
-                          {snapshotPolicies.length > 0 && (
-                            <Button type="button" variant="outline" size="sm" onClick={addSnapshotPolicy}>
-                              Add Snapshot Policy
-                            </Button>
-                          )}
-                        </div>
+                            ) : (
+                              <Button variant="outline" onClick={() => setShowAddSnapshotPolicy(true)}>Add Policy</Button>
+                            )}
+                          </div>
 
-                        {/* Backup Policies */}
-                        <div>
-                          <Label className="block mb-2 font-medium">Backup Policies</Label>
-                          {backupPolicies.length > 0 ? (
-                            <div className="space-y-4 mb-4">
-                              {backupPolicies.map((policy, index) => (
-                                <Card key={policy.id}>
-                                  <CardContent className="pt-4 space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div>
-                                        <Label>Backup name (suffix)</Label>
-                                        <Input placeholder="Enter suffix" />
-                                      </div>
-                                      <div>
-                                        <Label>Max Backups Allowed</Label>
-                                        <Select defaultValue="5">
-                                          <SelectTrigger>
-                                            <SelectValue />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            {Array.from({length: 10}, (_, i) => (
-                                              <SelectItem key={i+1} value={String(i+1)}>{i+1}</SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                      <Switch />
-                                      <Label>Incremental</Label>
-                                    </div>
-                                    <div>
-                                      <Label className="block mb-2">Scheduler</Label>
-                                      <div className="grid grid-cols-1 gap-4">
-                                        <div>
-                                          <Label>Once every</Label>
-                                          <Select defaultValue="daily">
-                                            <SelectTrigger>
-                                              <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectItem value="30-minutes">30 Minutes</SelectItem>
-                                              <SelectItem value="hourly">Hour</SelectItem>
-                                              <SelectItem value="daily">Day</SelectItem>
-                                              <SelectItem value="monthly">Month</SelectItem>
-                                            </SelectContent>
-                                          </Select>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-center py-6">
-                              <div className="mb-3">
-                                <svg width="80" height="50" viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
-                                  <rect width="80" height="50" fill="#FFFFFF"/>
-                                  <rect x="15" y="15" width="50" height="20" fill="none" stroke="#E5E7EB" strokeWidth="2" rx="3"/>
-                                  <path d="M22 22H58" stroke="#E5E7EB" strokeWidth="1.5"/>
-                                  <path d="M22 28H48" stroke="#E5E7EB" strokeWidth="1.5"/>
-                                  <circle cx="19" cy="25" r="1.5" fill="#E5E7EB"/>
-                                </svg>
+                          {/* Backup Policy Section */}
+                          <div className="bg-card text-card-foreground border-border border rounded-lg p-6 relative">
+                            <h2 className="block mb-2 font-medium">Backup Policy</h2>
+                            {backupPolicy ? (
+                              <div className="bg-gray-50 rounded p-4">
+                                <div className="space-y-2">
+                                  <div className="text-sm text-gray-700 font-medium">{backupPolicy.name || "Backup Policy"}</div>
+                                  <div className="text-xs text-gray-500">{backupPolicy.description || "Automated backup policy for volume protection"}</div>
+                                  <div className="text-xs text-gray-500">Max Backups: {backupPolicy.retention}</div>
+                                  <div className="text-xs text-gray-500">Incremental: {backupPolicy.incremental ? "Yes" : "No"}</div>
+                                  <div className="text-xs text-gray-500">Schedule: {backupPolicy.schedule}</div>
+                                  <div className="text-xs text-gray-500">Next Execution: {backupPolicy.nextExecution}</div>
+                                </div>
+                                {/* Action Icons */}
+                                <div className="absolute top-4 right-4 flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setEditBackup(true)}
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setBackupPolicy(null)}
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
-                              <h4 className="font-medium text-sm mb-2">No Backup Policies</h4>
-                              <p className="text-xs text-muted-foreground mb-3">
-                                No backup policies configured. Add policies to provide automated data protection and recovery options.
-                              </p>
-                              <Button type="button" variant="outline" size="sm" onClick={addBackupPolicy}>
-                                Add Backup Policy
-                              </Button>
-                            </div>
-                          )}
-                          {backupPolicies.length > 0 && (
-                            <Button type="button" variant="outline" size="sm" onClick={addBackupPolicy}>
-                              Add Backup Policy
-                            </Button>
-                          )}
+                            ) : (
+                              <Button variant="outline" onClick={() => setShowAddBackupPolicy(true)}>Add Policy</Button>
+                            )}
+                          </div>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -733,6 +645,25 @@ export default function CreateVolumePage() {
           </div>
         </div>
       </div>
+
+      {/* Snapshot Policy Modal */}
+      <SnapshotPolicyModal
+        open={showAddSnapshotPolicy || editSnapshot}
+        onClose={() => { setShowAddSnapshotPolicy(false); setEditSnapshot(false); }}
+        onSave={policy => { setSnapshotPolicy(policy); }}
+        mode={editSnapshot ? "edit" : "add"}
+        initialPolicy={editSnapshot ? snapshotPolicy : undefined}
+      />
+      
+      {/* Backup Policy Modal */}
+      <AddPolicyModal
+        open={showAddBackupPolicy || editBackup}
+        onClose={() => { setShowAddBackupPolicy(false); setEditBackup(false); }}
+        onSave={policy => { setBackupPolicy(policy); }}
+        mode={editBackup ? "edit" : "add"}
+        type="backup"
+        initialPolicy={editBackup ? backupPolicy : undefined}
+      />
     </PageLayout>
   )
 } 

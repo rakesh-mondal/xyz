@@ -132,7 +132,7 @@ export function SnapshotPolicyModal({ open, onClose, onSave, mode, initialPolicy
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Label htmlFor="customName" className="font-medium">
-                    Policy Name (Optional)
+                    Policy Name
                   </Label>
                   <TooltipWrapper 
                     content="Leave empty to use the auto-generated name. Only alphanumeric characters, hyphens, and underscores allowed." 
