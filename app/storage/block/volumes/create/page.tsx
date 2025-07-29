@@ -37,6 +37,7 @@ export default function CreateVolumePage() {
   const [showAddBackupPolicy, setShowAddBackupPolicy] = useState(false)
   const [editSnapshot, setEditSnapshot] = useState(false)
   const [editBackup, setEditBackup] = useState(false)
+  const [formTouched, setFormTouched] = useState(false)
   
   // Refs for form fields
   const nameRef = useRef<HTMLInputElement>(null)
@@ -130,6 +131,28 @@ export default function CreateVolumePage() {
     setSelectedVolume("")
   }
 
+  // Function to check if all mandatory fields are filled
+  const isFormValid = () => {
+    const name = nameRef.current?.value.trim() || ""
+    const hasValidName = name.length > 0
+    const hasValidVpc = selectedVpc.length > 0
+    const hasValidVolumeType = volumeType.length > 0
+    const hasValidSource = source.length > 0
+    const hasValidSize = size[0] > 0
+
+    // Check conditional requirements based on source
+    let hasValidConditionalFields = true
+    if (source === "snapshot") {
+      hasValidConditionalFields = selectedSnapshot.length > 0
+    } else if (source === "machine-image") {
+      hasValidConditionalFields = selectedMachineImage.length > 0
+    } else if (source === "volume") {
+      hasValidConditionalFields = selectedVolume.length > 0
+    }
+
+    return hasValidName && hasValidVpc && hasValidVolumeType && hasValidSource && hasValidSize && hasValidConditionalFields
+  }
+
   return (
     <PageLayout
       title="Create Volume"
@@ -158,7 +181,10 @@ export default function CreateVolumePage() {
                       ref={nameRef} 
                       placeholder="Enter volume name" 
                       required 
-                      className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                        formTouched && !nameRef.current?.value.trim() ? 'border-red-300 bg-red-50' : ''
+                      }`}
+                      onChange={() => setFormTouched(true)}
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Only alphanumeric characters, hyphens, and underscores allowed.
@@ -182,8 +208,8 @@ export default function CreateVolumePage() {
                     <Label htmlFor="vpc" className="block mb-2 font-medium">
                       VPC <span className="text-destructive">*</span>
                     </Label>
-                    <Select value={selectedVpc} onValueChange={setSelectedVpc} required>
-                      <SelectTrigger>
+                    <Select value={selectedVpc} onValueChange={(value) => { setSelectedVpc(value); setFormTouched(true); }} required>
+                      <SelectTrigger className={formTouched && !selectedVpc ? 'border-red-300 bg-red-50' : ''}>
                         <SelectValue placeholder="Select VPC" />
                       </SelectTrigger>
                       <SelectContent>
@@ -204,8 +230,8 @@ export default function CreateVolumePage() {
                       <Label htmlFor="volume-type" className="block mb-2 font-medium">
                         Volume Type <span className="text-destructive">*</span>
                       </Label>
-                      <Select value={volumeType} onValueChange={setVolumeType} required>
-                        <SelectTrigger>
+                      <Select value={volumeType} onValueChange={(value) => { setVolumeType(value); setFormTouched(true); }} required>
+                        <SelectTrigger className={formTouched && !volumeType ? 'border-red-300 bg-red-50' : ''}>
                           <SelectValue placeholder="Select volume type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -219,8 +245,8 @@ export default function CreateVolumePage() {
                       <Label htmlFor="source" className="block mb-2 font-medium">
                         Source <span className="text-destructive">*</span>
                       </Label>
-                      <Select value={source} onValueChange={handleSourceChange} required>
-                        <SelectTrigger>
+                      <Select value={source} onValueChange={(value) => { handleSourceChange(value); setFormTouched(true); }} required>
+                        <SelectTrigger className={formTouched && !source ? 'border-red-300 bg-red-50' : ''}>
                           <SelectValue placeholder="Select source" />
                         </SelectTrigger>
                         <SelectContent>
@@ -240,8 +266,8 @@ export default function CreateVolumePage() {
                         Snapshots <span className="text-destructive">*</span>
                       </Label>
                       {snapshots.length > 0 ? (
-                        <Select value={selectedSnapshot} onValueChange={setSelectedSnapshot} required>
-                          <SelectTrigger>
+                        <Select value={selectedSnapshot} onValueChange={(value) => { setSelectedSnapshot(value); setFormTouched(true); }} required>
+                          <SelectTrigger className={formTouched && source === "snapshot" && !selectedSnapshot ? 'border-red-300 bg-red-50' : ''}>
                             <SelectValue placeholder="Select a snapshot" />
                           </SelectTrigger>
                           <SelectContent>
@@ -278,8 +304,8 @@ export default function CreateVolumePage() {
                         Machine Images <span className="text-destructive">*</span>
                       </Label>
                       {machineImages.length > 0 ? (
-                        <Select value={selectedMachineImage} onValueChange={setSelectedMachineImage} required>
-                          <SelectTrigger>
+                        <Select value={selectedMachineImage} onValueChange={(value) => { setSelectedMachineImage(value); setFormTouched(true); }} required>
+                          <SelectTrigger className={formTouched && source === "machine-image" && !selectedMachineImage ? 'border-red-300 bg-red-50' : ''}>
                             <SelectValue placeholder="Select a machine image" />
                           </SelectTrigger>
                           <SelectContent>
@@ -316,8 +342,8 @@ export default function CreateVolumePage() {
                         Other Volumes <span className="text-destructive">*</span>
                       </Label>
                       {otherVolumes.length > 0 ? (
-                        <Select value={selectedVolume} onValueChange={setSelectedVolume} required>
-                          <SelectTrigger>
+                        <Select value={selectedVolume} onValueChange={(value) => { setSelectedVolume(value); setFormTouched(true); }} required>
+                          <SelectTrigger className={formTouched && source === "volume" && !selectedVolume ? 'border-red-300 bg-red-50' : ''}>
                             <SelectValue placeholder="Select a volume" />
                           </SelectTrigger>
                           <SelectContent>
@@ -392,8 +418,11 @@ export default function CreateVolumePage() {
                                 onChange={(e) => {
                                   const value = Math.max(4, Math.min(2048, Number(e.target.value) || 4))
                                   setSize([value])
+                                  setFormTouched(true)
                                 }}
-                                className="w-full h-9 text-xs text-center pr-8"
+                                className={`w-full h-9 text-xs text-center pr-8 ${
+                                  formTouched && size[0] <= 0 ? 'border-red-300 bg-red-50' : ''
+                                }`}
                                 min={4}
                                 max={2048}
                               />
@@ -571,8 +600,12 @@ export default function CreateVolumePage() {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" disabled={loading}>
-                      {loading ? "Creating..." : "Create Volume"}
+                    <Button 
+                      type="submit" 
+                      disabled={loading || !isFormValid()}
+                      onClick={() => setFormTouched(true)}
+                    >
+                      {loading ? "Creating..." : !isFormValid() ? (formTouched ? "Fill Required Fields" : "Create Volume") : "Create Volume"}
                     </Button>
                   </div>
                 </div>
