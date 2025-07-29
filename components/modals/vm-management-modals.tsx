@@ -377,6 +377,16 @@ interface CreateMachineImageModalProps {
 export function CreateMachineImageModal({ open, onClose, onConfirm, machineName, isLoading = false }: CreateMachineImageModalProps) {
   const [imageName, setImageName] = useState("");
 
+  // Calculate pricing based on estimated machine image size (mock data)
+  const calculatePricing = (estimatedSizeGB: number = 20) => {
+    const monthlyPrice = estimatedSizeGB * 4.25; // ₹4.25 per GB per month
+    return {
+      sizeInGB: estimatedSizeGB.toFixed(2),
+      monthlyPrice: monthlyPrice.toFixed(2),
+      yearlyPrice: (monthlyPrice * 12).toFixed(2)
+    };
+  };
+
   const handleConfirm = () => {
     if (imageName.trim()) {
       onConfirm(imageName.trim());
@@ -390,7 +400,7 @@ export function CreateMachineImageModal({ open, onClose, onConfirm, machineName,
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md" style={{ boxShadow: 'rgba(31, 34, 37, 0.09) 0px 0px 0px 1px, rgba(0, 0, 0, 0.16) 0px 16px 40px -6px, rgba(0, 0, 0, 0.04) 0px 12px 24px -6px' }}>
+      <DialogContent className="max-w-xl w-[95vw] max-h-[90vh] overflow-y-auto" style={{ boxShadow: 'rgba(31, 34, 37, 0.09) 0px 0px 0px 1px, rgba(0, 0, 0, 0.16) 0px 16px 40px -6px, rgba(0, 0, 0, 0.04) 0px 12px 24px -6px' }}>
         <DialogHeader className="space-y-3 pb-4">
           <DialogTitle className="text-base font-semibold text-black pr-8">
             Create Machine Image
@@ -417,14 +427,51 @@ export function CreateMachineImageModal({ open, onClose, onConfirm, machineName,
               disabled={isLoading}
             />
           </div>
+
+          {/* Pricing Summary */}
+          <div 
+            className="p-3 sm:p-4 rounded-lg mt-2" 
+            style={{
+              boxShadow: "rgba(14, 114, 180, 0.1) 0px 0px 0px 1px inset",
+              background: "linear-gradient(263deg, rgba(15, 123, 194, 0.08) 6.86%, rgba(15, 123, 194, 0.02) 96.69%)"
+            }}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm font-medium text-black">Pricing Summary</span>
+            </div>
+            {(() => {
+              const pricing = calculatePricing(20); // Estimated 20GB for machine image
+              return (
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-black">Estimated Size:</span>
+                    <span className="font-semibold text-black">{pricing.sizeInGB} GB</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-black">Monthly Storage:</span>
+                    <span className="font-semibold text-black">₹{pricing.monthlyPrice}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-black">Yearly Storage:</span>
+                    <span className="font-semibold text-black">₹{pricing.yearlyPrice}</span>
+                  </div>
+                  <div className="pt-2 border-t border-gray-200">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Rate: ₹4.25/GB/month</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
         </div>
         
-        <DialogFooter className="flex gap-3 sm:justify-end" style={{ paddingTop: '.5rem' }}>
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={handleClose}
-            className="min-w-20"
+            className="w-full sm:w-auto"
             disabled={isLoading}
           >
             Cancel
@@ -432,7 +479,7 @@ export function CreateMachineImageModal({ open, onClose, onConfirm, machineName,
           <Button
             type="button"
             onClick={handleConfirm}
-            className="min-w-20"
+            className="w-full sm:w-auto"
             disabled={isLoading || !imageName.trim()}
           >
             {isLoading ? "Creating..." : "Confirm"}
