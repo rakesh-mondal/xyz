@@ -22,8 +22,8 @@ import React from "react"
 import { StatusBadge } from "@/components/status-badge"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 
-// Resource Tables Component
-function ResourceTables({ isNewUser = false }: { isNewUser?: boolean }) {
+// Resource Cards Component
+function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
   if (isNewUser) {
     // Mock credit status - in real app this would come from user data
     const hasCredits = false // This would be determined by user's credit balance
@@ -219,132 +219,174 @@ function ResourceTables({ isNewUser = false }: { isNewUser?: boolean }) {
       </div>
     )
   }
+
   // Mock data for existing users
-  const vms = [
-    { id: "vm-001", name: "AI-Training-VM", status: "running", vpc: "prod-vpc" },
-    { id: "vm-002", name: "Web-Server-01", status: "stopped", vpc: "dev-vpc" },
-    { id: "vm-003", name: "DB-Node-1", status: "running", vpc: "prod-vpc" },
-  ];
-  const vpcs = [
-    { name: "prod-vpc", status: "active", description: "Production network for main workloads" },
-    { name: "dev-vpc", status: "active", description: "Development environment network" },
-    { name: "test-vpc", status: "inactive", description: "Testing and QA network" },
-  ];
-  const buckets = [
-    { id: "bucket-001", name: "ml-datasets", region: "ap-south-1", sizeUsed: "12 GB", status: "active" },
-    { id: "bucket-002", name: "logs", region: "us-east-1", sizeUsed: "2 GB", status: "active" },
-    { id: "bucket-003", name: "backups", region: "eu-west-1", sizeUsed: "30 GB", status: "active" },
-  ];
-  // AI Pods mock data
-  const aiPods = [
-    { name: "VisionPod-01", template: "Image Classification", status: "running" },
-    { name: "NLP-Pod-02", template: "Text Generation", status: "stopped" },
-    { name: "SpeechPod-03", template: "Speech Recognition", status: "running" },
-  ];
-  const aiPodColumns = [
-    { key: "name", label: "Pod Name", sortable: true, searchable: true, render: (value: string) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
-    { key: "status", label: "Status", sortable: true, render: (value: string) => <StatusBadge status={value} /> },
-    { key: "template", label: "Template", sortable: true },
-  ];
-  // Table columns
-  const vmColumns = [
-    { key: "name", label: "Machine Name", sortable: true, searchable: true, render: (value: string, row: any) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
-    { key: "status", label: "Status", sortable: true, render: (value: string) => <StatusBadge status={value} /> },
-    { key: "vpc", label: "VPC", sortable: true },
-  ];
-  const vpcColumns = [
-    { key: "name", label: "Name", sortable: true, searchable: true, render: (value: string, row: any) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
-    { key: "status", label: "Status", sortable: true, render: (value: string) => <StatusBadge status={value} /> },
-    { key: "description", label: "Description", sortable: false },
-  ];
-  const bucketColumns = [
-    { key: "name", label: "Bucket Name", sortable: true, searchable: true, render: (value: string, row: any) => <a href="#" className="text-primary font-medium hover:underline">{value}</a> },
-    { key: "status", label: "Status", sortable: true, render: (value: string) => <StatusBadge status={value} /> },
-    { key: "region", label: "Region", sortable: true },
-    { key: "sizeUsed", label: "Size Used", sortable: true },
-  ];
+  const resourceData = {
+    virtualMachines: {
+      activeVMs: 8,
+      totalVMs: 12,
+      icon: Server,
+      color: "bg-blue-100 text-blue-700",
+      href: "/compute/vms"
+    },
+    blockStorage: {
+      totalAllocatedSize: 256,
+      volumeCount: 15,
+      icon: Database,
+      color: "bg-green-100 text-green-700", 
+      href: "/storage/block"
+    },
+    objectStorage: {
+      storageUsed: 45.2,
+      totalBuckets: 8,
+      icon: FileText,
+      color: "bg-purple-100 text-purple-700",
+      href: "/storage/object"
+    },
+    aiPods: {
+      activePods: 3,
+      totalPods: 5,
+      icon: Cpu,
+      color: "bg-orange-100 text-orange-700",
+      href: "/compute/ai-pods"
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Resource Cards in two columns per row */}
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 items-stretch">
-        {/* Virtual Machines Table */}
-        <Card className="bg-white rounded-lg min-w-0 flex-1 flex flex-col h-full">
-          <CardHeader>
-            <h2 className="text-lg font-semibold mb-1 flex items-center gap-2">
-              <Server className="h-5 w-5" />
-              Virtual Machines
-            </h2>
-          </CardHeader>
-          <CardContent className="p-1 flex-1 w-full flex flex-col">
-            <ShadcnDataTable
-              columns={vmColumns}
-              data={vms}
-              searchableColumns={["name"]}
-              pageSize={5}
-              enableSearch={false}
-              enablePagination={false}
-            />
-          </CardContent>
-        </Card>
-        {/* Virtual Private Network Table */}
-        <Card className="bg-white rounded-lg min-w-0 flex-1 flex flex-col h-full">
-          <CardHeader>
-            <h2 className="text-lg font-semibold mb-1 flex items-center gap-2">
-              <Globe className="h-5 w-5" />
-              Virtual Private Network
-            </h2>
-          </CardHeader>
-          <CardContent className="p-1 flex-1 w-full flex flex-col">
-            <ShadcnDataTable
-              columns={vpcColumns}
-              data={vpcs}
-              searchableColumns={["name", "description"]}
-              pageSize={5}
-              enableSearch={false}
-              enablePagination={false}
-            />
-          </CardContent>
-        </Card>
-        {/* AI Pods Table */}
-        <Card className="bg-white rounded-lg min-w-0 flex-1 flex flex-col h-full">
-          <CardHeader>
-            <h2 className="text-lg font-semibold mb-1 flex items-center gap-2">
-              <Cpu className="h-5 w-5" />
-              AI Pods
-            </h2>
-          </CardHeader>
-          <CardContent className="p-1 flex-1 w-full flex flex-col">
-            <ShadcnDataTable
-              columns={aiPodColumns}
-              data={aiPods}
-              searchableColumns={["name", "template"]}
-              pageSize={5}
-              enableSearch={false}
-              enablePagination={false}
-            />
-          </CardContent>
-        </Card>
-        {/* Object Storage Table */}
-        <Card className="bg-white rounded-lg min-w-0 flex-1 flex flex-col h-full">
-          <CardHeader>
-            <h2 className="text-lg font-semibold mb-1 flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              Object Storage
-            </h2>
-          </CardHeader>
-          <CardContent className="p-1 flex-1 w-full flex flex-col">
-            <ShadcnDataTable
-              columns={bucketColumns}
-              data={buckets}
-              searchableColumns={["name", "region"]}
-              pageSize={5}
-              enableSearch={false}
-              enablePagination={false}
-            />
-          </CardContent>
-        </Card>
-      </div>
+      <Card 
+        style={{
+          border: "1px solid rgba(14, 114, 180, 0.2)",
+          background: "linear-gradient(263deg, rgba(15, 123, 194, 0.08) 6.86%, rgba(15, 123, 194, 0.02) 96.69%)"
+        }}
+      >
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">Resource Overview</h2>
+              <p className="text-sm text-gray-600 mt-1">Monitor and manage your cloud resources at a glance</p>
+            </div>
+          </div>
+          
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            {/* Virtual Machines Card */}
+            <Card className="bg-white rounded-lg border border-gray-200">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${resourceData.virtualMachines.color}`}>
+                    <resourceData.virtualMachines.icon className="h-5 w-5" />
+                  </div>
+                  <CardTitle className="text-base font-semibold">Virtual Machines</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Active VMs</span>
+                    <span className="text-lg font-semibold text-gray-900">{resourceData.virtualMachines.activeVMs}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Total VMs</span>
+                    <span className="text-lg font-semibold text-gray-900">{resourceData.virtualMachines.totalVMs}</span>
+                  </div>
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={resourceData.virtualMachines.href}>Manage VMs</Link>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Block Storage Card */}
+            <Card className="bg-white rounded-lg border border-gray-200">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${resourceData.blockStorage.color}`}>
+                    <resourceData.blockStorage.icon className="h-5 w-5" />
+                  </div>
+                  <CardTitle className="text-base font-semibold">Block Storage</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Total Allocated</span>
+                    <span className="text-lg font-semibold text-gray-900">{resourceData.blockStorage.totalAllocatedSize} GB</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Volume Count</span>
+                    <span className="text-lg font-semibold text-gray-900">{resourceData.blockStorage.volumeCount}</span>
+                  </div>
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={resourceData.blockStorage.href}>Manage Block Storage</Link>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Object Storage Card */}
+            <Card className="bg-white rounded-lg border border-gray-200">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${resourceData.objectStorage.color}`}>
+                    <resourceData.objectStorage.icon className="h-5 w-5" />
+                  </div>
+                  <CardTitle className="text-base font-semibold">Object Storage</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Storage Used</span>
+                    <span className="text-lg font-semibold text-gray-900">{resourceData.objectStorage.storageUsed} GB</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Total Buckets</span>
+                    <span className="text-lg font-semibold text-gray-900">{resourceData.objectStorage.totalBuckets}</span>
+                  </div>
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={resourceData.objectStorage.href}>Manage Object Storage</Link>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* AI Pods Card */}
+            <Card className="bg-white rounded-lg border border-gray-200">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${resourceData.aiPods.color}`}>
+                    <resourceData.aiPods.icon className="h-5 w-5" />
+                  </div>
+                  <CardTitle className="text-base font-semibold">AI Pods</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Active Pods</span>
+                    <span className="text-lg font-semibold text-gray-900">{resourceData.aiPods.activePods}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Total Pods</span>
+                    <span className="text-lg font-semibold text-gray-900">{resourceData.aiPods.totalPods}</span>
+                  </div>
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={resourceData.aiPods.href}>Manage AI Pods</Link>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -575,8 +617,8 @@ export default function DashboardPage() {
           <div className="text-lg text-gray-700 font-normal text-left mb-1">Welcome back to Krutrim Cloud</div>
         </div>
 
-        {/* Resource Tables */}
-        <ResourceTables isNewUser={isNewUser} />
+        {/* Resource Cards */}
+        <ResourceCards isNewUser={isNewUser} />
 
         {/* Services Available */}
         <ServicesAvailable />
