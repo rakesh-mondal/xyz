@@ -716,23 +716,18 @@ export function CreateSSHKeyModal({ open, onClose, onSuccess }: CreateSSHKeyModa
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
+    region: "",
     keyName: "",
-    description: "",
-    keyType: "rsa",
-    keySize: "2048"
+    publicKey: ""
   })
 
-  const keyTypes = [
-    { id: "rsa", name: "RSA", description: "Most widely supported, recommended for compatibility" },
-    { id: "ed25519", name: "Ed25519", description: "Modern, more secure and efficient" },
-    { id: "ecdsa", name: "ECDSA", description: "Elliptic curve, good balance of security and performance" }
+  const regions = [
+    { id: "us-east-1", name: "US East (N. Virginia)" },
+    { id: "us-west-2", name: "US West (Oregon)" },
+    { id: "eu-west-1", name: "EU (Ireland)" },
+    { id: "ap-south-1", name: "Asia Pacific (Mumbai)" },
+    { id: "ap-southeast-1", name: "Asia Pacific (Singapore)" },
   ]
-
-  const keySizes = {
-    rsa: ["2048", "3072", "4096"],
-    ed25519: ["256"],
-    ecdsa: ["256", "384", "521"]
-  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
@@ -741,12 +736,7 @@ export function CreateSSHKeyModal({ open, onClose, onSuccess }: CreateSSHKeyModa
   }
 
   const handleSelectChange = (field: string, value: string) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      [field]: value,
-      // Reset key size when key type changes
-      ...(field === 'keyType' && { keySize: keySizes[value as keyof typeof keySizes][0] })
-    }))
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -768,10 +758,9 @@ export function CreateSSHKeyModal({ open, onClose, onSuccess }: CreateSSHKeyModa
       
       // Reset form
       setFormData({
+        region: "",
         keyName: "",
-        description: "",
-        keyType: "rsa",
-        keySize: "2048"
+        publicKey: ""
       })
     } catch (error) {
       toast({
@@ -789,10 +778,30 @@ export function CreateSSHKeyModal({ open, onClose, onSuccess }: CreateSSHKeyModa
         <DialogHeader>
           <DialogTitle>Create SSH Key</DialogTitle>
           <DialogDescription>
-            Generate a new SSH key pair for secure access to your virtual machines.
+            Create a new SSH key for secure access to your virtual machines.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="ssh-region">Region *</Label>
+            <Select 
+              value={formData.region} 
+              onValueChange={(value) => handleSelectChange("region", value)}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select region" />
+              </SelectTrigger>
+              <SelectContent>
+                {regions.map((region) => (
+                  <SelectItem key={region.id} value={region.id}>
+                    {region.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="ssh-keyName">Key Name *</Label>
             <Input
@@ -802,76 +811,21 @@ export function CreateSSHKeyModal({ open, onClose, onSuccess }: CreateSSHKeyModa
               onChange={handleChange}
               required
             />
-            <p className="text-xs text-muted-foreground">
-              Only alphanumeric characters, hyphens, and underscores allowed.
-            </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="ssh-keyType">Key Type *</Label>
-            <Select 
-              value={formData.keyType} 
-              onValueChange={(value) => handleSelectChange("keyType", value)}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select key type" />
-              </SelectTrigger>
-              <SelectContent>
-                {keyTypes.map((type) => (
-                  <SelectItem key={type.id} value={type.id}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{type.name}</span>
-                      <span className="text-xs text-muted-foreground">{type.description}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="ssh-keySize">Key Size (bits) *</Label>
-            <Select 
-              value={formData.keySize} 
-              onValueChange={(value) => handleSelectChange("keySize", value)}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select key size" />
-              </SelectTrigger>
-              <SelectContent>
-                {keySizes[formData.keyType as keyof typeof keySizes].map((size) => (
-                  <SelectItem key={size} value={size}>
-                    {size} bits
-                    {formData.keyType === "rsa" && size === "2048" && " (Recommended)"}
-                    {formData.keyType === "ed25519" && " (Fixed)"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              {formData.keyType === "rsa" && "Higher key sizes provide better security but may have compatibility issues with older systems."}
-              {formData.keyType === "ed25519" && "Ed25519 uses a fixed 256-bit key size for optimal security."}
-              {formData.keyType === "ecdsa" && "ECDSA key sizes represent the curve bit length."}
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="ssh-description">Description</Label>
+            <Label htmlFor="ssh-publicKey">Public Key *</Label>
             <Textarea
-              id="ssh-description"
-              placeholder="Enter a description for this SSH key (optional)"
-              value={formData.description}
+              id="ssh-publicKey"
+              placeholder="Paste your SSH public key here (starts with ssh-rsa, ssh-ed25519, etc.)"
+              value={formData.publicKey}
               onChange={handleChange}
-              rows={3}
+              rows={6}
+              className="font-mono text-sm"
+              required
             />
-          </div>
-
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-blue-800 text-sm">
-              <strong>Important:</strong> The private key will be automatically downloaded after creation. 
-              Store it securely as it cannot be recovered once lost.
+            <p className="text-xs text-muted-foreground">
+              Paste your complete SSH public key including the key type and comment
             </p>
           </div>
         </div>
@@ -887,9 +841,9 @@ export function CreateSSHKeyModal({ open, onClose, onSuccess }: CreateSSHKeyModa
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={isLoading || !formData.keyName}
+            disabled={isLoading || !formData.keyName || !formData.region || !formData.publicKey}
           >
-            {isLoading ? "Creating..." : "Create SSH Key"}
+            {isLoading ? "Creating..." : "Create Key"}
           </Button>
         </DialogFooter>
       </DialogContent>
