@@ -371,14 +371,14 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
         open={showBackupModal}
         onClose={() => setShowBackupModal(false)}
         onCreate={async ({ name, description, tags }) => {
-          const price = `$${(Number(volume.size) * 0.10).toFixed(2)}`;
+          const price = `₹${(Number(volume.size) * 1.8).toFixed(2)} per month`;
           toast({
             title: "Backup Created",
             description: `Backup '${name}' for volume '${volume.name}' created. Price: ${price}`,
           });
           setShowBackupModal(false);
         }}
-        price={`$${(Number(volume.size) * 0.10).toFixed(2)}`}
+        price={`₹${(Number(volume.size) * 1.8).toFixed(2)} per month`}
         volume={volume}
       />
       {/* Volume Basic Information */}

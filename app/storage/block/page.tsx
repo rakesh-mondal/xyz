@@ -897,8 +897,8 @@ function VolumesSection() {
         open={showBackupModal}
         onClose={() => { setShowBackupModal(false); setInstantBackupVolume(null); }}
         onCreate={async ({ name, description, tags }) => {
-          // Static price logic: $0.10/GB
-          const price = instantBackupVolume ? `$${(Number(instantBackupVolume.size) * 0.10).toFixed(2)}` : "$0.00";
+          // Static price logic: ₹1.8/GB per month
+          const price = instantBackupVolume ? `₹${(Number(instantBackupVolume.size) * 1.8).toFixed(2)} per month` : "₹0.00";
           // Add to mockBackups (design mode: just log or update local state if you want to show instantly)
           // For now, just toast
           toast({
@@ -908,7 +908,7 @@ function VolumesSection() {
           setShowBackupModal(false);
           setInstantBackupVolume(null);
         }}
-        price={instantBackupVolume ? `$${(Number(instantBackupVolume.size) * 0.10).toFixed(2)}` : undefined}
+        price={instantBackupVolume ? `₹${(Number(instantBackupVolume.size) * 1.8).toFixed(2)} per month` : undefined}
         volume={instantBackupVolume}
       />
       <CreateSnapshotModal
