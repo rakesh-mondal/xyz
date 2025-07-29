@@ -11,15 +11,13 @@ import { Button } from "../../../../components/ui/button"
 import { getSubnet, getVPC, getVMAttachedToSubnet, vpcs } from "../../../../lib/data"
 import { DeleteConfirmationModal } from "../../../../components/delete-confirmation-modal"
 import { VPCDetailsModal } from "../../../../components/modals/vpc-details-modal"
-import { SubnetConnectionModal } from "../../../../components/modals/subnet-connection-modal"
 import { StatusBadge } from "../../../../components/status-badge"
-import { Edit, Trash2, Network } from "lucide-react"
+import { Edit, Trash2 } from "lucide-react"
 
 export default function SubnetDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isVPCModalOpen, setIsVPCModalOpen] = useState(false)
-  const [isConnectionModalOpen, setIsConnectionModalOpen] = useState(false)
   const subnet = getSubnet(params.id)
 
   if (!subnet) {
@@ -69,16 +67,8 @@ export default function SubnetDetailsPage({ params }: { params: { id: string } }
         boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
         padding: '1.5rem'
       }}>
-        {/* Overlay Edit/Delete/Connect Buttons */}
+        {/* Overlay Edit/Delete Buttons */}
         <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsConnectionModalOpen(true)}
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
-          >
-            <Network className="h-4 w-4" />
-          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -180,12 +170,6 @@ export default function SubnetDetailsPage({ params }: { params: { id: string } }
         isOpen={isVPCModalOpen}
         onClose={() => setIsVPCModalOpen(false)}
         vpc={associatedVPC}
-      />
-
-      <SubnetConnectionModal
-        isOpen={isConnectionModalOpen}
-        onClose={() => setIsConnectionModalOpen(false)}
-        subnet={subnet}
       />
     </PageLayout>
   )
