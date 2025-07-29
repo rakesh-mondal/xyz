@@ -202,6 +202,39 @@ const mockVolumes = [
     createdOn: "2024-02-15T12:30:00Z",
   },
   {
+    id: "vol-010",
+    name: "failed-volume",
+    type: "High-speed NVME SSD Storage (HNSS)",
+    role: "Storage",
+    size: "120",
+    attachedInstance: "-",
+    vpc: "vpc-main-prod",
+    status: "failed",
+    createdOn: "2024-03-05T10:15:00Z",
+  },
+  {
+    id: "vol-011",
+    name: "deleting-volume",
+    type: "High-speed NVME SSD Storage (HNSS)",
+    role: "Storage",
+    size: "60",
+    attachedInstance: "-",
+    vpc: "vpc-main-prod",
+    status: "deleting",
+    createdOn: "2024-03-08T14:20:00Z",
+  },
+  {
+    id: "vol-012",
+    name: "detached-volume",
+    type: "High-speed NVME SSD Storage (HNSS)",
+    role: "Storage",
+    size: "90",
+    attachedInstance: "-",
+    vpc: "vpc-main-prod",
+    status: "detached",
+    createdOn: "2024-03-10T09:30:00Z",
+  },
+  {
     id: "vol-006",
     name: "app-server-data",
     type: "High-speed NVME SSD Storage (HNSS)",
@@ -589,6 +622,27 @@ function VolumesSection() {
     setShowSnapshotModal(true)
   }
 
+  const handleRetryVolume = async (volume: any) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // In a real app, you would call the retry API here
+      console.log(`Retrying volume creation: ${volume.name}`)
+      
+      toast({
+        title: "Volume Retry Initiated",
+        description: `Retry process started for volume '${volume.name}'. This may take a few minutes.`,
+      })
+    } catch (error) {
+      toast({
+        title: "Retry Failed",
+        description: "Failed to initiate retry process. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
   const columns = [
     {
       key: "name",
@@ -648,7 +702,21 @@ function VolumesSection() {
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value: string) => <StatusBadge status={value} />,
+      render: (value: string, row: any) => (
+        <div className="flex items-center gap-2">
+          <StatusBadge status={value} />
+          {value === "failed" && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleRetryVolume(row)}
+              className="h-6 px-2 text-xs"
+            >
+              Retry
+            </Button>
+          )}
+        </div>
+      ),
     },
     {
       key: "actions",

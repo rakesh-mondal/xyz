@@ -64,6 +64,45 @@ const getVolume = (id: string) => {
       createdOn: "2024-02-01T09:15:00Z",
       updatedOn: "2024-02-01T09:15:00Z",
     },
+    {
+      id: "vol-010",
+      name: "failed-volume",
+      description: "Volume that failed during creation process",
+      type: "High-speed NVME SSD Storage (HNSS)",
+      role: "Storage",
+      size: "120",
+      attachedInstances: [],
+      vpc: "vpc-main-prod",
+      status: "failed",
+      createdOn: "2024-03-05T10:15:00Z",
+      updatedOn: "2024-03-05T10:15:00Z",
+    },
+    {
+      id: "vol-011",
+      name: "deleting-volume",
+      description: "Volume currently being deleted",
+      type: "High-speed NVME SSD Storage (HNSS)",
+      role: "Storage",
+      size: "60",
+      attachedInstances: [],
+      vpc: "vpc-main-prod",
+      status: "deleting",
+      createdOn: "2024-03-08T14:20:00Z",
+      updatedOn: "2024-03-08T14:20:00Z",
+    },
+    {
+      id: "vol-012",
+      name: "detached-volume",
+      description: "Volume that has been detached from instance",
+      type: "High-speed NVME SSD Storage (HNSS)",
+      role: "Storage",
+      size: "90",
+      attachedInstances: [],
+      vpc: "vpc-main-prod",
+      status: "detached",
+      createdOn: "2024-03-10T09:30:00Z",
+      updatedOn: "2024-03-10T09:30:00Z",
+    },
   ]
   
   return mockVolumes.find(volume => volume.id === id)
@@ -152,6 +191,27 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
 
   const handleCreateBackupPolicy = () => {
     router.push(`/storage/block/backup/policies/create?volumeId=${volume.id}`)
+  }
+
+  const handleRetryVolume = async (volume: any) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // In a real app, you would call the retry API here
+      console.log(`Retrying volume creation: ${volume.name}`)
+      
+      toast({
+        title: "Volume Retry Initiated",
+        description: `Retry process started for volume '${volume.name}'. This may take a few minutes.`,
+      })
+    } catch (error) {
+      toast({
+        title: "Retry Failed",
+        description: "Failed to initiate retry process. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   // Format date
@@ -355,8 +415,18 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
             </div>
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
-              <div>
+              <div className="flex items-center gap-2">
                 <StatusBadge status={volume.status} />
+                {volume.status === "failed" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleRetryVolume(volume)}
+                    className="h-6 px-2 text-xs"
+                  >
+                    Retry
+                  </Button>
+                )}
               </div>
             </div>
             <div className="space-y-1">

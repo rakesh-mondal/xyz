@@ -600,7 +600,7 @@ export default function CreateVolumePage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Consider backup policies for data protection</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Enable backup and Snapshot policies for data protection</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
@@ -612,6 +612,7 @@ export default function CreateVolumePage() {
 
           {/* Pricing Summary */}
           <div 
+            className="sticky top-6"
             style={{
               borderRadius: '16px',
               border: '4px solid #FFF',
