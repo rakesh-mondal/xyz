@@ -188,14 +188,6 @@ const navigationConfig = {
           { href: "/doc-intelligence/pii-masking", label: "PII Masking" },
         ],
       },
-      {
-        href: "/ai-solutions/industrial",
-        label: "Industrial Solutions",
-        subItems: [
-          { href: "/ai-solutions/industrial/manufacturing", label: "Industrial Manufacturing" },
-          { href: "/ai-solutions/industrial/medical", label: "Medical Imaging" },
-        ],
-      },
     ],
   },
   maps: {
