@@ -1264,10 +1264,7 @@ export default function BlockStoragePage() {
       case "snapshots":
         return "multiple" // Special case for multiple buttons
       case "backup":
-        return { 
-          href: "/storage/block/backup/create", 
-          label: "Create Backup"
-        }
+        return "multiple" // Special case for multiple buttons
       default:
         return { 
           href: "/storage/block/volumes/create", 
@@ -1282,21 +1279,38 @@ export default function BlockStoragePage() {
   // Create header actions based on button info
   const getHeaderActions = () => {
     if (buttonInfo === "multiple") {
-      // Special case for snapshots tab with multiple buttons
-      return (
-        <div className="flex items-center gap-3">
-          <Button asChild variant="outline">
-            <Link href="/storage/block/snapshots/policies/create">
-              Create Snapshot Policies
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/storage/block/snapshots/create">
-              Create Instant Snapshot
-            </Link>
-          </Button>
-        </div>
-      )
+      // Special case for multiple buttons based on active tab
+      if (activeTab === "snapshots") {
+        return (
+          <div className="flex items-center gap-3">
+            <Button asChild variant="outline">
+              <Link href="/storage/block/snapshots/policies/create">
+                Create Snapshot Policies
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/storage/block/snapshots/create">
+                Create Instant Snapshot
+              </Link>
+            </Button>
+          </div>
+        )
+      } else if (activeTab === "backup") {
+        return (
+          <div className="flex items-center gap-3">
+            <Button asChild variant="outline">
+              <Link href="/storage/block/backup/policies/create">
+                Create Backup Policies
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/storage/block/backup/create">
+                Create Instant Backup
+              </Link>
+            </Button>
+          </div>
+        )
+      }
     } else {
       // Single button case
       return <CreateButton href={buttonInfo.href} label={buttonInfo.label} />
