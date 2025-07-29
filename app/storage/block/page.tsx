@@ -20,10 +20,12 @@ import { canDeletePrimarySnapshot, getPrimarySnapshotsForResource } from "@/lib/
 import { EmptyState } from "@/components/ui/empty-state"
 import { snapshots } from "@/lib/data"
 import Link from "next/link"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { CreateBackupModal } from "@/components/modals/create-backup-modal"
 import { CreateSnapshotModal } from "@/components/modals/create-snapshot-modal"
 import { Card, CardContent } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 
 const volumeIcon = (
   <svg width="467" height="218" viewBox="0 0 467 218" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-72">
@@ -1297,32 +1299,86 @@ function BackupSection() {
 
       {/* Restore Confirmation Modal */}
       <Dialog open={isRestoreModalOpen} onOpenChange={setIsRestoreModalOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Restore Backup</DialogTitle>
+            <DialogDescription>
+              Restore a backup to create a new volume with the backup data.
+            </DialogDescription>
           </DialogHeader>
-          <div className="py-2 space-y-4">
-            <div>
-              Are you sure you want to restore <b>{selectedBackup?.name}</b>?
-              <br />
-              This will restore all delta backups up to the primary backup for volume <b>{selectedBackup?.volumeName}</b>.
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">New Volume Name <span className="text-destructive">*</span></label>
-              <input
+          <div className="space-y-4 py-4">
+            {selectedBackup && (
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="space-y-3 mb-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Backup Name:</span>
+                    <span className="text-sm font-medium">{selectedBackup.name}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Size:</span>
+                    <span className="text-sm font-medium">{selectedBackup.size} GB</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Volume Name:</span>
+                    <span className="text-sm font-medium">{selectedBackup.volumeName}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="restoreVolumeName">New Volume Name *</Label>
+              <Input
+                id="restoreVolumeName"
                 type="text"
-                className="border rounded px-3 py-2 w-full"
                 placeholder="Enter new volume name"
                 value={restoreVolumeName}
                 onChange={e => setRestoreVolumeName(e.target.value)}
                 required
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="restoreVolumeSize">Volume Size (GB) *</Label>
+              <Input
+                id="restoreVolumeSize"
+                type="number"
+                value={selectedBackup?.size || ""}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            {selectedBackup && (
+              <div 
+                className="p-4 rounded-lg mt-2" 
+                style={{
+                  boxShadow: "rgba(14, 114, 180, 0.1) 0px 0px 0px 1px inset",
+                  background: "linear-gradient(263deg, rgba(15, 123, 194, 0.08) 6.86%, rgba(15, 123, 194, 0.02) 96.69%)"
+                }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm font-medium text-black">Pricing Summary</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-black">Volume Price:</span>
+                  <span className="font-semibold text-black">₹{(Number(selectedBackup.size) * 1.8).toFixed(2)} per month</span>
+                </div>
+              </div>
+            )}
             <span className="text-xs text-muted-foreground">(Design mode: this is a mock operation)</span>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsRestoreModalOpen(false)} disabled={restoreInProgress}>Cancel</Button>
-            <Button onClick={handleRestoreConfirm} disabled={restoreInProgress || !restoreVolumeName}>
+          <DialogFooter className="flex gap-2 sm:justify-end sticky bottom-0 bg-white border-t pt-4 mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsRestoreModalOpen(false)}
+              disabled={restoreInProgress}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleRestoreConfirm}
+              disabled={restoreInProgress || !restoreVolumeName}
+            >
               {restoreInProgress ? "Restoring..." : "Restore"}
             </Button>
           </DialogFooter>
