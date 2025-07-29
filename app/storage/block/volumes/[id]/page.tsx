@@ -106,6 +106,47 @@ const getVolume = (id: string) => {
       createdOn: "2024-03-10T09:30:00Z",
       updatedOn: "2024-03-10T09:30:00Z",
     },
+    {
+      id: "vol-014",
+      name: "failed-volume-2",
+      description: "Volume that failed during creation process",
+      type: "High-speed NVME SSD Storage (HNSS)",
+      role: "Storage",
+      size: "150",
+      attachedInstances: [],
+      vpc: "vpc-main-prod",
+      status: "failed",
+      createdOn: "2024-03-13T14:20:00Z",
+      updatedOn: "2024-03-13T14:20:00Z",
+    },
+    {
+      id: "vol-015",
+      name: "deleting-volume-2",
+      description: "Volume currently being deleted",
+      type: "High-speed NVME SSD Storage (HNSS)",
+      role: "Storage",
+      size: "100",
+      attachedInstances: [],
+      vpc: "vpc-main-prod",
+      status: "deleting",
+      deletionStartedOn: "2024-03-14T09:15:00Z",
+      estimatedDeletionTime: 10,
+      createdOn: "2024-03-14T09:15:00Z",
+      updatedOn: "2024-03-14T09:15:00Z",
+    },
+    {
+      id: "vol-016",
+      name: "detached-volume-2",
+      description: "Volume that has been detached from instance",
+      type: "High-speed NVME SSD Storage (HNSS)",
+      role: "Storage",
+      size: "200",
+      attachedInstances: [],
+      vpc: "vpc-main-prod",
+      status: "detached",
+      createdOn: "2024-03-15T11:45:00Z",
+      updatedOn: "2024-03-15T11:45:00Z",
+    },
   ]
   
   return mockVolumes.find(volume => volume.id === id)
@@ -128,6 +169,39 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
   const volume = getVolume(params.id)
   const [showBackupModal, setShowBackupModal] = useState(false);
   const [showSnapshotModal, setShowSnapshotModal] = useState(false);
+
+  // Initialize policy data based on the image
+  const [snapshotPolicyData, setSnapshotPolicyData] = useState<{
+    name: string;
+    description: string;
+    maxSnapshots: number;
+    cronExpression: string;
+    cronExplanation: string;
+    nextExecution: string;
+  } | null>({
+    name: "Web Server Snapshot Policy",
+    description: "Automated daily backup for web server root volume",
+    maxSnapshots: 7,
+    cronExpression: "30 8 * * *",
+    cronExplanation: "This policy will run at every 30 minutes.",
+    nextExecution: "20/12/2024, 14:00:00"
+  });
+
+  const [backupPolicyData, setBackupPolicyData] = useState<{
+    name: string;
+    description: string;
+    maxBackups: number;
+    cronExpression: string;
+    cronExplanation: string;
+    nextExecution: string;
+  } | null>({
+    name: "Web Server Backup Policy", 
+    description: "Automated daily backup for web server root volume",
+    maxBackups: 7,
+    cronExpression: "0 3 * * *",
+    cronExplanation: "This policy will run at hour 3.",
+    nextExecution: "20/12/2024, 03:00:00"
+  });
 
   if (!volume) {
     notFound()
@@ -485,15 +559,15 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
         {/* Snapshot Policy Section */}
         <div className="bg-card text-card-foreground border-border border rounded-lg p-6 relative">
           <h2 className="text-lg font-semibold mb-4">Snapshot Policy</h2>
-          {snapshotPolicy ? (
+          {snapshotPolicyData ? (
             <div className="bg-gray-50 rounded p-4">
               <div className="space-y-2">
-                <div className="text-sm text-gray-700 font-medium">{snapshotPolicy.name || "Web Server Snapshot Policy"}</div>
-                <div className="text-xs text-gray-500">{snapshotPolicy.description || "Automated daily backup for web server root volume"}</div>
-                <div className="text-xs text-gray-500">Max Snapshots: 7</div>
-                <div className="text-xs text-gray-500">CRON Expression: 30 8 * * *</div>
-                <div className="text-xs text-gray-500">This policy will run at every 30 minutes.</div>
-                <div className="text-xs text-gray-500">Next Execution: 20/12/2024, 14:00:00</div>
+                <div className="text-sm text-gray-700 font-medium">{snapshotPolicyData.name}</div>
+                <div className="text-xs text-gray-500">{snapshotPolicyData.description}</div>
+                <div className="text-xs text-gray-500">Max Snapshots: {snapshotPolicyData.maxSnapshots}</div>
+                <div className="text-xs text-gray-500">CRON Expression: {snapshotPolicyData.cronExpression}</div>
+                <div className="text-xs text-gray-500">{snapshotPolicyData.cronExplanation}</div>
+                <div className="text-xs text-gray-500">Next Execution: {snapshotPolicyData.nextExecution}</div>
               </div>
               {/* Action Icons */}
               <div className="absolute top-4 right-4 flex items-center gap-2">
@@ -508,7 +582,7 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => { setSnapshotPolicyDeleted(true); setSnapshotPolicyState(null); }}
+                  onClick={() => { setSnapshotPolicyDeleted(true); setSnapshotPolicyData(null); }}
                   className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -523,15 +597,15 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
         {/* Backup Policy Section */}
         <div className="bg-card text-card-foreground border-border border rounded-lg p-6 relative">
           <h2 className="text-lg font-semibold mb-4">Backup Policy</h2>
-          {backupPolicy ? (
+          {backupPolicyData ? (
             <div className="bg-gray-50 rounded p-4">
               <div className="space-y-2">
-                <div className="text-sm text-gray-700 font-medium">{backupPolicy.name || "Web Server Backup Policy"}</div>
-                <div className="text-xs text-gray-500">{backupPolicy.description || "Automated daily backup for web server root volume"}</div>
-                <div className="text-xs text-gray-500">Max Snapshots: {backupPolicy.retention}</div>
-                <div className="text-xs text-gray-500">CRON Expression: {backupPolicy.cronExpression || "0 3 * * *"}</div>
-                <div className="text-xs text-gray-500">{backupPolicy.cronExplanation || "This policy will run at hour 3."}</div>
-                <div className="text-xs text-gray-500">Next Execution: {backupPolicy.nextExecution ? new Date(backupPolicy.nextExecution).toLocaleString() : "20/12/2024, 14:00:00"}</div>
+                <div className="text-sm text-gray-700 font-medium">{backupPolicyData.name}</div>
+                <div className="text-xs text-gray-500">{backupPolicyData.description}</div>
+                <div className="text-xs text-gray-500">Max Backups: {backupPolicyData.maxBackups}</div>
+                <div className="text-xs text-gray-500">CRON Expression: {backupPolicyData.cronExpression}</div>
+                <div className="text-xs text-gray-500">{backupPolicyData.cronExplanation}</div>
+                <div className="text-xs text-gray-500">Next Execution: {backupPolicyData.nextExecution}</div>
               </div>
               {/* Action Icons */}
               <div className="absolute top-4 right-4 flex items-center gap-2">
@@ -546,7 +620,7 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => { setBackupPolicyDeleted(true); setBackupPolicyState(null); }}
+                  onClick={() => { setBackupPolicyDeleted(true); setBackupPolicyData(null); }}
                   className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -563,18 +637,18 @@ export default function VolumeDetailsPage({ params }: { params: { id: string } }
       <SnapshotPolicyModal
         open={showAddSnapshotPolicy || editSnapshot}
         onClose={() => { setShowAddSnapshotPolicy(false); setEditSnapshot(false); }}
-        onSave={policy => { setSnapshotPolicyState(policy); setSnapshotPolicyDeleted(false); }}
+        onSave={policy => { setSnapshotPolicyData(policy); setSnapshotPolicyDeleted(false); }}
         mode={editSnapshot ? "edit" : "add"}
-        initialPolicy={editSnapshot ? snapshotPolicy : undefined}
+        initialPolicy={editSnapshot ? snapshotPolicyData : undefined}
       />
       
       <AddPolicyModal
         open={showAddBackupPolicy || editBackup}
         onClose={() => { setShowAddBackupPolicy(false); setEditBackup(false); }}
-        onSave={policy => { setBackupPolicyState(policy); setBackupPolicyDeleted(false); }}
+        onSave={policy => { setBackupPolicyData(policy); setBackupPolicyDeleted(false); }}
         mode={editBackup ? "edit" : "add"}
         type="backup"
-        initialPolicy={editBackup ? backupPolicy : undefined}
+        initialPolicy={editBackup ? backupPolicyData : undefined}
       />
 
       {/* Alert for volumes attached to VMs */}
