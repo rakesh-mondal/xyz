@@ -46,7 +46,7 @@ interface GpuBaremetalPricingCardProps {
   memory: string;
   gpuMemory: number;
   availability: "Low" | "Medium" | "High";
-  architecture: string;
+  architecture: "A100" | "H100";
   price: number;
   network: string;
   ssd: string;
@@ -60,10 +60,22 @@ const gpuBaremetalConfigs: GpuBaremetalPricingCardProps[] = [
     memory: "2 TB",
     gpuMemory: 320,
     availability: "High",
-    architecture: "Nvidia A100 40 GB",
+    architecture: "A100",
     price: 720,
     network: "Upto 10GBps",
     ssd: "Starting from 128 GB"
+  },
+  {
+    flavour: "H100-80GB-1-Node",
+    gpus: 1,
+    vcpus: 256,
+    memory: "4 TB",
+    gpuMemory: 640,
+    availability: "Low",
+    architecture: "H100",
+    price: 1440,
+    network: "Upto 10GBps",
+    ssd: "Starting from 256 GB"
   }
 ];
 
@@ -123,7 +135,7 @@ function GpuBaremetalPricingCard({ flavour, gpus, vcpus, memory, gpuMemory, avai
         <div className="flex items-center gap-2 mb-2">
           <NvidiaLogo className="h-5 w-5" />
           <h3 className="text-base font-medium text-foreground">
-            {architecture}
+            NVIDIA {architecture}
           </h3>
         </div>
         <div className="flex justify-between items-center">

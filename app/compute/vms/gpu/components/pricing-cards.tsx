@@ -44,12 +44,13 @@ interface GpuPricingCardProps {
   memory: number;
   gpuMemory: number;
   availability: "Low" | "Medium" | "High";
-  architecture: string;
+  architecture: "A100" | "H100";
   price: number;
   network: string;
 }
 
 const gpuConfigs: GpuPricingCardProps[] = [
+  // A100 Configurations
   {
     flavour: "A100-40GB-NVLINK-1x",
     gpus: 1,
@@ -57,7 +58,7 @@ const gpuConfigs: GpuPricingCardProps[] = [
     memory: 96,
     gpuMemory: 40,
     availability: "High",
-    architecture: "Nvidia A100 40 GB",
+    architecture: "A100",
     price: 170,
     network: "Upto 10GBps"
   },
@@ -68,7 +69,7 @@ const gpuConfigs: GpuPricingCardProps[] = [
     memory: 96,
     gpuMemory: 80,
     availability: "High",
-    architecture: "Nvidia A100 80 GB",
+    architecture: "A100",
     price: 200,
     network: "Upto 10GBps"
   },
@@ -79,10 +80,11 @@ const gpuConfigs: GpuPricingCardProps[] = [
     memory: 192,
     gpuMemory: 80,
     availability: "Medium",
-    architecture: "Nvidia A100 40 GB",
+    architecture: "A100",
     price: 340,
     network: "Upto 10GBps"
   },
+  // H100 Configurations
   {
     flavour: "H100-80GB-NVLINK-1x",
     gpus: 1,
@@ -90,8 +92,19 @@ const gpuConfigs: GpuPricingCardProps[] = [
     memory: 128,
     gpuMemory: 80,
     availability: "Low",
-    architecture: "Nvidia H100 80 GB",
+    architecture: "H100",
     price: 400,
+    network: "Upto 10GBps"
+  },
+  {
+    flavour: "H100-80GB-NVLINK-2x",
+    gpus: 2,
+    vcpus: 64,
+    memory: 256,
+    gpuMemory: 160,
+    availability: "Low",
+    architecture: "H100",
+    price: 800,
     network: "Upto 10GBps"
   }
 ];
@@ -122,7 +135,7 @@ function GpuPricingCard({ flavour, gpus, vcpus, memory, gpuMemory, availability,
         <div className="flex items-center gap-2 mb-2">
           <NvidiaLogo className="h-5 w-5" />
           <h3 className="text-base font-medium text-foreground">
-            {architecture}
+            NVIDIA {architecture}
           </h3>
         </div>
         <div className="flex justify-between items-center">
