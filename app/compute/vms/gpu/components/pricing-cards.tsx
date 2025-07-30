@@ -185,7 +185,7 @@ function GpuPricingCard({ flavour, gpus, vcpus, memory, gpuMemory, availability,
 
       <CardFooter>
         <Button
-          className="w-full"
+          className="w-full transition-all duration-200 hover:bg-black hover:text-white"
           size="sm"
           variant="outline"
           onClick={handleCreateVM}

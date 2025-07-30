@@ -149,7 +149,7 @@ function PricingCard({ flavour, vcpus, memory, price, architecture, availability
 
       <CardFooter>
         <Button
-          className="w-full"
+          className="w-full transition-all duration-200 hover:bg-black hover:text-white"
           size="sm"
           variant="outline"
           onClick={() => window.location.href = '/compute/vms/cpu/create'}
