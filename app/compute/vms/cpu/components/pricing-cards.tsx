@@ -140,7 +140,7 @@ function PricingCard({ flavour, vcpus, memory, price, architecture, availability
           </div>
           <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">Availability</span>
-            <Badge className={`${getAvailabilityColor(availability)} text-xs px-2 py-0.5`}>
+            <Badge className={`${getAvailabilityColor(availability)} text-xs px-2 py-0.5 pointer-events-none`}>
               {availability}
             </Badge>
           </div>
@@ -149,9 +149,9 @@ function PricingCard({ flavour, vcpus, memory, price, architecture, availability
 
       <CardFooter>
         <Button
-          className="w-full text-sm font-semibold transition-all duration-200 hover:bg-primary hover:text-primary-foreground hover:border-primary border border-primary"
+          className="w-full text-sm font-semibold transition-all duration-200 hover:bg-primary hover:text-primary-foreground"
           size="sm"
-          variant="secondary"
+          variant="default"
           onClick={() => window.location.href = '/compute/vms/cpu/create'}
         >
           Create VM
