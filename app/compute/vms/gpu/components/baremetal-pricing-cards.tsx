@@ -184,7 +184,7 @@ function GpuBaremetalPricingCard({ flavour, gpus, vcpus, memory, gpuMemory, avai
         <div className="grid grid-cols-1 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground block text-xs uppercase tracking-wide">Availability</span>
-            <Badge className={`${getAvailabilityColor(availability)} text-xs px-2 py-0.5 w-fit`}>
+            <Badge className={`${getAvailabilityColor(availability)} text-xs px-2 py-0.5 w-fit pointer-events-none`}>
               {availability}
             </Badge>
           </div>
@@ -193,9 +193,9 @@ function GpuBaremetalPricingCard({ flavour, gpus, vcpus, memory, gpuMemory, avai
 
       <CardFooter>
         <Button
-          className="w-full text-sm font-semibold transition-all duration-200 hover:bg-primary hover:text-primary-foreground hover:border-primary border border-primary"
+          className="w-full text-sm font-semibold transition-all duration-200 hover:bg-primary hover:text-primary-foreground"
           size="sm"
-          variant="secondary"
+          variant="default"
           onClick={handleShowInterest}
         >
           Show Interest
