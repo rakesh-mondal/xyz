@@ -185,11 +185,9 @@ function GpuPricingCard({ flavour, gpus, vcpus, memory, gpuMemory, availability,
 
       <CardFooter>
         <Button
-          className={`w-full text-sm font-semibold transition-all duration-200 ${
-            availability === "Low" ? "hover:bg-muted hover:text-muted-foreground" : "bg-primary text-primary-foreground hover:bg-black hover:text-white"
-          }`}
+          className="w-full"
           size="sm"
-          variant={availability === "Low" ? "outline" : "default"}
+          variant="outline"
           onClick={handleCreateVM}
         >
           {availability === "Low" ? "Notify Me" : "Create VM"}

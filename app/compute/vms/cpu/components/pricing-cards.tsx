@@ -149,9 +149,9 @@ function PricingCard({ flavour, vcpus, memory, price, architecture, availability
 
       <CardFooter>
         <Button
-          className="w-full text-sm font-semibold transition-all duration-200 bg-primary text-primary-foreground hover:bg-black hover:text-white"
+          className="w-full"
           size="sm"
-          variant="default"
+          variant="outline"
           onClick={() => window.location.href = '/compute/vms/cpu/create'}
         >
           Create VM

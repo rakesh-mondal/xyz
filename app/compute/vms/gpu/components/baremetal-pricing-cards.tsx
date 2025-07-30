@@ -193,9 +193,9 @@ function GpuBaremetalPricingCard({ flavour, gpus, vcpus, memory, gpuMemory, avai
 
       <CardFooter>
         <Button
-          className="w-full text-sm font-semibold transition-all duration-200 bg-primary text-primary-foreground hover:bg-black hover:text-white"
+          className="w-full"
           size="sm"
-          variant="default"
+          variant="outline"
           onClick={handleShowInterest}
         >
           Show Interest
