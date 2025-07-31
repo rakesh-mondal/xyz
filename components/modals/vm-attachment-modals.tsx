@@ -733,20 +733,10 @@ export function PublicIPManagementModal({
                   <Alert>
                     <InformationCircleIcon className="h-4 w-4" />
                     <AlertDescription>
-                      The public IP address <strong>{detachedIP.address}</strong> has been detached from this instance. 
+                      The public IP address has been detached from this instance. 
                       You can assign a new IP address.
                     </AlertDescription>
                   </Alert>
-                  
-                  <div className="p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-gray-500">{detachedIP.address}</div>
-                        <div className="text-sm text-muted-foreground">Type: {detachedIP.type} (Detached)</div>
-                      </div>
-                      <Badge variant="outline" className="text-gray-500">Detached</Badge>
-                    </div>
-                  </div>
                   
                   <div className="text-sm text-muted-foreground">
                     <p>• The IP address has been detached and is no longer available</p>
@@ -775,17 +765,14 @@ export function PublicIPManagementModal({
                       <div className="font-medium">{attachedIP.address}</div>
                       <div className="text-sm text-muted-foreground">Type: {attachedIP.type}</div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">Attached</Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDetachIP(attachedIP)}
-                        className="text-gray-600 hover:text-gray-800"
-                      >
-                        Detach
-                      </Button>
-                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDetachIP(attachedIP)}
+                      className="text-gray-600 hover:text-gray-800"
+                    >
+                      Detach
+                    </Button>
                   </div>
                   
                   <div className="text-sm text-muted-foreground">
@@ -825,17 +812,14 @@ export function PublicIPManagementModal({
                         <div className="font-medium">{ip.address}</div>
                         <div className="text-sm text-muted-foreground">Type: {ip.type}</div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">Attached</Badge>
-                                                                      <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDetachIP(ip)}
-                          className="text-gray-600 hover:text-gray-800"
-                        >
-                          Detach
-                        </Button>
-                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDetachIP(ip)}
+                        className="text-gray-600 hover:text-gray-800"
+                      >
+                        Detach
+                      </Button>
                     </div>
                   ))}
                 </>
