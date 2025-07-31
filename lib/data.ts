@@ -1217,6 +1217,34 @@ export const removeSubnetConnection = (subnetId: string, targetSubnetId: string)
   }
 }
 
+// Subnet deletion validation functions
+export const getVMsInSubnet = (subnetName: string) => {
+  return vmInstances.filter(vm => {
+    // Check if VM's subnet matches the subnet name
+    return vm.configuration?.subnet?.name === subnetName
+  })
+}
+
+export const getIPsInSubnet = (subnetName: string) => {
+  return staticIPs.filter(ip => ip.subnetName === subnetName)
+}
+
+export const canDeleteSubnet = (subnetName: string) => {
+  const vmsInSubnet = getVMsInSubnet(subnetName)
+  const ipsInSubnet = getIPsInSubnet(subnetName)
+  
+  return {
+    canDelete: vmsInSubnet.length === 0 && ipsInSubnet.length === 0,
+    vms: vmsInSubnet,
+    ips: ipsInSubnet,
+    dependencies: {
+      vmCount: vmsInSubnet.length,
+      ipCount: ipsInSubnet.length,
+      totalDependencies: vmsInSubnet.length + ipsInSubnet.length
+    }
+  }
+}
+
 export const vmInstances = [
   {
     id: "vm-001",
@@ -1503,6 +1531,75 @@ export const vmInstances = [
         storage: 0,
         ip: 1,
         total: 7
+      }
+    }
+  },
+  {
+    id: "vm-005",
+    name: "Microservices API Server",
+    type: "CPU",
+    flavour: "Standard-4",
+    vpc: "microservices-vpc",
+    status: "Active",
+    fixedIp: "10.13.1.10",
+    publicIp: "203.0.113.175",
+    createdOn: "2024-12-19T10:18:00Z",
+    deleteProtection: false,
+    description: "API server for microservices architecture",
+    tags: [
+      { key: "Environment", value: "Production" },
+      { key: "Team", value: "Backend" },
+      { key: "Service", value: "API" }
+    ],
+    configuration: {
+      vmName: "Microservices API Server",
+      vpcId: "vpc-16",
+      vpcName: "microservices-vpc",
+      region: "us-east-1",
+      
+      bootableVolume: {
+        type: "existing",
+        volumeId: "vol-010",
+        volumeName: "ubuntu-22.04-boot",
+        size: "20 GB",
+        image: "Ubuntu 22.04 LTS"
+      },
+      storageVolumes: [
+        {
+          id: "vol-s6",
+          name: "api-storage",
+          size: "50 GB",
+          type: "ssd"
+        }
+      ],
+      
+      sshKey: {
+        id: "ssh-1",
+        name: "prod-admin-key"
+      },
+      
+      subnet: {
+        id: "subnet-18",
+        name: "microservices-subnet-public",
+        type: "Public",
+        cidr: "10.13.1.0/24"
+      },
+      securityGroup: {
+        id: "sg-3",
+        name: "microservices-sg",
+        description: "Security group for microservices"
+      },
+      ipAddressType: "floating",
+      reservedIp: "203.0.113.175",
+      networkSpeed: "100 Mbps",
+      
+      startupScript: "#!/bin/bash\n# Install Node.js and PM2\ncurl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -\napt-get install -y nodejs\nnpm install -g pm2",
+      
+      pricing: {
+        vm: 12,
+        storage: 3,
+        ip: 1,
+        total: 16
       }
     }
   },
