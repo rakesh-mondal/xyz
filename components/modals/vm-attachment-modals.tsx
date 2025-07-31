@@ -738,12 +738,6 @@ export function PublicIPManagementModal({
                     </AlertDescription>
                   </Alert>
                   
-                  <div className="text-sm text-muted-foreground">
-                    <p>• The IP address has been detached and is no longer available</p>
-                    <p>• You can assign a new random IP address</p>
-                    <p>• Network access to this instance may be affected</p>
-                  </div>
-                  
                   <div 
                     className="p-4 rounded-lg border"
                     style={{
@@ -754,11 +748,7 @@ export function PublicIPManagementModal({
                     }}
                   >
                     <div className="text-center">
-                      <h3 className="text-lg font-semibold mb-3">Attach New IP Address</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Assign a new public IP address to enable external network access
-                      </p>
-                      <Button onClick={handleAttachIP} className="w-full">
+                      <Button onClick={handleAttachIP}>
                         Attach New IP
                       </Button>
                     </div>
