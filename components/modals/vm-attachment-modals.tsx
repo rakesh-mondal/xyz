@@ -744,10 +744,24 @@ export function PublicIPManagementModal({
                     <p>• Network access to this instance may be affected</p>
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Button onClick={handleAttachIP} variant="outline">
-                      Attach New IP
-                    </Button>
+                  <div 
+                    className="p-4 rounded-lg border"
+                    style={{
+                      borderRadius: '16px',
+                      border: '4px solid #FFF',
+                      background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+                      boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)'
+                    }}
+                  >
+                    <div className="text-center">
+                      <h3 className="text-lg font-semibold mb-3">Attach New IP Address</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Assign a new public IP address to enable external network access
+                      </p>
+                      <Button onClick={handleAttachIP} className="w-full">
+                        Attach New IP
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ) : showAttachedState ? (
