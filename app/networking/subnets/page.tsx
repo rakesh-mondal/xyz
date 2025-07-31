@@ -13,17 +13,18 @@ import { RefreshCw } from "lucide-react"
 import { 
   DeleteSubnetVMWarningModal, 
   DeleteSubnetConfirmationModal, 
-  DeleteSubnetNameConfirmationModal 
+  DeleteSubnetNameConfirmationModal,
+  DeleteSubnetDependencyCheckModal
 } from "../../../components/modals/delete-subnet-modals"
+import { canDeleteSubnet } from "../../../lib/data"
 
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "../../../lib/demo-data-filter"
 import { EmptyState } from "../../../components/ui/empty-state"
 
 export default function SubnetListPage() {
   const router = useRouter()
-  const [deleteStep, setDeleteStep] = useState<"warning" | "name-confirmation" | null>(null)
+  const [deleteStep, setDeleteStep] = useState<"dependency-check" | "name-confirmation" | null>(null)
   const [selectedSubnet, setSelectedSubnet] = useState<any>(null)
-  const [attachedVM, setAttachedVM] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
@@ -55,24 +56,15 @@ export default function SubnetListPage() {
   )
 
   const handleDeleteClick = (subnet: any) => {
-    const attachedVM = getVMAttachedToSubnet(subnet.id)
-    
-    if (attachedVM) {
-      setAttachedVM(attachedVM)
-      setSelectedSubnet(subnet)
-      setDeleteStep("warning")
-    } else {
-      setSelectedSubnet(subnet)
-      setDeleteStep("name-confirmation")
-    }
+    setSelectedSubnet(subnet)
+    setDeleteStep("dependency-check")
   }
 
-  const handleFinalDelete = () => {
+  const handleFinalDelete = async () => {
     // In a real app, this would delete the subnet
     console.log("Deleting subnet:", selectedSubnet?.name)
     setDeleteStep(null)
     setSelectedSubnet(null)
-    setAttachedVM(null)
     // Refresh the page to show updated data
     window.location.reload()
   }
@@ -80,7 +72,10 @@ export default function SubnetListPage() {
   const handleCloseModals = () => {
     setDeleteStep(null)
     setSelectedSubnet(null)
-    setAttachedVM(null)
+  }
+
+  const handleProceedToConfirmation = () => {
+    setDeleteStep("name-confirmation")
   }
 
 
@@ -214,19 +209,19 @@ export default function SubnetListPage() {
         />
       )}
 
-      {/* Step 1: VM Attachment Warning Modal */}
-      {selectedSubnet && attachedVM && (
-        <DeleteSubnetVMWarningModal
-          open={deleteStep === "warning"}
+      {/* Step 1: Dependency Check Modal */}
+      {selectedSubnet && (
+        <DeleteSubnetDependencyCheckModal
+          open={deleteStep === "dependency-check"}
           onClose={handleCloseModals}
           subnet={selectedSubnet}
-          vmName={attachedVM}
+          onProceed={handleProceedToConfirmation}
         />
       )}
 
-      {/* Step 2: Initial Confirmation Modal */}
+      {/* Step 2: Name Confirmation Modal */}
       {selectedSubnet && (
-        <DeleteSubnetConfirmationModal
+        <DeleteSubnetNameConfirmationModal
           open={deleteStep === "name-confirmation"}
           onClose={handleCloseModals}
           subnet={selectedSubnet}
