@@ -203,9 +203,27 @@ export default function CreateInstantSnapshotPage() {
   const [selectedVolume, setSelectedVolume] = useState(searchParams.get('volumeId') || "")
   const [selectedVM, setSelectedVM] = useState("")
   const [snapshotType, setSnapshotType] = useState<"volume" | "vm">("volume")
+  const [tags, setTags] = useState([{ key: "", value: "" }])
   // Refs for form fields
   const customNameRef = useRef<HTMLInputElement>(null)
   const descriptionRef = useRef<HTMLTextAreaElement>(null)
+
+  // Tag management functions
+  const addTag = () => {
+    setTags([...tags, { key: "", value: "" }])
+  }
+
+  const removeTag = (index: number) => {
+    if (tags.length > 1) {
+      setTags(tags.filter((_, i) => i !== index))
+    }
+  }
+
+  const updateTag = (index: number, field: "key" | "value", value: string) => {
+    const newTags = [...tags]
+    newTags[index][field] = value
+    setTags(newTags)
+  }
 
   // Handle resource selection
   const handleResourceChange = (resourceId: string, type: "volume" | "vm") => {
@@ -441,6 +459,55 @@ export default function CreateInstantSnapshotPage() {
                     placeholder="Enter snapshot description" 
                     className="focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[80px]"
                   />
+                </div>
+
+                {/* Tags */}
+                <div className="mb-5">
+                  <Label className="block mb-2 font-medium">
+                    Tags
+                  </Label>
+                  <div className="space-y-3">
+                    {tags.map((tag, index) => (
+                      <div key={index} className="flex gap-3 items-start">
+                        <div className="flex-1">
+                          <Input
+                            placeholder="Key"
+                            value={tag.key}
+                            onChange={(e) => updateTag(index, "key", e.target.value)}
+                            className="text-sm"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <Input
+                            placeholder="Value"
+                            value={tag.value}
+                            onChange={(e) => updateTag(index, "value", e.target.value)}
+                            className="text-sm"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addTag}
+                          className="text-sm"
+                        >
+                          Add Tag
+                        </Button>
+                        {tags.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeTag(index)}
+                            className="text-sm text-muted-foreground hover:text-destructive"
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Submit Buttons */}
