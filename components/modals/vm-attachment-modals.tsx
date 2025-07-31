@@ -15,9 +15,7 @@ import {
   HardDrive, 
   Shield, 
   Plus, 
-  Trash2, 
-  Unlink,
-  Link
+  Trash2
 } from "lucide-react"
 
 // Types for the modals
@@ -703,15 +701,7 @@ export function PublicIPManagementModal({
     }
   }
 
-  // Handle re-attaching the detached IP
-  const handleReAttachIP = () => {
-    if (detachedIP) {
-      setAttachedIP(detachedIP)
-      setIsIPAttached(true)
-      setIsIPDetached(false)
-      setDetachedIP(null)
-    }
-  }
+
 
   // Show attached state for demo
   const showAttachedState = isIPAttached && attachedIP
@@ -744,7 +734,7 @@ export function PublicIPManagementModal({
                     <InformationCircleIcon className="h-4 w-4" />
                     <AlertDescription>
                       The public IP address <strong>{detachedIP.address}</strong> has been detached from this instance. 
-                      You can re-attach it or assign a new IP address.
+                      You can assign a new IP address.
                     </AlertDescription>
                   </Alert>
                   
@@ -754,24 +744,13 @@ export function PublicIPManagementModal({
                         <div className="font-medium text-gray-500">{detachedIP.address}</div>
                         <div className="text-sm text-muted-foreground">Type: {detachedIP.type} (Detached)</div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-gray-500">Detached</Badge>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleReAttachIP}
-                          className="flex items-center gap-1"
-                        >
-                          <Link className="h-4 w-4" />
-                          Re-attach
-                        </Button>
-                      </div>
+                      <Badge variant="outline" className="text-gray-500">Detached</Badge>
                     </div>
                   </div>
                   
                   <div className="text-sm text-muted-foreground">
-                    <p>• The IP address is still reserved and available for re-attachment</p>
-                    <p>• You can also assign a new random IP address</p>
+                    <p>• The IP address has been detached and is no longer available</p>
+                    <p>• You can assign a new random IP address</p>
                     <p>• Network access to this instance may be affected</p>
                   </div>
                   
@@ -798,16 +777,14 @@ export function PublicIPManagementModal({
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary" className="bg-green-100 text-green-800">Attached</Badge>
-                      <TooltipWrapper content="Detach this IP address from the instance. The IP will remain reserved and can be re-attached later.">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDetachIP(attachedIP)}
-                          className="text-gray-600 hover:text-gray-800"
-                        >
-                          <Unlink className="h-4 w-4" />
-                        </Button>
-                      </TooltipWrapper>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDetachIP(attachedIP)}
+                        className="text-gray-600 hover:text-gray-800"
+                      >
+                        Detach
+                      </Button>
                     </div>
                   </div>
                   
@@ -850,16 +827,14 @@ export function PublicIPManagementModal({
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary">Attached</Badge>
-                                              <TooltipWrapper content="Detach this IP address from the instance. The IP will remain reserved and can be re-attached later.">
-                        <Button
-                          variant="ghost"
+                                                                      <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handleDetachIP(ip)}
                           className="text-gray-600 hover:text-gray-800"
                         >
-                          <Unlink className="h-4 w-4" />
+                          Detach
                         </Button>
-                      </TooltipWrapper>
                       </div>
                     </div>
                   ))}
