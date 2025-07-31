@@ -764,7 +764,7 @@ export function PublicIPManagementModal({
                     </AlertDescription>
                   </Alert>
                   
-                  <div className="flex items-center justify-between p-3 border rounded-lg bg-green-50">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <div className="font-medium">{attachedIP.address}</div>
                       <div className="text-sm text-muted-foreground">Type: {attachedIP.type}</div>
