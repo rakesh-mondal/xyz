@@ -538,22 +538,25 @@ function MyInstancesSection() {
     {
       key: "deleteProtection",
       label: "Delete Protection",
+      align: "center" as const,
       render: (value: any, row: any) => (
-        <TooltipWrapper content={value ? "Disable delete protection" : "Enable delete protection"}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteProtectionToggle(row);
-            }}
-            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors"
-          >
-            {value ? (
-              <Lock className="w-4 h-4 text-red-600" />
-            ) : (
-              <Unlock className="w-4 h-4 text-gray-400" />
-            )}
-          </button>
-        </TooltipWrapper>
+        <div className="flex justify-center">
+          <TooltipWrapper content={value ? "Disable delete protection" : "Enable delete protection"}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteProtectionToggle(row);
+              }}
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors"
+            >
+              {value ? (
+                <Lock className="w-4 h-4 text-red-600" />
+              ) : (
+                <Unlock className="w-4 h-4 text-gray-400" />
+              )}
+            </button>
+          </TooltipWrapper>
+        </div>
       ),
     },
     {
