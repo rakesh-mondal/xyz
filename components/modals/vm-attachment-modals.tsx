@@ -1,22 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { ExclamationTriangleIcon, InformationCircleIcon } from "@heroicons/react/24/outline"
-import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-import { 
-  Wifi, 
-  HardDrive, 
-  Shield, 
-  Plus, 
-  Trash2
-} from "lucide-react"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Shield, HardDrive, Wifi, Trash2, Plus, AlertTriangle } from "lucide-react"
+import { attachSecurityGroup, detachSecurityGroup, attachReservedIP, attachRandomIP, detachIP } from "@/lib/data"
+import { useToast } from "@/hooks/use-toast"
 
 // Types for the modals
 interface Volume {
@@ -219,7 +213,7 @@ function ChangeBootableVolumeModal({ open, onClose, vmName, availableVolumes }: 
         
         <div className="space-y-4 py-4">
           <Alert>
-            <InformationCircleIcon className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               This action will restart your virtual machine.
             </AlertDescription>
@@ -299,7 +293,7 @@ function AttachStorageVolumeModal({ open, onClose, vmName, availableVolumes }: A
         
         <div className="space-y-4 py-4">
           <Alert>
-            <InformationCircleIcon className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               This action will restart your virtual machine.
             </AlertDescription>
@@ -376,7 +370,7 @@ function DetachVolumeModal({ open, onClose, volume }: DetachVolumeModalProps) {
         
         <div className="space-y-4 py-4">
           <Alert variant="destructive">
-            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Detaching <strong>{volume.name}</strong> will restart your VM and make the data inaccessible.
             </AlertDescription>
@@ -404,6 +398,7 @@ function DetachVolumeModal({ open, onClose, volume }: DetachVolumeModalProps) {
 interface SecurityGroupManagementModalProps {
   open: boolean
   onClose: () => void
+  vmId: string
   vmName: string
   attachedSecurityGroups: SecurityGroup[]
   availableSecurityGroups: SecurityGroup[]
@@ -412,6 +407,7 @@ interface SecurityGroupManagementModalProps {
 export function SecurityGroupManagementModal({ 
   open, 
   onClose, 
+  vmId,
   vmName, 
   attachedSecurityGroups, 
   availableSecurityGroups 
@@ -419,6 +415,31 @@ export function SecurityGroupManagementModal({
   const [attachModalOpen, setAttachModalOpen] = useState(false)
   const [detachModalOpen, setDetachModalOpen] = useState(false)
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<SecurityGroup | null>(null)
+  
+  // Local state to track current attached and available security groups
+  const [currentAttachedGroups, setCurrentAttachedGroups] = useState<SecurityGroup[]>(attachedSecurityGroups)
+  const [currentAvailableGroups, setCurrentAvailableGroups] = useState<SecurityGroup[]>(availableSecurityGroups)
+
+  // Update local state when props change
+  useEffect(() => {
+    setCurrentAttachedGroups(attachedSecurityGroups)
+    setCurrentAvailableGroups(availableSecurityGroups)
+  }, [attachedSecurityGroups, availableSecurityGroups])
+
+  // Handle successful attachment
+  const handleAttachmentSuccess = (attachedGroup: SecurityGroup) => {
+    setCurrentAttachedGroups(prev => [...prev, attachedGroup])
+    setCurrentAvailableGroups(prev => prev.filter(sg => sg.id !== attachedGroup.id))
+    setAttachModalOpen(false)
+  }
+
+  // Handle successful detachment
+  const handleDetachmentSuccess = (detachedGroup: SecurityGroup) => {
+    setCurrentAttachedGroups(prev => prev.filter(sg => sg.id !== detachedGroup.id))
+    setCurrentAvailableGroups(prev => [...prev, detachedGroup])
+    setDetachModalOpen(false)
+    setSelectedSecurityGroup(null)
+  }
 
   return (
     <>
@@ -437,7 +458,7 @@ export function SecurityGroupManagementModal({
           <div className="space-y-6 py-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Attached Security Groups</h3>
-              {attachedSecurityGroups.length === 0 && (
+              {currentAttachedGroups.length === 0 && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -449,13 +470,13 @@ export function SecurityGroupManagementModal({
             </div>
 
             <div className="space-y-2">
-              {attachedSecurityGroups.length === 0 ? (
+              {currentAttachedGroups.length === 0 ? (
                 <div className="text-center py-4 text-muted-foreground">
                   No security groups attached
                 </div>
               ) : (
                 <>
-                  {attachedSecurityGroups.map((sg) => (
+                  {currentAttachedGroups.map((sg) => (
                     <div key={sg.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex-1 cursor-pointer" onClick={() => {/* Show details */}}>
                         <div className="font-medium">{sg.name}</div>
@@ -498,8 +519,10 @@ export function SecurityGroupManagementModal({
       <AttachSecurityGroupModal
         open={attachModalOpen}
         onClose={() => setAttachModalOpen(false)}
+        vmId={vmId} // Pass vmName as vmId
         vmName={vmName}
-        availableSecurityGroups={availableSecurityGroups}
+        availableSecurityGroups={currentAvailableGroups}
+        onAttachmentSuccess={handleAttachmentSuccess}
       />
 
       {/* Detach Security Group Modal */}
@@ -510,7 +533,9 @@ export function SecurityGroupManagementModal({
             setDetachModalOpen(false)
             setSelectedSecurityGroup(null)
           }}
+          vmId={vmId} // Pass vmName as vmId
           securityGroup={selectedSecurityGroup}
+          onDetachmentSuccess={handleDetachmentSuccess}
         />
       )}
     </>
@@ -521,20 +546,47 @@ export function SecurityGroupManagementModal({
 interface AttachSecurityGroupModalProps {
   open: boolean
   onClose: () => void
+  vmId: string
   vmName: string
   availableSecurityGroups: SecurityGroup[]
+  onAttachmentSuccess?: (attachedGroup: SecurityGroup) => void
 }
 
-function AttachSecurityGroupModal({ open, onClose, vmName, availableSecurityGroups }: AttachSecurityGroupModalProps) {
+function AttachSecurityGroupModal({ open, onClose, vmId, vmName, availableSecurityGroups, onAttachmentSuccess }: AttachSecurityGroupModalProps) {
   const [selectedGroupId, setSelectedGroupId] = useState("")
   const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
 
   const handleConfirm = async () => {
     if (!selectedGroupId) return
     setLoading(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setLoading(false)
+    try {
+      const attachedGroup = await attachSecurityGroup(vmId, selectedGroupId)
+      if (attachedGroup) {
+        toast({
+          title: `Security Group "${attachedGroup.name}" attached`,
+          description: `Security Group "${attachedGroup.name}" has been attached to your VM.`,
+        })
+        if (onAttachmentSuccess) {
+          onAttachmentSuccess(attachedGroup)
+        }
+      } else {
+        toast({
+          title: "Failed to attach Security Group",
+          description: "Could not attach the selected security group. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error attaching security group:", error)
+      toast({
+        title: "Failed to attach Security Group",
+        description: "Could not attach the selected security group. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
     onClose()
   }
 
@@ -594,17 +646,44 @@ function AttachSecurityGroupModal({ open, onClose, vmName, availableSecurityGrou
 interface DetachSecurityGroupModalProps {
   open: boolean
   onClose: () => void
+  vmId: string
   securityGroup: SecurityGroup
+  onDetachmentSuccess?: (detachedGroup: SecurityGroup) => void
 }
 
-function DetachSecurityGroupModal({ open, onClose, securityGroup }: DetachSecurityGroupModalProps) {
+function DetachSecurityGroupModal({ open, onClose, vmId, securityGroup, onDetachmentSuccess }: DetachSecurityGroupModalProps) {
   const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
 
   const handleConfirm = async () => {
     setLoading(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setLoading(false)
+    try {
+      const detachedGroup = await detachSecurityGroup(vmId, securityGroup.id)
+      if (detachedGroup) {
+        toast({
+          title: `Security Group "${detachedGroup.name}" detached`,
+          description: `Security Group "${detachedGroup.name}" has been detached from your VM.`,
+        })
+        if (onDetachmentSuccess) {
+          onDetachmentSuccess(detachedGroup)
+        }
+      } else {
+        toast({
+          title: "Failed to detach Security Group",
+          description: "Could not detach the security group. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error detaching security group:", error)
+      toast({
+        title: "Failed to detach Security Group",
+        description: "Could not detach the security group. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
     onClose()
   }
 
@@ -620,7 +699,7 @@ function DetachSecurityGroupModal({ open, onClose, securityGroup }: DetachSecuri
         
         <div className="space-y-4 py-4">
           <Alert variant="destructive">
-            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Detaching <strong>{securityGroup.name}</strong> will affect network traffic rules for your VM.
             </AlertDescription>
@@ -731,7 +810,7 @@ export function PublicIPManagementModal({
                 // Show detached state
                 <div className="space-y-4">
                   <Alert>
-                    <InformationCircleIcon className="h-4 w-4" />
+                    <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
                       The public IP address has been detached from this instance. 
                       You can assign a new IP address.
@@ -758,7 +837,7 @@ export function PublicIPManagementModal({
                 // Show attached state (after attachment)
                 <div className="space-y-4">
                   <Alert>
-                    <InformationCircleIcon className="h-4 w-4" />
+                    <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
                       Public IP address <strong>{attachedIP.address}</strong> has been successfully attached to this instance.
                     </AlertDescription>
@@ -877,15 +956,43 @@ function AttachPublicIPModal({ open, onClose, vmName, availableIPs, onConfirm }:
   const [selectedIPId, setSelectedIPId] = useState("")
   const [assignRandomIP, setAssignRandomIP] = useState(false)
   const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
 
   const handleConfirm = async () => {
     if (!selectedIPId && !assignRandomIP) return
     setLoading(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setLoading(false)
-    if (onConfirm) {
-      onConfirm()
+    try {
+      let ipToAttach: PublicIP | null = null
+      if (assignRandomIP) {
+        ipToAttach = await attachRandomIP(vmName)
+      } else if (selectedIPId) {
+        ipToAttach = await attachReservedIP(vmName, selectedIPId)
+      }
+
+      if (ipToAttach) {
+        toast({
+          title: `Public IP "${ipToAttach.address}" attached`,
+          description: `Public IP "${ipToAttach.address}" has been attached to your VM.`,
+        })
+        if (onConfirm) {
+          onConfirm()
+        }
+      } else {
+        toast({
+          title: "Failed to attach Public IP",
+          description: "Could not attach the selected public IP. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error attaching public IP:", error)
+      toast({
+        title: "Failed to attach Public IP",
+        description: "Could not attach the selected public IP. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
     }
     onClose()
   }
@@ -919,7 +1026,7 @@ function AttachPublicIPModal({ open, onClose, vmName, availableIPs, onConfirm }:
 
           {assignRandomIP && (
             <Alert>
-              <InformationCircleIcon className="h-4 w-4" />
+              <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 Please note that you will be charged Rs 0.28 per hour extra for the IP address
               </AlertDescription>
@@ -981,14 +1088,36 @@ interface DetachPublicIPModalProps {
 
 function DetachPublicIPModal({ open, onClose, publicIP, onConfirm }: DetachPublicIPModalProps) {
   const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
 
   const handleConfirm = async () => {
     setLoading(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setLoading(false)
-    if (onConfirm) {
-      onConfirm()
+    try {
+      const detachedIP = await detachIP(publicIP.id)
+      if (detachedIP) {
+        toast({
+          title: `Public IP "${detachedIP.address}" detached`,
+          description: `Public IP "${detachedIP.address}" has been detached from your VM.`,
+        })
+        if (onConfirm) {
+          onConfirm()
+        }
+      } else {
+        toast({
+          title: "Failed to detach Public IP",
+          description: "Could not detach the public IP. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error detaching public IP:", error)
+      toast({
+        title: "Failed to detach Public IP",
+        description: "Could not detach the public IP. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
     }
     onClose()
   }
@@ -1005,7 +1134,7 @@ function DetachPublicIPModal({ open, onClose, publicIP, onConfirm }: DetachPubli
         
         <div className="space-y-4 py-4">
           <Alert variant="destructive">
-            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Detaching <strong>{publicIP.address}</strong> will affect network access to your VM.
             </AlertDescription>

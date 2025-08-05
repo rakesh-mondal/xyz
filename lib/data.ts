@@ -1,3 +1,33 @@
+// Type definitions for security groups and public IPs
+export interface SecurityGroup {
+  id: string
+  name: string
+  description: string
+  rules: number
+  attachedTo: string[]
+  createdOn: string
+  ingressRules: Array<{
+    protocol: string
+    port: string
+    source: string
+  }>
+  egressRules: Array<{
+    protocol: string
+    port: string
+    destination: string
+  }>
+}
+
+export interface PublicIP {
+  id: string
+  address: string
+  type: "reserved" | "random"
+  status: "available" | "attached"
+  attachedTo: string | null
+  region: string
+  createdOn: string
+}
+
 export const vpcs = [
   {
     id: "vpc-1",
@@ -1989,4 +2019,57 @@ export const getVMPublicIPs = (vmId: string) => {
 
 export const getAvailablePublicIPs = () => {
   return publicIPs.filter(ip => ip.status === "available");
+};
+
+// Simulate security group attachment
+export const attachSecurityGroup = async (vmId: string, securityGroupId: string): Promise<SecurityGroup | null> => {
+  const securityGroup = vmSecurityGroups.find(sg => sg.id === securityGroupId);
+  if (securityGroup && !securityGroup.attachedTo.includes(vmId)) {
+    securityGroup.attachedTo.push(vmId);
+    return securityGroup;
+  }
+  return null;
+};
+
+// Simulate security group detachment
+export const detachSecurityGroup = async (vmId: string, securityGroupId: string): Promise<SecurityGroup | null> => {
+  const securityGroup = vmSecurityGroups.find(sg => sg.id === securityGroupId);
+  if (securityGroup && securityGroup.attachedTo.includes(vmId)) {
+    securityGroup.attachedTo = securityGroup.attachedTo.filter(id => id !== vmId);
+    return securityGroup;
+  }
+  return null;
+};
+
+// Simulate public IP attachment
+export const attachReservedIP = async (vmId: string, ipId: string): Promise<PublicIP | null> => {
+  const ip = publicIPs.find(p => p.id === ipId);
+  if (ip && ip.status === "available") {
+    (ip as any).status = "attached";
+    (ip as any).attachedTo = vmId;
+    return ip as PublicIP;
+  }
+  return null;
+};
+
+// Simulate random IP assignment
+export const attachRandomIP = async (vmId: string): Promise<PublicIP | null> => {
+  const availableIP = publicIPs.find(p => p.status === "available" && p.type === "random");
+  if (availableIP) {
+    (availableIP as any).status = "attached";
+    (availableIP as any).attachedTo = vmId;
+    return availableIP as PublicIP;
+  }
+  return null;
+};
+
+// Simulate public IP detachment
+export const detachIP = async (ipId: string): Promise<PublicIP | null> => {
+  const ip = publicIPs.find(p => p.id === ipId);
+  if (ip && ip.status === "attached") {
+    (ip as any).status = "available";
+    (ip as any).attachedTo = null;
+    return ip as PublicIP;
+  }
+  return null;
 };

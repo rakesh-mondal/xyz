@@ -498,7 +498,9 @@ export default function VMInstanceDetailsPage() {
                 {config.reservedIp && (
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Reserved IP</span>
-                    <span className="text-sm font-medium font-mono">{config.reservedIp.address}</span>
+                    <span className="text-sm font-medium font-mono">
+                      {typeof config.reservedIp === 'string' ? config.reservedIp : config.reservedIp.address}
+                    </span>
                   </div>
                 )}
               </CardContent>
@@ -727,6 +729,7 @@ export default function VMInstanceDetailsPage() {
       <SecurityGroupManagementModal
         open={securityGroupManagementModalOpen}
         onClose={() => setSecurityGroupManagementModalOpen(false)}
+        vmId={vm.id}
         vmName={vm.name}
         attachedSecurityGroups={getVMSecurityGroups(vm.id)}
         availableSecurityGroups={getAvailableSecurityGroups(vm.id)}

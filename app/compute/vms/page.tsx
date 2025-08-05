@@ -697,6 +697,7 @@ function MyInstancesSection() {
           <SecurityGroupManagementModal
             open={securityGroupManagementModalOpen}
             onClose={() => setSecurityGroupManagementModalOpen(false)}
+            vmId={selectedVM.id}
             vmName={selectedVM.name}
             attachedSecurityGroups={getVMSecurityGroups(selectedVM.id)}
             availableSecurityGroups={getAvailableSecurityGroups(selectedVM.id)}
