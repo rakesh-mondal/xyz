@@ -536,19 +536,15 @@ export function ProfileCompletionDashboard({
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use strong, unique passwords for your account</span>
+                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Make sure your name and address are accurate, as they are used for billing and invoicing.</span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Keep your profile information up to date</span>
+                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose the most relevant workload type to help us optimize your cloud experience.</span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Review and save changes before navigating away</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Complete all required fields for better service access</span>
+                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Limit profile changes to prevent issues with billing, support, and account tracking.</span>
               </li>
             </ul>
           </CardContent>
@@ -566,24 +562,14 @@ export function ProfileCompletionDashboard({
       {/* Success Modal */}
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
         <DialogContent className="p-0 bg-white max-w-md w-full overflow-hidden flex flex-col">
-          {/* Header */}
-          <div className="flex-shrink-0 p-6 border-b">
-            <DialogHeader>
-              <DialogTitle>Profile Updated Successfully!</DialogTitle>
-              <DialogDescription>
-                Your profile has been saved successfully.
-              </DialogDescription>
-            </DialogHeader>
-          </div>
-
           {/* Main Content */}
           <div className="flex-1 p-6 text-center">
             <div className="space-y-6">
               <Shield className="mx-auto h-16 w-16 text-green-600" />
               <div className="space-y-3">
-                <h3 className="text-lg font-semibold">Profile Successfully Updated</h3>
+                <h3 className="text-lg font-semibold">Profile Updated Successfully</h3>
                 <p className="text-gray-600">
-                  Great! Your profile information has been saved and updated.
+                  Your profile details have been updated successfully and are now saved to your account.
                 </p>
               </div>
             </div>
@@ -596,7 +582,7 @@ export function ProfileCompletionDashboard({
                 onClick={handleSuccessModalClose}
                 className="bg-black text-white hover:bg-black/90 px-8"
               >
-                Done
+                Close
               </Button>
             </div>
           </div>

@@ -407,7 +407,8 @@ function ServicesAvailable() {
       color: "bg-blue-100 text-blue-700",
       items: [
         { name: "Virtual Machines", href: "/compute/vms", description: "Launch and manage virtual machines" },
-        { name: "AI Pods", href: "/compute/ai-pods", description: "Deploy AI workloads on specialized infrastructure" }
+        { name: "AI Pods", href: "/compute/ai-pods", description: "Deploy AI workloads on specialized infrastructure" },
+        { name: "Machine Images", href: "#", description: "Create and manage custom machine images" }
       ]
     },
     {
@@ -482,33 +483,33 @@ function ServicesAvailable() {
 function DocumentationHub() {
   const docs = [
     {
-      category: "Core Infrastructure",
+      category: "Compute & Storage Services",
       icon: Server,
       color: "bg-blue-100 text-blue-700",
       items: [
-        { name: "Virtual Private Cloud", href: "/documentation/vpc" },
-        { name: "Virtual Machines", href: "/documentation/vms" },
-        { name: "Security Groups", href: "/documentation/security" }
+        { name: "VMs and Baremetals", href: "#" },
+        { name: "AI Pods", href: "#" },
+        { name: "Object Storage", href: "#" }
       ]
     },
     {
-      category: "Access and Security",
+      category: "Access & Usage",
       icon: Shield,
       color: "bg-green-100 text-green-700",
       items: [
-        { name: "SSH Keys", href: "/documentation/ssh" },
-        { name: "SDK Reference", href: "/documentation/sdk" },
-        { name: "CIDR Guidelines", href: "/documentation/cidr" }
+        { name: "SSH Key", href: "#" },
+        { name: "Accessing Volumes", href: "#" },
+        { name: "Usage and Transactions", href: "#" }
       ]
     },
     {
-      category: "API Documentation",
+      category: "Developer & API Reference",
       icon: Code,
       color: "bg-purple-100 text-purple-700",
       items: [
-        { name: "Models", href: "/documentation/models" },
-        { name: "Bhashik", href: "/documentation/bhashik" },
-        { name: "Object Storage", href: "/documentation/storage" }
+        { name: "Object Storage", href: "#" },
+        { name: "Model Catalogue", href: "#" },
+        { name: "SDK Guide", href: "#" }
       ]
     }
   ]
