@@ -17,8 +17,8 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
   const { user, accessLevel, getUserType } = useAuth()
   const router = useRouter()
 
-  // Don't show banner for full access users
-  if (accessLevel === 'full') return null
+  // Hide banner for all users (both new and existing)
+  return null
 
   const userType = getUserType()
   const isNewUser = userType === 'new'
@@ -129,7 +129,8 @@ export function AccessBannerCompact({ onCompleteProfile, className }: AccessBann
   const { user, accessLevel, getUserType } = useAuth()
   const router = useRouter()
 
-  if (accessLevel === 'full') return null
+  // Hide banner for all users (both new and existing)
+  return null
 
   const userType = getUserType()
   const isNewUser = userType === 'new'

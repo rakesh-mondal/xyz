@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-import { ArrowRight, Shield, Zap, Globe, CreditCard, X, HelpCircle } from "lucide-react"
+import { ArrowRight, Shield, Zap, Globe, X, HelpCircle } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useRouter } from "next/navigation"
 import { toast } from "@/hooks/use-toast"
@@ -246,39 +246,12 @@ export function ProfileCompletionDashboard({
     setShowIdentityVerificationModal(false)
   }
 
-  const handleSuccessModalVerifyIdentity = () => {
-    // Close success modal and open identity verification modal
-    setShowSuccessModal(false)
-    setShowIdentityVerificationModal(true)
-  }
-
   const handleSuccessModalClose = () => {
     // Just close the success modal
     setShowSuccessModal(false)
   }
 
-  const benefits = [
-    {
-      icon: <Zap className="h-5 w-5 text-blue-600" />,
-      title: "Compute Power",
-      description: "Spin up CPU/GPU instances instantly"
-    },
-    {
-      icon: <Shield className="h-5 w-5 text-green-600" />,
-      title: "Secure Storage",
-      description: "Reliable block & object storage"
-    },
-    {
-      icon: <Globe className="h-5 w-5 text-purple-600" />,
-      title: "AI Suite",
-      description: "Pre-trained models and ML tools"
-    },
-    {
-      icon: <CreditCard className="h-5 w-5 text-orange-600" />,
-      title: "Smart Billing",
-      description: "Real-time usage and cost controls"
-    }
-  ]
+
 
   const organizationTypes = [
     "Company",
@@ -554,42 +527,32 @@ export function ProfileCompletionDashboard({
 
       {/* Side Panel - Right Side */}
       <div className="w-full md:w-80 space-y-6">
-        {/* Benefits Panel */}
-        <div 
-          style={{
-            borderRadius: '16px',
-            border: '4px solid #FFF',
-            background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
-            boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
-            padding: '1.5rem'
-          }}
-        >
-          <div className="pb-4">
-            <h3 className="text-base font-semibold">Finish your KYC to get full access</h3>
-          </div>
-          <div className="space-y-4 mb-6">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className="flex-shrink-0 mt-0.5">
-                  {benefit.icon}
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm">{benefit.title}</h4>
-                  <p className="text-xs text-muted-foreground">{benefit.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          {/* Verify Identity Button */}
-          <Button 
-            type="button"
-            onClick={handleVerifyIdentity}
-            disabled={!isProfileComplete() && !isProfileSaved}
-            className="w-full bg-black text-white hover:bg-black/90 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            Verify your identity
-          </Button>
-        </div>
+        {/* Best Practices Panel */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-normal">Best Practices</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use strong, unique passwords for your account</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Keep your profile information up to date</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Review and save changes before navigating away</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Complete all required fields for better service access</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
         {/* Change Password Button OUTSIDE the KYC card */}
         <Button
           type="button"
@@ -608,7 +571,7 @@ export function ProfileCompletionDashboard({
             <DialogHeader>
               <DialogTitle>Profile Updated Successfully!</DialogTitle>
               <DialogDescription>
-                Your profile has been saved. Now verify your identity to unlock full access.
+                Your profile has been saved successfully.
               </DialogDescription>
             </DialogHeader>
           </div>
@@ -620,7 +583,7 @@ export function ProfileCompletionDashboard({
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Profile Successfully Updated</h3>
                 <p className="text-gray-600">
-                  Great! Your profile information has been saved. Complete your identity verification to access all Krutrim Cloud features.
+                  Great! Your profile information has been saved and updated.
                 </p>
               </div>
             </div>
@@ -628,19 +591,12 @@ export function ProfileCompletionDashboard({
 
           {/* Footer */}
           <div className="flex-shrink-0 p-6 border-t bg-gray-50">
-            <div className="flex gap-3">
+            <div className="flex justify-center">
               <Button
-                variant="outline"
                 onClick={handleSuccessModalClose}
-                className="flex-1"
+                className="bg-black text-white hover:bg-black/90 px-8"
               >
-                Later
-              </Button>
-              <Button
-                onClick={handleSuccessModalVerifyIdentity}
-                className="flex-1 bg-black text-white hover:bg-black/90"
-              >
-                Verify Identity
+                Done
               </Button>
             </div>
           </div>
