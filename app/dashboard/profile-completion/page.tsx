@@ -95,14 +95,18 @@ export default function DashboardProfileCompletionPage() {
           lastName: user.lastName,
           email: user.email || '',
           mobile: user.mobile || '',
-          accountType: user.accountType || 'individual',
+          accountType: user.accountType || 'organization',
           companyName: user.companyName,
           website: user.website,
           linkedinProfile: user.linkedinProfile,
           address: user.address,
           organizationType: user.organizationType,
           natureOfBusiness: user.natureOfBusiness,
-          typeOfWorkload: user.typeOfWorkload
+          typeOfWorkload: user.typeOfWorkload,
+          city: user.city,
+          state: user.state,
+          pincode: user.pincode,
+          country: user.country || 'India'
         }}
         onComplete={handleComplete}
         onSkip={handleSkip}

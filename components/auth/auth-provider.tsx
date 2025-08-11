@@ -21,6 +21,10 @@ interface User {
   organizationType?: string
   natureOfBusiness?: string
   typeOfWorkload?: string
+  city?: string
+  state?: string
+  pincode?: string
+  country?: string
   userType?: "new" | "existing"
   profileStatus: {
     basicInfoComplete: boolean

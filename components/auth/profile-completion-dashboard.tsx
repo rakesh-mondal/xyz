@@ -91,6 +91,10 @@ interface UserData {
   organizationType?: string
   natureOfBusiness?: string
   typeOfWorkload?: string
+  city?: string
+  state?: string
+  pincode?: string
+  country?: string
 }
 
 interface ProfileCompletionDashboardProps {
@@ -133,6 +137,10 @@ export function ProfileCompletionDashboard({
     organizationType: userData.organizationType || "",
     natureOfBusiness: userData.natureOfBusiness || "",
     typeOfWorkload: userData.typeOfWorkload || "",
+    city: userData.city || "",
+    state: userData.state || "",
+    pincode: userData.pincode || "",
+    country: userData.country || "India"
   })
 
   const [originalData, setOriginalData] = useState({
@@ -148,6 +156,10 @@ export function ProfileCompletionDashboard({
     organizationType: userData.organizationType || "",
     natureOfBusiness: userData.natureOfBusiness || "",
     typeOfWorkload: userData.typeOfWorkload || "",
+    city: userData.city || "",
+    state: userData.state || "",
+    pincode: userData.pincode || "",
+    country: userData.country || "India"
   })
 
   const [hasChanges, setHasChanges] = useState(false)
@@ -156,7 +168,8 @@ export function ProfileCompletionDashboard({
   const [isProfileSaved, setIsProfileSaved] = useState(false)
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
   // Add state for password change success at the top of the component
-  const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   // Check if form data has changed
   useEffect(() => {
@@ -177,7 +190,10 @@ export function ProfileCompletionDashboard({
       'address',
       'organizationType',
       'typeOfWorkload',
-      'natureOfBusiness'
+      'natureOfBusiness',
+      'city',
+      'state',
+      'pincode'
     ]
     
     return requiredFields.every(field => {
@@ -186,19 +202,104 @@ export function ProfileCompletionDashboard({
     })
   }
 
+  const validateForm = () => {
+    const errors: Record<string, string> = {}
+
+    // Required field validations
+    if (!formData.firstName.trim()) {
+      errors.firstName = "First name is required"
+    }
+
+    if (!formData.lastName.trim()) {
+      errors.lastName = "Last name is required"
+    }
+
+    if (!formData.companyName.trim()) {
+      errors.companyName = "Company name is required"
+    }
+
+    if (!formData.organizationType) {
+      errors.organizationType = "Organization type is required"
+    }
+
+    if (!formData.natureOfBusiness.trim()) {
+      errors.natureOfBusiness = "Nature of business is required"
+    }
+
+    if (!formData.typeOfWorkload) {
+      errors.typeOfWorkload = "Type of workload is required"
+    }
+
+    if (!formData.address.trim()) {
+      errors.address = "Address is required"
+    }
+
+    if (!formData.city.trim()) {
+      errors.city = "City is required"
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.city)) {
+      errors.city = "City should contain only alphabetic characters"
+    }
+
+    if (!formData.state) {
+      errors.state = "State is required"
+    }
+
+    if (!formData.pincode.trim()) {
+      errors.pincode = "Pincode is required"
+    } else if (!/^\d{6}$/.test(formData.pincode)) {
+      errors.pincode = "Pincode must be exactly 6 digits"
+    }
+
+    // Optional field validations
+    if (formData.website && !formData.website.startsWith('http')) {
+      errors.website = "Website must start with http:// or https://"
+    }
+
+    if (formData.linkedinProfile && !formData.linkedinProfile.includes('linkedin.com')) {
+      errors.linkedinProfile = "LinkedIn ID must be a valid LinkedIn URL"
+    }
+
+    return errors
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
     setFormData((prev) => ({ ...prev, [id]: value }))
+    
+    // Clear error when user types
+    if (errors[id]) {
+      setErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[id]
+        return newErrors
+      })
+    }
   }
 
   const handleSelectChange = (id: string, value: string) => {
     setFormData((prev) => ({ ...prev, [id]: value }))
+    
+    // Clear error when user selects
+    if (errors[id]) {
+      setErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[id]
+        return newErrors
+      })
+    }
   }
 
   const handleSave = () => {
+    const formErrors = validateForm()
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors)
+      return
+    }
+
     // Save the form data
     setOriginalData(formData)
     setHasChanges(false)
+    setErrors({})
     
     // Mark profile as saved
     setIsProfileSaved(true)
@@ -213,6 +314,7 @@ export function ProfileCompletionDashboard({
     // Reset form to original data
     setFormData(originalData)
     setHasChanges(false)
+    setErrors({})
   }
 
   const handleVerifyIdentity = () => {
@@ -254,34 +356,66 @@ export function ProfileCompletionDashboard({
 
 
   const organizationTypes = [
-    "Company",
-    "Partnership",
-    "Proprietorship",
-    "LLP",
-    "Private Limited",
-    "Public Limited",
-    "Non-Profit",
-    "Government",
-    "Educational Institution",
-    "Startup"
+    "Sole Proprietorship",
+    "Partnership", 
+    "Limited Liability Partnership",
+    "Private Limited Companies",
+    "Public Limited Companies", 
+    "One-Person Companies",
+    "Joint-Venture Company",
+    "Non-Government Organization (NGO)",
+    "Others"
   ]
 
   const workloadTypes = [
-    "Web Development",
-    "Mobile App Development",
-    "Data Analytics",
-    "Machine Learning",
-    "AI Research",
-    "DevOps",
-    "Testing & QA",
-    "Enterprise Software",
-    "E-commerce",
-    "Gaming",
-    "Media & Entertainment",
-    "Financial Services",
-    "Healthcare",
-    "Education",
-    "Other"
+    "Web Hosting",
+    "Application Hosting", 
+    "Dev/Test Environments",
+    "Big Data & Analytics",
+    "Machine Learning / AI",
+    "SaaS Application Hosting",
+    "Backup & Disaster Recovery",
+    "Others"
+  ]
+
+  const indianStates = [
+    "Andhra Pradesh",
+    "Arunachal Pradesh", 
+    "Assam",
+    "Bihar",
+    "Chhattisgarh",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal",
+    // Union Territories
+    "Andaman and Nicobar Islands",
+    "Chandigarh",
+    "Dadra and Nagar Haveli and Daman and Diu",
+    "Delhi",
+    "Jammu and Kashmir",
+    "Ladakh",
+    "Lakshadweep",
+    "Puducherry"
   ]
 
   return (
@@ -302,9 +436,12 @@ export function ProfileCompletionDashboard({
                     placeholder="Enter your first name"
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.firstName ? "border-destructive" : ""}`}
                     required
                   />
+                  {errors.firstName && (
+                    <p className="text-sm text-destructive mt-1">{errors.firstName}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="lastName" className="block mb-2 font-medium">
@@ -315,9 +452,12 @@ export function ProfileCompletionDashboard({
                     placeholder="Enter your last name"
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.lastName ? "border-destructive" : ""}`}
                     required
                   />
+                  {errors.lastName && (
+                    <p className="text-sm text-destructive mt-1">{errors.lastName}</p>
+                  )}
                 </div>
               </div>
 
@@ -390,53 +530,146 @@ export function ProfileCompletionDashboard({
                       placeholder="Enter your company name"
                       value={formData.companyName}
                       onChange={handleChange}
-                      className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.companyName ? "border-destructive" : ""}`}
                       required
                     />
+                    {errors.companyName && (
+                      <p className="text-sm text-destructive mt-1">{errors.companyName}</p>
+                    )}
                   </div>
 
                                      {/* Website and LinkedIn Profile */}
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <div>
                        <Label htmlFor="website" className="block mb-2 font-medium">
-                         Website
+                         Website <span className="text-muted-foreground">(optional)</span>
                        </Label>
                        <Input
                          id="website"
                          placeholder="https://yourcompany.com"
                          value={formData.website}
                          onChange={handleChange}
-                         className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                         className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.website ? "border-destructive" : ""}`}
                        />
+                       {errors.website && (
+                         <p className="text-sm text-destructive mt-1">{errors.website}</p>
+                       )}
                      </div>
                      <div>
                        <Label htmlFor="linkedinProfile" className="block mb-2 font-medium">
-                         LinkedIn Profile
+                         LinkedIn ID <span className="text-muted-foreground">(optional)</span>
                        </Label>
                        <Input
                          id="linkedinProfile"
                          placeholder="https://linkedin.com/in/yourprofile"
                          value={formData.linkedinProfile}
                          onChange={handleChange}
-                         className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                         className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.linkedinProfile ? "border-destructive" : ""}`}
                        />
+                       {errors.linkedinProfile && (
+                         <p className="text-sm text-destructive mt-1">{errors.linkedinProfile}</p>
+                       )}
                      </div>
                    </div>
 
-                  {/* Address */}
+                  {/* Address Line */}
                   <div>
                     <Label htmlFor="address" className="block mb-2 font-medium">
-                      Address <span className="text-destructive">*</span>
+                      Address Line <span className="text-destructive">*</span>
                     </Label>
-                    <Textarea
+                    <Input
                       id="address"
                       placeholder="Enter your complete address"
                       value={formData.address}
                       onChange={handleChange}
-                      className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                      rows={3}
+                      className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.address ? "border-destructive" : ""}`}
                       required
                     />
+                    {errors.address && (
+                      <p className="text-sm text-destructive mt-1">{errors.address}</p>
+                    )}
+                  </div>
+
+                  {/* City and State */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="city" className="block mb-2 font-medium">
+                        City <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="city"
+                        placeholder="Enter city name"
+                        value={formData.city}
+                        onChange={handleChange}
+                        className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.city ? "border-destructive" : ""}`}
+                        required
+                      />
+                      {errors.city && (
+                        <p className="text-sm text-destructive mt-1">{errors.city}</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor="state" className="block mb-2 font-medium">
+                        State <span className="text-destructive">*</span>
+                      </Label>
+                      <Select 
+                        value={formData.state} 
+                        onValueChange={(value) => handleSelectChange("state", value)}
+                        required
+                      >
+                        <SelectTrigger className={errors.state ? "border-destructive" : ""}>
+                          <SelectValue placeholder="Select state" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {indianStates.map((state) => (
+                            <SelectItem key={state} value={state}>
+                              {state}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.state && (
+                        <p className="text-sm text-destructive mt-1">{errors.state}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Pincode and Country */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="pincode" className="block mb-2 font-medium">
+                        Pincode <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="pincode"
+                        placeholder="Enter 6-digit pincode"
+                        value={formData.pincode}
+                        onChange={handleChange}
+                        maxLength={6}
+                        pattern="[0-9]{6}"
+                        className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.pincode ? "border-destructive" : ""}`}
+                        required
+                      />
+                      {errors.pincode && (
+                        <p className="text-sm text-destructive mt-1">{errors.pincode}</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor="country" className="block mb-2 font-medium">
+                        <div className="flex items-center gap-2">
+                          Country <span className="text-destructive">*</span>
+                          <TooltipWrapper content="Country cannot be changed">
+                            <HelpCircle className="h-4 w-4 text-gray-400" />
+                          </TooltipWrapper>
+                        </div>
+                      </Label>
+                      <Input
+                        id="country"
+                        value={formData.country}
+                        disabled
+                        className="bg-gray-50 cursor-not-allowed focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      />
+                    </div>
                   </div>
 
                                      {/* Organisation Type and Type of Workload */}
@@ -450,7 +683,7 @@ export function ProfileCompletionDashboard({
                          onValueChange={(value) => handleSelectChange("organizationType", value)}
                          required
                        >
-                         <SelectTrigger>
+                         <SelectTrigger className={errors.organizationType ? "border-destructive" : ""}>
                            <SelectValue placeholder="Select organisation type" />
                          </SelectTrigger>
                          <SelectContent>
@@ -461,6 +694,9 @@ export function ProfileCompletionDashboard({
                            ))}
                          </SelectContent>
                        </Select>
+                       {errors.organizationType && (
+                         <p className="text-sm text-destructive mt-1">{errors.organizationType}</p>
+                       )}
                      </div>
                      <div>
                        <Label htmlFor="typeOfWorkload" className="block mb-2 font-medium">
@@ -471,7 +707,7 @@ export function ProfileCompletionDashboard({
                          onValueChange={(value) => handleSelectChange("typeOfWorkload", value)}
                          required
                        >
-                         <SelectTrigger>
+                         <SelectTrigger className={errors.typeOfWorkload ? "border-destructive" : ""}>
                            <SelectValue placeholder="Select your workload type" />
                          </SelectTrigger>
                          <SelectContent>
@@ -482,6 +718,9 @@ export function ProfileCompletionDashboard({
                            ))}
                          </SelectContent>
                        </Select>
+                       {errors.typeOfWorkload && (
+                         <p className="text-sm text-destructive mt-1">{errors.typeOfWorkload}</p>
+                       )}
                      </div>
                    </div>
 
@@ -495,10 +734,13 @@ export function ProfileCompletionDashboard({
                        placeholder="Describe your business activities and industry"
                        value={formData.natureOfBusiness}
                        onChange={handleChange}
-                       className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                       className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.natureOfBusiness ? "border-destructive" : ""}`}
                        rows={3}
                        required
                      />
+                     {errors.natureOfBusiness && (
+                       <p className="text-sm text-destructive mt-1">{errors.natureOfBusiness}</p>
+                     )}
                    </div>
             </div>
             
