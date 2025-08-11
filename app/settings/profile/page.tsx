@@ -78,23 +78,41 @@ const WORKLOAD_TYPES = [
 ]
 
 export default function ProfilePage() {
-  const [formData, setFormData] = useState({
-    firstName: "John",
-    lastName: "Doe", 
-    email: "john.doe@example.com",
-    mobile: "+91 9876543210",
-    accountType: "Organization",
-    companyName: "Acme Inc.",
-    website: "https://acme.com",
-    linkedinId: "https://linkedin.com/in/johndoe",
-    organizationType: "Private Limited Companies",
-    natureOfBusiness: "Software Development and IT Services",
-    typeOfWorkload: "Application Hosting",
-    addressLine: "123 Tech Park, Silicon Valley",
-    city: "Bangalore",
-    state: "Karnataka", 
-    pincode: "560001",
-    country: "India"
+  // Detect user type based on account type
+  // In a real app, this would come from auth context or user data
+  // For demo, we'll use a default - you can change this for testing
+  const accountType = "individual" // Change to "organization" to test existing user flow
+  const isNewUser = accountType === "individual"
+  const isExistingUser = accountType === "organization"
+
+  const [formData, setFormData] = useState(() => {
+    const baseData = {
+      firstName: "John",
+      lastName: "Doe", 
+      email: "john.doe@example.com",
+      mobile: "+91 9876543210",
+      accountType: isNewUser ? "Individual" : "Organization",
+      addressLine: "123 Tech Park, Silicon Valley",
+      city: "Bangalore",
+      state: "Karnataka", 
+      pincode: "560001",
+      country: "India",
+      typeOfWorkload: isNewUser ? "Web Hosting" : "Application Hosting"
+    }
+
+    // Add organization-specific fields only for existing users
+    if (isExistingUser) {
+      return {
+        ...baseData,
+        companyName: "Acme Inc.",
+        website: "https://acme.com",
+        linkedinId: "https://linkedin.com/in/johndoe",
+        organizationType: "Private Limited Companies",
+        natureOfBusiness: "Software Development and IT Services"
+      }
+    }
+
+    return baseData
   })
 
   const [originalData, setOriginalData] = useState({...formData})
@@ -139,25 +157,13 @@ export default function ProfilePage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    // Required field validations
+    // Required field validations for all users
     if (!formData.firstName.trim()) {
       newErrors.firstName = "First name is required"
     }
 
     if (!formData.lastName.trim()) {
       newErrors.lastName = "Last name is required"
-    }
-
-    if (!formData.companyName.trim()) {
-      newErrors.companyName = "Company name is required"
-    }
-
-    if (!formData.organizationType) {
-      newErrors.organizationType = "Organization type is required"
-    }
-
-    if (!formData.natureOfBusiness.trim()) {
-      newErrors.natureOfBusiness = "Nature of business is required"
     }
 
     if (!formData.typeOfWorkload) {
@@ -184,13 +190,28 @@ export default function ProfilePage() {
       newErrors.pincode = "Pincode must be exactly 6 digits"
     }
 
-    // Optional field validations
-    if (formData.website && !formData.website.startsWith('http')) {
-      newErrors.website = "Website must start with http:// or https://"
-    }
+    // Additional validations for existing users (organizations)
+    if (isExistingUser) {
+      if (!formData.companyName?.trim()) {
+        newErrors.companyName = "Company name is required"
+      }
 
-    if (formData.linkedinId && !formData.linkedinId.includes('linkedin.com')) {
-      newErrors.linkedinId = "LinkedIn ID must be a valid LinkedIn URL"
+      if (!formData.organizationType) {
+        newErrors.organizationType = "Organization type is required"
+      }
+
+      if (!formData.natureOfBusiness?.trim()) {
+        newErrors.natureOfBusiness = "Nature of business is required"
+      }
+
+      // Optional field validations for organizations
+      if (formData.website && !formData.website.startsWith('http')) {
+        newErrors.website = "Website must start with http:// or https://"
+      }
+
+      if (formData.linkedinId && !formData.linkedinId.includes('linkedin.com')) {
+        newErrors.linkedinId = "LinkedIn ID must be a valid LinkedIn URL"
+      }
     }
 
     setErrors(newErrors)

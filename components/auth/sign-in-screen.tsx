@@ -83,7 +83,7 @@ export function SignInScreen() {
         name: email.split('@')[0],
         email: email,
         mobile: "",
-        accountType: "individual",
+        accountType: userType === 'new' ? "individual" : "organization", // Set based on userType
         signinCompletedAt: new Date().toISOString(),
         userType: userType
       }

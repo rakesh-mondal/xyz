@@ -98,7 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               name: parsedUser.name || '',
               email: parsedUser.email || '',
               mobile: parsedUser.mobile || '',
-              accountType: parsedUser.accountType || 'individual',
+              // Set accountType based on userType: new users are individual, existing users are organization
+              accountType: parsedUser.accountType || (parsedUser.userType === 'new' ? 'individual' : 'organization'),
               companyName: parsedUser.companyName,
               userType: parsedUser.userType || 'existing', // Default to existing
               profileStatus: {
@@ -173,6 +174,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const updatedUser = user ? { ...user, ...data } : {
       name: data.name || 'User',
       userType: data.userType || 'existing',
+      // Set accountType based on userType if not provided
+      accountType: data.accountType || (data.userType === 'new' ? 'individual' : 'organization'),
       profileStatus: {
         basicInfoComplete: true,
         identityVerified: false,
@@ -236,6 +239,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       defaultUser = {
         name: 'New User',
         email: email,
+        accountType: 'individual', // New users are individual
         userType: 'new',
         profileStatus: {
           basicInfoComplete: true, // Login implies basic info is complete
@@ -248,6 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       defaultUser = {
         name: 'Existing User',
         email: email,
+        accountType: 'organization', // Existing users are organization
         userType: 'existing',
         profileStatus: {
           basicInfoComplete: true,

@@ -103,6 +103,31 @@ interface ProfileCompletionDashboardProps {
   onSkip?: () => void
 }
 
+// Define form data types
+type BaseFormData = {
+  firstName: string
+  lastName: string
+  email: string
+  mobile: string
+  accountType: "individual" | "organization"
+  address: string
+  city: string
+  state: string
+  pincode: string
+  country: string
+  typeOfWorkload: string
+}
+
+type OrganizationFormData = BaseFormData & {
+  companyName: string
+  website: string
+  linkedinProfile: string
+  organizationType: string
+  natureOfBusiness: string
+}
+
+type FormData = BaseFormData | OrganizationFormData
+
 export function ProfileCompletionDashboard({ 
   userData, 
   onComplete, 
@@ -110,6 +135,10 @@ export function ProfileCompletionDashboard({
 }: ProfileCompletionDashboardProps) {
   const { updateProfileStatus } = useAuth()
   const router = useRouter()
+  
+  // Detect user type - new users are "individual", existing users are "organization"
+  const isNewUser = userData.accountType === "individual"
+  const isExistingUser = userData.accountType === "organization"
   
   // Parse name into first and last name if not already separated
   const getNameParts = (fullName: string) => {
@@ -124,42 +153,69 @@ export function ProfileCompletionDashboard({
       ? { firstName: userData.firstName, lastName: userData.lastName }
       : getNameParts(userData.name || '')
 
-  const [formData, setFormData] = useState({
-    firstName: userData.firstName || defaultFirstName,
-    lastName: userData.lastName || defaultLastName,
-    email: userData.email || "",
-    mobile: userData.mobile || "",
-    accountType: "organization" as const,
-    companyName: userData.companyName || "",
-    website: userData.website || "",
-    linkedinProfile: userData.linkedinProfile || "",
-    address: userData.address || "",
-    organizationType: userData.organizationType || "",
-    natureOfBusiness: userData.natureOfBusiness || "",
-    typeOfWorkload: userData.typeOfWorkload || "",
-    city: userData.city || "",
-    state: userData.state || "",
-    pincode: userData.pincode || "",
-    country: userData.country || "India"
+  // Initialize form data based on user type
+  const [formData, setFormData] = useState<FormData>(() => {
+    const baseData: BaseFormData = {
+      firstName: userData.firstName || defaultFirstName,
+      lastName: userData.lastName || defaultLastName,
+      email: userData.email || "",
+      mobile: userData.mobile || "",
+      accountType: userData.accountType || (isNewUser ? "individual" : "organization"),
+      address: userData.address || "",
+      city: userData.city || "",
+      state: userData.state || "",
+      pincode: userData.pincode || "",
+      country: userData.country || "India",
+      typeOfWorkload: userData.typeOfWorkload || "",
+    }
+
+    // Add organization-specific fields only for existing users
+    if (isExistingUser) {
+      const orgData: OrganizationFormData = {
+        ...baseData,
+        accountType: "organization",
+        companyName: userData.companyName || "",
+        website: userData.website || "",
+        linkedinProfile: userData.linkedinProfile || "",
+        organizationType: userData.organizationType || "",
+        natureOfBusiness: userData.natureOfBusiness || "",
+      }
+      return orgData
+    }
+
+    return { ...baseData, accountType: "individual" as const }
   })
 
-  const [originalData, setOriginalData] = useState({
-    firstName: userData.firstName || defaultFirstName,
-    lastName: userData.lastName || defaultLastName,
-    email: userData.email || "",
-    mobile: userData.mobile || "",
-    accountType: "organization" as const,
-    companyName: userData.companyName || "",
-    website: userData.website || "",
-    linkedinProfile: userData.linkedinProfile || "",
-    address: userData.address || "",
-    organizationType: userData.organizationType || "",
-    natureOfBusiness: userData.natureOfBusiness || "",
-    typeOfWorkload: userData.typeOfWorkload || "",
-    city: userData.city || "",
-    state: userData.state || "",
-    pincode: userData.pincode || "",
-    country: userData.country || "India"
+  const [originalData, setOriginalData] = useState<FormData>(() => {
+    const baseData: BaseFormData = {
+      firstName: userData.firstName || defaultFirstName,
+      lastName: userData.lastName || defaultLastName,
+      email: userData.email || "",
+      mobile: userData.mobile || "",
+      accountType: userData.accountType || (isNewUser ? "individual" : "organization"),
+      address: userData.address || "",
+      city: userData.city || "",
+      state: userData.state || "",
+      pincode: userData.pincode || "",
+      country: userData.country || "India",
+      typeOfWorkload: userData.typeOfWorkload || "",
+    }
+
+    // Add organization-specific fields only for existing users
+    if (isExistingUser) {
+      const orgData: OrganizationFormData = {
+        ...baseData,
+        accountType: "organization",
+        companyName: userData.companyName || "",
+        website: userData.website || "",
+        linkedinProfile: userData.linkedinProfile || "",
+        organizationType: userData.organizationType || "",
+        natureOfBusiness: userData.natureOfBusiness || "",
+      }
+      return orgData
+    }
+
+    return { ...baseData, accountType: "individual" as const }
   })
 
   const [hasChanges, setHasChanges] = useState(false)
@@ -181,20 +237,27 @@ export function ProfileCompletionDashboard({
 
   // Check if profile is complete (all required fields filled)
   const isProfileComplete = () => {
-    const requiredFields = [
+    // Base required fields for all users
+    const baseRequiredFields = [
       'firstName',
       'lastName', 
       'email',
       'mobile',
-      'companyName',
       'address',
-      'organizationType',
       'typeOfWorkload',
-      'natureOfBusiness',
       'city',
       'state',
       'pincode'
     ]
+
+    // Additional required fields for existing users (organizations)
+    const orgRequiredFields = isExistingUser ? [
+      'companyName',
+      'organizationType',
+      'natureOfBusiness'
+    ] : []
+
+    const requiredFields = [...baseRequiredFields, ...orgRequiredFields]
     
     return requiredFields.every(field => {
       const value = formData[field as keyof typeof formData]
@@ -205,25 +268,13 @@ export function ProfileCompletionDashboard({
   const validateForm = () => {
     const errors: Record<string, string> = {}
 
-    // Required field validations
+    // Required field validations for all users
     if (!formData.firstName.trim()) {
       errors.firstName = "First name is required"
     }
 
     if (!formData.lastName.trim()) {
       errors.lastName = "Last name is required"
-    }
-
-    if (!formData.companyName.trim()) {
-      errors.companyName = "Company name is required"
-    }
-
-    if (!formData.organizationType) {
-      errors.organizationType = "Organization type is required"
-    }
-
-    if (!formData.natureOfBusiness.trim()) {
-      errors.natureOfBusiness = "Nature of business is required"
     }
 
     if (!formData.typeOfWorkload) {
@@ -250,13 +301,30 @@ export function ProfileCompletionDashboard({
       errors.pincode = "Pincode must be exactly 6 digits"
     }
 
-    // Optional field validations
-    if (formData.website && !formData.website.startsWith('http')) {
-      errors.website = "Website must start with http:// or https://"
-    }
+    // Additional validations for existing users (organizations)
+    if (formData.accountType === "organization") {
+      const orgData = formData as OrganizationFormData
+      
+      if (!orgData.companyName?.trim()) {
+        errors.companyName = "Company name is required"
+      }
 
-    if (formData.linkedinProfile && !formData.linkedinProfile.includes('linkedin.com')) {
-      errors.linkedinProfile = "LinkedIn ID must be a valid LinkedIn URL"
+      if (!orgData.organizationType) {
+        errors.organizationType = "Organization type is required"
+      }
+
+      if (!orgData.natureOfBusiness?.trim()) {
+        errors.natureOfBusiness = "Nature of business is required"
+      }
+
+      // Optional field validations for organizations
+      if (orgData.website && !orgData.website.startsWith('http')) {
+        errors.website = "Website must start with http:// or https://"
+      }
+
+      if (orgData.linkedinProfile && !orgData.linkedinProfile.includes('linkedin.com')) {
+        errors.linkedinProfile = "LinkedIn ID must be a valid LinkedIn URL"
+      }
     }
 
     return errors
@@ -367,7 +435,17 @@ export function ProfileCompletionDashboard({
     "Others"
   ]
 
-  const workloadTypes = [
+  // Different workload types based on user type
+  const workloadTypes = isNewUser ? [
+    "Web Hosting",
+    "Application Hosting", 
+    "Dev/Test Environments",
+    "Big Data & Analytics",
+    "Machine Learning / AI",
+    "SaaS Application Hosting",
+    "Backup & Disaster Recovery",
+    "Others"
+  ] : [
     "Web Hosting",
     "Application Hosting", 
     "Dev/Test Environments",
@@ -512,65 +590,69 @@ export function ProfileCompletionDashboard({
                   </div>
                 </Label>
                 <Input
-                  value="Organisation"
+                  value={isNewUser ? "Individual" : "Organisation"}
                   className="focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 cursor-not-allowed"
                   disabled
                   readOnly
                 />
               </div>
 
-              {/* Organization fields */}
+              {/* Organization fields - Only show for existing users */}
+              {isExistingUser && (
+                <>
                   {/* Company Name */}
                   <div>
                     <Label htmlFor="companyName" className="block mb-2 font-medium">
                       Company Name <span className="text-destructive">*</span>
                     </Label>
-                    <Input
-                      id="companyName"
-                      placeholder="Enter your company name"
-                      value={formData.companyName}
-                      onChange={handleChange}
-                      className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.companyName ? "border-destructive" : ""}`}
-                      required
-                    />
+                                          <Input
+                        id="companyName"
+                        placeholder="Enter your company name"
+                        value={(formData as OrganizationFormData).companyName || ""}
+                        onChange={handleChange}
+                        className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.companyName ? "border-destructive" : ""}`}
+                        required
+                      />
                     {errors.companyName && (
                       <p className="text-sm text-destructive mt-1">{errors.companyName}</p>
                     )}
                   </div>
 
-                                     {/* Website and LinkedIn Profile */}
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <div>
-                       <Label htmlFor="website" className="block mb-2 font-medium">
-                         Website <span className="text-muted-foreground">(optional)</span>
-                       </Label>
-                       <Input
-                         id="website"
-                         placeholder="https://yourcompany.com"
-                         value={formData.website}
-                         onChange={handleChange}
-                         className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.website ? "border-destructive" : ""}`}
-                       />
-                       {errors.website && (
-                         <p className="text-sm text-destructive mt-1">{errors.website}</p>
-                       )}
-                     </div>
-                     <div>
-                       <Label htmlFor="linkedinProfile" className="block mb-2 font-medium">
-                         LinkedIn ID <span className="text-muted-foreground">(optional)</span>
-                       </Label>
-                       <Input
-                         id="linkedinProfile"
-                         placeholder="https://linkedin.com/in/yourprofile"
-                         value={formData.linkedinProfile}
-                         onChange={handleChange}
-                         className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.linkedinProfile ? "border-destructive" : ""}`}
-                       />
-                       {errors.linkedinProfile && (
-                         <p className="text-sm text-destructive mt-1">{errors.linkedinProfile}</p>
-                       )}
-                     </div>
-                   </div>
+                  {/* Website and LinkedIn Profile */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="website" className="block mb-2 font-medium">
+                        Website <span className="text-muted-foreground">(optional)</span>
+                      </Label>
+                      <Input
+                        id="website"
+                        placeholder="https://yourcompany.com"
+                        value={(formData as OrganizationFormData).website || ""}
+                        onChange={handleChange}
+                        className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.website ? "border-destructive" : ""}`}
+                      />
+                      {errors.website && (
+                        <p className="text-sm text-destructive mt-1">{errors.website}</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor="linkedinProfile" className="block mb-2 font-medium">
+                        LinkedIn ID <span className="text-muted-foreground">(optional)</span>
+                      </Label>
+                      <Input
+                        id="linkedinProfile"
+                        placeholder="https://linkedin.com/in/yourprofile"
+                        value={(formData as OrganizationFormData).linkedinProfile || ""}
+                        onChange={handleChange}
+                        className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.linkedinProfile ? "border-destructive" : ""}`}
+                      />
+                      {errors.linkedinProfile && (
+                        <p className="text-sm text-destructive mt-1">{errors.linkedinProfile}</p>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
 
                   {/* Address Line */}
                   <div>
@@ -672,76 +754,81 @@ export function ProfileCompletionDashboard({
                     </div>
                   </div>
 
-                                     {/* Organisation Type and Type of Workload */}
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <div>
-                       <Label htmlFor="organizationType" className="block mb-2 font-medium">
-                         Organisation Type <span className="text-destructive">*</span>
-                       </Label>
-                       <Select 
-                         value={formData.organizationType} 
-                         onValueChange={(value) => handleSelectChange("organizationType", value)}
-                         required
-                       >
-                         <SelectTrigger className={errors.organizationType ? "border-destructive" : ""}>
-                           <SelectValue placeholder="Select organisation type" />
-                         </SelectTrigger>
-                         <SelectContent>
-                           {organizationTypes.map((type) => (
-                             <SelectItem key={type} value={type}>
-                               {type}
-                             </SelectItem>
-                           ))}
-                         </SelectContent>
-                       </Select>
-                       {errors.organizationType && (
-                         <p className="text-sm text-destructive mt-1">{errors.organizationType}</p>
-                       )}
-                     </div>
-                     <div>
-                       <Label htmlFor="typeOfWorkload" className="block mb-2 font-medium">
-                         Type of Workload <span className="text-destructive">*</span>
-                       </Label>
-                       <Select 
-                         value={formData.typeOfWorkload} 
-                         onValueChange={(value) => handleSelectChange("typeOfWorkload", value)}
-                         required
-                       >
-                         <SelectTrigger className={errors.typeOfWorkload ? "border-destructive" : ""}>
-                           <SelectValue placeholder="Select your workload type" />
-                         </SelectTrigger>
-                         <SelectContent>
-                           {workloadTypes.map((type) => (
-                             <SelectItem key={type} value={type}>
-                               {type}
-                             </SelectItem>
-                           ))}
-                         </SelectContent>
-                       </Select>
-                       {errors.typeOfWorkload && (
-                         <p className="text-sm text-destructive mt-1">{errors.typeOfWorkload}</p>
-                       )}
-                     </div>
-                   </div>
+                  {/* Type of Workload - Always show */}
+                  <div>
+                    <Label htmlFor="typeOfWorkload" className="block mb-2 font-medium">
+                      Type of Workload <span className="text-destructive">*</span>
+                    </Label>
+                    <Select 
+                      value={formData.typeOfWorkload} 
+                      onValueChange={(value) => handleSelectChange("typeOfWorkload", value)}
+                      required
+                    >
+                      <SelectTrigger className={errors.typeOfWorkload ? "border-destructive" : ""}>
+                        <SelectValue placeholder="Select your workload type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {workloadTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.typeOfWorkload && (
+                      <p className="text-sm text-destructive mt-1">{errors.typeOfWorkload}</p>
+                    )}
+                  </div>
 
-                   {/* Nature of Business */}
-                   <div>
-                     <Label htmlFor="natureOfBusiness" className="block mb-2 font-medium">
-                       Nature of Business <span className="text-destructive">*</span>
-                     </Label>
-                     <Textarea
-                       id="natureOfBusiness"
-                       placeholder="Describe your business activities and industry"
-                       value={formData.natureOfBusiness}
-                       onChange={handleChange}
-                       className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.natureOfBusiness ? "border-destructive" : ""}`}
-                       rows={3}
-                       required
-                     />
-                     {errors.natureOfBusiness && (
-                       <p className="text-sm text-destructive mt-1">{errors.natureOfBusiness}</p>
-                     )}
-                   </div>
+                  {/* Organization-specific fields - Only show for existing users */}
+                  {isExistingUser && (
+                    <>
+                      {/* Organisation Type */}
+                      <div>
+                        <Label htmlFor="organizationType" className="block mb-2 font-medium">
+                          Organisation Type <span className="text-destructive">*</span>
+                        </Label>
+                        <Select 
+                          value={(formData as OrganizationFormData).organizationType || ""} 
+                          onValueChange={(value) => handleSelectChange("organizationType", value)}
+                          required
+                        >
+                          <SelectTrigger className={errors.organizationType ? "border-destructive" : ""}>
+                            <SelectValue placeholder="Select organisation type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {organizationTypes.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.organizationType && (
+                          <p className="text-sm text-destructive mt-1">{errors.organizationType}</p>
+                        )}
+                      </div>
+
+                      {/* Nature of Business */}
+                      <div>
+                        <Label htmlFor="natureOfBusiness" className="block mb-2 font-medium">
+                          Nature of Business <span className="text-destructive">*</span>
+                        </Label>
+                        <Textarea
+                          id="natureOfBusiness"
+                          placeholder="Describe your business activities and industry"
+                          value={(formData as OrganizationFormData).natureOfBusiness || ""}
+                          onChange={handleChange}
+                          className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.natureOfBusiness ? "border-destructive" : ""}`}
+                          rows={3}
+                          required
+                        />
+                        {errors.natureOfBusiness && (
+                          <p className="text-sm text-destructive mt-1">{errors.natureOfBusiness}</p>
+                        )}
+                      </div>
+                    </>
+                  )}
             </div>
             
             {/* Action Buttons */}

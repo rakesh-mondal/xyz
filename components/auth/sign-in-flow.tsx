@@ -18,7 +18,7 @@ export function SignInFlow() {
         name: email.split('@')[0],
         email: email,
         mobile: "",
-        accountType: "individual",
+        accountType: "organization", // Default for existing users signing in
         signinCompletedAt: new Date().toISOString()
       }
       document.cookie = `user_data=${JSON.stringify(userInfo)}; path=/; max-age=86400`

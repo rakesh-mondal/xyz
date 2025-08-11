@@ -41,7 +41,7 @@ export function SignInForm({ className, onComplete, ...props }: SignInFormProps)
         name: email.split('@')[0], // Extract name from email as fallback
         email: email,
         mobile: "", // Will be empty for sign-in
-        accountType: "individual", // Default
+        accountType: "organization", // Default for existing users signing in
         signinCompletedAt: new Date().toISOString()
       }
       document.cookie = `user_data=${JSON.stringify(userInfo)}; path=/; max-age=86400`
