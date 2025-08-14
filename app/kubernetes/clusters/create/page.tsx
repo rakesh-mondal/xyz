@@ -28,6 +28,32 @@ import {
   type APIServerEndpoint
 } from "@/lib/cluster-creation-data"
 
+// Define interfaces at the top level
+interface NodePool {
+  id: string
+  name: string
+  instanceFlavor: string
+  storageSize: number
+  desiredNodes: number
+  minNodes: number
+  maxNodes: number
+  taints: Array<{ key: string; value: string; effect: string }>
+  labels: Array<{ key: string; value: string }>
+  tags: string[]
+  isDefault: boolean
+}
+
+interface Taint {
+  key: string
+  value: string
+  effect: string
+}
+
+interface Label {
+  key: string
+  value: string
+}
+
 export default function CreateClusterPage() {
   const router = useRouter()
   const [step, setStep] = useState<"configuration" | "review" | "nodePools" | "addons">("configuration")
@@ -181,6 +207,7 @@ export default function CreateClusterPage() {
     return ipParts.every(part => part >= 0 && part <= 255)
   }
 
+  // Render different views based on step
   if (step === "nodePools") {
     return <NodePoolsView 
       onBack={() => setStep("configuration")}
@@ -208,6 +235,7 @@ export default function CreateClusterPage() {
     />
   }
 
+  // Main configuration view
   return (
     <PageLayout
       title="Create Kubernetes Cluster"
@@ -643,31 +671,6 @@ function NodePoolsView({
     { size: 500, label: "500GB" },
     { size: 1000, label: "1TB" }
   ]
-
-  interface NodePool {
-    id: string
-    name: string
-    instanceFlavor: string
-    storageSize: number
-    desiredNodes: number
-    minNodes: number
-    maxNodes: number
-    taints: Array<{ key: string; value: string; effect: string }>
-    labels: Array<{ key: string; value: string }>
-    tags: string[]
-    isDefault: boolean
-  }
-
-  interface Taint {
-    key: string
-    value: string
-    effect: string
-  }
-
-  interface Label {
-    key: string
-    value: string
-  }
 
   // Get selected instance flavor details
   const getSelectedFlavor = (flavorId: string) => {
