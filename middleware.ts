@@ -3,6 +3,11 @@ import type { NextRequest } from 'next/server'
 
 // Simple access level determination from headers
 function getAccessLevelFromRequest(request: NextRequest): 'none' | 'limited' | 'full' {
+  // DEVELOPMENT: Temporarily allow access to Kubernetes routes without authentication
+  if (request.nextUrl.pathname.startsWith('/kubernetes')) {
+    return 'full'
+  }
+  
   // Check for auth token in cookies
   const authToken = request.cookies.get('auth-token')?.value
   
