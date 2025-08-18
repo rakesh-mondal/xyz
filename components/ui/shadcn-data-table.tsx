@@ -81,6 +81,7 @@ interface ShadcnDataTableProps<T = any> {
   enableStatusFilter?: boolean
   statusOptions?: { value: string; label: string }[]
   onStatusChange?: (status: string) => void
+  statusFilterColumn?: string
 }
 
 export function ShadcnDataTable<T = any>({ 
@@ -101,7 +102,8 @@ export function ShadcnDataTable<T = any>({
   onVpcChange,
   enableStatusFilter = false,
   statusOptions = [],
-  onStatusChange
+  onStatusChange,
+  statusFilterColumn = 'jobStatus'
 }: ShadcnDataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>(() => {
     if (defaultSort) {
@@ -170,11 +172,11 @@ export function ShadcnDataTable<T = any>({
     
     // Apply status filter
     if (enableStatusFilter && selectedStatus !== "all") {
-      result = result.filter(item => (item as any).jobStatus === selectedStatus)
+      result = result.filter(item => (item as any)[statusFilterColumn] === selectedStatus)
     }
     
     return result
-  }, [filteredByNames, enableStatusFilter, selectedStatus])
+  }, [filteredByNames, enableStatusFilter, selectedStatus, statusFilterColumn])
 
   // Helper function to format relative time
   const formatRelativeTime = (date: Date): string => {

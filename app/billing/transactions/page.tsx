@@ -4,9 +4,8 @@ import React, { useState, useCallback } from "react"
 import { PageLayout } from "@/components/page-layout"
 import { ShadcnDataTable, type Column } from "@/components/ui/shadcn-data-table"
 import { StatusBadge } from "@/components/status-badge"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Eye, Download, MoreVertical } from "lucide-react"
+import { Download } from "lucide-react"
 import { 
   Dialog,
   DialogContent, 
@@ -15,232 +14,79 @@ import {
   DialogTitle,
   DialogFooter 
 } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { useToast } from "@/hooks/use-toast"
 
-// Mock transaction data
+// Mock transaction data - Updated to match screenshot
 const mockTransactions = [
   {
-    id: "txn_001",
-    date: "2024-01-15T10:30:00Z",
-    amount: 250.75,
-    status: "completed",
-    jobStatus: "completed",
-    type: "Service Payment",
-    description: "AI Model Training - Llama 3.1 70B Fine-tuning",
-    paymentMethod: "Credit Card (**** 4567)",
-    service: "AI Studio",
-    referenceId: "REF_AI_001",
-    currency: "INR",
-    breakdown: {
-      subtotal: 238.33,
-      tax: 12.42,
-      total: 250.75
-    }
+    orderId: "order_OdFCIKGdKEButi",
+    created: "26th July 2024, 4:58pm",
+    transactionType: "User Paid",
+    amount: 1,
+    status: "failed"
   },
   {
-    id: "txn_002", 
-    date: "2024-01-14T14:22:00Z",
-    amount: 150.00,
-    status: "completed",
-    jobStatus: "completed",
-    type: "Credit Purchase",
-    description: "Account Credit Top-up",
-    paymentMethod: "UPI (Google Pay)",
-    service: "Billing",
-    referenceId: "REF_CR_002",
-    currency: "INR",
-    breakdown: {
-      subtotal: 150.00,
-      tax: 0.00,
-      total: 150.00
-    }
+    orderId: "order_Q3491W6mgCAJhw",
+    created: "5th March 2025, 3:21pm",
+    transactionType: "User Paid",
+    amount: 10,
+    status: "failed"
   },
   {
-    id: "txn_003",
-    date: "2024-01-14T09:15:00Z", 
-    amount: 89.50,
-    status: "pending",
-    jobStatus: "pending",
-    type: "Service Payment",
-    description: "Document Intelligence - Text Extraction (1000 pages)",
-    paymentMethod: "Credit Card (**** 4567)",
-    service: "DIS",
-    referenceId: "REF_DIS_003",
-    currency: "INR",
-    breakdown: {
-      subtotal: 84.91,
-      tax: 4.59,
-      total: 89.50
-    }
+    orderId: "order_QwLcMcC9J3dLMf",
+    created: "23rd July 2025, 8:11am",
+    transactionType: "User Paid",
+    amount: 10,
+    status: "success"
   },
   {
-    id: "txn_004",
-    date: "2024-01-13T16:45:00Z",
-    amount: 320.25,
-    status: "failed",
-    jobStatus: "failed",
-    type: "Service Payment", 
-    description: "VM Instance - GPU A100 (10 hours)",
-    paymentMethod: "Credit Card (**** 4567)",
-    service: "Compute",
-    referenceId: "REF_VM_004",
-    currency: "INR",
-    breakdown: {
-      subtotal: 304.05,
-      tax: 16.20,
-      total: 320.25
-    }
+    orderId: "order_QwtgcDtf2kldlD",
+    created: "24th July 2025, 5:31pm",
+    transactionType: "User Paid",
+    amount: 10,
+    status: "failed"
   },
   {
-    id: "txn_005",
-    date: "2024-01-13T11:20:00Z",
-    amount: 45.00,
-    status: "completed",
-    jobStatus: "completed",
-    type: "Service Payment",
-    description: "Object Storage - 100GB monthly",
-    paymentMethod: "Auto-debit (Bank Account)",
-    service: "Storage",
-    referenceId: "REF_ST_005",
-    currency: "INR",
-    breakdown: {
-      subtotal: 42.86,
-      tax: 2.14,
-      total: 45.00
-    }
+    orderId: "order_QynYBC27UqYug7",
+    created: "29th July 2025, 12:49pm",
+    transactionType: "User Paid",
+    amount: 100,
+    status: "failed"
   },
   {
-    id: "txn_006",
-    date: "2024-01-12T13:10:00Z",
-    amount: 500.00,
-    status: "completed",
-    jobStatus: "completed", 
-    type: "Credit Purchase",
-    description: "Business Plan Credit Package",
-    paymentMethod: "Bank Transfer",
-    service: "Billing",
-    referenceId: "REF_BP_006",
-    currency: "INR",
-    breakdown: {
-      subtotal: 500.00,
-      tax: 0.00,
-      total: 500.00
-    }
+    orderId: "order_QynYQ1iWKM3QpV",
+    created: "29th July 2025, 12:49pm",
+    transactionType: "User Paid",
+    amount: 10,
+    status: "failed"
   },
   {
-    id: "txn_007",
-    date: "2024-01-12T08:30:00Z",
-    amount: 199.99,
-    status: "completed",
-    jobStatus: "completed",
-    type: "Service Payment",
-    description: "Bhashik TTS - 10M characters",
-    paymentMethod: "Credit Card (**** 4567)",
-    service: "Bhashik",
-    referenceId: "REF_BH_007", 
-    currency: "INR",
-    breakdown: {
-      subtotal: 190.46,
-      tax: 9.53,
-      total: 199.99
-    }
+    orderId: "order_QynYbhX2uMkYqb",
+    created: "29th July 2025, 12:49pm",
+    transactionType: "User Paid",
+    amount: 5.2,
+    status: "failed"
   },
   {
-    id: "txn_008",
-    date: "2024-01-11T15:45:00Z",
-    amount: 75.25,
-    status: "refunded",
-    jobStatus: "refunded",
-    type: "Service Payment",
-    description: "API Gateway - Premium tier (monthly)",
-    paymentMethod: "Credit Card (**** 4567)",
-    service: "APIs",
-    referenceId: "REF_API_008",
-    currency: "INR",
-    breakdown: {
-      subtotal: 71.67,
-      tax: 3.58,
-      total: 75.25
-    }
+    orderId: "order_QynYkiwYSrzUo2",
+    created: "29th July 2025, 12:49pm",
+    transactionType: "User Paid",
+    amount: 1,
+    status: "failed"
   },
   {
-    id: "txn_009",
-    date: "2024-01-11T12:15:00Z",
-    amount: 1250.00,
-    status: "completed",
-    jobStatus: "completed",
-    type: "Service Payment",
-    description: "Model Deployment - H100 Cluster (24 hours)",
-    paymentMethod: "Enterprise Account",
-    service: "AI Studio",
-    referenceId: "REF_MD_009",
-    currency: "INR",
-    breakdown: {
-      subtotal: 1190.48,
-      tax: 59.52,
-      total: 1250.00
-    }
+    orderId: "order_R1CTSYwP0kj56t",
+    created: "4th August 2025, 2:30pm",
+    transactionType: "User Paid",
+    amount: 10,
+    status: "failed"
   },
   {
-    id: "txn_010",
-    date: "2024-01-10T10:00:00Z",
-    amount: 25.50,
-    status: "pending",
-    jobStatus: "pending",
-    type: "Service Payment",
-    description: "Block Storage - 50GB SSD",
-    paymentMethod: "Credit Card (**** 4567)",
-    service: "Storage",
-    referenceId: "REF_BS_010",
-    currency: "INR",
-    breakdown: {
-      subtotal: 24.29,
-      tax: 1.21,
-      total: 25.50
-    }
-  },
-  {
-    id: "txn_011",
-    date: "2024-01-09T17:30:00Z",
-    amount: 300.00,
-    status: "cancelled",
-    jobStatus: "cancelled",
-    type: "Credit Purchase",
-    description: "Premium Credit Package",
-    paymentMethod: "Credit Card (**** 4567)",
-    service: "Billing",
-    referenceId: "REF_PC_011",
-    currency: "INR",
-    breakdown: {
-      subtotal: 300.00,
-      tax: 0.00,
-      total: 300.00
-    }
-  },
-  {
-    id: "txn_012",
-    date: "2024-01-09T14:20:00Z",
-    amount: 135.75,
-    status: "completed",
-    jobStatus: "completed",
-    type: "Service Payment",
-    description: "Load Balancer - Standard tier (monthly)",
-    paymentMethod: "Auto-debit (Bank Account)",
-    service: "Networking",
-    referenceId: "REF_LB_012",
-    currency: "INR",
-    breakdown: {
-      subtotal: 129.29,
-      tax: 6.46,
-      total: 135.75
-    }
+    orderId: "KRUTRIM_X5gnkF82",
+    created: "5th August 2025, 5:28pm",
+    transactionType: "Free Credit",
+    amount: 2000,
+    status: "success"
   }
 ]
 
@@ -274,42 +120,10 @@ export default function TransactionsPage() {
     })
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  const formatAmount = (amount: number, currency: string = 'INR') => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2
-    }).format(amount)
-  }
-
-  const getServiceBadgeColor = (service: string) => {
-    const colors: Record<string, string> = {
-      'AI Studio': 'bg-purple-100 text-purple-800',
-      'Billing': 'bg-green-100 text-green-800', 
-      'DIS': 'bg-blue-100 text-blue-800',
-      'Compute': 'bg-orange-100 text-orange-800',
-      'Storage': 'bg-yellow-100 text-yellow-800',
-      'Bhashik': 'bg-pink-100 text-pink-800',
-      'APIs': 'bg-cyan-100 text-cyan-800',
-      'Networking': 'bg-indigo-100 text-indigo-800'
-    }
-    return colors[service] || 'bg-gray-100 text-gray-800'
-  }
-
   const columns: Column<typeof mockTransactions[0]>[] = [
     {
-      key: "id",
-      label: "Transaction ID",
+      key: "orderId",
+      label: "Order Id",
       sortable: true,
       searchable: true,
       render: (value: string) => (
@@ -317,16 +131,16 @@ export default function TransactionsPage() {
       )
     },
     {
-      key: "date", 
-      label: "Date & Time",
+      key: "created", 
+      label: "Created",
       sortable: true,
       render: (value: string) => (
-        <div className="text-sm leading-5">{formatDate(value)}</div>
+        <div className="text-sm text-muted-foreground leading-5">{value}</div>
       )
     },
     {
-      key: "type",
-      label: "Type", 
+      key: "transactionType",
+      label: "Transaction Type", 
       sortable: true,
       searchable: true,
       render: (value: string) => (
@@ -334,37 +148,15 @@ export default function TransactionsPage() {
       )
     },
     {
-      key: "description",
-      label: "Description",
-      searchable: true,
-      render: (value: string) => (
-        <div className="text-sm leading-5 max-w-xs truncate" title={value}>
-          {value}
-        </div>
-      )
-    },
-    {
-      key: "service",
-      label: "Service",
-      sortable: true,
-      searchable: true,
-      render: (value: string) => (
-        <Badge 
-          variant="outline" 
-          className={`text-xs font-medium ${getServiceBadgeColor(value)}`}
-        >
-          {value}
-        </Badge>
-      )
-    },
-    {
       key: "amount",
       label: "Amount",
       sortable: true,
       align: "right" as const,
-      render: (value: number, row) => (
-        <div className="text-sm leading-5 font-medium">
-          {formatAmount(value, row.currency)}
+      render: (value: number) => (
+        <div className="flex justify-end">
+          <div className="text-sm font-medium">
+            ₹{value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
         </div>
       )
     },
@@ -372,51 +164,19 @@ export default function TransactionsPage() {
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value: string) => <StatusBadge status={value} />
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (_, row) => (
-        <DropdownMenu>
-          <TooltipWrapper content={`More actions for ${row.id}`}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <MoreVertical className="h-5 w-5" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-          </TooltipWrapper>
-          <DropdownMenuContent align="end" className="border-border min-w-[180px]">
-            <DropdownMenuItem 
-              onClick={() => handleViewDetails(row)}
-              className="flex items-center cursor-pointer"
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              <span>View Details</span>
-            </DropdownMenuItem>
-            {row.status === 'completed' && (
-              <DropdownMenuItem 
-                onClick={() => handleDownloadReceipt(row.id)}
-                className="flex items-center cursor-pointer"
-              >
-                <Download className="mr-2 h-4 w-4" />
-                <span>Download Receipt</span>
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      align: "right" as const,
+      render: (value: string) => (
+        <div className="flex justify-end">
+          <StatusBadge status={value} />
+        </div>
       )
     }
   ]
 
   const statusOptions = [
     { value: "all", label: "All Statuses" },
-    { value: "completed", label: "Completed" },
-    { value: "pending", label: "Pending" },
-    { value: "failed", label: "Failed" },
-    { value: "refunded", label: "Refunded" },
-    { value: "cancelled", label: "Cancelled" }
+    { value: "success", label: "Success" },
+    { value: "failed", label: "Failed" }
   ]
 
   return (
@@ -429,16 +189,16 @@ export default function TransactionsPage() {
         <ShadcnDataTable
           columns={columns}
           data={mockTransactions}
-          searchableColumns={["id", "description", "type", "service"]}
-          defaultSort={{ column: "date", direction: "desc" }}
+          searchableColumns={["orderId", "transactionType"]}
+          defaultSort={{ column: "created", direction: "desc" }}
           pageSize={10}
           enableSearch={true}
           enablePagination={true}
           onRefresh={handleRefresh}
           enableStatusFilter={true}
           statusOptions={statusOptions}
+          statusFilterColumn="status"
           onStatusChange={(status) => {
-            // Filter will be handled by the table component
             console.log("Status filter changed:", status)
           }}
         />
@@ -455,7 +215,7 @@ export default function TransactionsPage() {
               </DialogTitle>
               <hr className="border-border" />
               <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-                Detailed information for transaction {selectedTransaction?.id}
+                Detailed information for transaction {selectedTransaction?.orderId}
               </DialogDescription>
             </DialogHeader>
             
@@ -464,16 +224,16 @@ export default function TransactionsPage() {
                 {/* Basic Information */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Transaction ID</label>
-                    <div className="font-mono text-sm">{selectedTransaction.id}</div>
+                    <label className="text-sm font-medium text-muted-foreground">Order ID</label>
+                    <div className="font-mono text-sm">{selectedTransaction.orderId}</div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Reference ID</label>
-                    <div className="font-mono text-sm">{selectedTransaction.referenceId}</div>
+                    <label className="text-sm font-medium text-muted-foreground">Created</label>
+                    <div className="text-sm text-muted-foreground">{selectedTransaction.created}</div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Date & Time</label>
-                    <div className="text-sm">{formatDate(selectedTransaction.date)}</div>
+                    <label className="text-sm font-medium text-muted-foreground">Transaction Type</label>
+                    <div className="text-sm">{selectedTransaction.transactionType}</div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Status</label>
@@ -483,42 +243,10 @@ export default function TransactionsPage() {
 
                 {/* Transaction Details */}
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Description</label>
-                    <div className="text-sm">{selectedTransaction.description}</div>
-                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground">Service</label>
-                      <Badge 
-                        variant="outline" 
-                        className={`text-xs font-medium ${getServiceBadgeColor(selectedTransaction.service)}`}
-                      >
-                        {selectedTransaction.service}
-                      </Badge>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground">Payment Method</label>
-                      <div className="text-sm">{selectedTransaction.paymentMethod}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Amount Breakdown */}
-                <div className="border rounded-lg p-4 bg-muted/30">
-                  <h4 className="font-medium mb-3">Amount Breakdown</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Subtotal</span>
-                      <span className="text-sm">{formatAmount(selectedTransaction.breakdown.subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Tax & Fees</span>
-                      <span className="text-sm">{formatAmount(selectedTransaction.breakdown.tax)}</span>
-                    </div>
-                    <div className="border-t pt-2 flex justify-between font-medium">
-                      <span>Total</span>
-                      <span>{formatAmount(selectedTransaction.breakdown.total)}</span>
+                      <label className="text-sm font-medium text-muted-foreground">Amount</label>
+                      <div className="text-sm font-medium">₹{selectedTransaction.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
                   </div>
                 </div>
@@ -534,11 +262,11 @@ export default function TransactionsPage() {
               >
                 Close
               </Button>
-              {selectedTransaction?.status === 'completed' && (
+              {selectedTransaction?.status === 'success' && (
                 <Button 
                   type="button"
                   variant="outline"
-                  onClick={() => handleDownloadReceipt(selectedTransaction.id)}
+                  onClick={() => handleDownloadReceipt(selectedTransaction.orderId)}
                   className="min-w-32"
                 >
                   <Download className="h-4 w-4 mr-2" />
