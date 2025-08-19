@@ -44,7 +44,6 @@ export interface ClusterConfiguration {
   vpcId: string
   subnetIds: string[]
   kubernetesVersion: string
-  autoUpgrade: boolean
   apiServerEndpoint: APIServerEndpoint
 }
 
@@ -308,7 +307,6 @@ ${subnets.map(subnet => `      - id: ${subnet.id}
         availabilityZone: ${subnet.availabilityZone}`).join('\n')}
   kubernetes:
     version: ${configuration.kubernetesVersion}
-    autoUpgrade: ${configuration.autoUpgrade}
   apiServer:
     endpointType: ${configuration.apiServerEndpoint.type}
 ${configuration.apiServerEndpoint.type === 'whitelisted' && configuration.apiServerEndpoint.whitelistedIPs ? `    whitelistedIPs:

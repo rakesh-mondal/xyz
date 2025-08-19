@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Slider } from "@/components/ui/slider"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ExternalLink, AlertCircle, Info, DollarSign, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight } from "lucide-react"
+import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import {
   availableRegions,
@@ -63,7 +63,6 @@ export default function CreateClusterPage() {
     vpcId: "",
     subnetIds: [],
     kubernetesVersion: "",
-    autoUpgrade: true,
     apiServerEndpoint: {
       type: "public"
     }
@@ -440,18 +439,7 @@ export default function CreateClusterPage() {
                   <p className="text-sm text-red-600">{errors.kubernetesVersion}</p>
                 )}
 
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="auto-upgrade"
-                    checked={configuration.autoUpgrade}
-                    onCheckedChange={(checked) => 
-                      setConfiguration(prev => ({ ...prev, autoUpgrade: checked as boolean }))
-                    }
-                  />
-                  <Label htmlFor="auto-upgrade" className="text-sm">
-                    Enable auto-upgrade to the next minor version before EOL
-                  </Label>
-                </div>
+
               </div>
             </CardContent>
           </Card>
@@ -580,8 +568,7 @@ export default function CreateClusterPage() {
         <div className="lg:w-80 space-y-6">
           <Card className="sticky top-6">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
+              <CardTitle>
                 Estimated Costs
               </CardTitle>
             </CardHeader>
@@ -595,21 +582,13 @@ export default function CreateClusterPage() {
                   </div>
                 </div>
                 
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Node Pool</span>
-                  <div className="text-right">
-                    <div className="font-medium">₹{costs.nodePool.hourly.toFixed(2)}/hr</div>
-                    <div className="text-xs text-muted-foreground">₹{costs.nodePool.monthly.toFixed(2)}/mo</div>
-                  </div>
-                </div>
-                
-                <Separator />
+
                 
                 <div className="flex justify-between items-center font-medium">
                   <span>Total</span>
                   <div className="text-right">
-                    <div>₹{costs.total.hourly.toFixed(2)}/hr</div>
-                    <div className="text-sm text-muted-foreground">₹{costs.total.monthly.toFixed(2)}/mo</div>
+                    <div>₹{costs.cluster.hourly.toFixed(2)}/hr</div>
+                    <div className="text-sm text-muted-foreground">₹{costs.cluster.monthly.toFixed(2)}/mo</div>
                   </div>
                 </div>
               </div>
@@ -638,7 +617,7 @@ function NodePoolsView({
   const [nodePools, setNodePools] = useState<NodePool[]>([
     {
       id: "default-pool",
-      name: "Default Node Pool",
+      name: "default-pool",
       instanceFlavor: "cpu-2x-8gb",
       storageSize: 100,
       desiredNodes: 2,
@@ -702,7 +681,7 @@ function NodePoolsView({
   const addNodePool = () => {
     const newPool: NodePool = {
       id: `pool-${nextPoolId}`,
-      name: `Node Pool ${nextPoolId}`,
+      name: `node-pool-${nextPoolId}`,
       instanceFlavor: "cpu-2x-8gb",
       storageSize: 100,
       desiredNodes: 1,
@@ -821,6 +800,11 @@ function NodePoolsView({
   // Validation
   const validateForm = () => {
     for (const pool of nodePools) {
+      // Check if name is provided
+      if (!pool.name.trim()) {
+        return false
+      }
+      // Check node count validation
       if (pool.minNodes < 0 || pool.maxNodes < pool.minNodes || pool.desiredNodes < pool.minNodes || pool.desiredNodes > pool.maxNodes) {
         return false
       }
@@ -916,6 +900,23 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Node Pool Name */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">
+                      Node Pool Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      type="text"
+                      value={pool.name}
+                      onChange={(e) => updateNodePool(pool.id, { name: e.target.value })}
+                      placeholder="Enter node pool name (e.g., workers, database, gpu-nodes)"
+                      className={`w-full ${!pool.name.trim() ? 'border-destructive focus:border-destructive' : ''}`}
+                    />
+                    {!pool.name.trim() && (
+                      <p className="text-xs text-destructive">Node pool name is required</p>
+                    )}
+                  </div>
+
                   {/* Instance Selection */}
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">
@@ -1557,10 +1558,7 @@ function ConfirmationView({
                 <p className="text-sm text-muted-foreground">EOL: {selectedVersion?.eolDate}</p>
               </div>
               
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Auto-upgrade</Label>
-                <p className="font-medium">{configuration.autoUpgrade ? "Enabled" : "Disabled"}</p>
-              </div>
+
               
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">API Endpoint</Label>
@@ -1577,8 +1575,8 @@ function ConfirmationView({
             
             <div>
               <Label className="text-sm font-medium text-muted-foreground">Estimated Cost</Label>
-              <p className="text-2xl font-bold">₹{costs.total.hourly.toFixed(2)}/hour</p>
-              <p className="text-muted-foreground">₹{costs.total.monthly.toFixed(2)}/month</p>
+              <p className="text-2xl font-bold">₹{costs.cluster.hourly.toFixed(2)}/hour</p>
+              <p className="text-muted-foreground">₹{costs.cluster.monthly.toFixed(2)}/month</p>
             </div>
           </CardContent>
         </Card>

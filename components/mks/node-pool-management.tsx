@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -11,20 +11,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
-import { Plus, Edit, Trash2, AlertTriangle, Server } from "lucide-react"
+import { Plus, Edit, Trash2, AlertTriangle, Server, Save, X } from "lucide-react"
 import { type MKSCluster, type MKSNodePool, availableNodeFlavors } from "@/lib/mks-data"
 
 interface NodePoolManagementProps {
   cluster: MKSCluster
   onUpdate: (updatedCluster: MKSCluster) => void
+  isEditMode?: boolean
 }
 
-export function NodePoolManagement({ cluster, onUpdate }: NodePoolManagementProps) {
+export function NodePoolManagement({ cluster, onUpdate, isEditMode = false }: NodePoolManagementProps) {
   const [isAddPoolOpen, setIsAddPoolOpen] = useState(false)
   const [editingPool, setEditingPool] = useState<MKSNodePool | null>(null)
   const [isEditPoolOpen, setIsEditPoolOpen] = useState(false)
   const [isDeletePoolOpen, setIsDeletePoolOpen] = useState(false)
   const [poolToDelete, setPoolToDelete] = useState<MKSNodePool | null>(null)
+
+  // Inline editing state for node pool counts
+  const [editingNodePools, setEditingNodePools] = useState<Record<string, { desiredCount: number; minCount: number; maxCount: number }>>({})
+  const [hasNodePoolChanges, setHasNodePoolChanges] = useState(false)
 
   // Add pool form state
   const [newPool, setNewPool] = useState({
@@ -43,6 +48,74 @@ export function NodePoolManagement({ cluster, onUpdate }: NodePoolManagementProp
     minCount: 1,
     maxCount: 3
   })
+
+  // Initialize inline editing state when component mounts or cluster changes
+  useEffect(() => {
+    if (cluster) {
+      const initialNodePoolState: Record<string, { desiredCount: number; minCount: number; maxCount: number }> = {}
+      cluster.nodePools.forEach(pool => {
+        initialNodePoolState[pool.id] = {
+          desiredCount: pool.desiredCount,
+          minCount: pool.minCount,
+          maxCount: pool.maxCount
+        }
+      })
+      setEditingNodePools(initialNodePoolState)
+    }
+  }, [cluster])
+
+  // Handle inline editing changes
+  const handleNodePoolChange = (poolId: string, field: 'desiredCount' | 'minCount' | 'maxCount', value: number) => {
+    setEditingNodePools(prev => ({
+      ...prev,
+      [poolId]: {
+        ...prev[poolId],
+        [field]: value
+      }
+    }))
+    setHasNodePoolChanges(true)
+  }
+
+  // Save inline editing changes
+  const saveNodePoolChanges = () => {
+    const updatedPools = cluster.nodePools.map(pool => {
+      const edits = editingNodePools[pool.id]
+      if (edits) {
+        return {
+          ...pool,
+          desiredCount: edits.desiredCount,
+          minCount: edits.minCount,
+          maxCount: edits.maxCount
+        }
+      }
+      return pool
+    })
+
+    const updatedCluster = {
+      ...cluster,
+      nodePools: updatedPools,
+      nodeCount: updatedPools.reduce((total, pool) => total + pool.desiredCount, 0)
+    }
+
+    onUpdate(updatedCluster)
+    setHasNodePoolChanges(false)
+  }
+
+  // Cancel inline editing changes
+  const cancelNodePoolChanges = () => {
+    if (cluster) {
+      const initialNodePoolState: Record<string, { desiredCount: number; minCount: number; maxCount: number }> = {}
+      cluster.nodePools.forEach(pool => {
+        initialNodePoolState[pool.id] = {
+          desiredCount: pool.desiredCount,
+          minCount: pool.minCount,
+          maxCount: pool.maxCount
+        }
+      })
+      setEditingNodePools(initialNodePoolState)
+      setHasNodePoolChanges(false)
+    }
+  }
 
   const handleAddPool = () => {
     if (!newPool.name || !newPool.flavor) return
@@ -149,10 +222,33 @@ export function NodePoolManagement({ cluster, onUpdate }: NodePoolManagementProp
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Node Pool Management</h3>
-        <Button onClick={() => setIsAddPoolOpen(true)} className="bg-black text-white hover:bg-black/90">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Node Pool
-        </Button>
+        <div className="flex items-center gap-2">
+          {isEditMode && hasNodePoolChanges && (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={cancelNodePoolChanges}
+                className="h-8"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={saveNodePoolChanges}
+                className="bg-black text-white hover:bg-black/90 h-8"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </Button>
+            </>
+          )}
+          <Button onClick={() => setIsAddPoolOpen(true)} className="bg-black text-white hover:bg-black/90">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Node Pool
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -201,12 +297,50 @@ export function NodePoolManagement({ cluster, onUpdate }: NodePoolManagementProp
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div>
-                          <span className="font-medium">{pool.desiredCount}</span>
-                          <p className="text-xs text-muted-foreground">
-                            min: {pool.minCount}, max: {pool.maxCount}
-                          </p>
-                        </div>
+                        {isEditMode ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Label htmlFor={`desired-${pool.id}`} className="text-xs">Desired:</Label>
+                              <Input
+                                id={`desired-${pool.id}`}
+                                type="number"
+                                min="1"
+                                value={editingNodePools[pool.id]?.desiredCount || pool.desiredCount}
+                                onChange={(e) => handleNodePoolChange(pool.id, 'desiredCount', parseInt(e.target.value) || 1)}
+                                className="w-16 h-8 text-xs"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Label htmlFor={`min-${pool.id}`} className="text-xs">Min:</Label>
+                              <Input
+                                id={`min-${pool.id}`}
+                                type="number"
+                                min="1"
+                                value={editingNodePools[pool.id]?.minCount || pool.minCount}
+                                onChange={(e) => handleNodePoolChange(pool.id, 'minCount', parseInt(e.target.value) || 1)}
+                                className="w-16 h-8 text-xs"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Label htmlFor={`max-${pool.id}`} className="text-xs">Max:</Label>
+                              <Input
+                                id={`max-${pool.id}`}
+                                type="number"
+                                min="1"
+                                value={editingNodePools[pool.id]?.maxCount || pool.maxCount}
+                                onChange={(e) => handleNodePoolChange(pool.id, 'maxCount', parseInt(e.target.value) || 1)}
+                                className="w-16 h-8 text-xs"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <span className="font-medium">{pool.desiredCount}</span>
+                            <p className="text-xs text-muted-foreground">
+                              min: {pool.minCount}, max: {pool.maxCount}
+                            </p>
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>{pool.diskSize} GB</TableCell>
                       <TableCell>

@@ -74,7 +74,7 @@ export const defaultKrutrimAddOns: MKSAddOn[] = [
     category: 'monitoring',
     isEnabled: true,
     isDefault: true,
-    isEditable: false,
+    isEditable: true,
     version: 'v0.68.0',
     status: 'active'
   },
@@ -86,7 +86,7 @@ export const defaultKrutrimAddOns: MKSAddOn[] = [
     category: 'networking',
     isEnabled: true,
     isDefault: true,
-    isEditable: false,
+    isEditable: true,
     version: 'v3.26.1',
     status: 'active'
   },
@@ -98,7 +98,7 @@ export const defaultKrutrimAddOns: MKSAddOn[] = [
     category: 'security',
     isEnabled: true,
     isDefault: true,
-    isEditable: false,
+    isEditable: true,
     version: 'v1.13.3',
     status: 'active'
   },
@@ -110,7 +110,7 @@ export const defaultKrutrimAddOns: MKSAddOn[] = [
     category: 'storage',
     isEnabled: true,
     isDefault: true,
-    isEditable: false,
+    isEditable: true,
     version: 'v2.20.0',
     status: 'active'
   },
@@ -122,7 +122,7 @@ export const defaultKrutrimAddOns: MKSAddOn[] = [
     category: 'development',
     isEnabled: false,
     isDefault: true,
-    isEditable: false,
+    isEditable: true,
     version: 'v0.35.0',
     status: 'active'
   }
@@ -130,11 +130,11 @@ export const defaultKrutrimAddOns: MKSAddOn[] = [
 
 // Available regions
 export const availableRegions: MKSRegion[] = [
+  { id: 'ap-south-1', name: 'ap-south-1', displayName: 'Asia Pacific (Mumbai) - Bangalore', isAvailable: true },
+  { id: 'ap-southeast-1', name: 'ap-southeast-1', displayName: 'Asia Pacific (Singapore) - Hyderabad', isAvailable: true },
   { id: 'us-east-1', name: 'us-east-1', displayName: 'US East (N. Virginia)', isAvailable: true },
   { id: 'us-west-2', name: 'us-west-2', displayName: 'US West (Oregon)', isAvailable: true },
-  { id: 'eu-west-1', name: 'eu-west-1', displayName: 'Europe (Ireland)', isAvailable: true },
-  { id: 'ap-south-1', name: 'ap-south-1', displayName: 'Asia Pacific (Mumbai)', isAvailable: true },
-  { id: 'ap-southeast-1', name: 'ap-southeast-1', displayName: 'Asia Pacific (Singapore)', isAvailable: true }
+  { id: 'eu-west-1', name: 'eu-west-1', displayName: 'Europe (Ireland)', isAvailable: true }
 ]
 
 // Available node flavors
@@ -154,9 +154,9 @@ export const mockMKSClusters: MKSCluster[] = [
   {
     id: 'cluster-1',
     name: 'production-cluster',
-    region: 'us-east-1',
+    region: 'ap-south-1', // Bangalore
     status: 'active',
-    k8sVersion: '1.28.0',
+    k8sVersion: '1.33.0',
     nodeCount: 12,
     createdAt: '2024-01-15T10:30:00Z',
     tags: ['production', 'web-apps', 'critical'],
@@ -197,9 +197,9 @@ export const mockMKSClusters: MKSCluster[] = [
   {
     id: 'cluster-2',
     name: 'staging-cluster',
-    region: 'us-west-2',
+    region: 'ap-southeast-1', // Hyderabad
     status: 'active',
-    k8sVersion: '1.28.0',
+    k8sVersion: '1.29.0', // Deprecated version
     nodeCount: 6,
     createdAt: '2024-02-20T14:15:00Z',
     tags: ['staging', 'testing'],
@@ -240,18 +240,16 @@ export const mockMKSClusters: MKSCluster[] = [
   {
     id: 'cluster-3',
     name: 'development-cluster',
-    region: 'eu-west-1',
-    status: 'creating',
-    k8sVersion: '1.28.0',
-    nodeCount: 0,
+    region: 'ap-south-1', // Bangalore
+    status: 'active',
+    k8sVersion: '1.30.0',
+    nodeCount: 3,
     createdAt: '2024-12-19T09:00:00Z',
     tags: ['development', 'experimental'],
     vpcId: 'vpc-dev-001',
     subnetIds: ['subnet-dev-1a'],
     securityGroupIds: ['sg-dev-cluster'],
-    kubeApiEndpoint: '',
-    estimatedCompletionTime: '3 minutes',
-    creationProgress: 75,
+    kubeApiEndpoint: 'https://api.dev-cluster.k8s.local',
     nodePools: [
       {
         id: 'np-dev-1',
@@ -263,8 +261,68 @@ export const mockMKSClusters: MKSCluster[] = [
         diskSize: 50,
         taints: [],
         labels: { environment: 'development', workload: 'experimental' },
-        status: 'creating',
+        status: 'active',
         createdAt: '2024-12-19T09:00:00Z'
+      }
+    ],
+    addOns: defaultKrutrimAddOns.map(addon => ({ ...addon, isEnabled: addon.id === 'addon-monitoring' }))
+  },
+  {
+    id: 'cluster-4',
+    name: 'test-cluster',
+    region: 'ap-southeast-1', // Hyderabad
+    status: 'active',
+    k8sVersion: '1.31.0',
+    nodeCount: 4,
+    createdAt: '2024-11-10T16:45:00Z',
+    tags: ['testing', 'qa'],
+    vpcId: 'vpc-test-001',
+    subnetIds: ['subnet-test-1a'],
+    securityGroupIds: ['sg-test-cluster'],
+    kubeApiEndpoint: 'https://api.test-cluster.k8s.local',
+    nodePools: [
+      {
+        id: 'np-test-1',
+        name: 'test-workers',
+        flavor: 't3.large',
+        desiredCount: 4,
+        minCount: 2,
+        maxCount: 6,
+        diskSize: 60,
+        taints: [],
+        labels: { environment: 'testing', workload: 'qa' },
+        status: 'active',
+        createdAt: '2024-11-10T16:45:00Z'
+      }
+    ],
+    addOns: defaultKrutrimAddOns.map(addon => ({ ...addon, isEnabled: addon.id === 'addon-monitoring' }))
+  },
+  {
+    id: 'cluster-5',
+    name: 'demo-cluster',
+    region: 'ap-south-1', // Bangalore
+    status: 'active',
+    k8sVersion: '1.32.0',
+    nodeCount: 2,
+    createdAt: '2024-10-05T11:20:00Z',
+    tags: ['demo', 'presentation'],
+    vpcId: 'vpc-demo-001',
+    subnetIds: ['subnet-demo-1a'],
+    securityGroupIds: ['sg-demo-cluster'],
+    kubeApiEndpoint: 'https://api.demo-cluster.k8s.local',
+    nodePools: [
+      {
+        id: 'np-demo-1',
+        name: 'demo-workers',
+        flavor: 't3.medium',
+        desiredCount: 2,
+        minCount: 1,
+        maxCount: 3,
+        diskSize: 40,
+        taints: [],
+        labels: { environment: 'demo', workload: 'presentation' },
+        status: 'active',
+        createdAt: '2024-10-05T11:20:00Z'
       }
     ],
     addOns: defaultKrutrimAddOns.map(addon => ({ ...addon, isEnabled: addon.id === 'addon-monitoring' }))
@@ -317,5 +375,26 @@ export const getClustersByStatus = (status: MKSCluster['status']): MKSCluster[] 
 
 export const getPersistentVolumesByCluster = (clusterId: string): MKSPersistentVolume[] => {
   return mockPersistentVolumes.filter(pv => pv.clusterId === clusterId)
+}
+
+// K8s version management helpers
+export const isK8sVersionDeprecated = (version: string): boolean => {
+  return version === '1.29.0'
+}
+
+export const getNextK8sVersion = (currentVersion: string): string | null => {
+  const versionMap: Record<string, string | null> = {
+    '1.29.0': '1.30.0',
+    '1.30.0': '1.31.0',
+    '1.31.0': '1.32.0',
+    '1.32.0': '1.33.0',
+    '1.33.0': null // No upgrade available
+  }
+  return versionMap[currentVersion] || null
+}
+
+export const getRegionDisplayName = (regionId: string): string => {
+  const region = availableRegions.find(r => r.id === regionId)
+  return region?.displayName || regionId
 }
 

@@ -63,7 +63,7 @@ export default function NodePoolCreationPage() {
   const [nodePools, setNodePools] = useState<NodePool[]>([
     {
       id: "default-pool",
-      name: "Default Node Pool",
+      name: "default-pool",
       instanceFlavor: "cpu-2x-8gb",
       storageSize: 100,
       desiredNodes: 2,
@@ -109,7 +109,7 @@ export default function NodePoolCreationPage() {
   const addNodePool = () => {
     const newPool: NodePool = {
       id: `pool-${nextPoolId}`,
-      name: `Node Pool ${nextPoolId}`,
+      name: `node-pool-${nextPoolId}`,
       instanceFlavor: "cpu-2x-8gb",
       storageSize: 100,
       desiredNodes: 1,
@@ -233,6 +233,11 @@ export default function NodePoolCreationPage() {
   // Validation
   const validateForm = () => {
     for (const pool of nodePools) {
+      // Check if name is provided
+      if (!pool.name.trim()) {
+        return false
+      }
+      // Check node count validation
       if (pool.minNodes < 0 || pool.maxNodes < pool.minNodes || pool.desiredNodes < pool.minNodes || pool.desiredNodes > pool.maxNodes) {
         return false
       }
@@ -352,6 +357,23 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Node Pool Name */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">
+                    Node Pool Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    value={pool.name}
+                    onChange={(e) => updateNodePool(pool.id, { name: e.target.value })}
+                    placeholder="Enter node pool name (e.g., workers, database, gpu-nodes)"
+                    className={`w-full ${!pool.name.trim() ? 'border-destructive focus:border-destructive' : ''}`}
+                  />
+                  {!pool.name.trim() && (
+                    <p className="text-xs text-destructive">Node pool name is required</p>
+                  )}
+                </div>
+
                 {/* Instance Selection */}
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">
