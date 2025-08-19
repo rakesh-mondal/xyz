@@ -652,12 +652,12 @@ export default function CreateClusterPage() {
                 disabled={!isFormValid()}
                 className={`transition-colors ${
                   isFormValid() 
-                    ? 'bg-black text-white hover:bg-black/90 hover:scale-105' 
+                    ? 'bg-black text-white hover:bg-black/90' 
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
                 onClick={handleReviewConfiguration}
               >
-                {!isFormValid() ? "Fill Required Fields" : "Configure Node Pools"}
+                Configure Node Pools
               </Button>
             </div>
           </Card>
@@ -1112,10 +1112,9 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
       title="Configure Node Pools"
       description="Configure node pools for your MKS cluster"
     >
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Form */}
-          <div className="lg:col-span-2 space-y-6">
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Main Configuration Form */}
+        <div className="flex-1 space-y-6">
             {nodePools.map((pool, index) => (
               <Card key={pool.id}>
                 <CardHeader>
@@ -1475,51 +1474,44 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
               </Card>
             ))}
 
-            {/* Add Node Pool Button */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addNodePool}
-              className="w-full h-16 border-dashed"
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Add Node Pool
-            </Button>
-          </div>
-
-          {/* Right Column - Summary & Cost */}
-          <div className="space-y-6">
-            {/* Cost Summary */}
+            {/* Main Form Card with Add Node Pool and Action Buttons */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Cost Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span>Instance Costs:</span>
-                    <span className="font-medium">₹{calculateCosts.totalInstanceCost.toFixed(2)}/hour</span>
+              <CardContent className="space-y-6 pt-6">
+                {/* Add Node Pool Button */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addNodePool}
+                  className="w-full h-16 border-dashed"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Add Node Pool
+                </Button>
+
+                {/* Action Buttons */}
+                <div className="pt-6 border-t">
+                  <div className="text-sm text-muted-foreground mb-4">
+                    Review your node pool configuration and continue to the next step.
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Storage Costs:</span>
-                    <span className="font-medium">₹{calculateCosts.totalStorageCost.toFixed(2)}/hour</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between text-lg font-semibold">
-                    <span>Total:</span>
-                    <span className="text-primary">₹{calculateCosts.totalCost.toFixed(2)}/hour</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground text-center">
-                    ≈ ₹{(calculateCosts.totalCost * 24 * 30).toFixed(2)}/month
+                  <div className="flex justify-end gap-4">
+                    <Button variant="outline" onClick={onBack}>
+                      Back to Configuration
+                    </Button>
+                    <Button onClick={onContinue} disabled={!validateForm()} className="bg-black text-white hover:bg-black/90">
+                      Continue to Review
+                    </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
+          </div>
 
+        {/* Right Side Panel */}
+        <div className="w-full md:w-80 space-y-6">
             {/* Node Pool Summary */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Node Pool Summary</CardTitle>
+                <CardTitle className="text-base font-normal">Node Pool Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {nodePools.map((pool) => {
@@ -1543,10 +1535,10 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
               </CardContent>
             </Card>
 
-            {/* YAML Preview */}
+            {/* Configuration Preview */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Configuration Preview</CardTitle>
+                <CardTitle className="text-base font-normal">Configuration Preview</CardTitle>
               </CardHeader>
               <CardContent>
                 <Collapsible open={yamlPreviewOpen} onOpenChange={setYamlPreviewOpen}>
@@ -1576,17 +1568,55 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
                 </Collapsible>
               </CardContent>
             </Card>
-          </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-4 pt-6 border-t">
-          <Button variant="outline" onClick={onBack}>
-            Back to Configuration
-          </Button>
-          <Button onClick={onContinue} disabled={!validateForm()}>
-            Continue to Review
-          </Button>
+            {/* Cost Summary */}
+            <div 
+              style={{
+                borderRadius: '16px',
+                border: '4px solid #FFF',
+                background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+                boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+                padding: '1.5rem'
+              }}
+            >
+              <div className="pb-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold">Cost Summary</h3>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Instance Costs</span>
+                    <div className="text-right">
+                      <div className="font-medium">₹{calculateCosts.totalInstanceCost.toFixed(2)}/hr</div>
+                      <div className="text-xs text-muted-foreground">₹{(calculateCosts.totalInstanceCost * 24 * 30).toFixed(2)}/mo</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Storage Costs</span>
+                    <div className="text-right">
+                      <div className="font-medium">₹{calculateCosts.totalStorageCost.toFixed(2)}/hr</div>
+                      <div className="text-xs text-muted-foreground">₹{(calculateCosts.totalStorageCost * 24 * 30).toFixed(2)}/mo</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center font-medium">
+                    <span>Total</span>
+                    <div className="text-right">
+                      <div>₹{calculateCosts.totalCost.toFixed(2)}/hr</div>
+                      <div className="text-sm text-muted-foreground">₹{(calculateCosts.totalCost * 24 * 30).toFixed(2)}/mo</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• All other resources are preconfigured</p>
+                  <p>• Costs are estimates only</p>
+                  <p>• Actual billing may vary</p>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
     </PageLayout>
@@ -1655,85 +1685,212 @@ function AddonsView({
       title="Add-ons"
       description="Krutrim installs essential Kubernetes components by default. You can disable any and install your own via CLI."
     >
-      <div className="space-y-6">
-        {/* Default Add-ons List */}
-        <div className="space-y-4">
-          {defaultAddons.map((addon) => (
-            <Card 
-              key={addon.id} 
-              className={`p-4 transition-all duration-200 ${
-                addon.enabled 
-                  ? "bg-white border-gray-200" 
-                  : "bg-gray-50 border-gray-100 opacity-75"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className={`font-medium text-lg mb-1 transition-colors duration-200 ${
-                    addon.enabled ? "text-gray-900" : "text-gray-500"
-                  }`}>
-                    {addon.name}
-                  </h3>
-                  <p className={`transition-colors duration-200 ${
-                    addon.enabled ? "text-muted-foreground" : "text-gray-400"
-                  }`}>
-                    {addon.description}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  {/* Toggle Switch */}
-                  <div className="flex items-center space-x-3">
-                    <button
-                      type="button"
-                      onClick={() => toggleAddon(addon.id)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                        addon.enabled ? 'bg-primary' : 'bg-gray-200'
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Main Configuration Form */}
+        <div className="flex-1 space-y-6">
+            {/* Main Add-ons Configuration Card */}
+            <Card>
+              <CardContent className="space-y-6 pt-6">
+                {/* Default Add-ons List */}
+                <div className="space-y-3">
+                  {defaultAddons.map((addon) => (
+                    <div 
+                      key={addon.id} 
+                      className={`flex items-start space-x-3 p-3 border rounded-lg transition-colors ${
+                        addon.enabled 
+                          ? "border-gray-200 hover:border-gray-300" 
+                          : "border-gray-100 bg-gray-50 opacity-75"
                       }`}
                     >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
-                          addon.enabled ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                    <span className={`text-sm font-medium transition-colors duration-200 ${
-                      addon.enabled ? "text-gray-900" : "text-gray-500"
-                    }`}>
-                      {addon.enabled ? "Enabled" : "Disabled"}
-                    </span>
+                      <div className="flex items-center pt-0.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleAddon(addon.id)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                            addon.enabled ? 'bg-primary' : 'bg-gray-200'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ${
+                              addon.enabled ? 'translate-x-5' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className={`font-medium text-sm transition-colors duration-200 ${
+                            addon.enabled ? "text-gray-900" : "text-gray-500"
+                          }`}>
+                            {addon.name}
+                          </span>
+                          <span className={`text-xs font-medium transition-colors duration-200 ${
+                            addon.enabled ? "text-gray-900" : "text-gray-500"
+                          }`}>
+                            {addon.enabled ? "Enabled" : "Disabled"}
+                          </span>
+                        </div>
+                        <p className={`text-xs transition-colors duration-200 ${
+                          addon.enabled ? "text-muted-foreground" : "text-gray-400"
+                        }`}>
+                          {addon.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Central Alert - Only show if any add-ons are disabled */}
+                {hasDisabledAddons && (
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      <div className="space-y-2">
+                        <div className="font-medium">Action required</div>
+                        <p>
+                          You have disabled one or more default add-ons. Ensure you install compatible replacements via CLI (e.g., <code className="bg-muted px-1 py-0.5 rounded text-sm">kubectl</code>/Helm) so your cluster functions correctly.
+                        </p>
+                        <Link href="#" className="text-primary hover:underline text-sm">
+                          Learn how →
+                        </Link>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-4 pt-6 border-t">
+                  <Button variant="outline" onClick={onBack}>
+                    Back
+                  </Button>
+                  <Button onClick={onContinue} className="bg-black text-white hover:bg-black/90">
+                    Create Cluster
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+        {/* Right Side Panel */}
+        <div className="w-full md:w-80 space-y-6">
+            {/* Node Pool Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base font-normal">Node Pool Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-sm">default-pool</span>
+                    <Badge variant="secondary" className="text-xs">Default</Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <div>CPU-2x-8GB • 2 nodes</div>
+                    <div>100 GB storage</div>
+                    <div>₹12.00/hour</div>
                   </div>
                 </div>
-              </div>
+              </CardContent>
             </Card>
-          ))}
-        </div>
 
-        {/* Central Alert - Only show if any add-ons are disabled */}
-        {hasDisabledAddons && (
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              <div className="space-y-2">
-                <div className="font-medium">Action required</div>
-                <p>
-                  You have disabled one or more default add-ons. Ensure you install compatible replacements via CLI (e.g., <code className="bg-muted px-1 py-0.5 rounded text-sm">kubectl</code>/Helm) so your cluster functions correctly.
-                </p>
-                <Link href="#" className="text-primary hover:underline text-sm">
-                  Learn how →
-                </Link>
+            {/* Configuration Preview */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base font-normal">Configuration Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Collapsible>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      <span>View YAML</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-3">
+                    <div className="bg-muted p-3 rounded-lg">
+                      <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
+{`apiVersion: v1
+kind: Cluster
+metadata:
+  name: mks-cluster
+spec:
+  addons:
+    cni: ${defaultAddons.find(a => a.id === 'cni')?.enabled ? 'enabled' : 'disabled'}
+    csi: ${defaultAddons.find(a => a.id === 'csi')?.enabled ? 'enabled' : 'disabled'}
+    coredns: ${defaultAddons.find(a => a.id === 'coredns')?.enabled ? 'enabled' : 'disabled'}
+    kube-proxy: ${defaultAddons.find(a => a.id === 'kube-proxy')?.enabled ? 'enabled' : 'disabled'}
+    dns-proxy: ${defaultAddons.find(a => a.id === 'dns-proxy')?.enabled ? 'enabled' : 'disabled'}`}
+                      </pre>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-3"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download YAML
+                    </Button>
+                  </CollapsibleContent>
+                </Collapsible>
+              </CardContent>
+            </Card>
+
+            {/* Cost Summary */}
+            <div 
+              style={{
+                borderRadius: '16px',
+                border: '4px solid #FFF',
+                background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+                boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+                padding: '1.5rem'
+              }}
+            >
+              <div className="pb-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold">Cost Summary</h3>
+                </div>
               </div>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-4 pt-6 border-t">
-          <Button variant="outline" onClick={onBack}>
-            Back
-          </Button>
-          <Button onClick={onContinue} className="bg-black text-white hover:bg-black/90">
-            Create Cluster
-          </Button>
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Instance Costs</span>
+                    <div className="text-right">
+                      <div className="font-medium">₹12.00/hr</div>
+                      <div className="text-xs text-muted-foreground">₹8,640/mo</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Storage Costs</span>
+                    <div className="text-right">
+                      <div className="font-medium">₹12.50/hr</div>
+                      <div className="text-xs text-muted-foreground">₹9,000/mo</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Add-on Costs</span>
+                    <div className="text-right">
+                      <div className="font-medium">₹0.00/hr</div>
+                      <div className="text-xs text-muted-foreground">₹0/mo</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center font-medium">
+                    <span>Total</span>
+                    <div className="text-right">
+                      <div>₹24.50/hr</div>
+                      <div className="text-sm text-muted-foreground">₹17,640/mo</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• All other resources are preconfigured</p>
+                  <p>• Costs are estimates only</p>
+                  <p>• Actual billing may vary</p>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
     </PageLayout>

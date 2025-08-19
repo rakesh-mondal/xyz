@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import { PageLayout } from "@/components/page-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -313,18 +314,15 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Create Node Pools</h1>
-          <p className="text-muted-foreground">Configure node pools for your MKS cluster</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Form */}
-        <div className="lg:col-span-2 space-y-6">
-          {nodePools.map((pool, index) => (
+    <PageLayout
+      title="Configure Node Pools"
+      description="Configure node pools for your MKS cluster"
+    >
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Form */}
+          <div className="lg:col-span-2 space-y-6">
+            {nodePools.map((pool, index) => (
             <Card key={pool.id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -683,120 +681,142 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
             </Card>
           ))}
 
-          {/* Add Node Pool Button */}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={addNodePool}
-            className="w-full h-16 border-dashed"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Add Node Pool
-          </Button>
-        </div>
+            {/* Add Node Pool Button */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addNodePool}
+              className="w-full h-16 border-dashed"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Add Node Pool
+            </Button>
 
-        {/* Right Column - Summary & Cost */}
-        <div className="space-y-6">
-          {/* Cost Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Cost Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span>Instance Costs:</span>
-                  <span className="font-medium">₹{calculateCosts.totalInstanceCost.toFixed(2)}/hour</span>
+            {/* Main Form Card with Action Buttons */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-sm text-muted-foreground mb-4">
+                  Review your node pool configuration and continue to the next step.
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span>Storage Costs:</span>
-                  <span className="font-medium">₹{calculateCosts.totalStorageCost.toFixed(2)}/hour</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between text-lg font-semibold">
-                  <span>Total:</span>
-                  <span className="text-primary">₹{calculateCosts.totalCost.toFixed(2)}/hour</span>
-                </div>
-                <div className="text-xs text-muted-foreground text-center">
-                  ≈ ₹{(calculateCosts.totalCost * 24 * 30).toFixed(2)}/month
-                </div>
+              </CardContent>
+              <div className="flex justify-end gap-4 px-6 pb-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="hover:bg-secondary transition-colors"
+                  onClick={() => router.back()}
+                >
+                  Back to Configuration
+                </Button>
+                <Button 
+                  type="button"
+                  disabled={!validateForm()}
+                  className={`transition-colors ${
+                    validateForm() 
+                      ? 'bg-black text-white hover:bg-black/90' 
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                  onClick={handleSaveAndContinue}
+                >
+                  Continue to Review
+                </Button>
               </div>
-            </CardContent>
-          </Card>
+            </Card>
+          </div>
 
-          {/* Node Pool Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Node Pool Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {nodePools.map((pool) => {
-                const flavor = getSelectedFlavor(pool.instanceFlavor)
-                return (
-                  <div key={pool.id} className="p-3 bg-muted/50 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-sm">{pool.name}</span>
-                      {pool.isDefault && (
-                        <Badge variant="secondary" className="text-xs">Default</Badge>
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>{flavor.name} • {pool.desiredNodes} nodes</div>
-                      <div>{pool.storageSize} GB storage</div>
-                      <div>₹{(flavor.pricePerHour * pool.desiredNodes).toFixed(2)}/hour</div>
-                    </div>
+          {/* Right Column - Summary & Cost */}
+          <div className="space-y-6">
+            {/* Cost Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Cost Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span>Instance Costs:</span>
+                    <span className="font-medium">₹{calculateCosts.totalInstanceCost.toFixed(2)}/hour</span>
                   </div>
-                )
-              })}
-            </CardContent>
-          </Card>
+                  <div className="flex justify-between text-sm">
+                    <span>Storage Costs:</span>
+                    <span className="font-medium">₹{calculateCosts.totalStorageCost.toFixed(2)}/hour</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span>Total:</span>
+                    <span className="text-primary">₹{calculateCosts.totalCost.toFixed(2)}/hour</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground text-center">
+                    ≈ ₹{(calculateCosts.totalCost * 24 * 30).toFixed(2)}/month
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* YAML Preview */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Configuration Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Collapsible open={yamlPreviewOpen} onOpenChange={setYamlPreviewOpen}>
-                <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    <span>View YAML</span>
-                    {yamlPreviewOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-3">
-                  <div className="bg-muted p-3 rounded-lg">
-                    <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
-                      {generateYAML()}
-                    </pre>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={downloadYAML}
-                    className="w-full mt-3"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download YAML
-                  </Button>
-                </CollapsibleContent>
-              </Collapsible>
-            </CardContent>
-          </Card>
+            {/* Node Pool Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Node Pool Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {nodePools.map((pool) => {
+                  const flavor = getSelectedFlavor(pool.instanceFlavor)
+                  return (
+                    <div key={pool.id} className="p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-sm">{pool.name}</span>
+                        {pool.isDefault && (
+                          <Badge variant="secondary" className="text-xs">Default</Badge>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div>{flavor.name} • {pool.desiredNodes} nodes</div>
+                        <div>{pool.storageSize} GB storage</div>
+                        <div>₹{(flavor.pricePerHour * pool.desiredNodes).toFixed(2)}/hour</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </CardContent>
+            </Card>
+
+            {/* YAML Preview */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Configuration Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Collapsible open={yamlPreviewOpen} onOpenChange={setYamlPreviewOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      <span>View YAML</span>
+                      {yamlPreviewOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-3">
+                    <div className="bg-muted p-3 rounded-lg">
+                      <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
+                        {generateYAML()}
+                      </pre>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={downloadYAML}
+                      className="w-full mt-3"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download YAML
+                    </Button>
+                  </CollapsibleContent>
+                </Collapsible>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-4 pt-6 border-t">
-        <Button variant="outline" onClick={() => router.back()}>
-          Cancel
-        </Button>
-        <Button onClick={handleSaveAndContinue}>
-          Save & Continue
-        </Button>
-      </div>
-    </div>
+    </PageLayout>
   )
 }
 
