@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Slider } from "@/components/ui/slider"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight } from "lucide-react"
+import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight, Search, Check } from "lucide-react"
 import Link from "next/link"
 import {
   availableRegions,
@@ -27,6 +27,7 @@ import {
   type ClusterConfiguration,
   type APIServerEndpoint
 } from "@/lib/cluster-creation-data"
+import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
 
 // Define interfaces at the top level
 interface NodePool {
@@ -70,6 +71,85 @@ export default function CreateClusterPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [costs, setCosts] = useState(calculateCosts(configuration))
+  const [formTouched, setFormTouched] = useState(false)
+  const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
+
+  // Mock region availability data (same as VPC page)
+  const regionAvailability = {
+    "us-east-1": {
+      name: "US East (N. Virginia)",
+      resources: [
+        { type: "CPU Instances", availability: "high" },
+        { type: "GPU A40", availability: "high" },
+        { type: "GPU RTX A5000", availability: "medium" },
+        { type: "GPU RTX A6000", availability: "medium" },
+        { type: "Storage", availability: "high" },
+      ]
+    },
+    "us-west-2": {
+      name: "US West (Oregon)",
+      resources: [
+        { type: "CPU Instances", availability: "high" },
+        { type: "GPU A40", availability: "medium" },
+        { type: "GPU RTX A5000", availability: "low" },
+        { type: "GPU RTX A6000", availability: "low" },
+        { type: "Storage", availability: "high" },
+      ]
+    },
+    "eu-west-1": {
+      name: "EU (Ireland)",
+      resources: [
+        { type: "CPU Instances", availability: "high" },
+        { type: "GPU A40", availability: "high" },
+        { type: "GPU RTX A5000", availability: "medium" },
+        { type: "GPU RTX A6000", availability: "medium" },
+        { type: "Storage", availability: "high" },
+      ]
+    },
+    "ap-south-1": {
+      name: "Asia Pacific (Mumbai)",
+      resources: [
+        { type: "CPU Instances", availability: "medium" },
+        { type: "GPU A40", availability: "medium" },
+        { type: "GPU RTX A5000", availability: "high" },
+        { type: "GPU RTX A6000", availability: "high" },
+        { type: "Storage", availability: "medium" },
+      ]
+    },
+    "ap-southeast-1": {
+      name: "Asia Pacific (Singapore)",
+      resources: [
+        { type: "CPU Instances", availability: "high" },
+        { type: "GPU A40", availability: "low" },
+        { type: "GPU RTX A5000", availability: "medium" },
+        { type: "GPU RTX A6000", availability: "medium" },
+        { type: "Storage", availability: "high" },
+      ]
+    }
+  }
+
+  const getAvailabilityColor = (availability: string) => {
+    switch (availability) {
+      case "high": return "bg-green-500"
+      case "medium": return "bg-yellow-500"
+      case "low": return "bg-gray-400"
+      default: return "bg-gray-300"
+    }
+  }
+
+  const getAvailabilityBars = (availability: string) => {
+    const totalBars = 3
+    const activeBars = availability === "high" ? 3 : availability === "medium" ? 2 : 1
+    
+    return Array.from({ length: totalBars }, (_, index) => (
+      <div
+        key={index}
+        className={`h-1.5 w-6 rounded-sm ${
+          index < activeBars ? getAvailabilityColor(availability) : "bg-gray-300"
+        }`}
+      />
+    ))
+  }
 
   // Filtered data based on selections
   const availableVPCs = configuration.region ? mockVPCs.filter(vpc => vpc.region === configuration.region) : []
@@ -129,6 +209,7 @@ export default function CreateClusterPage() {
       vpcId: "", // Reset VPC when region changes
       subnetIds: [] // Reset subnets when VPC changes
     }))
+    setFormTouched(true)
   }
 
   // Handle VPC change
@@ -240,269 +321,294 @@ export default function CreateClusterPage() {
       title="Create Kubernetes Cluster"
       description="Configure and deploy a new Kubernetes cluster with enterprise-grade reliability"
     >
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* Main Configuration Form */}
         <div className="flex-1 space-y-6">
-          {/* Region Selection */}
           <Card>
-            <CardHeader>
-              <CardTitle>Select Region</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Select
-                  value={configuration.region}
-                  onValueChange={handleRegionChange}
-                >
-                  <SelectTrigger className={errors.region ? "border-red-300" : ""}>
-                    <SelectValue placeholder="Choose a region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableRegions.map((region) => (
-                      <SelectItem key={region.id} value={region.id}>
-                        <div className="flex items-center justify-between w-full">
-                          <span>{region.displayName}</span>
-                          <Badge variant="outline" className="ml-2">
-                            {region.name}
-                          </Badge>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.region && (
-                  <p className="text-sm text-red-600">{errors.region}</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* VPC Selection */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Select VPC</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {configuration.region ? (
-                  availableVPCs.length > 0 ? (
-                    <Select
-                      value={configuration.vpcId}
-                      onValueChange={handleVPCChange}
-                    >
-                      <SelectTrigger className={errors.vpcId ? "border-red-300" : ""}>
-                        <SelectValue placeholder="Choose a VPC" />
+            <CardContent className="space-y-6 pt-6">
+              <form onSubmit={(e) => { e.preventDefault(); handleReviewConfiguration(); }}>
+                {/* Region Selection */}
+                <div className="mb-8">
+                  <div className="mb-5">
+                    <Label className="block mb-2 font-medium">
+                      Region <span className="text-destructive">*</span>
+                    </Label>
+                    <Select value={configuration.region} onValueChange={handleRegionChange} required>
+                      <SelectTrigger className={formTouched && !configuration.region ? 'border-red-300 bg-red-50' : ''}>
+                        <SelectValue placeholder="Select a region" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableVPCs.map((vpc) => (
-                          <SelectItem key={vpc.id} value={vpc.id}>
-                            <div className="space-y-1">
-                              <div className="font-medium">{vpc.name}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {vpc.cidr} • {vpc.description}
+                        <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
+                        <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
+                        <SelectItem value="eu-west-1">EU (Ireland)</SelectItem>
+                        <SelectItem value="ap-south-1">Asia Pacific (Mumbai)</SelectItem>
+                        <SelectItem value="ap-southeast-1">Asia Pacific (Singapore)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* Region Availability Display */}
+                    {configuration.region && regionAvailability[configuration.region as keyof typeof regionAvailability] && (
+                      <div className="mt-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs text-gray-900">
+                            Resource Availability
+                          </h4>
+                          <span className="text-xs text-gray-500">
+                            {regionAvailability[configuration.region as keyof typeof regionAvailability].name}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {regionAvailability[configuration.region as keyof typeof regionAvailability].resources.map((resource, index) => (
+                            <div key={index} className="flex items-center justify-between">
+                              <span className="text-xs text-gray-700">
+                                {resource.type}
+                              </span>
+                              <div className="flex items-center gap-0.5">
+                                {getAvailabilityBars(resource.availability)}
                               </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 bg-green-500 rounded-sm"></div>
+                                <span>High</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 bg-yellow-500 rounded-sm"></div>
+                                <span>Medium</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 bg-gray-400 rounded-sm"></div>
+                                <span>Low</span>
+                              </div>
+                            </div>
+                            <span>Updated 5 min ago</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {errors.region && (
+                      <p className="text-sm text-red-600 mt-1">{errors.region}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* VPC Selection */}
+                <div className="mb-8">
+                  <VPCSelectorInline
+                    value={configuration.vpcId}
+                    region={configuration.region}
+                    availableVPCs={availableVPCs}
+                    onChange={(value) => {
+                      if (value === "__create_new__") {
+                        setShowCreateVPCModal(true)
+                      } else {
+                        handleVPCChange(value)
+                      }
+                    }}
+                    error={errors.vpcId}
+                  />
+                </div>
+
+                {/* Subnet Selection */}
+                <div className="mb-8">
+                  <div className="mb-5">
+                    <Label className="block mb-2 font-medium">
+                      Subnets <span className="text-destructive">*</span>
+                    </Label>
+                    {configuration.vpcId ? (
+                      availableSubnets.length > 0 ? (
+                        <div className="space-y-4">
+                          {availableSubnets.map((subnet) => (
+                            <div key={subnet.id} className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
+                              <Checkbox
+                                id={subnet.id}
+                                checked={configuration.subnetIds?.includes(subnet.id) || false}
+                                onCheckedChange={(checked) => 
+                                  handleSubnetChange(subnet.id, checked as boolean)
+                                }
+                                className="mt-0.5"
+                              />
+                              <Label htmlFor={subnet.id} className="flex-1 cursor-pointer">
+                                <div className="flex items-center justify-between mb-1">
+                                  <div>
+                                    <span className="font-medium text-sm">{subnet.name}</span>
+                                    <Badge variant="outline" className="ml-2 text-xs">
+                                      {subnet.type}
+                                    </Badge>
+                                  </div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {subnet.cidr} • {subnet.availabilityZone}
+                                  </div>
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {subnet.description}
+                                </div>
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <Alert>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>
+                            No subnets found in this VPC.{" "}
+                            <Link 
+                              href="/networking/vpc/create" 
+                              className="text-primary hover:underline font-medium"
+                            >
+                              Create a new VPC →
+                            </Link>
+                          </AlertDescription>
+                        </Alert>
+                      )
+                    ) : (
+                      <div className="text-muted-foreground">
+                        Please select a VPC first
+                      </div>
+                    )}
+                    {errors.subnets && (
+                      <p className="text-sm text-red-600 mt-1">{errors.subnets}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Kubernetes Version Selection */}
+                <div className="mb-8">
+                  <div className="mb-5">
+                    <Label className="block mb-2 font-medium">
+                      Kubernetes Version <span className="text-destructive">*</span>
+                    </Label>
+                    <Select
+                      value={configuration.kubernetesVersion}
+                      onValueChange={(value) => setConfiguration(prev => ({ ...prev, kubernetesVersion: value }))}
+                    >
+                      <SelectTrigger className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.kubernetesVersion ? "border-red-300 bg-red-50" : ""}`}>
+                        <SelectValue placeholder="Choose Kubernetes version" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableKubernetesVersions.map((version) => (
+                          <SelectItem key={version.version} value={version.version}>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{version.version}</span>
+                                {version.isRecommended && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Recommended
+                                  </Badge>
+                                )}
+                                {version.isLatest && (
+                                  <Badge variant="default" className="text-xs">
+                                    Latest
+                                  </Badge>
+                                )}
+                              </div>
+                              <span className="text-sm text-muted-foreground">
+                                EOL: {version.eolDate}
+                              </span>
                             </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  ) : (
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        No VPCs found in this region.{" "}
-                        <Link 
-                          href="/networking/vpc/create" 
-                          className="text-primary hover:underline font-medium"
-                        >
-                          Create a new VPC →
-                        </Link>
-                      </AlertDescription>
-                    </Alert>
-                  )
-                ) : (
-                  <div className="text-muted-foreground">
-                    Please select a region first
+                    {errors.kubernetesVersion && (
+                      <p className="text-sm text-red-600 mt-1">{errors.kubernetesVersion}</p>
+                    )}
                   </div>
-                )}
-                {errors.vpcId && (
-                  <p className="text-sm text-red-600">{errors.vpcId}</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
 
-          {/* Subnet Selection */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Select Subnets</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {configuration.vpcId ? (
-                  availableSubnets.length > 0 ? (
-                    <div className="space-y-3">
-                      {availableSubnets.map((subnet) => (
-                        <div key={subnet.id} className="flex items-center space-x-3">
-                          <Checkbox
-                            id={subnet.id}
-                            checked={configuration.subnetIds?.includes(subnet.id) || false}
-                            onCheckedChange={(checked) => 
-                              handleSubnetChange(subnet.id, checked as boolean)
-                            }
-                          />
-                          <Label htmlFor={subnet.id} className="flex-1 cursor-pointer">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <span className="font-medium">{subnet.name}</span>
-                                <Badge variant="outline" className="ml-2">
-                                  {subnet.type}
-                                </Badge>
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {subnet.cidr} • {subnet.availabilityZone}
-                              </div>
-                            </div>
-                            <div className="text-sm text-muted-foreground mt-1">
-                              {subnet.description}
+                {/* API Server Endpoint Settings */}
+                <div className="mb-8">
+                  <div className="mb-5">
+                    <Label className="block mb-4 font-medium">
+                      Kube-API Server Endpoint Settings
+                    </Label>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <RadioGroup
+                        value={configuration.apiServerEndpoint?.type}
+                        onValueChange={(value) => handleAPIEndpointChange(value as APIServerEndpoint["type"])}
+                        className="space-y-3"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="public" id="public" />
+                          <Label htmlFor="public" className="flex-1">
+                            <div className="font-medium">Public</div>
+                            <div className="text-sm text-muted-foreground">
+                              Accessible via internet
                             </div>
                           </Label>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        No subnets found in this VPC.{" "}
-                        <Link 
-                          href="/networking/vpc/create" 
-                          className="text-primary hover:underline font-medium"
-                        >
-                          Create a new VPC →
-                        </Link>
-                      </AlertDescription>
-                    </Alert>
-                  )
-                ) : (
-                  <div className="text-muted-foreground">
-                    Please select a VPC first
-                  </div>
-                )}
-                {errors.subnets && (
-                  <p className="text-sm text-red-600">{errors.subnets}</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Kubernetes Version Selection */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Kubernetes Version</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Select
-                  value={configuration.kubernetesVersion}
-                  onValueChange={(value) => setConfiguration(prev => ({ ...prev, kubernetesVersion: value }))}
-                >
-                  <SelectTrigger className={errors.kubernetesVersion ? "border-red-300" : ""}>
-                    <SelectValue placeholder="Choose Kubernetes version" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableKubernetesVersions.map((version) => (
-                      <SelectItem key={version.version} value={version.version}>
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{version.version}</span>
-                            {version.isRecommended && (
-                              <Badge variant="secondary" className="text-xs">
-                                Recommended
-                              </Badge>
-                            )}
-                            {version.isLatest && (
-                              <Badge variant="default" className="text-xs">
-                                Latest
-                              </Badge>
-                            )}
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            EOL: {version.eolDate}
-                          </span>
+                        
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="private" id="private" />
+                          <Label htmlFor="private" className="flex-1">
+                            <div className="font-medium">Private</div>
+                            <div className="text-sm text-muted-foreground">
+                              Only accessible via internal VPC (bastion)
+                            </div>
+                          </Label>
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.kubernetesVersion && (
-                  <p className="text-sm text-red-600">{errors.kubernetesVersion}</p>
-                )}
-
-
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* API Server Endpoint Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Kube-API Server Endpoint Settings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <RadioGroup
-                  value={configuration.apiServerEndpoint?.type}
-                  onValueChange={(value) => handleAPIEndpointChange(value as APIServerEndpoint["type"])}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="public" id="public" />
-                    <Label htmlFor="public" className="flex-1">
-                      <div className="font-medium">Public</div>
-                      <div className="text-sm text-muted-foreground">
-                        Accessible via internet
+                        
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="whitelisted" id="whitelisted" />
+                          <Label htmlFor="whitelisted" className="flex-1">
+                            <div className="font-medium">Whitelisted IPs</div>
+                            <div className="text-sm text-muted-foreground">
+                              Requires CIDR input for allowed IP ranges
+                            </div>
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                      
+                      <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded-lg">
+                        <p className="font-medium mb-2">Endpoint Options:</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>• <strong>Public:</strong> Best for development and testing</li>
+                          <li>• <strong>Private:</strong> Enhanced security for production</li>
+                          <li>• <strong>Whitelisted:</strong> Controlled access from specific IPs</li>
+                        </ul>
                       </div>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="private" id="private" />
-                    <Label htmlFor="private" className="flex-1">
-                      <div className="font-medium">Private</div>
-                      <div className="text-sm text-muted-foreground">
-                        Only accessible via internal VPC (bastion)
-                      </div>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="whitelisted" id="whitelisted" />
-                    <Label htmlFor="whitelisted" className="flex-1">
-                      <div className="font-medium">Whitelisted IPs</div>
-                      <div className="text-sm text-muted-foreground">
-                        Requires CIDR input for allowed IP ranges
-                      </div>
-                    </Label>
-                  </div>
-                </RadioGroup>
+                    </div>
 
-                {configuration.apiServerEndpoint?.type === "whitelisted" && (
-                  <div className="space-y-3 pl-6">
-                    <Label className="text-sm font-medium">CIDR Ranges</Label>
-                    {configuration.apiServerEndpoint.whitelistedIPs?.map((ip, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <Input
-                          placeholder="e.g., 203.0.113.0/24"
-                          value={ip}
-                          onChange={(e) => handleWhitelistedIPChange(index, e.target.value)}
-                          className={errors.whitelistedIPs ? "border-red-300" : ""}
-                        />
+                    {configuration.apiServerEndpoint?.type === "whitelisted" && (
+                      <div className="space-y-3 pl-6 mt-3">
+                        <Label className="text-sm font-medium">CIDR Ranges</Label>
+                        {configuration.apiServerEndpoint.whitelistedIPs?.map((ip, index) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <Input
+                              placeholder="e.g., 203.0.113.0/24"
+                              value={ip}
+                              onChange={(e) => handleWhitelistedIPChange(index, e.target.value)}
+                              className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.whitelistedIPs ? "border-red-300" : ""}`}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const newIPs = configuration.apiServerEndpoint?.whitelistedIPs?.filter((_, i) => i !== index) || []
+                                setConfiguration(prev => ({
+                                  ...prev,
+                                  apiServerEndpoint: {
+                                    ...prev.apiServerEndpoint!,
+                                    whitelistedIPs: newIPs
+                                  }
+                                }))
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))}
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            const newIPs = configuration.apiServerEndpoint?.whitelistedIPs?.filter((_, i) => i !== index) || []
+                            const newIPs = [...(configuration.apiServerEndpoint?.whitelistedIPs || []), ""]
                             setConfiguration(prev => ({
                               ...prev,
                               apiServerEndpoint: {
@@ -512,67 +618,100 @@ export default function CreateClusterPage() {
                             }))
                           }}
                         >
-                          Remove
+                          Add CIDR Range
                         </Button>
+                        {errors.whitelistedIPs && (
+                          <p className="text-sm text-red-600 mt-1">{errors.whitelistedIPs}</p>
+                        )}
                       </div>
-                    ))}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const newIPs = [...(configuration.apiServerEndpoint?.whitelistedIPs || []), ""]
-                        setConfiguration(prev => ({
-                          ...prev,
-                          apiServerEndpoint: {
-                            ...prev.apiServerEndpoint!,
-                            whitelistedIPs: newIPs
-                          }
-                        }))
-                      }}
-                    >
-                      Add CIDR Range
-                    </Button>
-                    {errors.whitelistedIPs && (
-                      <p className="text-sm text-red-600">{errors.whitelistedIPs}</p>
+                    )}
+
+                    {configuration.apiServerEndpoint?.type === "private" && (
+                      <Alert className="mt-3">
+                        <Info className="h-4 w-4" />
+                        <AlertDescription>
+                          Private endpoint requires bastion host setup. You'll need to configure SSH access through a bastion host in the same VPC.
+                        </AlertDescription>
+                      </Alert>
                     )}
                   </div>
-                )}
+                </div>
+              </form>
+            </CardContent>
+            <div className="flex justify-end gap-4 px-6 pb-6">
+              <Button
+                type="button"
+                variant="outline"
+                className="hover:bg-secondary transition-colors"
+                onClick={() => router.push("/kubernetes")}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="button"
+                disabled={!isFormValid()}
+                className={`transition-colors ${
+                  isFormValid() 
+                    ? 'bg-black text-white hover:bg-black/90 hover:scale-105' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                onClick={handleReviewConfiguration}
+              >
+                {!isFormValid() ? "Fill Required Fields" : "Configure Node Pools"}
+              </Button>
+            </div>
+          </Card>
+        </div>
 
-                {configuration.apiServerEndpoint?.type === "private" && (
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertDescription>
-                      Private endpoint requires bastion host setup. You'll need to configure SSH access through a bastion host in the same VPC.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
+        {/* Right Side Panel */}
+        <div className="w-full md:w-80 space-y-6">
+          {/* Best Practices */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">Best Practices</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose the region closest to your users for better performance</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use private subnets for enhanced security</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Select latest stable Kubernetes version for security patches</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Plan node pool sizing based on your workload requirements</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Enable network policies for pod-to-pod communication control</span>
+                </li>
+              </ul>
             </CardContent>
           </Card>
 
-          {/* Review Configuration Button */}
-          <div className="pt-6">
-            <Button
-              onClick={handleReviewConfiguration}
-              disabled={!isFormValid()}
-              className="w-full bg-black text-white hover:bg-black/90"
-              size="lg"
-            >
-              Configure Node Pools
-            </Button>
-          </div>
-        </div>
-
-        {/* Right Side Panel - Costing */}
-        <div className="lg:w-80 space-y-6">
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle>
-                Estimated Costs
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          {/* Estimated Costs */}
+          <div 
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Estimated Costs</h3>
+              </div>
+            </div>
+            <div className="space-y-4">
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Cluster</span>
@@ -581,8 +720,6 @@ export default function CreateClusterPage() {
                     <div className="text-xs text-muted-foreground">₹{costs.cluster.monthly.toFixed(2)}/mo</div>
                   </div>
                 </div>
-                
-
                 
                 <div className="flex justify-between items-center font-medium">
                   <span>Total</span>
@@ -598,11 +735,123 @@ export default function CreateClusterPage() {
                 <p>• Costs are estimates only</p>
                 <p>• Actual billing may vary</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Create VPC Modal */}
+      <CreateVPCModal
+        open={showCreateVPCModal}
+        onClose={() => setShowCreateVPCModal(false)}
+        onSuccess={(newVPC) => {
+          // Handle successful VPC creation
+          handleVPCChange(newVPC.id)
+          setShowCreateVPCModal(false)
+        }}
+        preselectedRegion={configuration.region}
+      />
     </PageLayout>
+  )
+}
+
+// VPC Selector Component (similar to Create Volume page)
+function VPCSelectorInline({ value, region, availableVPCs, onChange, error }: {
+  value: string
+  region: string
+  availableVPCs: any[]
+  onChange: (value: string) => void
+  error?: string
+}) {
+  const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  
+  const filteredVPCs = availableVPCs.filter(vpc =>
+    vpc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vpc.id.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  
+  const selectedVPC = availableVPCs.find(vpc => vpc.id === value)
+  
+  return (
+    <div className="mb-5">
+      <Label className="block mb-2 font-medium">
+        VPC <span className="text-destructive">*</span>
+      </Label>
+      {!region ? (
+        <div className="text-muted-foreground py-2 px-3 border border-input bg-background rounded-md">
+          Please select a region first
+        </div>
+      ) : (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            className={`w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+              error ? "border-red-300 bg-red-50" : ""
+            }`}
+          >
+            <span className={selectedVPC ? "text-foreground" : "!text-[#64748b]"}>
+              {selectedVPC ? `${selectedVPC.name} (${selectedVPC.cidr})` : "Select VPC to isolate your workload"}
+            </span>
+            <ChevronDown className="h-4 w-4 opacity-50" />
+          </button>
+          {open && (
+            <div className="absolute top-full left-0 right-0 z-50 bg-background border border-input rounded-md shadow-md mt-1">
+              <div className="p-2 border-b">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search VPCs..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+              </div>
+              <div className="p-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange("__create_new__")
+                    setOpen(false)
+                  }}
+                  className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+                >
+                  Create new VPC
+                </button>
+                {filteredVPCs.map((vpc) => (
+                  <button
+                    key={vpc.id}
+                    type="button"
+                    onClick={() => {
+                      onChange(vpc.id)
+                      setOpen(false)
+                      setSearchTerm("")
+                    }}
+                    className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
+                  >
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">{vpc.name}</span>
+                      <span className="text-xs text-muted-foreground">{vpc.cidr} • {vpc.description}</span>
+                    </div>
+                    {value === vpc.id && <Check className="h-4 w-4" />}
+                  </button>
+                ))}
+                {filteredVPCs.length === 0 && searchTerm && (
+                  <div className="px-2 py-2 text-sm text-muted-foreground">
+                    No VPCs found matching "{searchTerm}"
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {error && (
+        <p className="text-sm text-red-600 mt-1">{error}</p>
+      )}
+    </div>
   )
 }
 

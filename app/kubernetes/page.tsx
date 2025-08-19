@@ -4,16 +4,18 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { PageShell } from "@/components/page-shell"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ActionMenu } from "@/components/action-menu"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
+import { StatusBadge } from "@/components/status-badge"
+
 import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ClusterDeleteModal } from "@/components/mks/cluster-delete-modal"
 import { ClusterUpgradeModal } from "@/components/mks/cluster-upgrade-modal"
 import { mockMKSClusters, type MKSCluster, isK8sVersionDeprecated, getNextK8sVersion } from "@/lib/mks-data"
-import { MoreHorizontal, Plus, ExternalLink, Clock, CheckCircle, AlertCircle, XCircle, AlertTriangle } from "lucide-react"
+import { MoreVertical, ExternalLink, Clock, CheckCircle, AlertCircle, XCircle, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 
 export default function MKSDashboardPage() {
@@ -133,11 +135,140 @@ export default function MKSDashboardPage() {
     }, 3000)
   }
 
+  const handleRefresh = () => {
+    console.log("🔄 Refreshing Kubernetes cluster data at:", new Date().toLocaleTimeString())
+  }
+
+  // Define columns for ShadcnDataTable (matching VPC pattern)
+  const columns = [
+    {
+      key: "name",
+      label: "Cluster Name", 
+      sortable: true,
+      searchable: true,
+      render: (value: string, row: any) => (
+        <Link 
+          href={`/kubernetes/clusters/${row.id}`}
+          className="text-primary font-medium hover:underline leading-5"
+        >
+          {row.name}
+        </Link>
+      ),
+    },
+    {
+      key: "region",
+      label: "Region",
+      sortable: true,
+      render: (value: string) => (
+        <Badge variant="secondary" className="text-xs">
+          {getRegionDisplayName(value)}
+        </Badge>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      sortable: true,
+      render: (value: string) => <StatusBadge status={value} />,
+    },
+    {
+      key: "k8sVersion",
+      label: "K8s Version", 
+      sortable: true,
+      render: (value: string, row: any) => (
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="font-mono text-xs">
+            {value}
+          </Badge>
+          {isK8sVersionDeprecated(value) && (
+            <Tooltip>
+              <TooltipTrigger>
+                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Upgrade your cluster's kubernetes version. EOL of this version has been reached and we have deprecated this version and is no longer supported.</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "nodeCount",
+      label: "Node Count",
+      sortable: true,
+      align: "center" as const,
+      render: (value: number) => (
+        <div className="text-center font-medium leading-5">{value}</div>
+      ),
+    },
+    {
+      key: "tags",
+      label: "Tags",
+      searchable: true,
+      render: (value: string[]) => {
+        const displayTags = value.slice(0, 2);
+        const remainingCount = value.length - 2;
+        
+        return (
+          <div className="flex flex-wrap gap-2 max-w-xs">
+            {displayTags.map((tag, index) => (
+              <Badge key={index} variant="secondary" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+            {remainingCount > 0 && (
+              <TooltipWrapper content={value.slice(2).join(', ')}>
+                <Badge variant="outline" className="text-xs cursor-help">
+                  +{remainingCount}
+                </Badge>
+              </TooltipWrapper>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: "createdAt",
+      label: "Created On",
+      sortable: true,
+      render: (value: string) => {
+        const date = new Date(value);
+        return (
+          <div className="text-muted-foreground leading-5">
+            {date.toLocaleDateString()} {date.toLocaleTimeString()}
+          </div>
+        );
+      },
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "right" as const,
+      render: (value: any, row: any) => (
+        <div className="flex justify-end">
+          <ActionMenu
+            viewHref={`/kubernetes/clusters/${row.id}`}
+            editHref={`/kubernetes/clusters/${row.id}/edit`}
+            onCustomDelete={() => handleDeleteCluster(row)}
+            resourceName={row.name}
+            resourceType="Cluster"
+            customActions={[
+              {
+                label: "Upgrade Cluster",
+                onClick: () => handleUpgradeCluster(row)
+              }
+            ]}
+          />
+        </div>
+      ),
+    },
+  ]
+
 
 
   const headerActions = filteredClusters.length > 0 ? (
     <Button onClick={handleCreateCluster} className="bg-black text-white hover:bg-black/90">
-      <Plus className="h-4 w-4" />
       Create Cluster
     </Button>
   ) : undefined
@@ -164,128 +295,18 @@ export default function MKSDashboardPage() {
             }
           />
         ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>Kubernetes Clusters</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Showing clusters from Bangalore and Hyderabad regions
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b transition-colors bg-muted hover:bg-muted/80">
-                      <TableHead className="h-10 px-4 text-left align-middle font-medium text-muted-foreground rounded-tl-md">
-                        Cluster Name
-                      </TableHead>
-                      <TableHead className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Region
-                      </TableHead>
-                      <TableHead className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Status
-                      </TableHead>
-                      <TableHead className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                        K8s Version
-                      </TableHead>
-                      <TableHead className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Node Count
-                      </TableHead>
-                      <TableHead className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Age
-                      </TableHead>
-                      <TableHead className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Tags
-                      </TableHead>
-                      <TableHead className="h-10 px-4 text-left align-middle font-medium text-muted-foreground rounded-tr-md">
-                        Actions
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredClusters.map((cluster) => (
-                      <TableRow key={cluster.id} className="border-b transition-colors hover:bg-muted/50">
-                        <TableCell className="p-4">
-                          <Link 
-                            href={`/kubernetes/clusters/${cluster.id}`}
-                            className="text-primary font-medium hover:underline leading-5"
-                          >
-                            {cluster.name}
-                          </Link>
-                        </TableCell>
-                        <TableCell className="p-4">
-                          <Badge variant="outline" className="font-mono text-xs">
-                            {getRegionDisplayName(cluster.region)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="p-4">
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(cluster.status)}
-                            <Badge variant={getStatusBadgeVariant(cluster.status)}>
-                              {cluster.status}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell className="p-4">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="font-mono text-xs">
-                              {cluster.k8sVersion}
-                            </Badge>
-                            {isK8sVersionDeprecated(cluster.k8sVersion) && (
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Upgrade your cluster's kubernetes version. EOL of this version has been reached and we have deprecated this version and is no longer supported.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="p-4">
-                          <span className="font-medium leading-5">{cluster.nodeCount}</span>
-                        </TableCell>
-                        <TableCell className="p-4">
-                          <span className="text-muted-foreground leading-5">
-                            {formatAge(cluster.createdAt)}
-                          </span>
-                        </TableCell>
-                        <TableCell className="p-4">
-                          <div className="max-w-xs truncate leading-5" title={cluster.tags.join(', ')}>
-                            {cluster.tags.join(', ')}
-                          </div>
-                        </TableCell>
-                        <TableCell className="p-4">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleEditCluster(cluster)}>
-                                Edit Cluster
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleUpgradeCluster(cluster)}>
-                                Upgrade Cluster
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => handleDeleteCluster(cluster)}
-                                className="text-red-600 focus:text-red-600"
-                              >
-                                Delete Cluster
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+          <ShadcnDataTable 
+            columns={columns} 
+            data={filteredClusters}
+            searchableColumns={["name", "tags"]}
+            pageSize={10}
+            enableSearch={true}
+            enableColumnVisibility={false}
+            enablePagination={true}
+            onRefresh={handleRefresh}
+            enableAutoRefresh={true}
+            enableVpcFilter={false}
+          />
         )}
 
         <ClusterDeleteModal

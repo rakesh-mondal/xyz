@@ -210,7 +210,7 @@ const navigationConfig = {
     subItems: [
       {
         href: "/kubernetes",
-        label: "KKS",
+        label: "Managed Kubernetes",
       },
     ],
   },
