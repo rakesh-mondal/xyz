@@ -29,7 +29,9 @@ import {
   Network,
   Monitor,
   Package,
-  GitBranch
+  GitBranch,
+  Download,
+  Key
 } from "lucide-react"
 import { getClusterById, type MKSCluster, isK8sVersionDeprecated, getNextK8sVersion, getRegionDisplayName } from "@/lib/mks-data"
 import { ClusterOverview } from "@/components/mks/cluster-overview"
@@ -46,6 +48,7 @@ export default function ClusterDetailsPage() {
   // Modal states
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isKubeconfigModalOpen, setIsKubeconfigModalOpen] = useState(false)
   const [deleteConfirmation, setDeleteConfirmation] = useState("")
   const [isDeleteLoading, setIsDeleteLoading] = useState(false)
 
@@ -95,6 +98,13 @@ export default function ClusterDetailsPage() {
     }
   }
 
+  const handleDownloadKubeconfig = () => {
+    // In a real implementation, this would generate and download the kubeconfig file
+    console.log('Downloading kubeconfig for cluster:', cluster.id)
+    setIsKubeconfigModalOpen(false)
+    // Show success message
+  }
+
   const headerActions = (
     <div className="flex items-center gap-2">
       {isUpgradeAvailable && (
@@ -108,10 +118,10 @@ export default function ClusterDetailsPage() {
       )}
       <Button 
         variant="outline"
-        onClick={() => router.push(`/kubernetes/clusters/${cluster.id}/edit`)}
+        onClick={() => setIsKubeconfigModalOpen(true)}
       >
-        <Server className="h-4 w-4 mr-2" />
-        Edit Cluster
+        <Download className="h-4 w-4 mr-2" />
+        Download Kubeconfig
       </Button>
       <Button 
         variant="destructive"
@@ -158,6 +168,64 @@ export default function ClusterDetailsPage() {
           <CostEstimation cluster={cluster} />
         </div>
       </div>
+
+      {/* Download Kubeconfig Modal */}
+      <Dialog open={isKubeconfigModalOpen} onOpenChange={setIsKubeconfigModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5" />
+              Download Kubeconfig
+            </DialogTitle>
+            <DialogDescription>
+              Download the kubeconfig file to connect to your cluster using kubectl or other Kubernetes tools.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Important:</strong> This kubeconfig file uses token-based authentication. 
+                The authentication token will expire in <strong>15 minutes</strong> for security reasons.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">What you'll get:</h4>
+              <ul className="text-sm space-y-1 text-muted-foreground">
+                <li>• Cluster API endpoint configuration</li>
+                <li>• Authentication token (valid for 15 minutes)</li>
+                <li>• Cluster CA certificate</li>
+                <li>• Context configuration for kubectl</li>
+              </ul>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h4 className="font-medium text-blue-900 mb-2">Usage Instructions:</h4>
+              <ol className="text-sm space-y-1 text-blue-800">
+                <li>1. Download the kubeconfig file</li>
+                <li>2. Set KUBECONFIG environment variable or use --kubeconfig flag</li>
+                <li>3. Run kubectl commands within 15 minutes</li>
+                <li>4. Re-download if token expires</li>
+              </ol>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsKubeconfigModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleDownloadKubeconfig}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download Kubeconfig
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Upgrade Cluster Modal */}
       <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
