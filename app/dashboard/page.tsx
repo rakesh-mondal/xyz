@@ -2,6 +2,10 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { VMAnimatedPieChart } from "@/components/ui/vm-animated-pie-chart"
+import { StorageAnimatedBarChart } from "@/components/ui/storage-animated-bar-chart"
+import { ObjectStorageAnimatedChart } from "@/components/ui/object-storage-animated-chart"
+import { AiPodsAnimatedChart } from "@/components/ui/ai-pods-animated-chart"
 import { Activity, CreditCard, DollarSign, Users, Server, Database, Cpu, BarChart3, Plus, ExternalLink, MapPin, BookOpen, Shield, Key, Code, Globe, Brain, FileText } from "lucide-react"
 import { VirtualMachinesIcon } from "@/components/icons/virtual-machines-icon"
 import { BlockStorageIcon } from "@/components/icons/block-storage-icon"
@@ -17,6 +21,7 @@ import { ComputeIcon } from "@/components/icons/compute-icon"
 import { CommandPaletteProvider } from "@/components/command/command-palette-provider"
 import { AccessBanner } from "@/components/access-control/access-banner"
 import { FeatureRestriction } from "@/components/access-control/feature-restriction"
+import { MaintenanceBanner } from "@/components/maintenance-banner"
 import { Button } from "@/components/ui/button"
 import { Stepper, StepperItem, StepperIndicator, StepperTitle, StepperDescription, StepperSeparator, StepperNav, StepperPanel, StepperContent } from '@/components/ui/stepper'
 import { Badge } from "@/components/ui/badge"
@@ -250,6 +255,7 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
     },
     blockStorage: {
       totalAllocatedSize: 256,
+      totalCapacity: 500,
       volumeCount: 15,
       icon: BlockStorageIcon,
       color: "bg-green-100 text-green-700", 
@@ -257,7 +263,8 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
     },
     objectStorage: {
       storageUsed: 45.2,
-      totalBuckets: 8,
+      totalCapacity: 100,
+      totalBuckets: 25,
       icon: ObjectStorageIcon,
       color: "bg-purple-100 text-purple-700",
       href: "/storage/object"
@@ -270,6 +277,8 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
       href: "/compute/ai-pods"
     }
   };
+
+
 
   return (
     <div className="space-y-6">
@@ -299,16 +308,46 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Active VMs</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.virtualMachines.activeVMs}</span>
+                <div>
+                  {/* Animated Pie Chart */}
+                  <div className="relative pb-1">
+                    <VMAnimatedPieChart 
+                      activeVMs={resourceData.virtualMachines.activeVMs}
+                      totalVMs={resourceData.virtualMachines.totalVMs}
+                      className="h-[160px]"
+                    />
+                    
+                    {/* Center Text Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-black drop-shadow-sm">
+                          {resourceData.virtualMachines.totalVMs}
+                        </div>
+                        <div className="text-xs text-gray-700 mt-0.5 font-semibold">
+                          Total VMs
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total VMs</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.virtualMachines.totalVMs}</span>
+                  
+                  {/* VM Status Indicators */}
+                  <div className="flex items-center justify-center gap-2 py-2 pb-3">
+                    <div className="flex shrink-0 items-center rounded-full border border-green-200 bg-green-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#4CAF50]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-green-800">
+                        {resourceData.virtualMachines.activeVMs} Active
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center rounded-full border border-gray-200 bg-gray-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#e5e7eb]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-gray-600">
+                        {resourceData.virtualMachines.totalVMs - resourceData.virtualMachines.activeVMs} Inactive
+                      </span>
+                    </div>
                   </div>
-                  <div className="pt-2">
+                  
+                  {/* Manage VMs Button */}
+                  <div>
                     <Button variant="outline" size="sm" className="w-full hover:bg-black hover:text-white hover:border-black" asChild>
                       <HoverArrowLink href={resourceData.virtualMachines.href} variant="button" showIcon={false}>Manage VMs</HoverArrowLink>
                     </Button>
@@ -328,16 +367,35 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total Allocated</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.blockStorage.totalAllocatedSize} GB</span>
+                <div>
+                  {/* Animated Bar Chart */}
+                  <div className="relative pb-1">
+                    <StorageAnimatedBarChart 
+                      allocatedGB={resourceData.blockStorage.totalAllocatedSize}
+                      totalCapacityGB={resourceData.blockStorage.totalCapacity}
+                      volumeCount={resourceData.blockStorage.volumeCount}
+                      className="h-[160px]"
+                    />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Volume Count</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.blockStorage.volumeCount}</span>
+                  
+                  {/* Storage Status Indicators */}
+                  <div className="flex items-center justify-center gap-2 py-2 pb-3">
+                    <div className="flex shrink-0 items-center rounded-full border border-green-200 bg-green-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#10b981]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-green-800">
+                        {resourceData.blockStorage.totalAllocatedSize} GB Used
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center rounded-full border border-gray-200 bg-gray-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#e5e7eb]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-gray-600">
+                        {resourceData.blockStorage.volumeCount} Volumes
+                      </span>
+                    </div>
                   </div>
-                  <div className="pt-2">
+                  
+                  {/* Manage Block Storage Button */}
+                  <div>
                     <Button variant="outline" size="sm" className="w-full hover:bg-black hover:text-white hover:border-black" asChild>
                       <HoverArrowLink href={resourceData.blockStorage.href} variant="button" showIcon={false}>Manage Block Storage</HoverArrowLink>
                     </Button>
@@ -357,16 +415,35 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Storage Used</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.objectStorage.storageUsed} GB</span>
+                <div>
+                  {/* Animated Bucket Chart */}
+                  <div className="relative pb-1">
+                    <ObjectStorageAnimatedChart 
+                      storageUsed={resourceData.objectStorage.storageUsed}
+                      totalCapacity={resourceData.objectStorage.totalCapacity}
+                      totalBuckets={resourceData.objectStorage.totalBuckets}
+                      className="h-[160px]"
+                    />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total Buckets</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.objectStorage.totalBuckets}</span>
+                  
+                  {/* Object Storage Status Indicators */}
+                  <div className="flex items-center justify-center gap-2 py-2 pb-3">
+                    <div className="flex shrink-0 items-center rounded-full border border-sky-200 bg-sky-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#0ea5e9]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-sky-800">
+                        {resourceData.objectStorage.storageUsed} GB Used
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center rounded-full border border-gray-200 bg-gray-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#e5e7eb]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-gray-600">
+                        {resourceData.objectStorage.totalBuckets} Buckets
+                      </span>
+                    </div>
                   </div>
-                  <div className="pt-2">
+                  
+                  {/* Manage Object Storage Button */}
+                  <div>
                     <Button variant="outline" size="sm" className="w-full hover:bg-black hover:text-white hover:border-black" asChild>
                       <HoverArrowLink href={resourceData.objectStorage.href} variant="button" showIcon={false}>Manage Object Storage</HoverArrowLink>
                     </Button>
@@ -386,16 +463,34 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Active Pods</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.aiPods.activePods}</span>
+                <div>
+                  {/* Animated Pod Cluster Chart */}
+                  <div className="relative pb-1">
+                    <AiPodsAnimatedChart 
+                      activePods={resourceData.aiPods.activePods}
+                      totalPods={resourceData.aiPods.totalPods}
+                      className="h-[160px]"
+                    />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total Pods</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.aiPods.totalPods}</span>
+                  
+                  {/* AI Pods Status Indicators */}
+                  <div className="flex items-center justify-center gap-2 py-2 pb-3">
+                    <div className="flex shrink-0 items-center rounded-full border border-orange-200 bg-orange-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#f59e0b]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-orange-800">
+                        {resourceData.aiPods.activePods} Active
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center rounded-full border border-gray-200 bg-gray-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#e5e7eb]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-gray-600">
+                        {resourceData.aiPods.totalPods - resourceData.aiPods.activePods} Inactive
+                      </span>
+                    </div>
                   </div>
-                  <div className="pt-2">
+                  
+                  {/* Manage AI Pods Button */}
+                  <div>
                     <Button variant="outline" size="sm" className="w-full hover:bg-black hover:text-white hover:border-black" asChild>
                       <HoverArrowLink href={resourceData.aiPods.href} variant="button" showIcon={false}>Manage AI Pods</HoverArrowLink>
                     </Button>
@@ -631,6 +726,7 @@ export default function DashboardPage() {
     <CommandPaletteProvider>
       <div className="space-y-4 flex flex-col min-h-screen pb-12">
         <AccessBanner onCompleteProfile={handleVerifyIdentity} />
+        <MaintenanceBanner />
 
         {/* Welcome Message */}
         <div className="mb-2">
