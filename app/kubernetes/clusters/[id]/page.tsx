@@ -2,7 +2,10 @@
 
 import { useParams, useRouter } from "next/navigation"
 import { useState } from "react"
-import { PageShell } from "@/components/page-shell"
+import { PageLayout } from "@/components/page-layout"
+import { DetailGrid } from "@/components/detail-grid"
+import { StatusBadge } from "@/components/status-badge"
+import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -31,13 +34,13 @@ import {
   Package,
   GitBranch,
   Download,
-  Key
+  Key,
+  Edit
 } from "lucide-react"
 import { getClusterById, type MKSCluster, isK8sVersionDeprecated, getNextK8sVersion, getRegionDisplayName } from "@/lib/mks-data"
-import { ClusterOverview } from "@/components/mks/cluster-overview"
 import { NodePoolsSection } from "@/components/mks/node-pools-section"
 import { AddOnsSection } from "@/components/mks/add-ons-section"
-import { CostEstimation } from "@/components/mks/cost-estimation"
+
 
 export default function ClusterDetailsPage() {
   const params = useParams()
@@ -54,7 +57,7 @@ export default function ClusterDetailsPage() {
 
   if (!cluster) {
     return (
-      <PageShell title="Cluster Not Found">
+      <PageLayout title="Cluster Not Found">
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-12">
@@ -66,7 +69,7 @@ export default function ClusterDetailsPage() {
             </div>
           </CardContent>
         </Card>
-      </PageShell>
+      </PageLayout>
     )
   }
 
@@ -74,28 +77,21 @@ export default function ClusterDetailsPage() {
   const isUpgradeAvailable = nextVersion !== null
   const isDeprecated = isK8sVersionDeprecated(cluster.k8sVersion)
 
+  const handleEdit = () => {
+    router.push(`/kubernetes/clusters/${cluster.id}/edit`)
+  }
+
+  const handleDelete = () => {
+    // In a real app, this would delete the cluster
+    console.log("Deleting cluster:", cluster.name)
+    router.push("/kubernetes")
+  }
+
   const handleUpgradeCluster = () => {
     // In a real implementation, this would trigger the upgrade process
     console.log('Upgrading cluster to version:', nextVersion)
     setIsUpgradeModalOpen(false)
     // Show success message
-  }
-
-  const handleDeleteCluster = async () => {
-    if (deleteConfirmation !== cluster.name) return
-
-    setIsDeleteLoading(true)
-    try {
-      // In a real implementation, this would delete the cluster
-      console.log('Deleting cluster:', cluster.id)
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate API call
-      router.push('/kubernetes')
-    } catch (error) {
-      console.error('Failed to delete cluster:', error)
-    } finally {
-      setIsDeleteLoading(false)
-      setIsDeleteModalOpen(false)
-    }
   }
 
   const handleDownloadKubeconfig = () => {
@@ -105,69 +101,172 @@ export default function ClusterDetailsPage() {
     // Show success message
   }
 
+  // Format created date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
+  }
+
+  const customBreadcrumbs = [
+    { href: "/dashboard", title: "Home" },
+    { href: "/kubernetes", title: "Kubernetes" },
+    { href: "/kubernetes", title: "Clusters" },
+    { href: `/kubernetes/clusters/${cluster.id}`, title: cluster.name }
+  ]
+
   const headerActions = (
-    <div className="flex items-center gap-2">
-      {isUpgradeAvailable && (
-        <Button 
-          onClick={() => setIsUpgradeModalOpen(true)}
-          className="bg-blue-600 text-white hover:bg-blue-700"
-        >
-          <ArrowUpRight className="h-4 w-4 mr-2" />
-          Upgrade Cluster
-        </Button>
-      )}
-      <Button 
-        variant="outline"
-        onClick={() => setIsKubeconfigModalOpen(true)}
-      >
-        <Download className="h-4 w-4 mr-2" />
-        Download Kubeconfig
-      </Button>
-      <Button 
-        variant="destructive"
-        onClick={() => setIsDeleteModalOpen(true)}
-      >
-        <Trash2 className="h-4 w-4 mr-2" />
-        Delete Cluster
-      </Button>
-    </div>
+    <Button 
+      variant="outline"
+      onClick={() => setIsKubeconfigModalOpen(true)}
+      size="sm"
+    >
+      <Download className="h-4 w-4 mr-2" />
+      Download Kubeconfig
+    </Button>
   )
 
   return (
-    <PageShell
-      title={cluster.name}
-      description={`Kubernetes cluster in ${getRegionDisplayName(cluster.region)}`}
+    <PageLayout 
+      title={cluster.name} 
+      customBreadcrumbs={customBreadcrumbs} 
       headerActions={headerActions}
-      customBreadcrumbs={[
-        { title: 'Kubernetes', href: '/kubernetes' },
-        { title: 'Clusters', href: '/kubernetes' },
-        { title: cluster.name, href: `/kubernetes/clusters/${cluster.id}` }
-      ]}
+      hideViewDocs={true}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content - Left Side */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Cluster Overview */}
-          <ClusterOverview cluster={cluster} />
+      {/* Cluster Basic Information */}
+      <div className="mb-6 group relative" style={{
+        borderRadius: '16px',
+        border: '4px solid #FFF',
+        background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+        boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+        padding: '1.5rem'
+      }}>
+        {/* Overlay Edit/Delete Buttons */}
+        {cluster.status !== "deleting" && (
+          <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleEdit}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        
+        <DetailGrid>
+          {/* Cluster ID, Region, Status, Created On in first row */}
+          <div className="col-span-full grid grid-cols-4 gap-4 mt-2">
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Cluster ID</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.id}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Region</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{getRegionDisplayName(cluster.region)}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
+              <div>
+                <StatusBadge status={cluster.status} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Created On</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{formatDate(cluster.createdAt)}</div>
+            </div>
+          </div>
 
-          {/* Node Pools Section */}
-          <NodePoolsSection 
-            cluster={cluster} 
-            onUpdate={setCluster}
-          />
-
-          {/* Add-ons Section */}
-          <AddOnsSection 
-            cluster={cluster} 
-            onUpdate={setCluster}
-          />
-        </div>
-
-        {/* Right Sidebar - Only Cost Estimation */}
-        <div className="space-y-6">
-          <CostEstimation cluster={cluster} />
-        </div>
+          {/* Total Nodes, VPC, Subnets, Node Pools in second row */}
+          <div className="col-span-full grid grid-cols-4 gap-4 mt-4">
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Total Nodes</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.nodeCount}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VPC</label>
+              <div className="font-medium font-mono" style={{ fontSize: '14px' }}>{cluster.vpcId}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnets</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.subnetIds.length}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Node Pools</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.nodePools.length}</div>
+            </div>
+          </div>
+          
+          {/* Kubernetes Version and API Endpoint on same row */}
+          <div className="col-span-full grid grid-cols-2 gap-4 mt-4">
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Kubernetes Version</label>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="font-mono">
+                  {cluster.k8sVersion}
+                </Badge>
+                {isDeprecated && (
+                  <Badge variant="destructive" className="text-xs">
+                    Deprecated
+                  </Badge>
+                )}
+              </div>
+              {isUpgradeAvailable && (
+                <div className="text-sm text-gray-700 mt-2">
+                  <strong>Upgrade Available:</strong> A newer Kubernetes version ({nextVersion}) is available for your cluster. 
+                  Upgrading will provide security patches and new features.
+                  <Button 
+                    onClick={() => setIsUpgradeModalOpen(true)}
+                    variant="link"
+                    className="ml-1 p-0 h-auto text-blue-600 hover:text-blue-700 font-medium"
+                    size="sm"
+                  >
+                    Upgrade Now
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>API Endpoint</label>
+              <div className="bg-muted/50 p-3 rounded-lg">
+                <code className="text-sm font-mono break-all">
+                  {cluster.kubeApiEndpoint}
+                </code>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Public Access</span>
+              </div>
+            </div>
+          </div>
+        </DetailGrid>
       </div>
+
+
+
+      {/* Node Pools Section */}
+      <div className="mb-8">
+        <NodePoolsSection 
+          cluster={cluster} 
+        />
+      </div>
+
+      {/* Add-ons Section */}
+      <div className="mb-8">
+        <AddOnsSection 
+          cluster={cluster} 
+        />
+      </div>
+
+
 
       {/* Download Kubeconfig Modal */}
       <Dialog open={isKubeconfigModalOpen} onOpenChange={setIsKubeconfigModalOpen}>
@@ -271,84 +370,13 @@ export default function ClusterDetailsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Cluster Modal */}
-      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-red-600">Delete Cluster</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. All data, applications, and persistent volumes 
-              associated with this cluster will be permanently deleted.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {cluster.nodePools.length > 0 && (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Cannot delete cluster:</strong> This cluster has {cluster.nodePools.length} node pool(s) 
-                with {cluster.nodeCount} total nodes. You must delete all node pools before deleting the cluster.
-              </AlertDescription>
-            </Alert>
-          )}
-          
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <h4 className="font-medium mb-2">Cluster Details:</h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Name:</span>
-                <span className="font-medium">{cluster.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Region:</span>
-                <span className="font-medium">{getRegionDisplayName(cluster.region)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Node Pools:</span>
-                <span className="font-medium">{cluster.nodePools.length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Nodes:</span>
-                <span className="font-medium">{cluster.nodeCount}</span>
-              </div>
-            </div>
-          </div>
-
-          {cluster.nodePools.length === 0 ? (
-            <div className="space-y-2">
-              <Label htmlFor="delete-confirmation">
-                Type <strong>{cluster.name}</strong> to confirm deletion:
-              </Label>
-              <Input
-                id="delete-confirmation"
-                value={deleteConfirmation}
-                onChange={(e) => setDeleteConfirmation(e.target.value)}
-                placeholder={cluster.name}
-              />
-            </div>
-          ) : (
-            <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-              <AlertTriangle className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-              <p className="text-sm text-yellow-800">
-                Delete all node pools first to proceed with cluster deletion.
-              </p>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              variant="destructive"
-              onClick={handleDeleteCluster}
-              disabled={cluster.nodePools.length > 0 || deleteConfirmation !== cluster.name || isDeleteLoading}
-            >
-              {isDeleteLoading ? 'Deleting...' : 'Delete Cluster'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </PageShell>
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        resourceName={cluster.name}
+        resourceType="Cluster"
+        onConfirm={handleDelete}
+      />
+    </PageLayout>
   )
 }

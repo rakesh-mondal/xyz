@@ -1,43 +1,21 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Separator } from "@/components/ui/separator"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { 
-  Package, 
-  Edit, 
-  Save, 
-  X, 
-  AlertTriangle, 
-  CheckCircle,
   Monitor,
   Network,
   Shield,
   HardDrive,
   GitBranch,
-  Info
+  Package
 } from "lucide-react"
-import { type MKSCluster, type MKSAddOn } from "@/lib/mks-data"
+import { type MKSCluster } from "@/lib/mks-data"
 
 interface AddOnsSectionProps {
   cluster: MKSCluster
-  onUpdate: (updatedCluster: MKSCluster) => void
 }
 
-export function AddOnsSection({ cluster, onUpdate }: AddOnsSectionProps) {
-  // Add-ons editing state
-  const [isAddOnsEditing, setIsAddOnsEditing] = useState(false)
-  const [addOnsChanges, setAddOnsChanges] = useState<Record<string, boolean>>({})
-  const [hasAddOnsChanges, setHasAddOnsChanges] = useState(false)
-  
-  // Add-ons confirmation modal state
-  const [isAddOnsConfirmOpen, setIsAddOnsConfirmOpen] = useState(false)
-  const [pendingAddOnsChanges, setPendingAddOnsChanges] = useState<Record<string, boolean>>({})
+export function AddOnsSection({ cluster }: AddOnsSectionProps) {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -73,256 +51,67 @@ export function AddOnsSection({ cluster, onUpdate }: AddOnsSectionProps) {
     }
   }
 
-  // Start add-ons editing
-  const startAddOnsEditing = () => {
-    const initialChanges: Record<string, boolean> = {}
-    cluster.addOns.forEach(addon => {
-      initialChanges[addon.id] = addon.isEnabled
-    })
-    setAddOnsChanges(initialChanges)
-    setIsAddOnsEditing(true)
-  }
 
-  // Save add-ons changes
-  const saveAddOnsChanges = () => {
-    // Show confirmation modal for add-ons changes
-    const removedAddOns = cluster.addOns.filter(addon => 
-      addon.isEnabled && !addOnsChanges[addon.id]
-    )
-    const addedDefaultAddOns = cluster.addOns.filter(addon => 
-      !addon.isEnabled && addOnsChanges[addon.id] && addon.isDefault
-    )
-
-    if (removedAddOns.length > 0 || addedDefaultAddOns.length > 0) {
-      setPendingAddOnsChanges(addOnsChanges)
-      setIsAddOnsConfirmOpen(true)
-    } else {
-      // No conflicts, save directly
-      applyAddOnsChanges(addOnsChanges)
-    }
-  }
-
-  // Apply add-ons changes after confirmation
-  const applyAddOnsChanges = (changes: Record<string, boolean>) => {
-    const updatedAddOns = cluster.addOns.map(addon => ({
-      ...addon,
-      isEnabled: changes[addon.id] ?? addon.isEnabled
-    }))
-
-    const updatedCluster = {
-      ...cluster,
-      addOns: updatedAddOns
-    }
-
-    onUpdate(updatedCluster)
-    setHasAddOnsChanges(false)
-    setIsAddOnsEditing(false)
-    setIsAddOnsConfirmOpen(false)
-  }
-
-  // Cancel add-ons changes
-  const cancelAddOnsChanges = () => {
-    setAddOnsChanges({})
-    setHasAddOnsChanges(false)
-    setIsAddOnsEditing(false)
-  }
-
-  // Handle add-on toggle
-  const handleAddOnToggle = (addonId: string, enabled: boolean) => {
-    setAddOnsChanges(prev => ({
-      ...prev,
-      [addonId]: enabled
-    }))
-    setHasAddOnsChanges(true)
-  }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Add-ons Configuration
-          </CardTitle>
-          <div className="flex items-center gap-2">
-            {isAddOnsEditing ? (
-              <>
-                <Button variant="outline" size="sm" onClick={cancelAddOnsChanges}>
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-                <Button 
-                  size="sm" 
-                  onClick={saveAddOnsChanges}
-                  disabled={!hasAddOnsChanges}
-                  className="bg-black text-white hover:bg-black/90"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </>
-            ) : (
-              <Button onClick={startAddOnsEditing} variant="outline" size="sm">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Add-ons
-              </Button>
-            )}
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Enable or disable add-ons for your cluster. Some add-ons are required for basic functionality.
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div className="bg-card text-card-foreground border-border border rounded-lg">
+      <div className="p-6 pb-4">
+        <h3 className="text-lg font-semibold">
+          Add-ons Configuration
+        </h3>
+      </div>
+      <div className="px-6 pb-6">
         {/* Add-ons Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {cluster.addOns.map((addon) => (
             <div
               key={addon.id}
-              className={`p-4 rounded-lg border-2 transition-all ${
-                isAddOnsEditing 
-                  ? 'border-blue-200 bg-blue-50' 
-                  : 'border-border bg-card'
-              }`}
+              className="p-4 rounded-lg border border-border hover:border-gray-300 transition-colors bg-card"
             >
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   {getCategoryIcon(addon.category)}
-                  <div>
-                    <h4 className="font-medium text-sm">{addon.displayName}</h4>
-                    <Badge 
-                      className={`text-xs border ${getCategoryColor(addon.category)}`}
-                    >
-                      {addon.category}
-                    </Badge>
-                  </div>
+                  <h4 className="font-medium text-sm">{addon.displayName}</h4>
                 </div>
                 <div className="flex items-center gap-2">
+                  <span 
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold cursor-default ${getCategoryColor(addon.category)}`}
+                  >
+                    {addon.category}
+                  </span>
                   {addon.isDefault && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge 
+                      variant="secondary" 
+                      className="text-xs cursor-default hover:bg-secondary hover:text-secondary-foreground"
+                    >
                       Default
                     </Badge>
                   )}
-                  <Switch
-                    checked={isAddOnsEditing ? (addOnsChanges[addon.id] ?? addon.isEnabled) : addon.isEnabled}
-                    onCheckedChange={(enabled) => {
-                      if (isAddOnsEditing) {
-                        handleAddOnToggle(addon.id, enabled)
-                      }
-                    }}
-                    disabled={!isAddOnsEditing || !addon.isEditable}
-                  />
+                  <Badge 
+                    variant="secondary"
+                    className={`text-xs cursor-default ${
+                      addon.status === 'active' 
+                        ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100 hover:text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100 hover:text-yellow-800'
+                    }`}
+                  >
+                    {addon.status}
+                  </Badge>
                 </div>
               </div>
               
-              <p className="text-sm text-muted-foreground mb-3">
-                {addon.description}
-              </p>
-              
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Version: {addon.version}</span>
-                <span className={`px-2 py-1 rounded ${
-                  addon.status === 'active' 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'bg-yellow-100 text-yellow-700'
-                }`}>
-                  {addon.status}
-                </span>
+              <div className="space-y-2 ml-6">
+                <div className="text-xs text-muted-foreground">
+                  Version: {addon.version}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {addon.description}
+                </p>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Edit Mode Warnings */}
-        {isAddOnsEditing && (
-          <div className="space-y-4">
-            <Alert className="border-blue-200 bg-blue-50">
-              <Info className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-800">
-                <strong>Edit Mode:</strong> Toggle add-ons ON/OFF as needed. Default add-ons are essential 
-                for cluster functionality. Disabling them may require manual replacement.
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
-      </CardContent>
-
-      {/* Add-ons Confirmation Modal */}
-      <Dialog open={isAddOnsConfirmOpen} onOpenChange={setIsAddOnsConfirmOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Confirm Add-ons Changes</DialogTitle>
-            <DialogDescription>
-              Please review the following changes and confirm to proceed.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            {(() => {
-              const removedAddOns = cluster.addOns.filter(addon => 
-                addon.isEnabled && !pendingAddOnsChanges[addon.id]
-              )
-              const addedDefaultAddOns = cluster.addOns.filter(addon => 
-                !addon.isEnabled && pendingAddOnsChanges[addon.id] && addon.isDefault
-              )
-
-              return (
-                <>
-                  {removedAddOns.length > 0 && (
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Removed Add-ons ({removedAddOns.length}):</strong>
-                        <ul className="mt-2 space-y-1">
-                          {removedAddOns.map(addon => (
-                            <li key={addon.id} className="text-sm">
-                              • {addon.displayName} - {addon.description}
-                            </li>
-                          ))}
-                        </ul>
-                        <p className="mt-2 text-sm">
-                          You will need to manually add analogous add-ons if you need similar functionality.
-                        </p>
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  
-                  {addedDefaultAddOns.length > 0 && (
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Added Default Add-ons ({addedDefaultAddOns.length}):</strong>
-                        <ul className="mt-2 space-y-1">
-                          {addedDefaultAddOns.map(addon => (
-                            <li key={addon.id} className="text-sm">
-                              • {addon.displayName} - {addon.description}
-                            </li>
-                          ))}
-                        </ul>
-                        <p className="mt-2 text-sm">
-                          You may need to remove any conflicting add-ons you have manually declared in your cluster to avoid conflicts.
-                        </p>
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </>
-              )
-            })()}
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddOnsConfirmOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => applyAddOnsChanges(pendingAddOnsChanges)}
-              className="bg-black text-white hover:bg-black/90"
-            >
-              Confirm Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
+      </div>
+    </div>
   )
 }

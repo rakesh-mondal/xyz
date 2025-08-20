@@ -1,14 +1,7 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { 
-  DollarSign, 
-  Server, 
-  Cpu, 
-  MemoryStick, 
-  HardDrive
+  Server
 } from "lucide-react"
 import { type MKSCluster, availableNodeFlavors } from "@/lib/mks-data"
 
@@ -17,21 +10,21 @@ interface CostEstimationProps {
 }
 
 export function CostEstimation({ cluster }: CostEstimationProps) {
-  // Mock pricing data (in a real implementation, this would come from pricing API)
+  // Mock pricing data in Indian Rupees (in a real implementation, this would come from pricing API)
   const pricing = {
     controlPlane: {
-      perHour: 0.50, // $0.50 per hour
-      perMonth: 0.50 * 24 * 30 // $360 per month
+      perHour: 41.50, // ₹41.50 per hour
+      perMonth: 41.50 * 24 * 30 // ₹29,880 per month
     },
     nodePools: {
-      't3.medium': { perHour: 0.0416, perMonth: 30.00 },
-      't3.large': { perHour: 0.0832, perMonth: 60.00 },
-      'm5.large': { perHour: 0.096, perMonth: 69.12 },
-      'm5.xlarge': { perHour: 0.192, perMonth: 138.24 },
-      'c5.large': { perHour: 0.085, perMonth: 61.20 },
-      'c5.xlarge': { perHour: 0.17, perMonth: 122.40 },
-      'r5.large': { perHour: 0.126, perMonth: 90.72 },
-      'r5.xlarge': { perHour: 0.252, perMonth: 181.44 }
+      't3.medium': { perHour: 3.45, perMonth: 2490.00 },
+      't3.large': { perHour: 6.91, perMonth: 4980.00 },
+      'm5.large': { perHour: 7.97, perMonth: 5738.88 },
+      'm5.xlarge': { perHour: 15.94, perMonth: 11477.92 },
+      'c5.large': { perHour: 7.06, perMonth: 5079.60 },
+      'c5.xlarge': { perHour: 14.11, perMonth: 10159.20 },
+      'r5.large': { perHour: 10.46, perMonth: 7529.76 },
+      'r5.xlarge': { perHour: 20.92, perMonth: 15059.52 }
     }
   }
 
@@ -59,9 +52,9 @@ export function CostEstimation({ cluster }: CostEstimationProps) {
   const totalMonthlyCost = pricing.controlPlane.perMonth + totalNodePoolMonthlyCost
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(amount)
@@ -72,14 +65,13 @@ export function CostEstimation({ cluster }: CostEstimationProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <DollarSign className="h-5 w-5" />
+    <div className="bg-card text-card-foreground border-border border rounded-lg">
+      <div className="p-6 pb-4">
+        <h3 className="text-lg font-semibold">
           Cost Estimation
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        </h3>
+      </div>
+      <div className="px-6 pb-6 space-y-4">
         {/* Total Cost Display */}
         <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
           <div className="text-2xl font-bold text-blue-600">
@@ -134,7 +126,7 @@ export function CostEstimation({ cluster }: CostEstimationProps) {
             )
           })}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
