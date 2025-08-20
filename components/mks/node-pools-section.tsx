@@ -11,6 +11,10 @@ interface NodePoolsSectionProps {
 
 export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
 
+  const capitalizeFirstLetter = (text: string) => {
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+  }
+
   const getFlavorDetails = (flavorId: string) => {
     return availableNodeFlavors.find(f => f.id === flavorId)
   }
@@ -44,19 +48,19 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                     
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {isDefault && (
-                        <Badge variant="secondary" className="text-xs h-5">
+                        <Badge variant="secondary" className="text-xs h-5 cursor-default hover:bg-secondary hover:text-secondary-foreground">
                           Default
                         </Badge>
                       )}
                       <Badge 
                         variant="secondary" 
-                        className={`text-xs h-5 ${
+                        className={`text-xs h-5 cursor-default ${
                           pool.status === 'active' 
-                            ? 'bg-green-100 text-green-800 border-green-200' 
-                            : ''
+                            ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100 hover:text-green-800' 
+                            : 'hover:bg-secondary hover:text-secondary-foreground'
                         }`}
                       >
-                        {pool.status}
+                        {capitalizeFirstLetter(pool.status)}
                       </Badge>
                     </div>
                   </div>

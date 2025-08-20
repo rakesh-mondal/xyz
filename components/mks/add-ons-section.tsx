@@ -17,6 +17,10 @@ interface AddOnsSectionProps {
 
 export function AddOnsSection({ cluster }: AddOnsSectionProps) {
 
+  const capitalizeFirstLetter = (text: string) => {
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+  }
+
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'monitoring':
@@ -77,7 +81,7 @@ export function AddOnsSection({ cluster }: AddOnsSectionProps) {
                   <span 
                     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold cursor-default ${getCategoryColor(addon.category)}`}
                   >
-                    {addon.category}
+                    {capitalizeFirstLetter(addon.category)}
                   </span>
                   {addon.isDefault && (
                     <Badge 
@@ -95,7 +99,7 @@ export function AddOnsSection({ cluster }: AddOnsSectionProps) {
                         : 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100 hover:text-yellow-800'
                     }`}
                   >
-                    {addon.status}
+                    {capitalizeFirstLetter(addon.status)}
                   </Badge>
                 </div>
               </div>
