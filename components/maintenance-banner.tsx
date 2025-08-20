@@ -21,7 +21,7 @@ export function MaintenanceBanner({ className }: MaintenanceBannerProps) {
         <div>
           <AlertDescription style={{ color: 'rgb(217, 119, 6)' }}>
             <p className="text-sm font-medium mb-1">
-              <strong>Scheduled GitHub Maintenance Notice:</strong>
+              <strong>Scheduled Maintenance Notice:</strong>
             </p>
             <p className="text-sm">
               Our platform will undergo planned maintenance on <span className="font-semibold">Friday, August 22, 2025, from 6:00 AM IST to 8:00 AM IST</span>, during which services may be temporarily unavailable.
