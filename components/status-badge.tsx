@@ -67,6 +67,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "deploying":
     case "warning":
     case "degraded":
+    case "draining":
       bgColor = "bg-yellow-100"
       textColor = "text-yellow-800"
       break
