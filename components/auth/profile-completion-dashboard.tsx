@@ -878,6 +878,54 @@ export function ProfileCompletionDashboard({
             </ul>
           </CardContent>
         </Card>
+
+        {/* Main Action Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-normal">
+              {isNewUser ? 'Identity Verification' : 'Profile Completion'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {isNewUser 
+                ? 'Complete your identity verification to unlock full access to all cloud services and features.'
+                : 'Complete your profile setup to unlock full access to all cloud services and features.'
+              }
+            </p>
+            <Button
+              onClick={isNewUser ? handleVerifyIdentity : () => {
+                // For existing users, save the form if there are changes, then complete
+                if (hasChanges) {
+                  handleSave()
+                }
+                // Update profile status to mark as complete
+                updateProfileStatus({ 
+                  basicInfoComplete: true,
+                  identityVerified: true 
+                })
+                // Show success modal and trigger completion
+                setShowSuccessModal(true)
+                // Call the completion handler
+                if (onComplete) {
+                  setTimeout(() => {
+                    onComplete()
+                  }, 1500) // Small delay to show success message
+                }
+              }}
+              className="w-full bg-black text-white hover:bg-black/90 transition-colors"
+              disabled={isNewUser ? false : !isProfileSaved && Object.keys(errors).length > 0}
+            >
+              {isNewUser ? 'Verify your identity' : 'Complete Profile'}
+            </Button>
+            {!isNewUser && hasChanges && (
+              <p className="text-xs text-amber-600">
+                Save your changes first to complete your profile
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Change Password Button OUTSIDE the KYC card */}
         <Button
           type="button"

@@ -17,9 +17,6 @@ export function AccessBanner({ onCompleteProfile, className }: AccessBannerProps
   const { user, accessLevel, getUserType } = useAuth()
   const router = useRouter()
 
-  // Hide banner for all users (both new and existing)
-  return null
-
   const userType = getUserType()
   const isNewUser = userType === 'new'
   const isExistingUser = userType === 'existing'
@@ -129,9 +126,6 @@ export function AccessBannerCompact({ onCompleteProfile, className }: AccessBann
   const { user, accessLevel, getUserType } = useAuth()
   const router = useRouter()
 
-  // Hide banner for all users (both new and existing)
-  return null
-
   const userType = getUserType()
   const isNewUser = userType === 'new'
   const isExistingUser = userType === 'existing'
@@ -180,21 +174,25 @@ export function AccessBannerCompact({ onCompleteProfile, className }: AccessBann
     )
   }
 
-  return (
-    <div className={`flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg text-sm ${className}`}>
-      <div className="flex items-center space-x-2">
-        <AlertCircle className="h-4 w-4 text-red-600" />
-        <span className="text-red-800 font-medium">Setup required</span>
+  if (accessLevel === 'none') {
+    return (
+      <div className={`flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg text-sm ${className}`}>
+        <div className="flex items-center space-x-2">
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          <span className="text-red-800 font-medium">Setup required</span>
+        </div>
+        <Button 
+          onClick={handleCompleteProfile}
+          variant="secondary"
+          size="sm"
+          className="text-xs"
+        >
+          Setup
+          <ArrowRight className="ml-1 h-3 w-3" />
+        </Button>
       </div>
-      <Button 
-        onClick={handleCompleteProfile}
-        variant="secondary"
-        size="sm"
-        className="text-xs"
-      >
-        Setup
-        <ArrowRight className="ml-1 h-3 w-3" />
-      </Button>
-    </div>
-  )
+    )
+  }
+
+  return null
 } 
