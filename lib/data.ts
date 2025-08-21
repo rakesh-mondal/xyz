@@ -2515,6 +2515,15 @@ export interface LoadBalancer {
   ipAddresses: string[]
 }
 
+export interface TargetMember {
+  id: string
+  type: "VM" | "Container" | "IP"
+  name: string
+  ipAddress: string
+  port: number
+  status: "healthy" | "unhealthy" | "draining"
+}
+
 export interface TargetGroup {
   id: string
   name: string
@@ -2532,7 +2541,8 @@ export interface TargetGroup {
     unhealthyThreshold: number
   }
   targets: number
-  status: "healthy" | "unhealthy" | "unused"
+  targetMembers: TargetMember[]
+  status: "healthy" | "unhealthy" | "unused" | "degraded"
   loadBalancer?: string
   createdOn: string
 }
@@ -2635,6 +2645,40 @@ export const targetGroups: TargetGroup[] = [
       unhealthyThreshold: 3
     },
     targets: 4,
+    targetMembers: [
+      {
+        id: "vm-web-1",
+        type: "VM",
+        name: "web-server-01",
+        ipAddress: "10.0.1.10",
+        port: 80,
+        status: "healthy"
+      },
+      {
+        id: "vm-web-2", 
+        type: "VM",
+        name: "web-server-02",
+        ipAddress: "10.0.1.11",
+        port: 80,
+        status: "healthy"
+      },
+      {
+        id: "vm-web-3",
+        type: "VM", 
+        name: "web-server-03",
+        ipAddress: "10.0.1.12",
+        port: 80,
+        status: "healthy"
+      },
+      {
+        id: "vm-web-4",
+        type: "VM",
+        name: "web-server-04", 
+        ipAddress: "10.0.1.13",
+        port: 80,
+        status: "healthy"
+      }
+    ],
     status: "healthy",
     loadBalancer: "production-app-lb",
     createdOn: "2023-10-15T09:35:00Z"
@@ -2656,6 +2700,24 @@ export const targetGroups: TargetGroup[] = [
       unhealthyThreshold: 3
     },
     targets: 2,
+    targetMembers: [
+      {
+        id: "vm-api-1",
+        type: "VM",
+        name: "api-server-01",
+        ipAddress: "10.0.2.20",
+        port: 443,
+        status: "healthy"
+      },
+      {
+        id: "vm-api-2",
+        type: "VM", 
+        name: "api-server-02",
+        ipAddress: "10.0.2.21",
+        port: 443,
+        status: "healthy"
+      }
+    ],
     status: "healthy",
     loadBalancer: "production-app-lb",
     createdOn: "2023-10-15T09:40:00Z"
@@ -2677,6 +2739,24 @@ export const targetGroups: TargetGroup[] = [
       unhealthyThreshold: 3
     },
     targets: 2,
+    targetMembers: [
+      {
+        id: "vm-gateway-1",
+        type: "VM",
+        name: "gateway-server-01",
+        ipAddress: "10.0.3.30",
+        port: 8080,
+        status: "healthy"
+      },
+      {
+        id: "vm-gateway-2",
+        type: "VM",
+        name: "gateway-server-02",
+        ipAddress: "10.0.3.31",
+        port: 8080,
+        status: "healthy"
+      }
+    ],
     status: "healthy",
     loadBalancer: "api-gateway-lb",
     createdOn: "2023-11-20T14:20:00Z"
@@ -2697,6 +2777,24 @@ export const targetGroups: TargetGroup[] = [
       unhealthyThreshold: 3
     },
     targets: 2,
+    targetMembers: [
+      {
+        id: "vm-db-1",
+        type: "VM",
+        name: "mysql-primary",
+        ipAddress: "10.0.4.40",
+        port: 3306,
+        status: "healthy"
+      },
+      {
+        id: "vm-db-2",
+        type: "VM",
+        name: "mysql-secondary",
+        ipAddress: "10.0.4.41",
+        port: 3306,
+        status: "healthy"
+      }
+    ],
     status: "healthy",
     loadBalancer: "internal-services-lb",
     createdOn: "2023-12-01T11:50:00Z"
@@ -2717,6 +2815,24 @@ export const targetGroups: TargetGroup[] = [
       unhealthyThreshold: 3
     },
     targets: 2,
+    targetMembers: [
+      {
+        id: "vm-cache-1",
+        type: "VM",
+        name: "redis-primary",
+        ipAddress: "10.0.5.50",
+        port: 6379,
+        status: "healthy"
+      },
+      {
+        id: "vm-cache-2",
+        type: "VM",
+        name: "redis-replica",
+        ipAddress: "10.0.5.51",
+        port: 6379,
+        status: "healthy"
+      }
+    ],
     status: "healthy",
     loadBalancer: "internal-services-lb",
     createdOn: "2023-12-01T11:55:00Z"
@@ -2737,6 +2853,24 @@ export const targetGroups: TargetGroup[] = [
       unhealthyThreshold: 3
     },
     targets: 2,
+    targetMembers: [
+      {
+        id: "vm-mq-1",
+        type: "VM",
+        name: "rabbitmq-01",
+        ipAddress: "10.0.6.60",
+        port: 5672,
+        status: "healthy"
+      },
+      {
+        id: "vm-mq-2",
+        type: "VM",
+        name: "rabbitmq-02",
+        ipAddress: "10.0.6.61",
+        port: 5672,
+        status: "healthy"
+      }
+    ],
     status: "healthy", 
     loadBalancer: "internal-services-lb",
     createdOn: "2023-12-01T12:00:00Z"
@@ -2758,7 +2892,25 @@ export const targetGroups: TargetGroup[] = [
       unhealthyThreshold: 3
     },
     targets: 2,
-    status: "healthy",
+    targetMembers: [
+      {
+        id: "vm-staging-1",
+        type: "VM",
+        name: "staging-app-01",
+        ipAddress: "10.1.1.10",
+        port: 80,
+        status: "healthy"
+      },
+      {
+        id: "vm-staging-2",
+        type: "VM",
+        name: "staging-app-02",
+        ipAddress: "10.1.1.11",
+        port: 80,
+        status: "draining"
+      }
+    ],
+    status: "degraded",
     loadBalancer: "staging-web-lb",
     createdOn: "2024-01-10T16:25:00Z"
   },
@@ -2778,7 +2930,33 @@ export const targetGroups: TargetGroup[] = [
       healthyThreshold: 2,
       unhealthyThreshold: 5
     },
-    targets: 1,
+    targets: 3,
+    targetMembers: [
+      {
+        id: "container-analytics-1",
+        type: "Container",
+        name: "prometheus-exporter",
+        ipAddress: "10.0.7.70",
+        port: 9090,
+        status: "unhealthy"
+      },
+      {
+        id: "ip-analytics-1",
+        type: "IP",
+        name: "grafana-instance",
+        ipAddress: "10.0.7.71",
+        port: 9090,
+        status: "healthy"
+      },
+      {
+        id: "vm-analytics-1",
+        type: "VM",
+        name: "analytics-vm-01",
+        ipAddress: "10.0.7.72",
+        port: 9090,
+        status: "unhealthy"
+      }
+    ],
     status: "unhealthy",
     createdOn: "2024-02-01T08:30:00Z"
   }

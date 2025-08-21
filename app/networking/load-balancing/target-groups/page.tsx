@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Card, CardContent } from "@/components/ui/card"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
 export default function TargetGroupsPage() {
   const router = useRouter()
@@ -135,52 +136,86 @@ export default function TargetGroupsPage() {
       ),
     },
     {
-      key: "type",
-      label: "Type",
-      searchable: true,
-      render: (value: string) => (
-        <div className="leading-5 capitalize">{value}</div>
-      ),
-    },
-    {
-      key: "protocol",
-      label: "Protocol",
-      searchable: true,
-      render: (value: string) => (
-        <div className="leading-5">{value}</div>
-      ),
-    },
-    {
-      key: "port",
-      label: "Port",
-      align: "right" as const,
-      render: (value: number) => (
-        <div className="text-right leading-5">{value}</div>
-      ),
-    },
-    {
-      key: "vpc",
-      label: "VPC",
-      searchable: true,
-      render: (value: string) => (
-        <div className="leading-5">{value}</div>
-      ),
-    },
-    {
-      key: "targets",
-      label: "Targets",
-      align: "right" as const,
-      render: (value: number) => (
-        <div className="text-right leading-5">{value}</div>
-      ),
-    },
-    {
       key: "loadBalancer",
       label: "Load Balancer",
       searchable: true,
       render: (value: string) => (
         <div className="leading-5">{value || "—"}</div>
       ),
+    },
+    {
+      key: "targetMembers",
+      label: "Target Group Members",
+      render: (value: any[], row: any) => {
+        if (!value || value.length === 0) {
+          return <span className="text-muted-foreground leading-5">No targets</span>
+        }
+
+        // Count types
+        const typeCounts = value.reduce((acc, member) => {
+          acc[member.type] = (acc[member.type] || 0) + 1
+          return acc
+        }, {} as Record<string, number>)
+
+        const typesSummary = Object.entries(typeCounts)
+          .map(([type, count]) => `${count} ${type}${count > 1 ? 's' : ''}`)
+          .join(', ')
+
+        return (
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <div className="leading-5 cursor-pointer text-primary hover:underline">
+                {value.length} target{value.length > 1 ? 's' : ''} ({typesSummary})...
+              </div>
+            </HoverCardTrigger>
+            <HoverCardContent className="min-w-80 max-w-md" side="top" align="start">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm">Target Group Members</h4>
+                <div className="space-y-3">
+                  {value.map((member, index) => (
+                    <div key={member.id} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium text-sm">{member.name}</span>
+                          <span className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
+                            {member.type}
+                          </span>
+                        </div>
+                        <div className="ml-4">
+                          <StatusBadge status={member.status} />
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground pl-0">
+                        {member.ipAddress}:{member.port}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+        )
+      },
+    },
+    {
+      key: "healthCheck",
+      label: "Health Check",
+      render: (value: any) => (
+        <div className="leading-5">
+          <div className="text-sm">{value?.protocol || "—"}</div>
+          <div className="text-xs text-muted-foreground">
+            {value?.interval && value?.timeout ? 
+              `Every ${value.interval}s, ${value.timeout}s timeout` : 
+              "—"
+            }
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (value: string) => <StatusBadge status={value} />,
     },
     {
       key: "createdOn",
@@ -194,11 +229,6 @@ export default function TargetGroupsPage() {
           </div>
         );
       },
-    },
-    {
-      key: "status",
-      label: "Status",
-      render: (value: string) => <StatusBadge status={value} />,
     },
     {
       key: "actions",
@@ -247,7 +277,7 @@ export default function TargetGroupsPage() {
         <ShadcnDataTable
           columns={columns}
           data={dataWithActions}
-          searchableColumns={["name", "type", "protocol", "vpc", "loadBalancer"]}
+          searchableColumns={["name", "loadBalancer"]}
           pageSize={10}
           enableSearch={true}
           enableColumnVisibility={false}

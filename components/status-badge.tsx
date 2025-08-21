@@ -52,6 +52,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "operational":
     case "attached":
     case "public":
+    case "healthy":
     case "tcp":
       bgColor = "bg-green-100"
       textColor = "text-green-800"
@@ -80,6 +81,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "incompleted":
     case "rejected":
     case "cancelled":
+    case "unhealthy":
       bgColor = "bg-red-100"
       textColor = "text-red-800"
       break
