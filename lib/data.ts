@@ -1129,6 +1129,10 @@ export const getSecurityGroup = (id: string) => {
   return securityGroups.find((sg) => sg.id === id)
 }
 
+export const getTargetGroup = (id: string) => {
+  return targetGroups.find((tg) => tg.id === id)
+}
+
 export const getSubnet = (id: string) => {
   return subnets.find((subnet) => subnet.id === id)
 }
