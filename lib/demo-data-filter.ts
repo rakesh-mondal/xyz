@@ -112,6 +112,16 @@ export function getEmptyStateMessage(resourceType: string): {
         description: "Reserve static IP addresses for your cloud resources to ensure consistent connectivity.",
         actionText: "Reserve IP Address"
       },
+      'load-balancer': {
+        title: "No Load Balancers yet",
+        description: "Create load balancers to distribute incoming traffic across multiple targets for high availability.",
+        actionText: "Create Load Balancer"
+      },
+      'target-group': {
+        title: "No Target Groups yet", 
+        description: "Create target groups to define health check settings and routing rules for your load balancers.",
+        actionText: "Create Target Group"
+      },
       volumes: {
         title: "No Volumes yet",
         description: "Create block storage volumes to provide persistent storage for your cloud instances.",

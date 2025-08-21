@@ -2073,3 +2073,727 @@ export const detachIP = async (ipId: string): Promise<PublicIP | null> => {
   }
   return null;
 };
+
+// Model Catalog Data
+export interface Model {
+  id: string
+  name: string
+  provider: string
+  type: "text" | "embedding" | "audio" | "vision"
+  description: string
+  license: string
+  capabilities: string[]
+  pricing: {
+    inputTokens: number
+    outputTokens: number
+  }
+  performance: {
+    tokensPerSec: number
+    quality: number
+    quantization: string
+  }
+  contextWindow: string
+  createdOn: string
+  tags: string[]
+  isEnterprise?: boolean
+}
+
+export const models: Model[] = [
+  // TEXT MODELS
+  {
+    id: "gpt-oss-120b",
+    name: "gpt-oss-120b",
+    provider: "Openai",
+    type: "text",
+    description: "Large-scale GPT model with 120B parameters for high-quality text generation",
+    license: "MIT",
+    capabilities: ["text-generation", "summarization", "context-rag", "code", "reasoning"],
+    pricing: {
+      inputTokens: 0.15,
+      outputTokens: 0.60
+    },
+    performance: {
+      tokensPerSec: 40,
+      quality: 79,
+      quantization: "fp4"
+    },
+    contextWindow: "131K context",
+    createdOn: "2024-01-15T09:00:00Z",
+    tags: ["code", "math", "reasoning"]
+  },
+  {
+    id: "gpt-oss-20b",
+    name: "gpt-oss-20b",
+    provider: "Openai",
+    type: "text",
+    description: "Efficient GPT model with 20B parameters optimized for speed and performance",
+    license: "Apache 2.0",
+    capabilities: ["text-generation", "summarization", "code", "fast-cost-efficient"],
+    pricing: {
+      inputTokens: 0.05,
+      outputTokens: 0.20
+    },
+    performance: {
+      tokensPerSec: 64,
+      quality: 74,
+      quantization: "fp4"
+    },
+    contextWindow: "131K context",
+    createdOn: "2024-01-10T14:30:00Z",
+    tags: ["code", "reasoning"]
+  },
+  {
+    id: "claude-3.5-sonnet",
+    name: "Claude-3.5-Sonnet",
+    provider: "Anthropic",
+    type: "text",
+    description: "Anthropic's most capable model for complex reasoning and analysis",
+    license: "Commercial",
+    capabilities: ["text-generation", "reasoning", "complex-writing-conversations", "function-calling-tools"],
+    pricing: {
+      inputTokens: 0.30,
+      outputTokens: 1.50
+    },
+    performance: {
+      tokensPerSec: 25,
+      quality: 88,
+      quantization: "fp8"
+    },
+    contextWindow: "200K context",
+    createdOn: "2024-03-20T13:45:00Z",
+    tags: ["math", "reasoning"]
+  },
+  {
+    id: "mixtral-8x7b",
+    name: "Mixtral-8x7B",
+    provider: "Mistral AI",
+    type: "text",
+    description: "Mixture of experts model with excellent efficiency and performance",
+    license: "Apache 2.0",
+    capabilities: ["text-generation", "code", "fast-cost-efficient"],
+    pricing: {
+      inputTokens: 0.07,
+      outputTokens: 0.25
+    },
+    performance: {
+      tokensPerSec: 50,
+      quality: 76,
+      quantization: "fp4"
+    },
+    contextWindow: "32K context",
+    createdOn: "2024-01-25T10:15:00Z",
+    tags: ["code", "reasoning"]
+  },
+  {
+    id: "llama-3.2-90b",
+    name: "Llama-3.2-90B",
+    provider: "Meta",
+    type: "text",
+    description: "Meta's advanced Llama model with enhanced capabilities",
+    license: "Llama License",
+    capabilities: ["text-generation", "summarization", "code"],
+    pricing: {
+      inputTokens: 0.12,
+      outputTokens: 0.45
+    },
+    performance: {
+      tokensPerSec: 35,
+      quality: 82,
+      quantization: "fp4"
+    },
+    contextWindow: "128K context",
+    createdOn: "2024-04-01T15:30:00Z",
+    tags: ["code", "reasoning"]
+  },
+
+  // EMBEDDING MODELS
+  {
+    id: "text-embedding-3-large",
+    name: "text-embedding-3-large",
+    provider: "OpenAI",
+    type: "embedding",
+    description: "Most capable embedding model for semantic search and RAG applications",
+    license: "Commercial",
+    capabilities: ["context-rag", "summarization"],
+    pricing: {
+      inputTokens: 0.13,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 150,
+      quality: 94,
+      quantization: "fp16"
+    },
+    contextWindow: "8K context",
+    createdOn: "2024-01-25T11:30:00Z",
+    tags: ["embedding", "search"]
+  },
+  {
+    id: "text-embedding-3-small",
+    name: "text-embedding-3-small",
+    provider: "OpenAI",
+    type: "embedding",
+    description: "Efficient embedding model optimized for cost and speed",
+    license: "Commercial",
+    capabilities: ["context-rag", "fast-cost-efficient"],
+    pricing: {
+      inputTokens: 0.02,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 300,
+      quality: 89,
+      quantization: "fp16"
+    },
+    contextWindow: "8K context",
+    createdOn: "2024-01-25T11:15:00Z",
+    tags: ["embedding", "fast"]
+  },
+  {
+    id: "bge-large-en-v1.5",
+    name: "BGE-Large-EN-v1.5",
+    provider: "BAAI",
+    type: "embedding",
+    description: "High-performance English embedding model for retrieval tasks",
+    license: "MIT",
+    capabilities: ["context-rag", "summarization"],
+    pricing: {
+      inputTokens: 0.01,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 200,
+      quality: 87,
+      quantization: "fp16"
+    },
+    contextWindow: "512 tokens",
+    createdOn: "2024-02-01T14:20:00Z",
+    tags: ["embedding", "retrieval"]
+  },
+  {
+    id: "e5-large-v2",
+    name: "E5-Large-v2",
+    provider: "Microsoft",
+    type: "embedding",
+    description: "Multilingual embedding model with strong performance across languages",
+    license: "MIT",
+    capabilities: ["context-rag", "summarization"],
+    pricing: {
+      inputTokens: 0.008,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 180,
+      quality: 85,
+      quantization: "fp16"
+    },
+    contextWindow: "512 tokens",
+    createdOn: "2024-02-10T16:45:00Z",
+    tags: ["embedding", "multilingual"]
+  },
+
+  // AUDIO MODELS
+  {
+    id: "whisper-large-v3",
+    name: "Whisper-Large-v3",
+    provider: "OpenAI",
+    type: "audio",
+    description: "Advanced speech recognition model with multilingual support",
+    license: "MIT",
+    capabilities: ["audio-transcription", "audio-translation"],
+    pricing: {
+      inputTokens: 0.006,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 0,
+      quality: 92,
+      quantization: "fp16"
+    },
+    contextWindow: "30 seconds",
+    createdOn: "2024-01-15T10:00:00Z",
+    tags: ["audio", "transcription"]
+  },
+  {
+    id: "musicgen-large",
+    name: "MusicGen-Large",
+    provider: "Meta",
+    type: "audio",
+    description: "Text-to-music generation model for creating high-quality audio",
+    license: "Research",
+    capabilities: ["audio-generation"],
+    pricing: {
+      inputTokens: 0.15,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 0,
+      quality: 88,
+      quantization: "fp16"
+    },
+    contextWindow: "32 seconds",
+    createdOn: "2024-02-01T12:30:00Z",
+    tags: ["audio", "generation"]
+  },
+  {
+    id: "bark-v0",
+    name: "Bark",
+    provider: "Suno AI",
+    type: "audio",
+    description: "Text-to-speech model with natural voice generation capabilities",
+    license: "MIT",
+    capabilities: ["audio-generation"],
+    pricing: {
+      inputTokens: 0.08,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 0,
+      quality: 86,
+      quantization: "fp16"
+    },
+    contextWindow: "15 seconds",
+    createdOn: "2024-01-20T15:15:00Z",
+    tags: ["audio", "speech"]
+  },
+  {
+    id: "speecht5-tts",
+    name: "SpeechT5-TTS",
+    provider: "Microsoft",
+    type: "audio",
+    description: "Unified speech-text model for text-to-speech synthesis",
+    license: "MIT",
+    capabilities: ["audio-generation"],
+    pricing: {
+      inputTokens: 0.05,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 0,
+      quality: 84,
+      quantization: "fp16"
+    },
+    contextWindow: "20 seconds",
+    createdOn: "2024-02-15T09:45:00Z",
+    tags: ["audio", "synthesis"]
+  },
+
+  // VISION MODELS
+  {
+    id: "gpt-4-vision",
+    name: "GPT-4-Vision",
+    provider: "OpenAI",
+    type: "vision",
+    description: "Multimodal model capable of understanding and reasoning about images",
+    license: "Commercial",
+    capabilities: ["vision-understanding", "text-generation", "reasoning"],
+    pricing: {
+      inputTokens: 1.00,
+      outputTokens: 3.00
+    },
+    performance: {
+      tokensPerSec: 15,
+      quality: 91,
+      quantization: "fp16"
+    },
+    contextWindow: "128K context",
+    createdOn: "2024-01-10T13:20:00Z",
+    tags: ["vision", "multimodal"]
+  },
+  {
+    id: "claude-3-opus-vision",
+    name: "Claude-3-Opus-Vision",
+    provider: "Anthropic",
+    type: "vision",
+    description: "Advanced vision model with superior image analysis capabilities",
+    license: "Commercial",
+    capabilities: ["vision-understanding", "reasoning", "complex-writing-conversations"],
+    pricing: {
+      inputTokens: 1.50,
+      outputTokens: 7.50
+    },
+    performance: {
+      tokensPerSec: 12,
+      quality: 93,
+      quantization: "fp16"
+    },
+    contextWindow: "200K context",
+    createdOn: "2024-02-20T11:10:00Z",
+    tags: ["vision", "analysis"]
+  },
+  {
+    id: "llava-v1.6-34b",
+    name: "LLaVA-v1.6-34B",
+    provider: "LLaVA Team",
+    type: "vision",
+    description: "Open-source large language and vision assistant model",
+    license: "Apache 2.0",
+    capabilities: ["vision-understanding", "text-generation"],
+    pricing: {
+      inputTokens: 0.80,
+      outputTokens: 2.40
+    },
+    performance: {
+      tokensPerSec: 20,
+      quality: 87,
+      quantization: "fp16"
+    },
+    contextWindow: "4K context",
+    createdOn: "2024-03-01T14:30:00Z",
+    tags: ["vision", "open-source"]
+  },
+  {
+    id: "dall-e-3",
+    name: "DALL-E 3",
+    provider: "OpenAI",
+    type: "vision",
+    description: "Advanced text-to-image generation model with high fidelity output",
+    license: "Commercial",
+    capabilities: ["image-generation"],
+    pricing: {
+      inputTokens: 0.040,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 0,
+      quality: 95,
+      quantization: "fp16"
+    },
+    contextWindow: "4K context",
+    createdOn: "2024-01-25T16:00:00Z",
+    tags: ["vision", "generation"]
+  },
+  {
+    id: "stable-diffusion-xl",
+    name: "Stable Diffusion XL",
+    provider: "Stability AI",
+    type: "vision",
+    description: "High-resolution image generation model with artistic capabilities",
+    license: "OpenRAIL",
+    capabilities: ["image-generation"],
+    pricing: {
+      inputTokens: 0.020,
+      outputTokens: 0.00
+    },
+    performance: {
+      tokensPerSec: 0,
+      quality: 89,
+      quantization: "fp16"
+    },
+    contextWindow: "77 tokens",
+    createdOn: "2024-02-05T10:45:00Z",
+    tags: ["vision", "artistic"]
+  }
+]
+
+export const getModel = (id: string) => {
+  return models.find((model) => model.id === id)
+}
+
+export const getModelsByType = (type: "text" | "embedding" | "audio" | "vision") => {
+  return models.filter((model) => model.type === type)
+}
+
+export const getAllModels = () => {
+  return models
+}
+
+// Load Balancer and Target Group interfaces
+export interface LoadBalancer {
+  id: string
+  name: string
+  status: "active" | "inactive" | "creating" | "deleting"
+  type: "application" | "network"
+  scheme: "internet-facing" | "internal"
+  vpc: string
+  dnsName: string
+  targetGroups: number
+  createdOn: string
+  availability: string
+  targets: number
+  targetGroupHealth: "healthy" | "unhealthy" | "mixed" | "no-targets"
+  ipAddresses: string[]
+}
+
+export interface TargetGroup {
+  id: string
+  name: string
+  type: "instance" | "ip" | "lambda"
+  protocol: "HTTP" | "HTTPS" | "TCP" | "UDP"
+  port: number
+  vpc: string
+  healthCheck: {
+    path?: string
+    protocol: string
+    port: number
+    interval: number
+    timeout: number
+    healthyThreshold: number
+    unhealthyThreshold: number
+  }
+  targets: number
+  status: "healthy" | "unhealthy" | "unused"
+  loadBalancer?: string
+  createdOn: string
+}
+
+// Load Balancers mock data
+export const loadBalancers: LoadBalancer[] = [
+  {
+    id: "lb-1",
+    name: "production-app-lb",
+    status: "active",
+    type: "application",
+    scheme: "internet-facing",
+    vpc: "production-vpc",
+    dnsName: "production-app-lb-123456789.us-east-1.elb.amazonaws.com",
+    targetGroups: 2,
+    createdOn: "2023-10-15T09:30:00Z",
+    availability: "Multi-AZ",
+    targets: 4,
+    targetGroupHealth: "healthy",
+    ipAddresses: ["54.123.45.67", "54.123.45.68"]
+  },
+  {
+    id: "lb-2", 
+    name: "api-gateway-lb",
+    status: "active",
+    type: "application",
+    scheme: "internet-facing",
+    vpc: "production-vpc",
+    dnsName: "api-gateway-lb-987654321.us-east-1.elb.amazonaws.com",
+    targetGroups: 1,
+    createdOn: "2023-11-20T14:15:00Z",
+    availability: "Multi-AZ",
+    targets: 2,
+    targetGroupHealth: "healthy",
+    ipAddresses: ["54.234.56.78"]
+  },
+  {
+    id: "lb-3",
+    name: "internal-services-lb",
+    status: "active", 
+    type: "network",
+    scheme: "internal",
+    vpc: "production-vpc",
+    dnsName: "internal-services-lb-555666777.us-east-1.elb.amazonaws.com",
+    targetGroups: 3,
+    createdOn: "2023-12-01T11:45:00Z",
+    availability: "Multi-AZ",
+    targets: 6,
+    targetGroupHealth: "mixed",
+    ipAddresses: ["10.0.1.100", "10.0.1.101", "10.0.1.102"]
+  },
+  {
+    id: "lb-4",
+    name: "staging-web-lb",
+    status: "active",
+    type: "application",
+    scheme: "internet-facing", 
+    vpc: "staging-vpc",
+    dnsName: "staging-web-lb-111222333.us-west-2.elb.amazonaws.com",
+    targetGroups: 1,
+    createdOn: "2024-01-10T16:20:00Z",
+    availability: "Multi-AZ",
+    targets: 2,
+    targetGroupHealth: "unhealthy",
+    ipAddresses: ["54.345.67.89"]
+  },
+  {
+    id: "lb-5",
+    name: "dev-app-lb",
+    status: "creating",
+    type: "application",
+    scheme: "internet-facing",
+    vpc: "development-vpc", 
+    dnsName: "dev-app-lb-444555666.us-west-2.elb.amazonaws.com",
+    targetGroups: 0,
+    createdOn: "2024-12-19T10:30:00Z",
+    availability: "Single-AZ",
+    targets: 0,
+    targetGroupHealth: "no-targets",
+    ipAddresses: []
+  }
+]
+
+// Target Groups mock data
+export const targetGroups: TargetGroup[] = [
+  {
+    id: "tg-1",
+    name: "production-web-targets",
+    type: "instance",
+    protocol: "HTTP",
+    port: 80,
+    vpc: "production-vpc",
+    healthCheck: {
+      path: "/health",
+      protocol: "HTTP",
+      port: 80,
+      interval: 30,
+      timeout: 5,
+      healthyThreshold: 2,
+      unhealthyThreshold: 3
+    },
+    targets: 4,
+    status: "healthy",
+    loadBalancer: "production-app-lb",
+    createdOn: "2023-10-15T09:35:00Z"
+  },
+  {
+    id: "tg-2",
+    name: "production-api-targets", 
+    type: "instance",
+    protocol: "HTTPS",
+    port: 443,
+    vpc: "production-vpc",
+    healthCheck: {
+      path: "/api/health",
+      protocol: "HTTPS",
+      port: 443,
+      interval: 30,
+      timeout: 5,
+      healthyThreshold: 2,
+      unhealthyThreshold: 3
+    },
+    targets: 2,
+    status: "healthy",
+    loadBalancer: "production-app-lb",
+    createdOn: "2023-10-15T09:40:00Z"
+  },
+  {
+    id: "tg-3",
+    name: "api-gateway-targets",
+    type: "instance",
+    protocol: "HTTP",
+    port: 8080,
+    vpc: "production-vpc", 
+    healthCheck: {
+      path: "/gateway/health",
+      protocol: "HTTP",
+      port: 8080,
+      interval: 30,
+      timeout: 5,
+      healthyThreshold: 2,
+      unhealthyThreshold: 3
+    },
+    targets: 2,
+    status: "healthy",
+    loadBalancer: "api-gateway-lb",
+    createdOn: "2023-11-20T14:20:00Z"
+  },
+  {
+    id: "tg-4",
+    name: "database-targets",
+    type: "instance",
+    protocol: "TCP",
+    port: 3306,
+    vpc: "production-vpc",
+    healthCheck: {
+      protocol: "TCP",
+      port: 3306,
+      interval: 30,
+      timeout: 10,
+      healthyThreshold: 2,
+      unhealthyThreshold: 3
+    },
+    targets: 2,
+    status: "healthy",
+    loadBalancer: "internal-services-lb",
+    createdOn: "2023-12-01T11:50:00Z"
+  },
+  {
+    id: "tg-5",
+    name: "cache-targets",
+    type: "instance",
+    protocol: "TCP",
+    port: 6379,
+    vpc: "production-vpc",
+    healthCheck: {
+      protocol: "TCP",
+      port: 6379,
+      interval: 30,
+      timeout: 10,
+      healthyThreshold: 2,
+      unhealthyThreshold: 3
+    },
+    targets: 2,
+    status: "healthy",
+    loadBalancer: "internal-services-lb",
+    createdOn: "2023-12-01T11:55:00Z"
+  },
+  {
+    id: "tg-6",
+    name: "messaging-targets",
+    type: "instance",
+    protocol: "TCP",
+    port: 5672,
+    vpc: "production-vpc",
+    healthCheck: {
+      protocol: "TCP",
+      port: 5672,
+      interval: 30,
+      timeout: 10,
+      healthyThreshold: 2,
+      unhealthyThreshold: 3
+    },
+    targets: 2,
+    status: "healthy", 
+    loadBalancer: "internal-services-lb",
+    createdOn: "2023-12-01T12:00:00Z"
+  },
+  {
+    id: "tg-7",
+    name: "staging-app-targets",
+    type: "instance",
+    protocol: "HTTP",
+    port: 80,
+    vpc: "staging-vpc",
+    healthCheck: {
+      path: "/health",
+      protocol: "HTTP",
+      port: 80,
+      interval: 30,
+      timeout: 5,
+      healthyThreshold: 2,
+      unhealthyThreshold: 3
+    },
+    targets: 2,
+    status: "healthy",
+    loadBalancer: "staging-web-lb",
+    createdOn: "2024-01-10T16:25:00Z"
+  },
+  {
+    id: "tg-8",
+    name: "analytics-targets",
+    type: "instance",
+    protocol: "HTTP",
+    port: 9090,
+    vpc: "production-vpc",
+    healthCheck: {
+      path: "/metrics",
+      protocol: "HTTP",
+      port: 9090,
+      interval: 60,
+      timeout: 10,
+      healthyThreshold: 2,
+      unhealthyThreshold: 5
+    },
+    targets: 1,
+    status: "unhealthy",
+    createdOn: "2024-02-01T08:30:00Z"
+  }
+]
+
+export const getModelsByCapability = (capability: string) => {
+  return models.filter((model) => model.capabilities.includes(capability))
+}
+
+export const searchModels = (query: string) => {
+  const lowercaseQuery = query.toLowerCase()
+  return models.filter((model) => 
+    model.name.toLowerCase().includes(lowercaseQuery) ||
+    model.provider.toLowerCase().includes(lowercaseQuery) ||
+    model.description.toLowerCase().includes(lowercaseQuery) ||
+    model.capabilities.some(cap => cap.toLowerCase().includes(lowercaseQuery))
+  )
+}

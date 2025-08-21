@@ -2,11 +2,10 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-// Temporarily commented out - chart components not yet pushed to GitHub
-// import { VMAnimatedPieChart } from "@/components/ui/vm-animated-pie-chart"
-// import { StorageAnimatedBarChart } from "@/components/ui/storage-animated-bar-chart"
-// import { ObjectStorageAnimatedChart } from "@/components/ui/object-storage-animated-chart"
-// import { AiPodsAnimatedChart } from "@/components/ui/ai-pods-animated-chart"
+import { VMAnimatedPieChart } from "@/components/ui/vm-animated-pie-chart"
+import { StorageAnimatedBarChart } from "@/components/ui/storage-animated-bar-chart"
+import { ObjectStorageAnimatedChart } from "@/components/ui/object-storage-animated-chart"
+import { AiPodsAnimatedChart } from "@/components/ui/ai-pods-animated-chart"
 import { Activity, CreditCard, DollarSign, Users, Server, Database, Cpu, BarChart3, Plus, ExternalLink, MapPin, BookOpen, Shield, Key, Code, Globe, Brain, FileText } from "lucide-react"
 import { VirtualMachinesIcon } from "@/components/icons/virtual-machines-icon"
 import { BlockStorageIcon } from "@/components/icons/block-storage-icon"
@@ -310,12 +309,23 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
               </CardHeader>
               <CardContent className="pt-0">
                 <div>
-                  {/* Placeholder for VM Chart */}
+                  {/* Animated Pie Chart */}
                   <div className="relative pb-1">
-                    <div className="h-[160px] flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                    <VMAnimatedPieChart 
+                      activeVMs={resourceData.virtualMachines.activeVMs}
+                      totalVMs={resourceData.virtualMachines.totalVMs}
+                      className="h-[160px]"
+                    />
+                    
+                    {/* Center Text Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-400 mb-1">📊</div>
-                        <div className="text-sm text-gray-500">VM Chart Placeholder</div>
+                        <div className="text-2xl font-bold text-black drop-shadow-sm">
+                          {resourceData.virtualMachines.totalVMs}
+                        </div>
+                        <div className="text-xs text-gray-700 mt-0.5 font-semibold">
+                          Total VMs
+                        </div>
                       </div>
                     </div>
 
@@ -359,14 +369,14 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
               </CardHeader>
               <CardContent className="pt-0">
                 <div>
-                  {/* Placeholder for Storage Chart */}
+                  {/* Animated Bar Chart */}
                   <div className="relative pb-1">
-                    <div className="h-[160px] flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-400 mb-1">📊</div>
-                        <div className="text-sm text-gray-500">Storage Chart Placeholder</div>
-                      </div>
-                    </div>
+                    <StorageAnimatedBarChart 
+                      allocatedGB={resourceData.blockStorage.totalAllocatedSize}
+                      totalCapacityGB={resourceData.blockStorage.totalCapacity}
+                      volumeCount={resourceData.blockStorage.volumeCount}
+                      className="h-[160px]"
+                    />
                   </div>
                   
                   {/* Storage Status Indicators */}
@@ -407,14 +417,14 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
               </CardHeader>
               <CardContent className="pt-0">
                 <div>
-                  {/* Placeholder for Object Storage Chart */}
+                  {/* Animated Bucket Chart */}
                   <div className="relative pb-1">
-                    <div className="h-[160px] flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-400 mb-1">📊</div>
-                        <div className="text-sm text-gray-500">Object Storage Chart Placeholder</div>
-                      </div>
-                    </div>
+                    <ObjectStorageAnimatedChart 
+                      storageUsed={resourceData.objectStorage.storageUsed}
+                      totalCapacity={resourceData.objectStorage.totalCapacity}
+                      totalBuckets={resourceData.objectStorage.totalBuckets}
+                      className="h-[160px]"
+                    />
                   </div>
                   
                   {/* Object Storage Status Indicators */}
@@ -455,14 +465,13 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
               </CardHeader>
               <CardContent className="pt-0">
                 <div>
-                  {/* Placeholder for AI Pods Chart */}
+                  {/* Animated Pod Cluster Chart */}
                   <div className="relative pb-1">
-                    <div className="h-[160px] flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-400 mb-1">📊</div>
-                        <div className="text-sm text-gray-500">AI Pods Chart Placeholder</div>
-                      </div>
-                    </div>
+                    <AiPodsAnimatedChart 
+                      activePods={resourceData.aiPods.activePods}
+                      totalPods={resourceData.aiPods.totalPods}
+                      className="h-[160px]"
+                    />
                   </div>
                   
                   {/* AI Pods Status Indicators */}

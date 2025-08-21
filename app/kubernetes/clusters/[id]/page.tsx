@@ -328,16 +328,15 @@ export default function ClusterDetailsPage() {
 
       {/* Upgrade Cluster Modal */}
       <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Upgrade Kubernetes Version</DialogTitle>
             <DialogDescription>
-              Upgrade your cluster from version {cluster.k8sVersion} to {nextVersion}. 
-              This process will be performed with zero downtime.
+              Zero-downtime upgrade from v{cluster.k8sVersion} to v{nextVersion}.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-6">
             <Alert>
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
@@ -345,9 +344,9 @@ export default function ClusterDetailsPage() {
               </AlertDescription>
             </Alert>
             
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">What happens during upgrade:</h4>
-              <ul className="text-sm space-y-1 text-muted-foreground">
+            <div className="bg-muted/50 p-4 rounded-lg border border-border">
+              <h4 className="font-medium mb-3">What happens during upgrade:</h4>
+              <ul className="text-sm space-y-2 text-muted-foreground">
                 <li>• Control plane components will be upgraded</li>
                 <li>• Node pools will be upgraded one at a time</li>
                 <li>• Applications will continue running without interruption</li>
@@ -356,13 +355,13 @@ export default function ClusterDetailsPage() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="mt-8 pt-6 border-t">
             <Button variant="outline" onClick={() => setIsUpgradeModalOpen(false)}>
               Cancel
             </Button>
             <Button 
               onClick={handleUpgradeCluster}
-              className="bg-blue-600 text-white hover:bg-blue-700"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               Start Upgrade
             </Button>

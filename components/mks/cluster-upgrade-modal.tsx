@@ -58,9 +58,9 @@ export function ClusterUpgradeModal({ cluster, isOpen, onClose, onConfirm }: Clu
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Current Version Info */}
-          <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
             <span className="text-sm font-medium">Current Version:</span>
             <Badge variant="secondary" className="font-mono">
               v{cluster.k8sVersion}
@@ -69,14 +69,14 @@ export function ClusterUpgradeModal({ cluster, isOpen, onClose, onConfirm }: Clu
           
           {/* Upgrade Path or No Upgrade Message */}
           {canUpgrade ? (
-            <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <span className="text-sm font-medium text-blue-900">Upgrade to:</span>
-              <Badge variant="default" className="font-mono bg-blue-600">
+            <div className="flex items-center justify-between p-4 bg-krutrim-green/10 border border-krutrim-green/20 rounded-lg">
+              <span className="text-sm font-medium text-krutrim-green">Upgrade to:</span>
+              <Badge variant="default" className="font-mono bg-krutrim-green text-white">
                 v{nextVersion}
               </Badge>
             </div>
           ) : (
-            <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg">
               <span className="text-sm font-medium text-red-900">No upgrade available</span>
               <Badge variant="destructive" className="font-mono">
                 Latest version
@@ -86,7 +86,7 @@ export function ClusterUpgradeModal({ cluster, isOpen, onClose, onConfirm }: Clu
           
           {/* Specific Message for Latest Version */}
           {isLatestVersion && (
-            <Alert>
+            <Alert className="mt-6">
               <XCircle className="h-4 w-4" />
               <AlertDescription>
                 Unable to upgrade. Your cluster has the latest supported Kubernetes version on Krutrim.
@@ -96,7 +96,7 @@ export function ClusterUpgradeModal({ cluster, isOpen, onClose, onConfirm }: Clu
           
           {/* Warning for Upgradable Clusters */}
           {canUpgrade && (
-            <Alert>
+            <Alert className="mt-6">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 Upgrading Kubernetes version may affect workloads due to API deprecations. 
@@ -107,11 +107,11 @@ export function ClusterUpgradeModal({ cluster, isOpen, onClose, onConfirm }: Clu
           
           {/* Info for Upgradable Clusters */}
           {canUpgrade && (
-            <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <Info className="h-4 w-4 text-blue-600 mt-0.5" />
-              <div className="text-sm text-blue-900">
-                <p className="font-medium">What happens during upgrade?</p>
-                <ul className="mt-1 space-y-1 text-blue-800">
+            <div className="flex items-start gap-3 p-4 bg-muted/50 border border-border rounded-lg mt-6">
+              <Info className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+              <div className="text-sm">
+                <p className="font-medium mb-3">What happens during upgrade?</p>
+                <ul className="space-y-2 text-muted-foreground">
                   <li>• Cluster will be temporarily unavailable</li>
                   <li>• Workloads will be rescheduled</li>
                   <li>• API server will be updated</li>
@@ -122,7 +122,7 @@ export function ClusterUpgradeModal({ cluster, isOpen, onClose, onConfirm }: Clu
           )}
         </div>
         
-        <DialogFooter>
+        <DialogFooter className="mt-8 pt-6 border-t">
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
@@ -130,7 +130,7 @@ export function ClusterUpgradeModal({ cluster, isOpen, onClose, onConfirm }: Clu
             <Button 
               onClick={handleUpgrade} 
               disabled={isUpgrading}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isUpgrading ? 'Starting Upgrade...' : 'Start Upgrade'}
             </Button>

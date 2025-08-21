@@ -122,6 +122,8 @@ const navigationConfig = {
           { href: "/networking/subnets", label: "Subnets" },
           { href: "/networking/security-groups", label: "Security Groups" },
           { href: "/networking/static-ips", label: "Static IP Addresses" },
+          { href: "/networking/load-balancing/balancer", label: "Load Balancer" },
+          { href: "/networking/load-balancing/target-groups", label: "Target Groups" },
         ],
       },
     ],
