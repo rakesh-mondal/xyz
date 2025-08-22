@@ -271,6 +271,63 @@ const mockLoadBalancers = {
         }
       }
     ]
+  },
+  "lb-4": {
+    id: "lb-4",
+    name: "staging-web-lb",
+    description: "Staging environment web load balancer for testing",
+    type: "Application Load Balancer",
+    scheme: "internet-facing",
+    status: "error",
+    dnsName: "staging-web-lb-111222333.us-west-2.elb.amazonaws.com",
+    region: "us-west-2",
+    vpc: "staging-vpc",
+    subnet: "subnet-staging-1",
+    availabilityZones: ["us-west-2a", "us-west-2b"],
+    created: "2024-01-10T16:20:00Z",
+    targetGroupsDetails: [
+      {
+        id: "tg-staging-web-1",
+        name: "staging-web",
+        healthyTargets: 0,
+        totalTargets: 2,
+        status: "unhealthy"
+      }
+    ],
+    ipAddresses: ["10.0.8.15", "10.0.9.22"],
+    listeners: [
+      {
+        id: "listener-006",
+        name: "staging-web-listener",
+        protocol: "HTTP",
+        port: 80,
+        alpnProtocol: "",
+        certificate: "",
+        certificateName: "",
+        policy: {
+          id: "policy-005",
+          name: "staging-routing-policy",
+          action: "forward"
+        },
+        rule: {
+          id: "rule-005",
+          ruleType: "path-pattern",
+          comparator: "equals",
+          value: "/",
+          key: ""
+        },
+        pool: {
+          id: "pool-005",
+          name: "staging-pool",
+          protocol: "HTTP",
+          algorithm: "round-robin",
+          targetGroup: "staging-web-targets",
+          targetGroupStatus: "unhealthy",
+          targetCount: 2,
+          healthyTargets: 0
+        }
+      }
+    ]
   }
 }
 
