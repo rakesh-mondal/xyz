@@ -20,12 +20,14 @@ const mockLoadBalancers = {
   "lb-1": {
     id: "lb-1",
     name: "production-app-lb",
+    description: "Production application load balancer for web and API traffic",
     type: "Application Load Balancer",
     scheme: "internet-facing",
     status: "active",
     dnsName: "production-web-alb-123456789.ap-south-1.elb.amazonaws.com",
     region: "ap-south-1",
-    vpc: "vpc-123abc",
+    vpc: "production-vpc",
+    subnet: "subnet-prod-1",
     availabilityZones: ["ap-south-1a", "ap-south-1b"],
     created: "2024-01-15T10:30:00Z",
     listeners: [
@@ -96,12 +98,14 @@ const mockLoadBalancers = {
   "lb-3": {
     id: "lb-3",
     name: "internal-services-lb",
+    description: "Internal network load balancer for high-performance TCP traffic",
     type: "Network Load Balancer",
     scheme: "internal",
     status: "active",
     dnsName: "production-tcp-nlb-123456789.ap-south-1.elb.amazonaws.com",
     region: "ap-south-1",
-    vpc: "vpc-123abc",
+    vpc: "production-vpc",
+    subnet: "subnet-prod-3",
     availabilityZones: ["ap-south-1a", "ap-south-1b"],
     created: "2024-01-20T14:20:00Z",
     listeners: [
@@ -130,12 +134,14 @@ const mockLoadBalancers = {
   "lb-2": {
     id: "lb-2",
     name: "api-gateway-lb",
+    description: "API gateway load balancer for microservices routing",
     type: "Application Load Balancer",
     scheme: "internet-facing",
     status: "active",
     dnsName: "api-gateway-lb-123456789.ap-south-1.elb.amazonaws.com",
     region: "ap-south-1",
-    vpc: "vpc-123abc",
+    vpc: "production-vpc",
+    subnet: "subnet-prod-2",
     availabilityZones: ["ap-south-1a", "ap-south-1b"],
     created: "2024-01-18T12:15:00Z",
     listeners: [
@@ -175,12 +181,14 @@ const mockLoadBalancers = {
   "lb-5": {
     id: "lb-5",
     name: "dev-app-lb",
+    description: "Development application load balancer currently being provisioned",
     type: "Application Load Balancer",
     scheme: "internet-facing",
     status: "provisioning",
     dnsName: "dev-app-lb-123456789.ap-south-1.elb.amazonaws.com",
     region: "ap-south-1",
-    vpc: "vpc-dev",
+    vpc: "development-vpc",
+    subnet: "subnet-dev-1",
     availabilityZones: ["ap-south-1a"],
     created: "2024-02-01T09:00:00Z",
     listeners: [
@@ -299,16 +307,40 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
         </div>
         
         <DetailGrid>
-          {/* Load Balancer ID, Type, Status, Scheme in first row */}
-          <div className="col-span-full grid grid-cols-4 gap-4">
+          {/* Basic Details from Create Form - First Row: Name, Description, Type */}
+          <div className="col-span-full grid grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Load Balancer ID</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.id}</div>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Load Balancer Name</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.name}</div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Type</label>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Description</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.description || "No description provided"}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Load Balancer Type</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.type}</div>
             </div>
+          </div>
+          
+          {/* Network Configuration from Create Form - Second Row: Region, VPC, Subnet */}
+          <div className="col-span-full grid grid-cols-3 gap-4 mt-4">
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Region</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.region}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VPC</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.vpc}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnet</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.subnet}</div>
+            </div>
+          </div>
+
+          {/* Generated Information - Third Row: Status, Scheme, Load Balancer ID */}
+          <div className="col-span-full grid grid-cols-3 gap-4 mt-4">
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
               <div>
@@ -323,10 +355,14 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
                 </Badge>
               </div>
             </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Load Balancer ID</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.id}</div>
+            </div>
           </div>
-          
-          {/* DNS Name, Region, VPC, Created in second row */}
-          <div className="col-span-full grid grid-cols-4 gap-4 mt-4">
+
+          {/* DNS & Deployment Information - Fourth Row: DNS Name, Availability Zones, Created Date */}
+          <div className="col-span-full grid grid-cols-3 gap-4 mt-4">
             <div className="space-y-1 col-span-2">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>DNS Name</label>
               <div className="font-medium flex items-center gap-2" style={{ fontSize: '14px' }}>
@@ -342,17 +378,13 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Region</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.region}</div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VPC</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.vpc}</div>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Created</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{formatDate(loadBalancer.created)}</div>
             </div>
           </div>
 
-          {/* Availability Zones, Created Date in third row */}
-          <div className="col-span-full grid grid-cols-4 gap-4 mt-4">
+          {/* Availability Zones - Fifth Row */}
+          <div className="col-span-full grid grid-cols-1 gap-4 mt-4">
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Availability Zones</label>
               <div className="flex flex-wrap gap-1">
@@ -362,10 +394,6 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
                   </Badge>
                 ))}
               </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Created</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{formatDate(loadBalancer.created)}</div>
             </div>
           </div>
         </DetailGrid>
