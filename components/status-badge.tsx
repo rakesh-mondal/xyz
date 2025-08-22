@@ -122,6 +122,12 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
       textColor = "text-blue-800"
       break
     
+    // Offline States - Gray (#6b7280 / #374151)
+    case "offline":
+      bgColor = "bg-gray-100"
+      textColor = "text-gray-800"
+      break
+    
     // Neutral/Default States - Gray (#6b7280 / #374151)
     case "all":
     case "unknown":
@@ -133,7 +139,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
   }
 
   const badge = (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-200 ${bgColor} ${textColor}`}>
       {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
     </span>
   )

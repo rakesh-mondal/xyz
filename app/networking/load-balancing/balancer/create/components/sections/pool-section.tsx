@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react"
 
-import { Button } from "@/components/ui/button"
+
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-import { HelpCircle, Plus, Trash2 } from "lucide-react"
+import { HelpCircle } from "lucide-react"
 import type { ALBFormData } from "../alb-create-form"
 
 interface PoolSectionProps {
@@ -25,17 +25,12 @@ interface Pool {
 }
 
 export function PoolSection({ formData, updateFormData, isSection = false }: PoolSectionProps) {
-  const [pools, setPools] = useState<Pool[]>(
-    formData.pools.length > 0 
-      ? formData.pools 
-      : [{
-          id: crypto.randomUUID(),
-          name: "",
-          protocol: "",
-          algorithm: "",
-          targetGroup: ""
-        }]
-  )
+  const [pools, setPools] = useState<Pool[]>(formData.pools)
+
+  // Sync props to local state when they change
+  useEffect(() => {
+    setPools(formData.pools)
+  }, [formData.pools])
 
   const protocolOptions = [
     { value: "HTTP", label: "HTTP" },
@@ -124,22 +119,7 @@ export function PoolSection({ formData, updateFormData, isSection = false }: Poo
     }
   ]
 
-  const addPool = () => {
-    const newPool: Pool = {
-      id: crypto.randomUUID(),
-      name: "",
-      protocol: "",
-      algorithm: "",
-      targetGroup: ""
-    }
-    setPools([...pools, newPool])
-  }
 
-  const removePool = (id: string) => {
-    if (pools.length > 1) {
-      setPools(pools.filter(pool => pool.id !== id))
-    }
-  }
 
   const updatePool = (id: string, field: string, value: string) => {
     setPools(pools.map(pool => 
@@ -173,21 +153,6 @@ export function PoolSection({ formData, updateFormData, isSection = false }: Poo
           
           return (
             <div key={pool.id} className="relative">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-medium">Pool {index + 1}</h4>
-                {pools.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removePool(pool.id)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-              
               <div className="grid md:grid-cols-2 gap-4 p-4 border rounded-lg bg-muted/20">
                 {/* Pool Name */}
                 <div>
@@ -324,23 +289,14 @@ export function PoolSection({ formData, updateFormData, isSection = false }: Poo
           )
         })}
 
-        {/* Add Pool Button */}
-        <Button
-          type="button"
-          variant="outline"
-          onClick={addPool}
-          className="w-full border-dashed"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Another Pool
-        </Button>
+
 
         {/* Configuration Note */}
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-700">
-            <strong>Best Practice:</strong> Use different pools for different types of traffic or environments. 
-            For example, create separate pools for web traffic, API traffic, and admin traffic with 
-            appropriate load balancing algorithms for each use case.
+            <strong>Best Practice:</strong> Configure your pool with the appropriate load balancing algorithm 
+            and target group based on your traffic requirements. Each listener has one pool configuration 
+            that determines how requests are distributed to targets.
           </p>
         </div>
     </div>

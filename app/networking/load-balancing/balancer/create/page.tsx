@@ -5,9 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { LoadBalancerConfigurationModal } from "./components/load-balancer-configuration-modal"
 import { ALBCreateForm } from "./components/alb-create-form"
+import { NLBCreateForm } from "./components/nlb-create-form"
+import { Button } from "@/components/ui/button"
+import { Info } from "lucide-react"
 
 export type LoadBalancerConfiguration = {
-  infrastructureType: "SW" | "HW" | ""
   loadBalancerType: "ALB" | "NLB" | ""
 }
 
@@ -16,13 +18,12 @@ export default function CreateLoadBalancerPage() {
   const searchParams = useSearchParams()
   const [showModal, setShowModal] = useState(false)
   const [config, setConfig] = useState<LoadBalancerConfiguration>({
-    infrastructureType: "",
     loadBalancerType: ""
   })
 
   // Show modal on page load if no configuration is set
   useEffect(() => {
-    if (!config.infrastructureType || !config.loadBalancerType) {
+    if (!config.loadBalancerType) {
       setShowModal(true)
     }
   }, [])
@@ -39,12 +40,12 @@ export default function CreateLoadBalancerPage() {
 
   const handleBack = () => {
     // Reset configuration and show modal again
-    setConfig({ infrastructureType: "", loadBalancerType: "" })
+    setConfig({ loadBalancerType: "" })
     setShowModal(true)
   }
 
   // Show modal if configuration is not complete
-  if (showModal || (!config.infrastructureType || !config.loadBalancerType)) {
+  if (showModal || !config.loadBalancerType) {
     return (
       <PageLayout
         title="Create Load Balancer"
@@ -70,24 +71,28 @@ export default function CreateLoadBalancerPage() {
     )
   }
 
-  // Placeholder for NLB form (will be implemented later)
+  // Show NLB form
+  if (config.loadBalancerType === "NLB") {
+    return (
+      <NLBCreateForm
+        config={config}
+        onBack={handleBack}
+        onCancel={() => router.push("/networking/load-balancing/balancer")}
+      />
+    )
+  }
+
+  // Default fallback
   return (
     <PageLayout
-      title="Create Network Load Balancer"
-      description="Network Load Balancer configuration form coming soon"
+      title="Create Load Balancer"
+      description="Please select a load balancer type to continue"
     >
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <h3 className="text-lg font-medium mb-2">NLB Configuration</h3>
-          <p className="text-muted-foreground mb-4">
-            Network Load Balancer form will be available soon
-          </p>
-          <button
-            onClick={handleBack}
-            className="text-primary hover:underline"
-          >
-            ← Back to Configuration
-          </button>
+          <Button onClick={handleBack}>
+            Select Load Balancer Type
+          </Button>
         </div>
       </div>
     </PageLayout>

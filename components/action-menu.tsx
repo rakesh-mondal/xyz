@@ -9,6 +9,13 @@ import { TooltipWrapper } from "./ui/tooltip-wrapper"
 import Link from "next/link"
 import { DeleteConfirmationModal } from "./delete-confirmation-modal"
 
+interface CustomAction {
+  label: string
+  onClick: () => void
+  icon?: React.ReactNode
+  variant?: 'default' | 'destructive'
+}
+
 interface ActionMenuProps {
   viewHref?: string
   editHref?: string
@@ -38,6 +45,7 @@ interface ActionMenuProps {
   onAttachDetachSecurityGroups?: () => void  // For security group management
   onAttachDetachPublicIP?: () => void  // For IP address management
   onRetry?: () => void  // For retry action (e.g., failed volumes)
+  customActions?: CustomAction[]  // New prop for custom actions
 }
 
 /**
@@ -80,6 +88,7 @@ export function ActionMenu({
   onAttachDetachSecurityGroups,
   onAttachDetachPublicIP,
   onRetry,
+  customActions = [],
 }: ActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const router = useRouter()
@@ -226,6 +235,20 @@ export function ActionMenu({
               <span>Download</span>
             </DropdownMenuItem>
           )}
+          {customActions.map((action, index) => (
+            <DropdownMenuItem
+              key={index}
+              onClick={action.onClick}
+              className={`flex items-center cursor-pointer ${
+                action.variant === 'destructive' 
+                  ? 'text-destructive focus:text-destructive' 
+                  : ''
+              }`}
+            >
+              {action.icon || <RefreshCw className="mr-2 h-4 w-4" />}
+              <span>{action.label}</span>
+            </DropdownMenuItem>
+          ))}
           {(deleteHref || onCustomDelete) && (
             <DropdownMenuItem
               onClick={() => {

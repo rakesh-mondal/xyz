@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ClusterDeleteModal } from "@/components/mks/cluster-delete-modal"
 import { ClusterUpgradeModal } from "@/components/mks/cluster-upgrade-modal"
 import { mockMKSClusters, type MKSCluster, isK8sVersionDeprecated, getNextK8sVersion } from "@/lib/mks-data"
-import { MoreVertical, ExternalLink, Clock, CheckCircle, AlertCircle, XCircle, AlertTriangle } from "lucide-react"
+import { MoreVertical, ExternalLink, Clock, CheckCircle, AlertCircle, XCircle, AlertTriangle, RefreshCw } from "lucide-react"
 import Link from "next/link"
 
 export default function MKSDashboardPage() {
@@ -245,23 +245,34 @@ export default function MKSDashboardPage() {
       key: "actions",
       label: "Actions",
       align: "right" as const,
-      render: (value: any, row: any) => (
-        <div className="flex justify-end">
-          <ActionMenu
-            viewHref={`/kubernetes/clusters/${row.id}`}
-            editHref={`/kubernetes/clusters/${row.id}/edit`}
-            onCustomDelete={() => handleDeleteCluster(row)}
-            resourceName={row.name}
-            resourceType="Cluster"
-            customActions={[
-              {
-                label: "Upgrade Cluster",
-                onClick: () => handleUpgradeCluster(row)
-              }
-            ]}
-          />
-        </div>
-      ),
+      render: (value: any, row: any) => {
+        const nextVersion = getNextK8sVersion(row.k8sVersion)
+        const hasUpdateAvailable = nextVersion !== null
+        
+        const customActions = []
+        
+        // Add Update action only when update is available
+        if (hasUpdateAvailable) {
+          customActions.push({
+            label: "Update Cluster",
+            onClick: () => handleUpgradeCluster(row),
+            icon: <RefreshCw className="mr-2 h-4 w-4" />
+          })
+        }
+        
+        return (
+          <div className="flex justify-end">
+            <ActionMenu
+              viewHref={`/kubernetes/clusters/${row.id}`}
+              editHref={`/kubernetes/clusters/${row.id}/edit`}
+              onCustomDelete={() => handleDeleteCluster(row)}
+              resourceName={row.name}
+              resourceType="Cluster"
+              customActions={customActions}
+            />
+          </div>
+        )
+      },
     },
   ]
 

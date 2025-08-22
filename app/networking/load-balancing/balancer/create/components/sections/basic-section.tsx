@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,16 +19,12 @@ interface BasicSectionProps {
 }
 
 export function BasicSection({ formData, updateFormData, isSection = false }: BasicSectionProps) {
-  const [localData, setLocalData] = useState({
-    name: formData.name || "",
-    description: formData.description || "",
-    loadBalancerType: formData.loadBalancerType || "",
-    region: formData.region || "",
-    vpc: formData.vpc || "",
-    subnet: formData.subnet || ""
-  })
-
   const [formTouched, setFormTouched] = useState(false)
+  
+  const updateField = (field: string, value: string) => {
+    setFormTouched(true)
+    updateFormData("basics", { [field]: value })
+  }
 
   // Mock region availability data (from VPC create page pattern)
   const regionAvailability = {
@@ -105,30 +101,26 @@ export function BasicSection({ formData, updateFormData, isSection = false }: Ba
   }
 
   const handleChange = (field: string, value: string) => {
-    const newData = { ...localData, [field]: value }
+    setFormTouched(true)
     
     // Clear subnet if VPC changes
     if (field === "vpc") {
-      newData.subnet = ""
+      updateFormData("basics", { [field]: value, subnet: "" })
+    } else {
+      updateFormData("basics", { [field]: value })
     }
-    
-    setLocalData(newData)
-    setFormTouched(true)
   }
 
   const isFormValid = () => {
-    return localData.name.trim().length > 0 && 
-           localData.region.length > 0 && 
-           localData.vpc.length > 0 &&
-           localData.subnet.length > 0
+    return formData.name?.trim().length > 0 && 
+           formData.region?.length > 0 && 
+           formData.vpc?.length > 0 &&
+           formData.subnet?.length > 0
   }
 
 
 
-  useEffect(() => {
-    // Save data to parent on change
-    updateFormData("basics", localData)
-  }, [localData])
+
 
   return (
     <div className="space-y-6">
@@ -140,10 +132,10 @@ export function BasicSection({ formData, updateFormData, isSection = false }: Ba
           <Input
             id="name"
             placeholder="Enter load balancer name"
-            value={localData.name}
+            value={formData.name || ""}
             onChange={(e) => handleChange("name", e.target.value)}
             className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-              formTouched && !localData.name.trim() ? 'border-red-300 bg-red-50' : ''
+              formTouched && !formData.name?.trim() ? 'border-red-300 bg-red-50' : ''
             }`}
             required
           />
@@ -160,7 +152,7 @@ export function BasicSection({ formData, updateFormData, isSection = false }: Ba
           <Textarea
             id="description"
             placeholder="Enter a description for this load balancer"
-            value={localData.description}
+            value={formData.description || ""}
             onChange={(e) => handleChange("description", e.target.value)}
             className="focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[100px]"
           />
@@ -172,7 +164,7 @@ export function BasicSection({ formData, updateFormData, isSection = false }: Ba
             Load Balancer Type
           </Label>
           <Input
-            value={localData.loadBalancerType}
+            value={formData.loadBalancerType || ""}
             disabled
             className="bg-muted"
           />
@@ -183,8 +175,8 @@ export function BasicSection({ formData, updateFormData, isSection = false }: Ba
           <Label htmlFor="region" className="block mb-2 font-medium">
             Region <span className="text-destructive">*</span>
           </Label>
-          <Select value={localData.region} onValueChange={(value) => handleChange("region", value)} required>
-            <SelectTrigger className={formTouched && !localData.region ? 'border-red-300 bg-red-50' : ''}>
+          <Select value={formData.region || ""} onValueChange={(value) => handleChange("region", value)} required>
+            <SelectTrigger className={formTouched && !formData.region ? 'border-red-300 bg-red-50' : ''}>
               <SelectValue placeholder="Select a region" />
             </SelectTrigger>
             <SelectContent>
@@ -196,18 +188,18 @@ export function BasicSection({ formData, updateFormData, isSection = false }: Ba
           </Select>
           
           {/* Region Availability Display */}
-          {localData.region && regionAvailability[localData.region as keyof typeof regionAvailability] && (
+          {formData.region && regionAvailability[formData.region as keyof typeof regionAvailability] && (
             <div className="mt-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-xs text-gray-900">
                   Load Balancer Availability
                 </h4>
                 <span className="text-xs text-gray-500">
-                  {regionAvailability[localData.region as keyof typeof regionAvailability].name}
+                  {regionAvailability[formData.region as keyof typeof regionAvailability].name}
                 </span>
               </div>
               <div className="space-y-2">
-                {regionAvailability[localData.region as keyof typeof regionAvailability].resources.map((resource, index) => (
+                {regionAvailability[formData.region as keyof typeof regionAvailability].resources.map((resource, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <span className="text-xs text-gray-700">
                       {resource.type}
@@ -254,8 +246,8 @@ export function BasicSection({ formData, updateFormData, isSection = false }: Ba
               <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
             </TooltipWrapper>
           </div>
-          <Select value={localData.vpc} onValueChange={(value) => handleChange("vpc", value)} required>
-            <SelectTrigger className={formTouched && !localData.vpc ? 'border-red-300 bg-red-50' : ''}>
+          <Select value={formData.vpc || ""} onValueChange={(value) => handleChange("vpc", value)} required>
+            <SelectTrigger className={formTouched && !formData.vpc ? 'border-red-300 bg-red-50' : ''}>
               <SelectValue placeholder="Select a VPC" />
             </SelectTrigger>
             <SelectContent>
@@ -282,16 +274,16 @@ export function BasicSection({ formData, updateFormData, isSection = false }: Ba
             </TooltipWrapper>
           </div>
           <Select 
-            value={localData.subnet} 
+            value={formData.subnet || ""} 
             onValueChange={(value) => handleChange("subnet", value)} 
-            disabled={!localData.vpc}
+            disabled={!formData.vpc}
             required
           >
-            <SelectTrigger className={formTouched && !localData.subnet ? 'border-red-300 bg-red-50' : ''}>
-              <SelectValue placeholder={localData.vpc ? "Select a subnet" : "Select VPC first"} />
+            <SelectTrigger className={formTouched && !formData.subnet ? 'border-red-300 bg-red-50' : ''}>
+              <SelectValue placeholder={formData.vpc ? "Select a subnet" : "Select VPC first"} />
             </SelectTrigger>
             <SelectContent>
-              {getSubnetsForVpc(localData.vpc).map((subnet) => (
+              {getSubnetsForVpc(formData.vpc || "").map((subnet) => (
                 <SelectItem key={subnet} value={subnet}>
                   {subnet}
                 </SelectItem>

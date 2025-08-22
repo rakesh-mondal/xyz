@@ -21,7 +21,7 @@ import { ComputeIcon } from "@/components/icons/compute-icon"
 import { CommandPaletteProvider } from "@/components/command/command-palette-provider"
 import { AccessBanner } from "@/components/access-control/access-banner"
 import { FeatureRestriction } from "@/components/access-control/feature-restriction"
-import { MaintenanceBanner } from "@/components/maintenance-banner"
+// import { MaintenanceBanner } from "@/components/maintenance-banner"
 import { Button } from "@/components/ui/button"
 import { Stepper, StepperItem, StepperIndicator, StepperTitle, StepperDescription, StepperSeparator, StepperNav, StepperPanel, StepperContent } from '@/components/ui/stepper'
 import { Badge } from "@/components/ui/badge"
@@ -727,7 +727,7 @@ export default function DashboardPage() {
     <CommandPaletteProvider>
       <div className="space-y-4 flex flex-col min-h-screen pb-12">
         <AccessBanner onCompleteProfile={handleVerifyIdentity} />
-        <MaintenanceBanner />
+        {/* <MaintenanceBanner /> */}
 
         {/* Welcome Message */}
         <div className="mb-2">

@@ -134,10 +134,15 @@ export const tooltipContent = {
 
   // Status and actions
   status: {
-    active: "Resource is running and operational",
+    // Load Balancer specific statuses
+    active: "Serving traffic normally",
+    provisioning: "LB is being set up; resources being allocated",
+    error: "Creation or update failed",
+    offline: "Not serving traffic (all backends unhealthy, listeners disabled, or admin stopped)",
+    
+    // General statuses
     inactive: "Resource is stopped or not running",
     pending: "Resource is being created or started",
-    error: "Resource has encountered an error",
     warning: "Resource requires attention",
     success: "Operation completed successfully",
     loading: "Operation is in progress",

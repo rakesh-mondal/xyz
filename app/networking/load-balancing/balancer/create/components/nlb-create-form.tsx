@@ -13,12 +13,11 @@ import { Label } from "@/components/ui/label"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { HelpCircle, Plus, Trash2 } from "lucide-react"
 import { BasicSection } from "./sections/basic-section"
-import { PolicyRulesSection } from "./sections/policy-rules-section"
 import { PoolSection } from "./sections/pool-section"
 
 import type { LoadBalancerConfiguration } from "../page"
 
-export interface ALBFormData {
+export interface NLBFormData {
   // Basics
   name: string
   description: string
@@ -27,7 +26,7 @@ export interface ALBFormData {
   vpc: string
   subnet: string
   
-  // Listeners with nested Policy & Rules and Pools
+  // Listeners with only pools (no policies/rules for NLB)
   listeners: Array<{
     id: string
     name: string
@@ -36,21 +35,7 @@ export interface ALBFormData {
     alpnProtocol: string
     certificate: string
     
-    // Nested Policy & Rules for this listener
-    policies: Array<{
-      id: string
-      name: string
-      action: string
-    }>
-    rules: Array<{
-      id: string
-      ruleType: string
-      comparator: string
-      value: string
-      key?: string
-    }>
-    
-    // Nested Pools for this listener
+    // Only pools for NLB - no policies or rules
     pools: Array<{
       id: string
       name: string
@@ -61,7 +46,7 @@ export interface ALBFormData {
   }>
 }
 
-interface ALBCreateFormProps {
+interface NLBCreateFormProps {
   config: LoadBalancerConfiguration
   onBack: () => void
   onCancel: () => void
@@ -71,19 +56,18 @@ const getLoadBalancerTypeName = (config: LoadBalancerConfiguration) => {
   return config.loadBalancerType === "ALB" ? "Application Load Balancer" : "Network Load Balancer"
 }
 
-// Helper component for individual listener configuration
-interface ListenerCardProps {
-  listener: ALBFormData['listeners'][0]
+// Helper component for individual NLB listener configuration
+interface NLBListenerCardProps {
+  listener: NLBFormData['listeners'][0]
   updateListener: (listenerId: string, field: string, value: any) => void
 }
 
-function ListenerCard({ listener, updateListener }: ListenerCardProps) {
+function NLBListenerCard({ listener, updateListener }: NLBListenerCardProps) {
   const protocolOptions = [
-    { value: "HTTP", label: "HTTP", defaultPort: 80 },
-    { value: "HTTPS", label: "HTTPS", defaultPort: 443 },
-    { value: "TERMINATED_HTTPS", label: "TERMINATED_HTTPS", defaultPort: 443 },
     { value: "TCP", label: "TCP", defaultPort: 80 },
-    { value: "UDP", label: "UDP", defaultPort: 80 }
+    { value: "UDP", label: "UDP", defaultPort: 80 },
+    { value: "TCP_UDP", label: "TCP_UDP", defaultPort: 80 },
+    { value: "TLS", label: "TLS", defaultPort: 443 }
   ]
 
   const alpnProtocolOptions = [
@@ -108,18 +92,6 @@ function ListenerCard({ listener, updateListener }: ListenerCardProps) {
       }
     } else {
       updateListener(listener.id, field, value)
-    }
-  }
-
-  const updatePoliciesAndRules = (section: string, data: any) => {
-    // Handle the "policyRules" section which contains both policies and rules
-    if (section === "policyRules") {
-      if (data.policies) {
-        updateListener(listener.id, "policies", data.policies)
-      }
-      if (data.rules) {
-        updateListener(listener.id, "rules", data.rules)
-      }
     }
   }
 
@@ -222,14 +194,14 @@ function ListenerCard({ listener, updateListener }: ListenerCardProps) {
           </div>
 
           {/* Certificate */}
-          {(listener.protocol === "HTTPS" || listener.protocol === "TERMINATED_HTTPS") && (
+          {listener.protocol === "TLS" && (
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-2">
                 <Label className="font-medium">
                   SSL Certificate <span className="text-destructive">*</span>
                 </Label>
                 <TooltipWrapper 
-                  content="Select an SSL certificate for HTTPS listeners. The certificate must be valid and associated with your domain."
+                  content="Select an SSL certificate for TLS listeners. The certificate must be valid and associated with your domain."
                   side="top"
                 >
                   <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
@@ -255,28 +227,12 @@ function ListenerCard({ listener, updateListener }: ListenerCardProps) {
         </div>
       </div>
 
-      {/* Nested Policy & Rules Section */}
-      <div className="space-y-4">
-        <h4 className="font-medium text-base">Policy & Rules Configuration</h4>
-        <div className="border rounded-lg p-4 bg-muted/10">
-          <PolicyRulesSection
-            formData={{
-              ...{} as ALBFormData,
-              policies: listener.policies,
-              rules: listener.rules
-            }}
-            updateFormData={updatePoliciesAndRules}
-            isSection={true}
-          />
-        </div>
-      </div>
-
-      {/* Nested Pool Section */}
+      {/* Pool Section - No Policy & Rules for NLB */}
       <div className="space-y-4">
         <h4 className="font-medium text-base">Pool Configuration</h4>
         <PoolSection
           formData={{
-            ...{} as ALBFormData,
+            ...{} as any,
             pools: listener.pools
           }}
           updateFormData={updatePools}
@@ -287,9 +243,9 @@ function ListenerCard({ listener, updateListener }: ListenerCardProps) {
   )
 }
 
-export function ALBCreateForm({ config, onBack, onCancel }: ALBCreateFormProps) {
+export function NLBCreateForm({ config, onBack, onCancel }: NLBCreateFormProps) {
   const router = useRouter()
-  const [formData, setFormData] = useState<ALBFormData>({
+  const [formData, setFormData] = useState<NLBFormData>({
     name: "",
     description: "",
     loadBalancerType: getLoadBalancerTypeName(config),
@@ -316,18 +272,6 @@ export function ALBCreateForm({ config, onBack, onCancel }: ALBCreateFormProps) 
     port: 80,
     alpnProtocol: "",
     certificate: "",
-    policies: [{
-      id: crypto.randomUUID(),
-      name: "",
-      action: ""
-    }],
-    rules: [{
-      id: crypto.randomUUID(),
-      ruleType: "",
-      comparator: "",
-      value: "",
-      key: ""
-    }],
     pools: [{
       id: crypto.randomUUID(),
       name: "",
@@ -392,8 +336,8 @@ export function ALBCreateForm({ config, onBack, onCancel }: ALBCreateFormProps) 
 
   return (
     <PageLayout
-      title="Create Application Load Balancer"
-      description="Configure your Application Load Balancer with advanced routing and SSL termination"
+      title="Create Network Load Balancer"
+      description="Configure your Network Load Balancer for high-performance TCP/UDP traffic routing"
     >
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Main Content */}
@@ -403,14 +347,14 @@ export function ALBCreateForm({ config, onBack, onCancel }: ALBCreateFormProps) 
               {/* Required Section: Basics */}
               <div className="space-y-6">
                 <BasicSection
-                  formData={formData}
+                  formData={formData as any}
                   updateFormData={updateFormData}
                   isSection={true}
                 />
                 
                 <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                   <p className="text-gray-600" style={{ fontSize: '13px' }}>
-                    Configure multiple listeners below. Each listener can have its own Policy & Rules and Pool configurations.
+                    Configure multiple listeners below. Each listener can have its own Pool configuration for TCP/UDP traffic routing.
                   </p>
                 </div>
               </div>
@@ -462,7 +406,7 @@ export function ALBCreateForm({ config, onBack, onCancel }: ALBCreateFormProps) 
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="px-4 pb-4">
-                        <ListenerCard 
+                        <NLBListenerCard 
                           listener={listener}
                           updateListener={updateListener}
                         />
@@ -515,11 +459,11 @@ export function ALBCreateForm({ config, onBack, onCancel }: ALBCreateFormProps) 
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground text-sm">Optional sections can be configured later after creation</span>
+                  <span className="text-muted-foreground text-sm">Pool configuration can be updated later after creation</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground text-sm">Configure listeners and rules for advanced routing</span>
+                  <span className="text-muted-foreground text-sm">Choose appropriate protocols for your traffic requirements</span>
                 </li>
               </ul>
             </CardContent>
@@ -540,15 +484,15 @@ export function ALBCreateForm({ config, onBack, onCancel }: ALBCreateFormProps) 
             </div>
             <div className="space-y-3">
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold">₹1.20</span>
+                <span className="text-2xl font-bold">₹0.80</span>
                 <span className="text-sm text-muted-foreground">per hour</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Application Load Balancer with {config.infrastructureType === "SW" ? "software" : "hardware"} infrastructure.
+                Network Load Balancer optimized for high-performance TCP/UDP traffic.
               </p>
               <div className="text-xs text-muted-foreground pt-2 border-t">
-                <p>• ALB Setup: ₹1.20/hour</p>
-                <p>• Estimated monthly: ₹876.00</p>
+                <p>• NLB Setup: ₹0.80/hour</p>
+                <p>• Estimated monthly: ₹584.00</p>
                 <p>• Data processing charges apply</p>
               </div>
             </div>

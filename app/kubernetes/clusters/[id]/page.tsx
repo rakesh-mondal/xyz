@@ -40,6 +40,7 @@ import {
 import { getClusterById, type MKSCluster, isK8sVersionDeprecated, getNextK8sVersion, getRegionDisplayName } from "@/lib/mks-data"
 import { NodePoolsSection } from "@/components/mks/node-pools-section"
 import { AddOnsSection } from "@/components/mks/add-ons-section"
+import { ClusterUpgradeModal } from "@/components/mks/cluster-upgrade-modal"
 
 
 export default function ClusterDetailsPage() {
@@ -87,9 +88,12 @@ export default function ClusterDetailsPage() {
     router.push("/kubernetes")
   }
 
-  const handleUpgradeCluster = () => {
-    // In a real implementation, this would trigger the upgrade process
-    console.log('Upgrading cluster to version:', nextVersion)
+  const handleConfirmUpgrade = async (clusterId: string, newVersion: string) => {
+    // In a real implementation, this would call the API to upgrade the cluster
+    console.log('Upgrading cluster:', clusterId, 'to version:', newVersion)
+    
+    // Update the cluster state to show it's updating
+    setCluster(prev => prev ? { ...prev, k8sVersion: newVersion, status: 'updating' as const } : prev)
     setIsUpgradeModalOpen(false)
     // Show success message
   }
@@ -327,47 +331,12 @@ export default function ClusterDetailsPage() {
       </Dialog>
 
       {/* Upgrade Cluster Modal */}
-      <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Upgrade Kubernetes Version</DialogTitle>
-            <DialogDescription>
-              Zero-downtime upgrade from v{cluster.k8sVersion} to v{nextVersion}.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-6">
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Supported upgrade path:</strong> {cluster.k8sVersion} → {nextVersion}
-              </AlertDescription>
-            </Alert>
-            
-            <div className="bg-muted/50 p-4 rounded-lg border border-border">
-              <h4 className="font-medium mb-3">What happens during upgrade:</h4>
-              <ul className="text-sm space-y-2 text-muted-foreground">
-                <li>• Control plane components will be upgraded</li>
-                <li>• Node pools will be upgraded one at a time</li>
-                <li>• Applications will continue running without interruption</li>
-                <li>• Estimated time: 15-30 minutes</li>
-              </ul>
-            </div>
-          </div>
-
-          <DialogFooter className="mt-8 pt-6 border-t">
-            <Button variant="outline" onClick={() => setIsUpgradeModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleUpgradeCluster}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              Start Upgrade
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ClusterUpgradeModal
+        cluster={cluster}
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        onConfirm={handleConfirmUpgrade}
+      />
 
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}

@@ -2503,10 +2503,18 @@ export const getAllModels = () => {
 }
 
 // Load Balancer and Target Group interfaces
+export interface TargetGroupHealth {
+  id: string
+  name: string
+  healthyTargets: number
+  totalTargets: number
+  status: "healthy" | "unhealthy" | "mixed" | "no-targets"
+}
+
 export interface LoadBalancer {
   id: string
   name: string
-  status: "active" | "inactive" | "creating" | "deleting"
+  status: "provisioning" | "error" | "active" | "offline"
   type: "application" | "network"
   scheme: "internet-facing" | "internal"
   vpc: string
@@ -2516,6 +2524,7 @@ export interface LoadBalancer {
   availability: string
   targets: number
   targetGroupHealth: "healthy" | "unhealthy" | "mixed" | "no-targets"
+  targetGroupsDetails: TargetGroupHealth[]
   ipAddresses: string[]
 }
 
@@ -2566,6 +2575,22 @@ export const loadBalancers: LoadBalancer[] = [
     availability: "Multi-AZ",
     targets: 4,
     targetGroupHealth: "healthy",
+    targetGroupsDetails: [
+      {
+        id: "tg-web-1",
+        name: "web-servers",
+        healthyTargets: 3,
+        totalTargets: 3,
+        status: "healthy"
+      },
+      {
+        id: "tg-api-1",
+        name: "api-servers",
+        healthyTargets: 1,
+        totalTargets: 1,
+        status: "healthy"
+      }
+    ],
     ipAddresses: ["54.123.45.67", "54.123.45.68"]
   },
   {
@@ -2581,12 +2606,21 @@ export const loadBalancers: LoadBalancer[] = [
     availability: "Multi-AZ",
     targets: 2,
     targetGroupHealth: "healthy",
+    targetGroupsDetails: [
+      {
+        id: "tg-gateway-1",
+        name: "api-gateway",
+        healthyTargets: 2,
+        totalTargets: 2,
+        status: "healthy"
+      }
+    ],
     ipAddresses: ["54.234.56.78"]
   },
   {
     id: "lb-3",
     name: "internal-services-lb",
-    status: "active", 
+    status: "offline", 
     type: "network",
     scheme: "internal",
     vpc: "production-vpc",
@@ -2596,12 +2630,35 @@ export const loadBalancers: LoadBalancer[] = [
     availability: "Multi-AZ",
     targets: 6,
     targetGroupHealth: "mixed",
+    targetGroupsDetails: [
+      {
+        id: "tg-auth-1",
+        name: "auth-service",
+        healthyTargets: 2,
+        totalTargets: 2,
+        status: "healthy"
+      },
+      {
+        id: "tg-payment-1",
+        name: "payment-service",
+        healthyTargets: 1,
+        totalTargets: 2,
+        status: "mixed"
+      },
+      {
+        id: "tg-notification-1",
+        name: "notification-service",
+        healthyTargets: 0,
+        totalTargets: 2,
+        status: "unhealthy"
+      }
+    ],
     ipAddresses: ["10.0.1.100", "10.0.1.101", "10.0.1.102"]
   },
   {
     id: "lb-4",
     name: "staging-web-lb",
-    status: "active",
+    status: "error",
     type: "application",
     scheme: "internet-facing", 
     vpc: "staging-vpc",
@@ -2611,12 +2668,21 @@ export const loadBalancers: LoadBalancer[] = [
     availability: "Multi-AZ",
     targets: 2,
     targetGroupHealth: "unhealthy",
+    targetGroupsDetails: [
+      {
+        id: "tg-staging-web-1",
+        name: "staging-web",
+        healthyTargets: 0,
+        totalTargets: 2,
+        status: "unhealthy"
+      }
+    ],
     ipAddresses: ["54.345.67.89"]
   },
   {
     id: "lb-5",
     name: "dev-app-lb",
-    status: "creating",
+    status: "provisioning",
     type: "application",
     scheme: "internet-facing",
     vpc: "development-vpc", 
@@ -2626,6 +2692,7 @@ export const loadBalancers: LoadBalancer[] = [
     availability: "Single-AZ",
     targets: 0,
     targetGroupHealth: "no-targets",
+    targetGroupsDetails: [],
     ipAddresses: []
   }
 ]
