@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { StatusBadge } from "@/components/status-badge"
-import { Edit, Trash2, ExternalLink } from "lucide-react"
+import { Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 // Mock data for demonstration - in real app, this would come from API
@@ -259,11 +259,7 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
     router.push(`/networking/load-balancing/balancer/${id}/edit`)
   }
 
-  // Format created date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
-  }
+
 
   // Determine if this is ALB or NLB
   const isALB = loadBalancer.type === "Application Load Balancer"
@@ -336,64 +332,6 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnet</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.subnet}</div>
-            </div>
-          </div>
-
-          {/* Generated Information - Third Row: Status, Scheme, Load Balancer ID */}
-          <div className="col-span-full grid grid-cols-3 gap-4 mt-4">
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
-              <div>
-                <StatusBadge status={loadBalancer.status} />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Scheme</label>
-              <div>
-                <Badge variant={loadBalancer.scheme === "internet-facing" ? "default" : "secondary"}>
-                  {loadBalancer.scheme}
-                </Badge>
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Load Balancer ID</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.id}</div>
-            </div>
-          </div>
-
-          {/* DNS & Deployment Information - Fourth Row: DNS Name, Availability Zones, Created Date */}
-          <div className="col-span-full grid grid-cols-3 gap-4 mt-4">
-            <div className="space-y-1 col-span-2">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>DNS Name</label>
-              <div className="font-medium flex items-center gap-2" style={{ fontSize: '14px' }}>
-                <span className="truncate">{loadBalancer.dnsName}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                  onClick={() => navigator.clipboard.writeText(loadBalancer.dnsName)}
-                >
-                  <ExternalLink className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Created</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{formatDate(loadBalancer.created)}</div>
-            </div>
-          </div>
-
-          {/* Availability Zones - Fifth Row */}
-          <div className="col-span-full grid grid-cols-1 gap-4 mt-4">
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Availability Zones</label>
-              <div className="flex flex-wrap gap-1">
-                {loadBalancer.availabilityZones.map((zone) => (
-                  <Badge key={zone} variant="outline" className="text-xs">
-                    {zone}
-                  </Badge>
-                ))}
-              </div>
             </div>
           </div>
         </DetailGrid>
