@@ -506,9 +506,8 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
-        title="Delete Load Balancer"
-        description={`Are you sure you want to delete the load balancer "${loadBalancer.name}"? This action cannot be undone.`}
         resourceName={loadBalancer.name}
+        resourceType="load balancer"
       />
     </PageLayout>
   )
