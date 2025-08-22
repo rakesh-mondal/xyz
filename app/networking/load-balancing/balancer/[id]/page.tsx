@@ -528,22 +528,18 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
         </DetailGrid>
       </div>
 
-      {/* Listeners Configuration */}
+      {/* Listeners */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Listeners Configuration</h2>
-          <Badge variant="outline">{loadBalancer.listeners.length} listener{loadBalancer.listeners.length > 1 ? 's' : ''}</Badge>
+          <h2 className="text-lg font-semibold">Listeners {loadBalancer.listeners.length}</h2>
         </div>
 
         {loadBalancer.listeners.map((listener, index) => (
           <Card key={listener.id} className="overflow-hidden">
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">
-                  {listener.name} ({listener.protocol}:{listener.port})
-                </CardTitle>
-                <Badge variant="outline">Listener {index + 1}</Badge>
-              </div>
+              <CardTitle className="text-base">
+                {listener.name} ({listener.protocol}:{listener.port})
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Listener Settings */}
