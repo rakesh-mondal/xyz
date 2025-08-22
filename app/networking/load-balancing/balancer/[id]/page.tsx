@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { StatusBadge } from "@/components/status-badge"
-import { Edit, Trash2 } from "lucide-react"
+import { Edit, Trash2, ChevronDown, ChevronRight } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 // Mock data for demonstration - in real app, this would come from API
@@ -30,6 +30,23 @@ const mockLoadBalancers = {
     subnet: "subnet-prod-1",
     availabilityZones: ["ap-south-1a", "ap-south-1b"],
     created: "2024-01-15T10:30:00Z",
+    targetGroupsDetails: [
+      {
+        id: "tg-web-1",
+        name: "web-servers",
+        healthyTargets: 3,
+        totalTargets: 3,
+        status: "healthy"
+      },
+      {
+        id: "tg-api-1", 
+        name: "api-servers",
+        healthyTargets: 2,
+        totalTargets: 2,
+        status: "healthy"
+      }
+    ],
+    ipAddresses: ["10.0.1.45", "10.0.2.67", "10.0.3.89"],
     listeners: [
       {
         id: "listener-001",
@@ -108,6 +125,16 @@ const mockLoadBalancers = {
     subnet: "subnet-prod-3",
     availabilityZones: ["ap-south-1a", "ap-south-1b"],
     created: "2024-01-20T14:20:00Z",
+    targetGroupsDetails: [
+      {
+        id: "tg-tcp-1",
+        name: "tcp-services",
+        healthyTargets: 4,
+        totalTargets: 4,
+        status: "healthy"
+      }
+    ],
+    ipAddresses: ["10.0.6.12", "10.0.7.34"],
     listeners: [
       {
         id: "listener-003",
@@ -144,6 +171,16 @@ const mockLoadBalancers = {
     subnet: "subnet-prod-2",
     availabilityZones: ["ap-south-1a", "ap-south-1b"],
     created: "2024-01-18T12:15:00Z",
+    targetGroupsDetails: [
+      {
+        id: "tg-api-gateway-1",
+        name: "api-gateway",
+        healthyTargets: 2,
+        totalTargets: 2,
+        status: "healthy"
+      }
+    ],
+    ipAddresses: ["10.0.4.23", "10.0.5.78"],
     listeners: [
       {
         id: "listener-004",
@@ -191,6 +228,16 @@ const mockLoadBalancers = {
     subnet: "subnet-dev-1",
     availabilityZones: ["ap-south-1a"],
     created: "2024-02-01T09:00:00Z",
+    targetGroupsDetails: [
+      {
+        id: "tg-dev-1",
+        name: "dev-web",
+        healthyTargets: 0,
+        totalTargets: 2,
+        status: "unhealthy"
+      }
+    ],
+    ipAddresses: [],
     listeners: [
       {
         id: "listener-005",
@@ -231,10 +278,51 @@ function getLoadBalancer(id: string) {
   return mockLoadBalancers[id as keyof typeof mockLoadBalancers] || null
 }
 
+// Helper function to calculate target group health summary
+const calculateTargetGroupSummary = (targetGroups: any[]) => {
+  if (targetGroups.length === 0) {
+    return { healthy: 0, mixed: 0, unhealthy: 0, total: 0 }
+  }
+  
+  let healthy = 0
+  let mixed = 0
+  let unhealthy = 0
+  
+  targetGroups.forEach(tg => {
+    if (tg.status === "healthy") {
+      healthy++
+    } else if (tg.status === "mixed") {
+      mixed++
+    } else if (tg.status === "unhealthy") {
+      unhealthy++
+    }
+  })
+  
+  return { healthy, mixed, unhealthy, total: targetGroups.length }
+}
+
+// Helper function to format summary text
+const formatSummaryText = (summary: { healthy: number; mixed: number; unhealthy: number; total: number }) => {
+  const parts = []
+  
+  if (summary.healthy > 0) {
+    parts.push(`${summary.healthy} healthy`)
+  }
+  if (summary.mixed > 0) {
+    parts.push(`${summary.mixed} mixed`)
+  }
+  if (summary.unhealthy > 0) {
+    parts.push(`${summary.unhealthy} unhealthy`)
+  }
+  
+  return parts.join(", ")
+}
+
 export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [expandedTargetGroups, setExpandedTargetGroups] = useState(false)
   
   // Unwrap the params Promise using React.use()
   const { id } = use(params)
@@ -332,6 +420,109 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnet</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{loadBalancer.subnet}</div>
+            </div>
+          </div>
+
+          {/* Runtime Information from List Page - Third Row: Status, Target Group Health, IP Addresses */}
+          <div className="col-span-full grid grid-cols-3 gap-4 mt-4">
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
+              <div>
+                <StatusBadge status={loadBalancer.status} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Target Group Health</label>
+              <div>
+                {(() => {
+                  const targetGroups = loadBalancer.targetGroupsDetails || []
+                  
+                  // Handle no target groups case
+                  if (targetGroups.length === 0) {
+                    return <span className="text-muted-foreground text-sm">No target groups</span>
+                  }
+                  
+                  // Calculate summary
+                  const summary = calculateTargetGroupSummary(targetGroups)
+                  const summaryText = formatSummaryText(summary)
+                  
+                  // Determine overall health color
+                  let summaryColor = "text-muted-foreground"
+                  if (summary.unhealthy === 0 && summary.mixed === 0) {
+                    summaryColor = "text-green-600" // All healthy
+                  } else if (summary.healthy === 0) {
+                    summaryColor = "text-red-600" // No healthy ones
+                  } else {
+                    summaryColor = "text-orange-600" // Mixed
+                  }
+                  
+                  return (
+                    <div className="space-y-1">
+                      {/* Summary Row - Always visible */}
+                      <div 
+                        className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => setExpandedTargetGroups(!expandedTargetGroups)}
+                      >
+                        <ChevronRight 
+                          className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${
+                            expandedTargetGroups ? 'rotate-90' : 'rotate-0'
+                          }`} 
+                        />
+                        <div className="text-sm">
+                          <div className="font-medium">{summary.total} Target Group{summary.total !== 1 ? 's' : ''}</div>
+                          <div className={`text-xs ${summaryColor}`}>
+                            {summaryText || "All configured"}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Expanded Details */}
+                      {expandedTargetGroups && (
+                        <div className="pl-4 space-y-1 border-l-2 border-muted animate-in slide-in-from-top-2 duration-200">
+                          {targetGroups.map((tg: any) => {
+                            const healthText = tg.totalTargets === 0 
+                              ? "No targets" 
+                              : `${tg.healthyTargets}/${tg.totalTargets} healthy`
+                            
+                            let healthColor = "text-muted-foreground"
+                            if (tg.status === "healthy") {
+                              healthColor = "text-green-600"
+                            } else if (tg.status === "unhealthy") {
+                              healthColor = "text-red-600"
+                            } else if (tg.status === "mixed") {
+                              healthColor = "text-orange-600"
+                            }
+                            
+                            return (
+                              <div key={tg.id} className="flex items-center justify-between text-xs">
+                                <span className="font-medium text-muted-foreground">{tg.name}</span>
+                                <span className={healthColor}>{healthText}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>IP Addresses</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>
+                {loadBalancer.ipAddresses?.length > 0 ? (
+                  loadBalancer.ipAddresses.length > 2 ? (
+                    <div className="space-y-1">
+                      <div>{loadBalancer.ipAddresses.slice(0, 2).join(", ")}</div>
+                      <div className="text-xs text-muted-foreground">+{loadBalancer.ipAddresses.length - 2} more</div>
+                    </div>
+                  ) : (
+                    loadBalancer.ipAddresses.join(", ")
+                  )
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </div>
             </div>
           </div>
         </DetailGrid>
