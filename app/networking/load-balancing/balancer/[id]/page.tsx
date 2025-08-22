@@ -531,7 +531,12 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
       {/* Listeners */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Listeners {loadBalancer.listeners.length}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">Listeners</h2>
+            <div className="flex items-center justify-center w-6 h-6 bg-primary text-primary-foreground text-sm font-medium rounded-full">
+              {loadBalancer.listeners.length}
+            </div>
+          </div>
         </div>
 
         {loadBalancer.listeners.map((listener, index) => (
