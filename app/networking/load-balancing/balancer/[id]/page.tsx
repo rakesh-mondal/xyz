@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, use } from "react"
 import { useRouter } from "next/navigation"
 import { notFound } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
@@ -223,11 +223,14 @@ function getLoadBalancer(id: string) {
   return mockLoadBalancers[id as keyof typeof mockLoadBalancers] || null
 }
 
-export default function LoadBalancerDetailsPage({ params }: { params: { id: string } }) {
+export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const loadBalancer = getLoadBalancer(params.id)
+  
+  // Unwrap the params Promise using React.use()
+  const { id } = use(params)
+  const loadBalancer = getLoadBalancer(id)
 
   if (!loadBalancer) {
     notFound()
@@ -245,7 +248,7 @@ export default function LoadBalancerDetailsPage({ params }: { params: { id: stri
   }
 
   const handleEdit = () => {
-    router.push(`/networking/load-balancing/balancer/${loadBalancer.id}/edit`)
+    router.push(`/networking/load-balancing/balancer/${id}/edit`)
   }
 
   // Format created date
@@ -262,7 +265,7 @@ export default function LoadBalancerDetailsPage({ params }: { params: { id: stri
     { href: "/networking", title: "Networking" },
     { href: "/networking/load-balancing", title: "Load Balancing" },
     { href: "/networking/load-balancing/balancer", title: "Load Balancers" },
-    { href: `/networking/load-balancing/balancer/${loadBalancer.id}`, title: loadBalancer.name }
+    { href: `/networking/load-balancing/balancer/${id}`, title: loadBalancer.name }
   ]
 
   return (
