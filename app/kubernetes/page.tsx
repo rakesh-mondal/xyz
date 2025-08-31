@@ -195,7 +195,7 @@ export default function MKSDashboardPage() {
     },
     {
       key: "nodeCount",
-      label: "Node Count",
+      label: "Node Pool Count",
       sortable: true,
       align: "center" as const,
       render: (value: number) => (

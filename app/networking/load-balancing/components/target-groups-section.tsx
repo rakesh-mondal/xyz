@@ -148,28 +148,31 @@ export default function TargetGroupsSection() {
           return <span className="text-muted-foreground leading-5">No targets</span>
         }
 
-        // Count types
-        const typeCounts = value.reduce((acc, member) => {
-          acc[member.type] = (acc[member.type] || 0) + 1
-          return acc
-        }, {} as Record<string, number>)
+        // Filter to only show VMs with healthy/unhealthy status
+        const filteredMembers = value.filter(member => 
+          member.type === "VM" && 
+          (member.status === "healthy" || member.status === "unhealthy")
+        )
 
-        const typesSummary = Object.entries(typeCounts)
-          .map(([type, count]) => `${count} ${type}${count > 1 ? 's' : ''}`)
-          .join(', ')
+        if (filteredMembers.length === 0) {
+          return <span className="text-muted-foreground leading-5">No VM targets</span>
+        }
+
+        // Count VMs only
+        const vmCount = filteredMembers.length
 
         return (
           <HoverCard>
             <HoverCardTrigger asChild>
               <div className="leading-5 cursor-pointer text-primary hover:underline">
-                {value.length} target{value.length > 1 ? 's' : ''} ({typesSummary})...
+                {vmCount} VM{vmCount > 1 ? 's' : ''}
               </div>
             </HoverCardTrigger>
             <HoverCardContent className="min-w-80 max-w-md" side="top" align="start">
               <div className="space-y-3">
                 <h4 className="font-semibold text-sm">Target Group Members</h4>
                 <div className="space-y-3">
-                  {value.map((member, index) => (
+                  {filteredMembers.slice(0, 3).map((member, index) => (
                     <div key={member.id} className="space-y-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
@@ -187,6 +190,11 @@ export default function TargetGroupsSection() {
                       </div>
                     </div>
                   ))}
+                  {filteredMembers.length > 3 && (
+                    <div className="text-xs text-muted-foreground text-center pt-2 border-t">
+                      +{filteredMembers.length - 3} more
+                    </div>
+                  )}
                 </div>
               </div>
             </HoverCardContent>
@@ -275,6 +283,7 @@ export default function TargetGroupsSection() {
           enablePagination={true}
           onRefresh={handleRefresh}
           enableVpcFilter={true}
+          searchPlaceholder="Search TG name..."
           vpcOptions={[
             { value: "all", label: "All VPCs" },
             { value: "production-vpc", label: "production-vpc" },
