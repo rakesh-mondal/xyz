@@ -229,7 +229,7 @@ export function PoolSection({ formData, updateFormData, isSection = false }: Poo
                       Target Group <span className="text-destructive">*</span>
                     </Label>
                     <TooltipWrapper 
-                      content="Select the target group that contains the targets (instances) that will receive traffic from this pool."
+                      content="Select the target group that contains the targets that will receive traffic from this pool."
                       side="top"
                     >
                       <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />

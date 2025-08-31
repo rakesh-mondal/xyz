@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react"
 
 
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-import { HelpCircle } from "lucide-react"
+import { HelpCircle, Plus, Trash2 } from "lucide-react"
 import type { ALBFormData } from "../alb-create-form"
 
 interface PolicyRulesSectionProps {
@@ -81,6 +82,23 @@ export function PolicyRulesSection({ formData, updateFormData, isSection = false
     setRules(rules.map(rule => 
       rule.id === id ? { ...rule, [field]: value } : rule
     ))
+  }
+
+  const addRule = () => {
+    const newRule: Rule = {
+      id: crypto.randomUUID(),
+      ruleType: "",
+      comparator: "",
+      value: "",
+      key: ""
+    }
+    setRules([...rules, newRule])
+  }
+
+  const removeRule = (id: string) => {
+    if (rules.length > 1) {
+      setRules(rules.filter(rule => rule.id !== id))
+    }
   }
 
   const getRuleTypeInfo = (ruleType: string) => {
@@ -180,8 +198,19 @@ export function PolicyRulesSection({ formData, updateFormData, isSection = false
               
               return (
                 <div key={rule.id} className="relative">
-                  <div className="mb-3">
-                    <h4 className="font-medium text-sm">Rule Configuration</h4>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium text-sm">Rule Configuration {index + 1}</h4>
+                    {rules.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeRule(rule.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-4 p-4 border rounded-lg bg-muted/20">
@@ -261,6 +290,16 @@ export function PolicyRulesSection({ formData, updateFormData, isSection = false
               )
             })}
 
+            {/* Add Rule Button */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addRule}
+              className="w-full border-dashed"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Rule
+            </Button>
 
           </div>
         </div>
@@ -268,8 +307,7 @@ export function PolicyRulesSection({ formData, updateFormData, isSection = false
         {/* Configuration Note */}
         <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-sm text-yellow-700">
-            <strong>Note:</strong> Each listener has one policy and one rule configuration. 
-            The policy defines the action to take when the rule conditions are met by incoming requests.
+            <strong>Note:</strong> Each listener has one policy configuration. A policy can have multiple rules within it. A policy evaluates to true and results in execution of action when all rules are satisfied by incoming request.
           </p>
         </div>
     </div>

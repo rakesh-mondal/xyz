@@ -488,19 +488,23 @@ export function ALBCreateForm({ config, onBack, onCancel }: ALBCreateFormProps) 
               <ul className="space-y-3">
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground text-sm">Use descriptive names for easy identification</span>
+                  <span className="text-muted-foreground text-sm">Existence of a Target Group is mandatory for creation of LB.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground text-sm">Basic configuration is required to create a load balancer</span>
+                  <span className="text-muted-foreground text-sm">A target group must consist of active VMs.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground text-sm">Optional sections can be configured later after creation</span>
+                  <span className="text-muted-foreground text-sm">You can have multiple listeners, mapped to 1 target group each.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground text-sm">Configure listeners and rules for advanced routing</span>
+                  <span className="text-muted-foreground text-sm">Policy and rules are additional methods to route traffic, in application load balancers.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground text-sm">Policies define actions to take when all associated rules evaluate to true. Rules define the specific conditions (e.g., URL path, headers) to match client requests.</span>
                 </li>
               </ul>
             </CardContent>
