@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/auth-provider"
 import { PageLayout } from "@/components/page-layout"
@@ -19,7 +19,10 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Search, Check, HelpCircle } from "lucide-react"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
+import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 // Mock VMs data for selection
 const mockVMs = [
@@ -52,15 +55,30 @@ export default function CreateTargetGroupPage() {
     timeout: "",
     maxRetries: "",
     selectedVMs: [] as string[],
+    vmWeights: {} as Record<string, number>,
     portNumber: "",
   })
+
+  // Modal states
+  const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
+
+  // VPC selector state
+  const [vpcSelectorOpen, setVpcSelectorOpen] = useState(false)
+  const [vpcSearchTerm, setVpcSearchTerm] = useState("")
 
   // State to track if form has been interacted with
   const [formTouched, setFormTouched] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Get VMs filtered by selected VPC
-  const filteredVMs = formData.vpc ? mockVMs.filter(vm => vm.vpc === formData.vpc) : []
+  const selectedVPCName = vpcs.find(vpc => vpc.id === formData.vpc)?.name
+  const filteredVMs = selectedVPCName ? mockVMs.filter(vm => vm.vpc === selectedVPCName) : []
+  
+  // Filter VPCs based on search term
+  const filteredVPCs = vpcs.filter(vpc =>
+    vpc.name.toLowerCase().includes(vpcSearchTerm.toLowerCase()) ||
+    vpc.id.toLowerCase().includes(vpcSearchTerm.toLowerCase())
+  )
 
   // Function to check if all mandatory fields are filled
   const isFormValid = () => {
@@ -78,6 +96,35 @@ export default function CreateTargetGroupPage() {
            hasValidProtocol && hasValidInterval && hasValidTimeout && 
            hasValidMaxRetries && hasValidPortNumber && hasSelectedVMs
   }
+
+  // Handle VPC creation
+  const handleVPCCreated = (vpcId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      vpc: vpcId,
+      selectedVMs: [], // Clear selected VMs when VPC changes
+      vmWeights: {} // Clear weights when VPC changes
+    }))
+    setShowCreateVPCModal(false)
+  }
+
+  // Close VPC selector on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (vpcSelectorOpen) {
+        setVpcSelectorOpen(false)
+        setVpcSearchTerm("")
+      }
+    }
+
+    if (vpcSelectorOpen) {
+      document.addEventListener('click', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [vpcSelectorOpen])
 
   const handleInputChange = (field: string) => (
     e: React.ChangeEvent<HTMLInputElement>
@@ -179,24 +226,93 @@ export default function CreateTargetGroupPage() {
                     </p>
                   </div>
 
+                  {/* VPC Selector */}
                   <div className="mb-5">
-                    <Label htmlFor="vpc" className="block mb-2 font-medium">
-                      VPC <span className="text-destructive">*</span>
-                    </Label>
-                    <Select value={formData.vpc} onValueChange={handleSelectChange('vpc')}>
-                      <SelectTrigger className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-                        formTouched && !formData.vpc ? 'border-red-300 bg-red-50' : ''
-                      }`}>
-                        <SelectValue placeholder="Select VPC" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {vpcs.map((vpc) => (
-                          <SelectItem key={vpc.id} value={vpc.name}>
-                            {vpc.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Label className="font-medium">
+                        VPC <span className="text-destructive">*</span>
+                      </Label>
+                      <TooltipWrapper 
+                        content="Select the Virtual Private Cloud where your target group will be deployed. This determines the network scope and security boundaries."
+                        side="top"
+                      >
+                        <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                      </TooltipWrapper>
+                    </div>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setVpcSelectorOpen(!vpcSelectorOpen)}
+                        className={`w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                          formTouched && !formData.vpc ? 'border-red-300 bg-red-50' : ''
+                        }`}
+                      >
+                        <span className={vpcs.find(vpc => vpc.id === formData.vpc) ? "text-foreground" : "!text-[#64748b]"}>
+                          {vpcs.find(vpc => vpc.id === formData.vpc) ? `${vpcs.find(vpc => vpc.id === formData.vpc)?.name} (${vpcs.find(vpc => vpc.id === formData.vpc)?.region})` : "Select VPC to isolate your target group"}
+                        </span>
+                        <ChevronDown className="h-4 w-4 opacity-50" />
+                      </button>
+                      {vpcSelectorOpen && (
+                        <div 
+                          className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="p-2 border-b">
+                            <div className="relative">
+                              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder="Search VPCs..."
+                                value={vpcSearchTerm}
+                                onChange={(e) => setVpcSearchTerm(e.target.value)}
+                                className="pl-8"
+                              />
+                            </div>
+                          </div>
+                          <div className="p-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setShowCreateVPCModal(true)
+                                setVpcSelectorOpen(false)
+                              }}
+                              className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+                            >
+                              Create new VPC
+                            </button>
+                            {filteredVPCs.map((vpc) => (
+                              <button
+                                key={vpc.id}
+                                type="button"
+                                onClick={() => {
+                                  setFormTouched(true)
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    vpc: vpc.id,
+                                    selectedVMs: [], // Clear selected VMs when VPC changes
+                                    vmWeights: {} // Clear weights when VPC changes
+                                  }))
+                                  setVpcSelectorOpen(false)
+                                  setVpcSearchTerm("")
+                                }}
+                                className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
+                              >
+                                <div className="flex flex-col items-start">
+                                  <span className="font-medium">{vpc.name}</span>
+                                  <span className="text-xs text-muted-foreground">{vpc.id} • {vpc.region}</span>
+                                </div>
+                                {formData.vpc === vpc.id && <Check className="h-4 w-4" />}
+                              </button>
+                            ))}
+                            {filteredVPCs.length === 0 && vpcSearchTerm && (
+                              <div className="px-2 py-2 text-sm text-muted-foreground">
+                                No VPCs found matching "{vpcSearchTerm}"
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -371,12 +487,18 @@ export default function CreateTargetGroupPage() {
                                     if (allSelected) {
                                       setFormData(prev => ({
                                         ...prev,
-                                        selectedVMs: []
+                                        selectedVMs: [],
+                                        vmWeights: {}
                                       }))
                                     } else {
+                                      const defaultWeights = filteredVMs.reduce((acc, vm) => {
+                                        acc[vm.id] = 100
+                                        return acc
+                                      }, {} as Record<string, number>)
                                       setFormData(prev => ({
                                         ...prev,
-                                        selectedVMs: filteredVMs.map(vm => vm.id)
+                                        selectedVMs: filteredVMs.map(vm => vm.id),
+                                        vmWeights: { ...prev.vmWeights, ...defaultWeights }
                                       }))
                                     }
                                   }}
@@ -393,35 +515,73 @@ export default function CreateTargetGroupPage() {
                                 {filteredVMs.map((vm) => (
                                   <div
                                     key={vm.id}
-                                    className={`flex items-center space-x-3 px-2 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer rounded-sm ${
+                                    className={`px-2 py-2 rounded-sm ${
                                       formData.selectedVMs.includes(vm.id) ? 'bg-accent/50' : ''
                                     }`}
-                                    onClick={() => {
-                                      setFormTouched(true)
-                                      const isSelected = formData.selectedVMs.includes(vm.id)
-                                      if (isSelected) {
-                                        setFormData(prev => ({
-                                          ...prev,
-                                          selectedVMs: prev.selectedVMs.filter(id => id !== vm.id)
-                                        }))
-                                      } else {
-                                        setFormData(prev => ({
-                                          ...prev,
-                                          selectedVMs: [...prev.selectedVMs, vm.id]
-                                        }))
-                                      }
-                                    }}
                                   >
-                                    <input
-                                      type="checkbox"
-                                      checked={formData.selectedVMs.includes(vm.id)}
-                                      onChange={() => {}} // Handled by parent div click
-                                      className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 pointer-events-none"
-                                    />
-                                    <div className="flex flex-col flex-1">
-                                      <span className="font-medium text-sm">{vm.name}</span>
-                                      <span className="text-xs text-muted-foreground">{vm.ipAddress}</span>
+                                    <div
+                                      className="flex items-center space-x-3 cursor-pointer hover:bg-accent hover:text-accent-foreground p-1 rounded"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setFormTouched(true)
+                                        const isSelected = formData.selectedVMs.includes(vm.id)
+                                        if (isSelected) {
+                                          setFormData(prev => {
+                                            const newWeights = { ...prev.vmWeights }
+                                            delete newWeights[vm.id]
+                                            return {
+                                              ...prev,
+                                              selectedVMs: prev.selectedVMs.filter(id => id !== vm.id),
+                                              vmWeights: newWeights
+                                            }
+                                          })
+                                        } else {
+                                          setFormData(prev => ({
+                                            ...prev,
+                                            selectedVMs: [...prev.selectedVMs, vm.id],
+                                            vmWeights: { ...prev.vmWeights, [vm.id]: 100 } // Default weight
+                                          }))
+                                        }
+                                      }}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={formData.selectedVMs.includes(vm.id)}
+                                        onChange={() => {}} // Handled by parent div click
+                                        className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 pointer-events-none"
+                                      />
+                                      <div className="flex flex-col flex-1">
+                                        <span className="font-medium text-sm">{vm.name}</span>
+                                        <span className="text-xs text-muted-foreground">{vm.ipAddress}</span>
+                                      </div>
                                     </div>
+                                    {formData.selectedVMs.includes(vm.id) && (
+                                      <div className="mt-2 pl-7">
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs font-medium">Weight:</Label>
+                                          <Input
+                                            type="number"
+                                            min="0"
+                                            max="255"
+                                            value={formData.vmWeights[vm.id] || 100}
+                                            onChange={(e) => {
+                                              const weight = parseInt(e.target.value) || 0
+                                              setFormData(prev => ({
+                                                ...prev,
+                                                vmWeights: { ...prev.vmWeights, [vm.id]: weight }
+                                              }))
+                                            }}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="w-20 h-7 text-xs"
+                                            placeholder="100"
+                                          />
+                                          <span className="text-xs text-muted-foreground">(0-255)</span>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          Higher weights receive more traffic
+                                        </p>
+                                      </div>
+                                    )}
                                   </div>
                                 ))}
                               </>
@@ -499,29 +659,24 @@ export default function CreateTargetGroupPage() {
               <ul className="space-y-3">
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose descriptive names like "production-web-targets" for easy identification</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Target Group cannot be empty, and must consist of 1 or more active VMs, to be attached to a load balancer.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Set health check intervals between 30-60 seconds for optimal performance</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Group targets by function and ensure they're in the same VPC</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use standard ports (80 for HTTP, 443 for HTTPS) when possible</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Monitor target health and set retry limits between 3-5</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Creation of target group is free, and has no extra charges.</span>
                 </li>
               </ul>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Create VPC Modal */}
+      <CreateVPCModal
+        open={showCreateVPCModal}
+        onClose={() => setShowCreateVPCModal(false)}
+        onSuccess={handleVPCCreated}
+      />
     </PageLayout>
   )
 }
