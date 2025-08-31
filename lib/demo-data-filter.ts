@@ -147,6 +147,11 @@ export function getEmptyStateMessage(resourceType: string): {
         description: "Assess model performance characteristics including latency, throughput, and resource utilization.",
         actionText: "New Evaluation"
       },
+      'key-management-service': {
+        title: "No Keys yet",
+        description: "Create encryption keys to secure your data and applications. Manage symmetric, asymmetric, and HMAC keys for various use cases.",
+        actionText: "Create Key"
+      },
       billing: {
         title: "No Usage Yet",
         description: "Start using Krutrim Cloud services to see your usage and billing information here."

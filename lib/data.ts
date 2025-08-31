@@ -3060,3 +3060,183 @@ export const searchModels = (query: string) => {
     model.capabilities.some(cap => cap.toLowerCase().includes(lowercaseQuery))
   )
 }
+
+// Key Management Service Interface
+export interface KeyManagementService {
+  keyId: string
+  keyAlias: string
+  description: string
+  keyType: "Symmetric" | "Asymmetric" | "HMAC"
+  algorithm: string
+  status: "active" | "pending" | "inactive" | "rotating" | "disabled"
+  region: string
+  creationDate: string
+  lastUsed?: string
+  keySpec?: string
+  keyUsage?: string
+  origin?: string
+  multiRegion?: boolean
+  tags?: { [key: string]: string }
+}
+
+// Key Management Service Mock Data
+export const keyManagementServices: KeyManagementService[] = [
+  {
+    keyId: "arn:aws:kms:us-east-1:123456789012:key/1234abcd-12ab-34cd-56ef-1234567890ab",
+    keyAlias: "production-encrypt-key",
+    description: "Primary encryption key for production workloads and sensitive data",
+    keyType: "Symmetric",
+    algorithm: "AES_256",
+    status: "active",
+    region: "us-east-1",
+    creationDate: "2023-01-15T10:30:00Z",
+    lastUsed: "2024-03-20T14:25:00Z",
+    keySpec: "SYMMETRIC_DEFAULT",
+    keyUsage: "ENCRYPT_DECRYPT",
+    origin: "KMS",
+    multiRegion: true,
+    tags: { Environment: "Production", Team: "Security" }
+  },
+  {
+    keyId: "arn:aws:kms:us-east-1:123456789012:key/2345bcde-23bc-45de-67fa-2345678901bc",
+    keyAlias: "dev-signing-key",
+    description: "Code signing key for development artifacts and packages",
+    keyType: "Asymmetric",
+    algorithm: "RSA_2048",
+    status: "active",
+    region: "us-east-1",
+    creationDate: "2023-02-10T09:15:00Z",
+    lastUsed: "2024-03-19T11:45:00Z",
+    keySpec: "RSA_2048",
+    keyUsage: "SIGN_VERIFY",
+    origin: "KMS",
+    multiRegion: false,
+    tags: { Environment: "Development", Purpose: "Signing" }
+  },
+  {
+    keyId: "arn:aws:kms:us-west-2:123456789012:key/3456cdef-34cd-56ef-78gb-3456789012cd",
+    keyAlias: "database-encryption-key",
+    description: "Dedicated key for database encryption at rest",
+    keyType: "Symmetric",
+    algorithm: "AES_256",
+    status: "active",
+    region: "us-west-2",
+    creationDate: "2023-03-05T16:20:00Z",
+    lastUsed: "2024-03-20T08:30:00Z",
+    keySpec: "SYMMETRIC_DEFAULT",
+    keyUsage: "ENCRYPT_DECRYPT",
+    origin: "KMS",
+    multiRegion: false,
+    tags: { Environment: "Production", Service: "Database" }
+  },
+  {
+    keyId: "arn:aws:kms:us-east-1:123456789012:key/4567defa-45de-67fa-89hc-4567890123de",
+    keyAlias: "api-authentication-key",
+    description: "HMAC key for API request signing and authentication",
+    keyType: "HMAC",
+    algorithm: "HMAC_SHA_256",
+    status: "active",
+    region: "us-east-1",
+    creationDate: "2023-04-12T12:45:00Z",
+    lastUsed: "2024-03-20T15:10:00Z",
+    keySpec: "HMAC_256",
+    keyUsage: "GENERATE_VERIFY_MAC",
+    origin: "KMS",
+    multiRegion: true,
+    tags: { Environment: "Production", Service: "API" }
+  },
+  {
+    keyId: "arn:aws:kms:us-west-1:123456789012:key/5678efab-56ef-78ab-90id-5678901234ef",
+    keyAlias: "backup-encryption-key",
+    description: "Key for encrypting backup data and archives",
+    keyType: "Symmetric",
+    algorithm: "AES_256",
+    status: "active",
+    region: "us-west-1",
+    creationDate: "2023-05-20T08:00:00Z",
+    lastUsed: "2024-03-18T22:00:00Z",
+    keySpec: "SYMMETRIC_DEFAULT",
+    keyUsage: "ENCRYPT_DECRYPT",
+    origin: "KMS",
+    multiRegion: false,
+    tags: { Environment: "Production", Service: "Backup" }
+  },
+  {
+    keyId: "arn:aws:kms:us-east-2:123456789012:key/6789fabc-67fa-89bc-01je-6789012345fa",
+    keyAlias: "staging-test-key",
+    description: "Test key for staging environment validation and testing",
+    keyType: "Symmetric",
+    algorithm: "AES_128",
+    status: "disabled",
+    region: "us-east-2",
+    creationDate: "2023-06-01T14:30:00Z",
+    keySpec: "SYMMETRIC_DEFAULT",
+    keyUsage: "ENCRYPT_DECRYPT",
+    origin: "KMS",
+    multiRegion: false,
+    tags: { Environment: "Staging", Purpose: "Testing" }
+  },
+  {
+    keyId: "arn:aws:kms:us-east-1:123456789012:key/7890abcd-78ab-90cd-12kf-7890123456ab",
+    keyAlias: "certificate-signing-key",
+    description: "Asymmetric key for SSL/TLS certificate signing",
+    keyType: "Asymmetric",
+    algorithm: "ECC_NIST_P256",
+    status: "rotating",
+    region: "us-east-1",
+    creationDate: "2023-07-15T10:15:00Z",
+    lastUsed: "2024-03-15T09:20:00Z",
+    keySpec: "ECC_NIST_P256",
+    keyUsage: "SIGN_VERIFY",
+    origin: "KMS",
+    multiRegion: true,
+    tags: { Environment: "Production", Service: "Certificates" }
+  },
+  {
+    keyId: "arn:aws:kms:eu-west-1:123456789012:key/8901bcde-89bc-01de-23lg-8901234567bc",
+    keyAlias: "analytics-data-key",
+    description: "Key for encrypting sensitive analytics and telemetry data",
+    keyType: "Symmetric",
+    algorithm: "AES_256",
+    status: "active",
+    region: "eu-west-1",
+    creationDate: "2023-08-10T11:45:00Z",
+    lastUsed: "2024-03-19T16:30:00Z",
+    keySpec: "SYMMETRIC_DEFAULT",
+    keyUsage: "ENCRYPT_DECRYPT",
+    origin: "KMS",
+    multiRegion: false,
+    tags: { Environment: "Production", Service: "Analytics" }
+  },
+  {
+    keyId: "arn:aws:kms:ap-southeast-1:123456789012:key/9012cdef-90cd-12ef-34mh-9012345678cd",
+    keyAlias: "temporary-project-key",
+    description: "Temporary key for short-term project requirements",
+    keyType: "Symmetric",
+    algorithm: "AES_256",
+    status: "pending",
+    region: "ap-southeast-1",
+    creationDate: "2024-01-05T13:20:00Z",
+    keySpec: "SYMMETRIC_DEFAULT",
+    keyUsage: "ENCRYPT_DECRYPT",
+    origin: "KMS",
+    multiRegion: false,
+    tags: { Environment: "Development", Project: "Temp" }
+  },
+  {
+    keyId: "arn:aws:kms:us-east-1:123456789012:key/0123defa-01de-23fa-45ni-0123456789de",
+    keyAlias: "compliance-audit-key",
+    description: "Dedicated key for compliance data encryption and audit trails",
+    keyType: "Symmetric",
+    algorithm: "AES_256",
+    status: "active",
+    region: "us-east-1",
+    creationDate: "2024-02-01T15:00:00Z",
+    lastUsed: "2024-03-20T12:15:00Z",
+    keySpec: "SYMMETRIC_DEFAULT",
+    keyUsage: "ENCRYPT_DECRYPT",
+    origin: "KMS",
+    multiRegion: true,
+    tags: { Environment: "Production", Purpose: "Compliance" }
+  }
+]
