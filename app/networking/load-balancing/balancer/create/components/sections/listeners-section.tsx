@@ -21,7 +21,6 @@ interface Listener {
   name: string
   protocol: string
   port: number
-  alpnProtocol: string
   certificate: string
 }
 
@@ -34,7 +33,6 @@ export function ListenersSection({ formData, updateFormData, isSection = false }
           name: "",
           protocol: "",
           port: 80,
-          alpnProtocol: "",
           certificate: ""
         }]
   )
@@ -45,12 +43,6 @@ export function ListenersSection({ formData, updateFormData, isSection = false }
     { value: "TERMINATED_HTTPS", label: "TERMINATED_HTTPS", defaultPort: 443 },
     { value: "TCP", label: "TCP", defaultPort: 80 },
     { value: "UDP", label: "UDP", defaultPort: 80 }
-  ]
-
-  const alpnProtocolOptions = [
-    { value: "http/1.1", label: "HTTP/1.1" },
-    { value: "h2", label: "HTTP/2" },
-    { value: "h2c", label: "HTTP/2 over cleartext" }
   ]
 
   const certificateOptions = [
@@ -66,7 +58,6 @@ export function ListenersSection({ formData, updateFormData, isSection = false }
       name: "",
       protocol: "",
       port: 80,
-      alpnProtocol: "",
       certificate: ""
     }
     setListeners([...listeners, newListener])
@@ -183,36 +174,6 @@ export function ListenersSection({ formData, updateFormData, isSection = false }
                 <p className="text-xs text-muted-foreground mt-1">
                   Port auto-fills based on protocol selection
                 </p>
-              </div>
-
-              {/* ALPN Protocol */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Label className="font-medium">
-                    ALPN Protocol
-                  </Label>
-                  <TooltipWrapper 
-                    content="Application-Layer Protocol Negotiation allows the client and server to negotiate which protocol should be performed over a secure connection."
-                    side="top"
-                  >
-                    <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-                  </TooltipWrapper>
-                </div>
-                <Select 
-                  value={listener.alpnProtocol} 
-                  onValueChange={(value) => updateListener(listener.id, "alpnProtocol", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select ALPN protocol" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {alpnProtocolOptions.map((protocol) => (
-                      <SelectItem key={protocol.value} value={protocol.value}>
-                        {protocol.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               {/* Certificate */}

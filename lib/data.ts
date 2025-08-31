@@ -2508,7 +2508,7 @@ export interface TargetGroupHealth {
   name: string
   healthyTargets: number
   totalTargets: number
-  status: "healthy" | "unhealthy" | "mixed" | "no-targets"
+  status: "healthy" | "unhealthy" | "mixed"
 }
 
 export interface LoadBalancer {
@@ -2523,9 +2523,10 @@ export interface LoadBalancer {
   createdOn: string
   availability: string
   targets: number
-  targetGroupHealth: "healthy" | "unhealthy" | "mixed" | "no-targets"
+  targetGroupHealth: "healthy" | "unhealthy" | "mixed"
   targetGroupsDetails: TargetGroupHealth[]
-  ipAddresses: string[]
+  fixedIP: string | null
+  publicIP: string | null
 }
 
 export interface TargetMember {
@@ -2591,7 +2592,8 @@ export const loadBalancers: LoadBalancer[] = [
         status: "healthy"
       }
     ],
-    ipAddresses: ["54.123.45.67", "54.123.45.68"]
+    fixedIP: "54.123.45.67",
+    publicIP: "54.123.45.68"
   },
   {
     id: "lb-2", 
@@ -2615,7 +2617,8 @@ export const loadBalancers: LoadBalancer[] = [
         status: "healthy"
       }
     ],
-    ipAddresses: ["54.234.56.78"]
+    fixedIP: null,
+    publicIP: "54.234.56.78"
   },
   {
     id: "lb-3",
@@ -2653,7 +2656,8 @@ export const loadBalancers: LoadBalancer[] = [
         status: "unhealthy"
       }
     ],
-    ipAddresses: ["10.0.1.100", "10.0.1.101", "10.0.1.102"]
+    fixedIP: "10.0.1.100",
+    publicIP: "10.0.1.101"
   },
   {
     id: "lb-4",
@@ -2677,7 +2681,8 @@ export const loadBalancers: LoadBalancer[] = [
         status: "unhealthy"
       }
     ],
-    ipAddresses: ["54.345.67.89"]
+    fixedIP: "54.345.67.89",
+    publicIP: null
   },
   {
     id: "lb-5",
@@ -2687,13 +2692,22 @@ export const loadBalancers: LoadBalancer[] = [
     scheme: "internet-facing",
     vpc: "development-vpc", 
     dnsName: "dev-app-lb-444555666.us-west-2.elb.amazonaws.com",
-    targetGroups: 0,
+    targetGroups: 1,
     createdOn: "2024-12-19T10:30:00Z",
     availability: "Single-AZ",
-    targets: 0,
-    targetGroupHealth: "no-targets",
-    targetGroupsDetails: [],
-    ipAddresses: []
+    targets: 2,
+    targetGroupHealth: "healthy",
+    targetGroupsDetails: [
+      {
+        id: "tg-dev-1",
+        name: "dev-web-servers",
+        healthyTargets: 2,
+        totalTargets: 2,
+        status: "healthy"
+      }
+    ],
+    fixedIP: null,
+    publicIP: null
   }
 ]
 

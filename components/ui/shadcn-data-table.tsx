@@ -82,6 +82,7 @@ interface ShadcnDataTableProps<T = any> {
   statusOptions?: { value: string; label: string }[]
   onStatusChange?: (status: string) => void
   statusFilterColumn?: string
+  searchPlaceholder?: string
 }
 
 export function ShadcnDataTable<T = any>({ 
@@ -103,7 +104,8 @@ export function ShadcnDataTable<T = any>({
   enableStatusFilter = false,
   statusOptions = [],
   onStatusChange,
-  statusFilterColumn = 'jobStatus'
+  statusFilterColumn = 'jobStatus',
+  searchPlaceholder
 }: ShadcnDataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>(() => {
     if (defaultSort) {
@@ -352,7 +354,7 @@ export function ShadcnDataTable<T = any>({
               <div className="relative max-w-sm">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder={`Search ${primarySearchColumn ? columns.find(c => c.key === primarySearchColumn)?.label?.toLowerCase() || 'items' : 'items'}...`}
+                  placeholder={searchPlaceholder || `Search ${primarySearchColumn ? columns.find(c => c.key === primarySearchColumn)?.label?.toLowerCase() || 'items' : 'items'}...`}
                   value={globalFilter}
                   onChange={(event) => setGlobalFilter(event.target.value)}
                   className="pl-8 h-9"

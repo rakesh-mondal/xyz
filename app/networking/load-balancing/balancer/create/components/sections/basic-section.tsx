@@ -9,16 +9,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-import { HelpCircle } from "lucide-react"
+import { HelpCircle, ChevronDown, Search, Check } from "lucide-react"
+import { vpcs, subnets } from "@/lib/data"
 import type { ALBFormData } from "../alb-create-form"
 
 interface BasicSectionProps {
   formData: ALBFormData
   updateFormData: (section: string, data: any) => void
   isSection?: boolean
+  onCreateVPC?: () => void
+  onCreateSubnet?: () => void
 }
 
-export function BasicSection({ formData, updateFormData, isSection = false }: BasicSectionProps) {
+export function BasicSection({ formData, updateFormData, isSection = false, onCreateVPC, onCreateSubnet }: BasicSectionProps) {
   const [formTouched, setFormTouched] = useState(false)
   
   const updateField = (field: string, value: string) => {
@@ -234,63 +237,289 @@ export function BasicSection({ formData, updateFormData, isSection = false }: Ba
         </div>
 
         {/* VPC */}
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Label htmlFor="vpc" className="font-medium">
-              VPC <span className="text-destructive">*</span>
-            </Label>
-            <TooltipWrapper 
-              content="Select the Virtual Private Cloud where your load balancer will be deployed. This determines the network scope and security boundaries."
-              side="top"
-            >
-              <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-            </TooltipWrapper>
-          </div>
-          <Select value={formData.vpc || ""} onValueChange={(value) => handleChange("vpc", value)} required>
-            <SelectTrigger className={formTouched && !formData.vpc ? 'border-red-300 bg-red-50' : ''}>
-              <SelectValue placeholder="Select a VPC" />
-            </SelectTrigger>
-            <SelectContent>
-              {vpcOptions.map((vpc) => (
-                <SelectItem key={vpc.value} value={vpc.value}>
-                  {vpc.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <VPCSelectorInline 
+          value={formData.vpc || ""}
+          onChange={(value) => {
+            if (value === "__create_new__") {
+              onCreateVPC?.()
+            } else {
+              handleChange("vpc", value)
+            }
+          }}
+          formTouched={formTouched}
+        />
 
         {/* Subnet */}
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Label htmlFor="subnet" className="font-medium">
-              Subnet <span className="text-destructive">*</span>
-            </Label>
-            <TooltipWrapper 
-              content="Choose the subnet where your load balancer will be placed. For high availability, select subnets in multiple availability zones."
-              side="top"
-            >
-              <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-            </TooltipWrapper>
-          </div>
-          <Select 
-            value={formData.subnet || ""} 
-            onValueChange={(value) => handleChange("subnet", value)} 
-            disabled={!formData.vpc}
-            required
-          >
-            <SelectTrigger className={formTouched && !formData.subnet ? 'border-red-300 bg-red-50' : ''}>
-              <SelectValue placeholder={formData.vpc ? "Select a subnet" : "Select VPC first"} />
-            </SelectTrigger>
-            <SelectContent>
-              {getSubnetsForVpc(formData.vpc || "").map((subnet) => (
-                <SelectItem key={subnet} value={subnet}>
-                  {subnet}
-                </SelectItem>
+        <SubnetSelectorInline 
+          value={formData.subnet || ""}
+          vpcId={formData.vpc || ""}
+          onChange={(value) => {
+            if (value === "__create_new__") {
+              onCreateSubnet?.()
+            } else {
+              handleChange("subnet", value)
+            }
+          }}
+          formTouched={formTouched}
+          disabled={!formData.vpc}
+        />
+    </div>
+  )
+}
+
+// VPC Selector Component
+function VPCSelectorInline({ value, onChange, formTouched }: {
+  value: string
+  onChange: (value: string) => void
+  formTouched: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  
+  const filteredVPCs = vpcs.filter(vpc =>
+    vpc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vpc.id.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  
+  const selectedVPC = vpcs.find(vpc => vpc.id === value)
+  
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-2 mb-2">
+        <Label className="font-medium">
+          VPC <span className="text-destructive">*</span>
+        </Label>
+        <TooltipWrapper 
+          content="Select the Virtual Private Cloud where your load balancer will be deployed. This determines the network scope and security boundaries."
+          side="top"
+        >
+          <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+        </TooltipWrapper>
+      </div>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className={`w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+            formTouched && !value ? 'border-red-300 bg-red-50' : ''
+          }`}
+        >
+          <span className={selectedVPC ? "text-foreground" : "!text-[#64748b]"}>
+            {selectedVPC ? `${selectedVPC.name} (${selectedVPC.region})` : "Select VPC to isolate your load balancer"}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </button>
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search VPCs..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("__create_new__")
+                  setOpen(false)
+                }}
+                className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+              >
+                Create new VPC
+              </button>
+              {filteredVPCs.map((vpc) => (
+                <button
+                  key={vpc.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(vpc.id)
+                    setOpen(false)
+                    setSearchTerm("")
+                  }}
+                  className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{vpc.name}</span>
+                    <span className="text-xs text-muted-foreground">{vpc.id} • {vpc.region}</span>
+                  </div>
+                  {value === vpc.id && <Check className="h-4 w-4" />}
+                </button>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
+              {filteredVPCs.length === 0 && searchTerm && (
+                <div className="px-2 py-2 text-sm text-muted-foreground">
+                  No VPCs found matching "{searchTerm}"
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Subnet Selector Component
+function SubnetSelectorInline({ value, vpcId, onChange, formTouched, disabled }: {
+  value: string
+  vpcId: string
+  onChange: (value: string) => void
+  formTouched: boolean
+  disabled: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  
+  // Filter subnets based on selected VPC
+  const selectedVPCName = vpcs.find(vpc => vpc.id === vpcId)?.name
+  const vpcSubnets = subnets.filter(subnet => 
+    subnet.vpcName === selectedVPCName
+  )
+  
+  const filteredSubnets = vpcSubnets.filter(subnet => 
+    subnet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subnet.id.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  
+  const selectedSubnet = vpcSubnets.find(subnet => subnet.id === value)
+  const selectedVPC = vpcs.find(vpc => vpc.id === vpcId)
+  
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-2 mb-2">
+        <Label className="font-medium">
+          Subnet <span className="text-destructive">*</span>
+        </Label>
+        <TooltipWrapper 
+          content="Choose the subnet where your load balancer will be placed."
+          side="top"
+        >
+          <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+        </TooltipWrapper>
+      </div>
+      
+      {!disabled && vpcSubnets.length > 0 ? (
+        <>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setOpen(!open)}
+              disabled={disabled}
+              className={`w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                formTouched && !value ? 'border-red-300 bg-red-50' : ''
+              }`}
+            >
+              <span className={selectedSubnet ? "text-foreground" : "text-muted-foreground"}>
+                {selectedSubnet 
+                  ? `${selectedSubnet.name} (${selectedSubnet.type})` 
+                  : "Select a subnet within this VPC"
+                }
+              </span>
+              <ChevronDown className="h-4 w-4 opacity-50" />
+            </button>
+
+            {open && (
+              <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
+                <div className="p-2 border-b">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search subnets..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-8"
+                    />
+                  </div>
+                </div>
+                
+                <div className="p-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange("__create_new__")
+                      setOpen(false)
+                    }}
+                    className="w-full flex items-center px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm text-primary font-medium"
+                  >
+                    Create new subnet
+                  </button>
+                  
+                  {filteredSubnets.map((subnet) => (
+                    <button
+                      key={subnet.id}
+                      type="button"
+                      onClick={() => {
+                        onChange(subnet.id)
+                        setOpen(false)
+                        setSearchTerm("")
+                      }}
+                      className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm"
+                    >
+                      <div className="flex flex-col items-start">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{subnet.name}</span>
+                          <Badge 
+                            variant={subnet.type === "Public" ? "default" : "secondary"}
+                            className={`text-xs ${subnet.type === "Public" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}`}
+                          >
+                            {subnet.type}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{subnet.id} • {subnet.cidr}</span>
+                      </div>
+                      {value === subnet.id && <Check className="h-4 w-4" />}
+                    </button>
+                  ))}
+                  
+                  {filteredSubnets.length === 0 && searchTerm && (
+                    <div className="px-2 py-2 text-sm text-muted-foreground">
+                      No subnets found matching "{searchTerm}"
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          <p className="text-xs mt-1 text-muted-foreground">
+            Both public and private subnets are available for load balancer placement.
+          </p>
+        </>
+      ) : disabled ? (
+        <>
+          <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+            <p className="text-sm text-gray-600">
+              Please select a VPC first to see available subnets.
+            </p>
+          </div>
+          <p className="text-xs mt-2 text-muted-foreground">
+            Subnets will be loaded automatically once you select a VPC.
+          </p>
+        </>
+      ) : (
+        <>
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800 mb-3">
+              No subnets available in this VPC ({selectedVPC?.name}). You need to create a subnet first.
+            </p>
+            <Button 
+              type="button"
+              size="sm" 
+              className="bg-black text-white hover:bg-black/90 transition-colors" 
+              onClick={() => onChange("__create_new__")}
+            >
+              Create Subnet
+            </Button>
+          </div>
+          <p className="text-xs mt-2 text-muted-foreground">
+            Load balancers can be placed in both public and private subnets.
+          </p>
+        </>
+      )}
     </div>
   )
 }

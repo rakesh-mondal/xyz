@@ -45,11 +45,9 @@ export function PolicyRulesSection({ formData, updateFormData, isSection = false
   }, [formData.rules])
 
   const actionOptions = [
-    { value: "forward", label: "Forward to Target Group" },
-    { value: "redirect", label: "Redirect" },
-    { value: "fixed-response", label: "Return Fixed Response" },
-    { value: "authenticate-cognito", label: "Authenticate with Cognito" },
-    { value: "authenticate-oidc", label: "Authenticate with OIDC" }
+    { value: "redirect-to-url", label: "Redirect to URL" },
+    { value: "reject", label: "Reject" },
+    { value: "forward-to-target-group", label: "Forward to Target Group" }
   ]
 
   const ruleTypeOptions = [

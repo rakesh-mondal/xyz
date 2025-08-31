@@ -14,47 +14,6 @@ import { useToast } from "@/hooks/use-toast"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Card, CardContent } from "@/components/ui/card"
-import { ChevronDown, ChevronRight } from "lucide-react"
-
-// Helper function to calculate target group health summary
-const calculateTargetGroupSummary = (targetGroups: any[]) => {
-  if (targetGroups.length === 0) {
-    return { healthy: 0, mixed: 0, unhealthy: 0, total: 0 }
-  }
-  
-  let healthy = 0
-  let mixed = 0
-  let unhealthy = 0
-  
-  targetGroups.forEach(tg => {
-    if (tg.status === "healthy") {
-      healthy++
-    } else if (tg.status === "mixed") {
-      mixed++
-    } else if (tg.status === "unhealthy") {
-      unhealthy++
-    }
-  })
-  
-  return { healthy, mixed, unhealthy, total: targetGroups.length }
-}
-
-// Helper function to format summary text
-const formatSummaryText = (summary: { healthy: number; mixed: number; unhealthy: number; total: number }) => {
-  const parts = []
-  
-  if (summary.healthy > 0) {
-    parts.push(`${summary.healthy} healthy`)
-  }
-  if (summary.mixed > 0) {
-    parts.push(`${summary.mixed} mixed`)
-  }
-  if (summary.unhealthy > 0) {
-    parts.push(`${summary.unhealthy} unhealthy`)
-  }
-  
-  return parts.join(", ")
-}
 
 
 export default function LoadBalancerPage() {
@@ -62,20 +21,6 @@ export default function LoadBalancerPage() {
   const { toast } = useToast()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedLoadBalancer, setSelectedLoadBalancer] = useState<any>(null)
-  const [expandedTargetGroups, setExpandedTargetGroups] = useState<Set<string>>(new Set())
-
-  // Helper function to toggle target group expansion
-  const toggleTargetGroupExpansion = (loadBalancerId: string) => {
-    setExpandedTargetGroups(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(loadBalancerId)) {
-        newSet.delete(loadBalancerId)
-      } else {
-        newSet.add(loadBalancerId)
-      }
-      return newSet
-    })
-  }
 
   // Filter data based on user type for demo
   const filteredLoadBalancers = filterDataForUser(loadBalancers)
@@ -199,73 +144,46 @@ export default function LoadBalancerPage() {
       label: "Target Group Health",
       render: (value: string, row: any) => {
         const targetGroups = row.targetGroupsDetails || []
-        const isExpanded = expandedTargetGroups.has(row.id)
         
         // Handle no target groups case
         if (targetGroups.length === 0) {
-          return <span className="text-muted-foreground text-sm">No target groups</span>
+          return <span className="text-muted-foreground text-sm">0 Target Groups</span>
         }
         
-        // Calculate summary
-        const summary = calculateTargetGroupSummary(targetGroups)
-        const summaryText = formatSummaryText(summary)
-        
-        // Determine overall health color
-        let summaryColor = "text-muted-foreground"
-        if (summary.unhealthy === 0 && summary.mixed === 0) {
-          summaryColor = "text-green-600" // All healthy
-        } else if (summary.healthy === 0) {
-          summaryColor = "text-red-600" // No healthy ones
-        } else {
-          summaryColor = "text-orange-600" // Mixed
-        }
+        const totalCount = targetGroups.length
+        const displayGroups = targetGroups.slice(0, 3)
+        const hasMore = totalCount > 3
         
         return (
-          <div className="space-y-1">
-            {/* Summary Row - Always visible */}
-            <div 
-              className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => toggleTargetGroupExpansion(row.id)}
-            >
-              <ChevronRight 
-                className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${
-                  isExpanded ? 'rotate-90' : 'rotate-0'
-                }`} 
-              />
-              <div className="text-sm">
-                <div className="font-medium">{summary.total} Target Group{summary.total !== 1 ? 's' : ''}</div>
-                <div className={`text-xs ${summaryColor}`}>
-                  {summaryText || "All configured"}
-                </div>
-              </div>
-            </div>
+          <div className="relative group">
+            <span className="cursor-help text-sm font-medium">
+              {totalCount} Target Group{totalCount !== 1 ? 's' : ''}
+            </span>
             
-            {/* Expanded Details */}
-            {isExpanded && (
-              <div className="pl-4 space-y-1 border-l-2 border-muted animate-in slide-in-from-top-2 duration-200">
-                {targetGroups.map((tg: any) => {
+            {/* Hover Tooltip */}
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 min-w-max">
+              <div className="space-y-1">
+                {displayGroups.map((tg: any) => {
                   const healthText = tg.totalTargets === 0 
                     ? "No targets" 
-                    : `${tg.healthyTargets}/${tg.totalTargets} healthy`
-                  
-                  let healthColor = "text-muted-foreground"
-                  if (tg.status === "healthy") {
-                    healthColor = "text-green-600"
-                  } else if (tg.status === "unhealthy") {
-                    healthColor = "text-red-600"
-                  } else if (tg.status === "mixed") {
-                    healthColor = "text-orange-600"
-                  }
+                    : `${tg.healthyTargets}/${tg.totalTargets} targets healthy`
                   
                   return (
-                    <div key={tg.id} className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-muted-foreground">{tg.name}</span>
-                      <span className={healthColor}>{healthText}</span>
+                    <div key={tg.id} className="flex items-center justify-between gap-4 text-xs">
+                      <span className="font-medium">{tg.name}</span>
+                      <span className="whitespace-nowrap">{healthText}</span>
                     </div>
                   )
                 })}
+                {hasMore && (
+                  <div className="text-xs text-gray-300 mt-2">
+                    +{totalCount - 3} more
+                  </div>
+                )}
               </div>
-            )}
+              {/* Arrow pointing down */}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
+            </div>
           </div>
         )
       },
@@ -273,19 +191,22 @@ export default function LoadBalancerPage() {
     {
       key: "ipAddresses",
       label: "IP Addresses",
-      render: (value: string[]) => (
-        <div className="leading-5">
-          {value.length > 0 ? (
-            value.length > 2 ? (
-              <div className="space-y-1">
-                <div>{value.slice(0, 2).join(", ")}</div>
-                <div className="text-xs text-muted-foreground">+{value.length - 2} more</div>
-              </div>
-            ) : (
-              value.join(", ")
-            )
-          ) : (
-            <span className="text-muted-foreground">—</span>
+      render: (value: any, row: any) => (
+        <div className="leading-5 space-y-1">
+          {row.fixedIP && (
+            <div className="text-sm">
+              <span className="text-muted-foreground">Fixed IP: </span>
+              <span>{row.fixedIP}</span>
+            </div>
+          )}
+          {row.publicIP && (
+            <div className="text-sm">
+              <span className="text-muted-foreground">Public IP: </span>
+              <span>{row.publicIP}</span>
+            </div>
+          )}
+          {!row.fixedIP && !row.publicIP && (
+            <span className="text-muted-foreground text-sm">—</span>
           )}
         </div>
       ),
@@ -363,6 +284,7 @@ export default function LoadBalancerPage() {
             { value: "development-vpc", label: "development-vpc" },
             { value: "staging-vpc", label: "staging-vpc" },
           ]}
+          searchPlaceholder="Search LB name..."
         />
       )}
 

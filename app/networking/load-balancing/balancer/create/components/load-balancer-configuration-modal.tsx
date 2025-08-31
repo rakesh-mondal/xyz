@@ -66,7 +66,7 @@ export function LoadBalancerConfigurationModal({ isOpen, onComplete, onClose }: 
                     </div>
                     <Badge variant="outline" className="mb-3">Layer 7 (HTTP/HTTPS)</Badge>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Advanced routing, SSL termination, and content-based routing for web applications.
+                      Content-based routing and SSL termination for web applications. Uses policies and rules to make routing decisions based on content of the request.
                     </p>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
@@ -83,13 +83,13 @@ export function LoadBalancerConfigurationModal({ isOpen, onComplete, onClose }: 
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span>WebSocket support</span>
+                        <span>Multiple Listeners</span>
                       </div>
                     </div>
-                    <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded text-sm text-orange-700">
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-700">
                       <div className="flex items-center gap-2">
                         <Info className="h-4 w-4" />
-                        <span>Best for web applications and microservices</span>
+                        <span>Recommended for general web traffic</span>
                       </div>
                     </div>
                   </div>
@@ -117,7 +117,7 @@ export function LoadBalancerConfigurationModal({ isOpen, onComplete, onClose }: 
                     </div>
                     <Badge variant="outline" className="mb-3">Layer 4 (TCP/UDP)</Badge>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Ultra-high performance and low latency for TCP/UDP traffic with static IP support.
+                      High performance and low latency for TCP/UDP traffic with static IP support. Will handle traffic based on IP addresses and ports, without inspecting the content of the request.
                     </p>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
@@ -126,15 +126,15 @@ export function LoadBalancerConfigurationModal({ isOpen, onComplete, onClose }: 
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span>Ultra-low latency</span>
+                        <span>Low latency</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span>High throughput</span>
+                        <span>Multiple Listeners</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span>Static IP addresses</span>
+                        <span>Floating or Fixed IPs</span>
                       </div>
                     </div>
                     <div className="mt-4 p-3 bg-purple-50 border border-purple-200 rounded text-sm text-purple-700">
