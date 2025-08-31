@@ -294,9 +294,9 @@ export function PoolSection({ formData, updateFormData, isSection = false }: Poo
         {/* Configuration Note */}
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-700">
-            <strong>Best Practice:</strong> Configure your pool with the appropriate load balancing algorithm 
-            and target group based on your traffic requirements. Each listener has one pool configuration 
-            that determines how requests are distributed to targets.
+            <strong>Best Practice:</strong> Existence of a Target Group is mandatory for creation of LB.
+            A target group must consist of active VMs.
+            You can have multiple listeners, each mapped to 1 target group each.
           </p>
         </div>
     </div>
