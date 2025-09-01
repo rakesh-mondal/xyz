@@ -645,13 +645,13 @@ ${nodePoolsYAML}`
                     </div>
                   </div>
                   
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <div className="flex items-start gap-2">
-                        <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                        <p className="text-xs text-amber-800">
-                          <strong>Note:</strong> Volume size cannot be edited later. Choose carefully.
-                        </p>
-                      </div>
+                  {/* Volume Size Warning */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-amber-800">
+                        <strong>Note:</strong> Volume size cannot be edited later. Choose carefully.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -879,14 +879,15 @@ ${nodePoolsYAML}`
                     </div>
                         </div>
                       </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
 
-              </CardContent>
-            </Card>
-          )}
+
+                </CardContent>
+              </Card>
+            ))}
 
             {/* Add Node Pool Button */}
             <Button
