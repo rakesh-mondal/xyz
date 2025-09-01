@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Slider } from "@/components/ui/slider"
+import { Switch } from "@/components/ui/switch"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight, Search, Check, HardDrive, Trash2 } from "lucide-react"
@@ -67,9 +68,58 @@ interface Label {
   value: string
 }
 
+// Step Indicator Component
+function StepIndicator({ currentStep }: { currentStep: "configuration" | "nodePoolsAndAddons" }) {
+  const steps = [
+    { id: "configuration", name: "Configuration" },
+    { id: "nodePoolsAndAddons", name: "Node Pools & Add-ons" }
+  ]
+
+  const getStepIndex = (stepId: string) => steps.findIndex(step => step.id === stepId)
+  const currentStepIndex = getStepIndex(currentStep)
+
+  return (
+    <div className="mb-8">
+      <div className="flex items-center justify-center">
+        <div className="flex items-center justify-between w-[90%] max-w-2xl">
+        {steps.map((step, index) => {
+          const isActive = step.id === currentStep
+          const isCompleted = index < currentStepIndex
+          const isUpcoming = index > currentStepIndex
+
+          return (
+            <div key={step.id} className="flex items-center flex-1">
+              <div className="flex items-center">
+                <div className={`
+                  flex items-center justify-center w-8 h-8 rounded-full border-2 text-sm font-medium
+                  ${isActive ? 'bg-primary border-primary text-primary-foreground' : ''}
+                  ${isCompleted ? 'bg-green-500 border-green-500 text-white' : ''}
+                  ${isUpcoming ? 'bg-muted border-muted-foreground/30 text-muted-foreground' : ''}
+                `}>
+                  {isCompleted ? '✓' : index + 1}
+                </div>
+                <div className="ml-3">
+                  <div className={`text-sm font-medium ${isActive ? 'text-foreground' : isCompleted ? 'text-green-700' : 'text-muted-foreground'}`}>
+                    {step.name}
+                  </div>
+                </div>
+              </div>
+              {index < steps.length - 1 && (
+                <div className={`flex-1 h-[2px] mx-4 ${isCompleted ? 'bg-green-500' : 'bg-muted'}`} />
+              )}
+            </div>
+          )
+        })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function CreateClusterPage() {
   const router = useRouter()
-  const [step, setStep] = useState<"configuration" | "review" | "nodePools" | "addons">("configuration")
+  const [step, setStep] = useState<"configuration" | "nodePoolsAndAddons">("configuration")
+  const [clusterCreationStarted, setClusterCreationStarted] = useState(false)
   
   const [configuration, setConfiguration] = useState<Partial<ClusterConfiguration>>({
     region: "",
@@ -249,17 +299,22 @@ export default function CreateClusterPage() {
     }))
   }
 
-  // Handle form submission
+  // Handle form submission and start cluster creation
   const handleReviewConfiguration = () => {
     if (validateForm()) {
-      setStep("nodePools")
+      // Start cluster creation
+      setClusterCreationStarted(true)
+      console.log("Starting cluster creation with configuration:", configuration)
+      
+      // Move to next step
+      setStep("nodePoolsAndAddons")
     }
   }
 
-  // Handle cluster creation
-  const handleCreateCluster = () => {
-    // In a real implementation, this would call the API to create the cluster
-    console.log("Creating cluster with configuration:", configuration)
+  // Handle cluster completion
+  const handleCompleteCluster = () => {
+    // Finalize cluster setup with node pools and add-ons
+    console.log("Completing cluster setup with node pools and add-ons")
     
     // Redirect back to Kubernetes dashboard
     router.push("/kubernetes")
@@ -279,31 +334,12 @@ export default function CreateClusterPage() {
   }
 
   // Render different views based on step
-  if (step === "nodePools") {
-    return <NodePoolsView 
+  if (step === "nodePoolsAndAddons") {
+    return <NodePoolsAndAddonsView 
       onBack={() => setStep("configuration")}
-      onContinue={() => setStep("addons")}
+      onContinue={handleCompleteCluster}
       clusterCost={costs.cluster}
-    />
-  }
-
-  if (step === "addons") {
-    return <AddonsView 
-      onBack={() => setStep("nodePools")}
-      onContinue={() => {
-        // Create the cluster and redirect to dashboard
-        console.log("Creating cluster with configuration:", configuration)
-        router.push("/kubernetes")
-      }}
-    />
-  }
-
-  if (step === "review") {
-    return <ConfirmationView 
-      configuration={configuration as ClusterConfiguration} 
-      costs={costs}
-      onBack={() => setStep("addons")}
-      onCreate={handleCreateCluster}
+      clusterCreationStarted={clusterCreationStarted}
     />
   }
 
@@ -316,6 +352,7 @@ export default function CreateClusterPage() {
       <div className="flex flex-col md:flex-row gap-6">
         {/* Main Configuration Form */}
         <div className="flex-1 space-y-6">
+          <StepIndicator currentStep={step} />
           <Card>
             <CardContent className="space-y-6 pt-6">
               <form onSubmit={(e) => { e.preventDefault(); handleReviewConfiguration(); }}>
@@ -567,7 +604,7 @@ export default function CreateClusterPage() {
                 }`}
                 onClick={handleReviewConfiguration}
               >
-                Configure Node Pools
+                Start Cluster Creation
               </Button>
             </div>
           </Card>
@@ -765,16 +802,19 @@ function VPCSelectorInline({ value, region, availableVPCs, onChange, error }: {
   )
 }
 
-// Node Pools View Component
-function NodePoolsView({ 
+// Combined Node Pools and Add-ons View Component
+function NodePoolsAndAddonsView({ 
   onBack, 
   onContinue,
-  clusterCost
+  clusterCost,
+  clusterCreationStarted
 }: { 
   onBack: () => void
   onContinue: () => void
   clusterCost: { hourly: number; monthly: number }
+  clusterCreationStarted: boolean
 }) {
+  // Node Pools State
   const [nodePools, setNodePools] = useState<NodePool[]>([
     {
       id: "default-pool",
@@ -793,11 +833,55 @@ function NodePoolsView({
     }
   ])
 
+  // Add-ons State
+  const [defaultAddons, setDefaultAddons] = useState([
+    {
+      id: "cni",
+      name: "CNI (Cilium – default)",
+      description: "Handles pod networking and connectivity within the cluster.",
+      enabled: true
+    },
+    {
+      id: "csi",
+      name: "CSI",
+      description: "Manages storage provisioning and attachment for workloads.",
+      enabled: true
+    },
+    {
+      id: "coredns",
+      name: "CoreDNS",
+      description: "Provides internal DNS resolution for services and pods.",
+      enabled: true
+    },
+    {
+      id: "kube-proxy",
+      name: "Kube-proxy",
+      description: "Handles network proxying and load balancing for services.",
+      enabled: true
+    },
+    {
+      id: "dns-proxy",
+      name: "DNS-proxy",
+      description: "Optimizes DNS query handling for improved performance.",
+      enabled: true
+    }
+  ])
+
   const [nextPoolId, setNextPoolId] = useState(2)
   const [yamlPreviewOpen, setYamlPreviewOpen] = useState(false)
   const [highlightedStorage, setHighlightedStorage] = useState<string | null>(null)
   const [draggingStorage, setDraggingStorage] = useState<string | null>(null)
   const [dragValue, setDragValue] = useState<number>(0)
+
+  // Check if any add-ons are disabled
+  const hasDisabledAddons = defaultAddons.some(addon => !addon.enabled)
+
+  // Toggle add-on enabled/disabled
+  const toggleAddon = (addonId: string) => {
+    setDefaultAddons(prev => prev.map(addon => 
+      addon.id === addonId ? { ...addon, enabled: !addon.enabled } : addon
+    ))
+  }
 
   // Instance flavors from the screenshot
   const instanceFlavors = [
@@ -1060,12 +1144,13 @@ ${nodePoolsYAML}`
 
   return (
     <PageLayout
-      title="Configure Node Pools"
-      description="Configure node pools for your MKS cluster"
+      title="Node Pools & Add-ons"
+      description="Configure node pools and cluster add-ons for your Kubernetes cluster"
     >
       <div className="flex flex-col md:flex-row gap-6">
         {/* Main Configuration Form */}
         <div className="flex-1 space-y-6">
+          <StepIndicator currentStep="nodePoolsAndAddons" />
             {nodePools.map((pool, index) => (
               <Card key={pool.id}>
                 <CardHeader>
@@ -1117,31 +1202,48 @@ ${nodePoolsYAML}`
                     <Label className="text-sm font-medium">
                       Instance Flavor <span className="text-destructive">*</span>
                     </Label>
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                      {instanceFlavors.map((flavor) => (
-                        <Card
-                          key={flavor.id}
-                          className={`cursor-pointer transition-all ${
-                            pool.instanceFlavor === flavor.id
-                              ? "ring-2 ring-primary bg-primary/5"
-                              : "hover:bg-muted/50"
-                          }`}
-                          onClick={() => updateNodePool(pool.id, { instanceFlavor: flavor.id })}
-                        >
-                          <CardContent className="p-3">
-                            <div className="flex items-start justify-between mb-1">
-                            <div className="font-medium text-sm">{flavor.name}</div>
-                              <div className="text-sm font-semibold text-primary">
-                                ₹{flavor.pricePerHour}/hour/node
+                    <Select
+                      value={pool.instanceFlavor}
+                      onValueChange={(value) => updateNodePool(pool.id, { instanceFlavor: value })}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          {(() => {
+                            const selectedFlavor = getSelectedFlavor(pool.instanceFlavor)
+                            return (
+                              <div className="flex items-center justify-between w-full pr-2">
+                                <div className="flex items-center gap-4">
+                                  <span className="font-medium">{selectedFlavor.name}</span>
+                                  <span className="text-muted-foreground text-sm">
+                                    {selectedFlavor.vcpus} vCPU • {selectedFlavor.ram} GB RAM
+                                  </span>
+                                </div>
+                                <span className="text-primary font-semibold text-sm ml-6">
+                                  ₹{selectedFlavor.pricePerHour}/hr
+                                </span>
+                              </div>
+                            )
+                          })()}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {instanceFlavors.map((flavor) => (
+                          <SelectItem key={flavor.id} value={flavor.id}>
+                            <div className="flex items-center justify-between w-full min-w-[320px] py-1">
+                              <div className="flex flex-col gap-1">
+                                <span className="font-medium">{flavor.name}</span>
+                                <span className="text-muted-foreground text-xs">
+                                  {flavor.vcpus} vCPU • {flavor.ram} GB RAM
+                                </span>
+                              </div>
+                              <span className="text-primary font-semibold text-sm ml-6">
+                                ₹{flavor.pricePerHour}/hr
+                              </span>
                             </div>
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {flavor.vcpus} vCPU • {flavor.ram} GB RAM
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Node Scaling */}
@@ -1203,42 +1305,75 @@ ${nodePoolsYAML}`
                     {/* Enhanced Storage Selection UI */}
                     <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 rounded-xl space-y-5">
                       
-                      {/* Custom Input Field with Enhanced Highlighting */}
-                      <div className="flex items-center justify-center">
-                        <div className="relative">
-                          <Input
-                            type="number"
-                            value={pool.storageSize}
-                            onChange={(e) => {
-                              const value = Math.max(50, Math.min(2048, Number(e.target.value) || 50))
-                              updateNodePool(pool.id, { storageSize: value })
-                              setTimeout(() => {
-                                setHighlightedStorage(pool.id)
-                                setTimeout(() => setHighlightedStorage(null), 2000)
-                              }, 300)
-                            }}
-                            className={`w-32 h-12 text-center text-lg font-semibold pr-10 border-2 transition-all duration-500 ${
-                              highlightedStorage === pool.id 
-                                ? "border-green-500 bg-green-50 shadow-lg shadow-green-500/30 scale-110 ring-4 ring-green-500/20 animate-pulse" 
-                                : draggingStorage === pool.id
-                                ? "border-green-400 bg-green-50 scale-105"
-                                : "border-slate-300 hover:border-slate-400"
-                            }`}
-                            min={50}
-                            max={2048}
-                            placeholder="Size"
-                          />
-                          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-medium text-muted-foreground pointer-events-none">
-                            GB
-                          </span>
-                          {highlightedStorage === pool.id && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-green-500/20 to-green-400/10 rounded-lg blur-sm"></div>
-                          )}
+                      {/* Input Field and Quick Select Row */}
+                      <div className="flex items-center justify-between gap-6">
+                        {/* Input Field - Left Side */}
+                        <div className="flex items-center gap-3">
+                          <Label className="text-xs font-medium text-muted-foreground whitespace-nowrap">Manual Input</Label>
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              value={pool.storageSize}
+                              onChange={(e) => {
+                                const value = Math.max(50, Math.min(2048, Number(e.target.value) || 50))
+                                updateNodePool(pool.id, { storageSize: value })
+                                setTimeout(() => {
+                                  setHighlightedStorage(pool.id)
+                                  setTimeout(() => setHighlightedStorage(null), 2000)
+                                }, 300)
+                              }}
+                              className={`w-32 h-10 text-center text-base font-semibold pr-10 border-2 transition-all duration-500 ${
+                                highlightedStorage === pool.id 
+                                  ? "border-green-500 bg-green-50 shadow-lg shadow-green-500/30 scale-110 ring-4 ring-green-500/20 animate-pulse" 
+                                  : draggingStorage === pool.id
+                                  ? "border-green-400 bg-green-50 scale-105"
+                                  : "border-slate-300 hover:border-slate-400"
+                              }`}
+                              min={50}
+                              max={2048}
+                              placeholder="Size"
+                            />
+                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-medium text-muted-foreground pointer-events-none">
+                              GB
+                            </span>
+                            {highlightedStorage === pool.id && (
+                              <div className="absolute -inset-1 bg-gradient-to-r from-green-500/20 to-green-400/10 rounded-lg blur-sm"></div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Quick Select Buttons - Right Side */}
+                        <div className="flex items-center gap-3">
+                          <Label className="text-xs font-medium text-muted-foreground whitespace-nowrap">Quick Select</Label>
+                          <div className="flex gap-2">
+                            {storagePresets.map((preset) => (
+                              <Button
+                                key={preset.size}
+                                type="button"
+                                variant={pool.storageSize === preset.size ? "default" : "outline"}
+                                size="sm"
+                                className={`h-9 px-3 text-sm font-medium transition-all duration-200 ${
+                                  pool.storageSize === preset.size 
+                                    ? "bg-primary text-primary-foreground shadow-md scale-105" 
+                                    : "hover:scale-105 hover:shadow-sm"
+                                }`}
+                                onClick={() => {
+                                  updateNodePool(pool.id, { storageSize: preset.size })
+                                  setTimeout(() => {
+                                    setHighlightedStorage(pool.id)
+                                    setTimeout(() => setHighlightedStorage(null), 1500)
+                                  }, 300)
+                                }}
+                              >
+                                {preset.label}
+                              </Button>
+                            ))}
+                          </div>
                         </div>
                       </div>
 
                       {/* Enhanced Slider with Notches */}
-                      <div className="space-y-4">
+                      <div className="space-y-4 pb-3">
                         <Label className="text-xs font-medium text-muted-foreground">Select size by dragging the slider</Label>
                         <div className="relative px-2 pb-8">
                           <Slider
@@ -1306,42 +1441,13 @@ ${nodePoolsYAML}`
                           </div>
                         </div>
                       </div>
-
-                      {/* Quick Preset Buttons */}
-                      <div className="space-y-2">
-                        <Label className="text-xs font-medium text-muted-foreground">Quick Select</Label>
-                        <div className="grid grid-cols-4 gap-2">
-                          {storagePresets.map((preset) => (
-                      <Button
-                              key={preset.size}
-                        type="button"
-                              variant={pool.storageSize === preset.size ? "default" : "outline"}
-                        size="sm"
-                              className={`h-10 text-sm font-medium transition-all duration-200 ${
-                                pool.storageSize === preset.size 
-                                  ? "bg-primary text-primary-foreground shadow-md scale-105" 
-                                  : "hover:scale-105 hover:shadow-sm"
-                              }`}
-                              onClick={() => {
-                                updateNodePool(pool.id, { storageSize: preset.size })
-                                setTimeout(() => {
-                                  setHighlightedStorage(pool.id)
-                                  setTimeout(() => setHighlightedStorage(null), 1500)
-                                }, 300)
-                              }}
-                            >
-                              {preset.label}
-                      </Button>
-                          ))}
-                        </div>
-                      </div>
                     </div>
                     
                     {/* Volume Size Warning */}
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <div className="flex items-start gap-2">
-                        <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                        <p className="text-xs text-amber-800">
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg py-2.5 px-3">
+                      <div className="flex gap-2">
+                        <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" style={{ marginTop: '1px' }} />
+                        <p className="text-xs text-amber-800 leading-relaxed">
                           <strong>Note:</strong> Volume size cannot be edited later. Choose carefully.
                         </p>
                       </div>
@@ -1581,10 +1687,9 @@ ${nodePoolsYAML}`
               </Card>
             ))}
 
-            {/* Main Form Card with Add Node Pool and Action Buttons */}
+            {/* Add Node Pool Button */}
             <Card>
               <CardContent className="space-y-6 pt-6">
-                {/* Add Node Pool Button */}
                 <Button
                   type="button"
                   variant="outline"
@@ -1594,17 +1699,65 @@ ${nodePoolsYAML}`
                   <Plus className="h-5 w-5 mr-2" />
                   Add Node Pool
                 </Button>
+              </CardContent>
+            </Card>
 
-                {/* Action Buttons */}
-                <div className="pt-6 border-t">
-                  <div className="flex justify-end gap-4">
-                    <Button variant="outline" onClick={onBack}>
-                      Back to Configuration
-                    </Button>
-                    <Button onClick={onContinue} disabled={!validateForm()} className="bg-black text-white hover:bg-black/90">
-                      Continue to Review
-                    </Button>
-                  </div>
+            {/* Add-ons Section */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <Switch
+                      checked={defaultAddons.every(addon => addon.enabled)}
+                      onCheckedChange={(checked) => {
+                        setDefaultAddons(prev => prev.map(addon => ({ ...addon, enabled: checked })))
+                      }}
+                    />
+                    Cluster Add-ons
+                  </CardTitle>
+                </div>
+                <CardDescription>
+                  Essential cluster services that provide core functionality. These are recommended for most deployments.
+                </CardDescription>
+                {hasDisabledAddons && (
+                  <Alert className="border-yellow-200 bg-yellow-50 mt-3 py-3">
+                    <div className="flex gap-2">
+                      <AlertTriangle className="h-4 w-4 text-yellow-600 flex-shrink-0" style={{ marginTop: '1px' }} />
+                      <AlertDescription className="text-xs text-yellow-800 leading-relaxed">
+                        <strong>Warning:</strong> Disabling essential add-ons may affect cluster functionality. Some features may not work as expected.
+                      </AlertDescription>
+                    </div>
+                  </Alert>
+                )}
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  {defaultAddons.map((addon) => (
+                    <div key={addon.id} className="p-4 border rounded-lg">
+                      <div className="space-y-1">
+                        <div className="text-sm font-medium leading-none">
+                          {addon.name}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {addon.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Action Buttons */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex justify-end gap-4">
+                  <Button variant="outline" onClick={onBack}>
+                    Back to Configuration
+                  </Button>
+                  <Button onClick={onContinue} disabled={!validateForm()} className="bg-black text-white hover:bg-black/90">
+                    Complete Cluster Setup
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -1612,6 +1765,34 @@ ${nodePoolsYAML}`
 
         {/* Right Side Panel */}
         <div className="w-full md:w-80 space-y-6">
+
+            {/* Cluster Creation Status & Billing Warning */}
+            {clusterCreationStarted && (
+              <Card 
+                className="border-0"
+                style={{
+                  boxShadow: 'rgba(251, 146, 60, 0.1) 0px 0px 0px 1px inset',
+                  background: 'linear-gradient(263deg, rgba(251, 146, 60, 0.08) 6.86%, rgba(251, 146, 60, 0.02) 96.69%)'
+                }}
+              >
+                <CardHeader className="pb-4">
+                  <div className="flex space-x-3">
+                    <div className="flex items-center justify-center w-8 h-8" style={{ marginTop: '2px' }}>
+                      <AlertTriangle className="h-4 w-4" style={{ color: 'rgb(194, 65, 12)' }} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base leading-relaxed" style={{ color: 'rgb(194, 65, 12)' }}>
+                        Cluster creation has started and billing is now active
+                      </CardTitle>
+                      <CardDescription className="text-sm mt-2 leading-relaxed" style={{ color: 'rgb(194, 65, 12)', opacity: 0.8 }}>
+                        Your Kubernetes cluster is being provisioned in the background. If you cancel or leave this page, 
+                        <strong> billing will continue until you manually delete the cluster</strong> from the dashboard.
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            )}
 
             {/* Cost Summary */}
             <div 
@@ -1942,142 +2123,6 @@ spec:
                 </div>
               </div>
             </div>
-        </div>
-      </div>
-    </PageLayout>
-  )
-}
-
-// Confirmation View Component
-function ConfirmationView({ 
-  configuration, 
-  costs, 
-  onBack, 
-  onCreate 
-}: { 
-  configuration: ClusterConfiguration
-  costs: any
-  onBack: () => void
-  onCreate: () => void
-}) {
-  const [yamlContent, setYamlContent] = useState("")
-  
-  useEffect(() => {
-    // Import the function dynamically to avoid circular dependencies
-    import("@/lib/cluster-creation-data").then(({ generateClusterSpecYAML }) => {
-      setYamlContent(generateClusterSpecYAML(configuration))
-    })
-  }, [configuration])
-
-  const selectedVPC = mockVPCs.find(v => v.id === configuration.vpcId)
-  const selectedSubnets = mockSubnets.filter(s => configuration.subnetIds.includes(s.id))
-  const selectedVersion = availableKubernetesVersions.find(v => v.version === configuration.kubernetesVersion)
-
-  return (
-    <PageLayout
-      title="Review Configuration"
-      description="Review your cluster configuration before creation"
-    >
-      <div className="space-y-6">
-        {/* Configuration Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Configuration Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Region</Label>
-                <p className="font-medium">{availableRegions.find(r => r.id === configuration.region)?.displayName}</p>
-              </div>
-              
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">VPC</Label>
-                <p className="font-medium">{selectedVPC?.name}</p>
-                <p className="text-sm text-muted-foreground">{selectedVPC?.cidr}</p>
-              </div>
-              
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Subnets</Label>
-                <div className="space-y-1">
-                  {selectedSubnets.map(subnet => (
-                    <div key={subnet.id} className="flex items-center gap-2">
-                      <Badge 
-                        variant={subnet.type === "Public" ? "default" : "secondary"} 
-                        className={`text-xs ${
-                          subnet.type === "Public" 
-                            ? "bg-blue-100 text-blue-800" 
-                            : "bg-orange-100 text-orange-800"
-                        }`}
-                      >
-                        {subnet.type}
-                      </Badge>
-                      <span className="text-sm">{subnet.name} ({subnet.cidr})</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Kubernetes Version</Label>
-                <p className="font-medium">{selectedVersion?.version}</p>
-                <p className="text-sm text-muted-foreground">EOL: {selectedVersion?.eolDate}</p>
-              </div>
-              
-
-              
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">API Endpoint</Label>
-                <p className="font-medium capitalize">{configuration.apiServerEndpoint.type}</p>
-              </div>
-            </div>
-            
-            <Separator />
-            
-            <div>
-              <Label className="text-sm font-medium text-muted-foreground">Estimated Cost</Label>
-              <p className="text-2xl font-bold">₹{costs.cluster.hourly.toFixed(2)}/hour</p>
-              <p className="text-muted-foreground">₹{costs.cluster.monthly.toFixed(2)}/month</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* YAML Preview */}
-        <Card>
-          <CardHeader>
-            <CardTitle>ClusterSpec YAML</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-              <pre>{yamlContent}</pre>
-            </div>
-            <div className="mt-4 flex justify-end">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const blob = new Blob([yamlContent], { type: "text/yaml" })
-                  const url = URL.createObjectURL(blob)
-                  const a = document.createElement("a")
-                  a.href = url
-                  a.download = "cluster-spec.yaml"
-                  a.click()
-                  URL.revokeObjectURL(url)
-                }}
-              >
-                Download YAML
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Action Buttons */}
-        <div className="flex gap-4 pt-6">
-          <Button variant="outline" onClick={onBack} className="flex-1">
-            Back to Configuration
-          </Button>
-          <Button onClick={onCreate} className="flex-1 bg-black text-white hover:bg-black/90">
-            Create Cluster
-          </Button>
         </div>
       </div>
     </PageLayout>

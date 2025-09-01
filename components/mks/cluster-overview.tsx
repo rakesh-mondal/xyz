@@ -101,7 +101,7 @@ export function ClusterOverview({ cluster }: ClusterOverviewProps) {
               <Globe className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium text-muted-foreground">Region</span>
             </div>
-            <Badge variant="outline">
+            <Badge variant="outline" className="font-medium">
               {getRegionDisplayName(cluster.region)}
             </Badge>
           </div>
@@ -178,7 +178,7 @@ export function ClusterOverview({ cluster }: ClusterOverviewProps) {
             <span className="text-sm font-medium text-muted-foreground">Tags</span>
             <div className="flex flex-wrap gap-2">
               {cluster.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
+                <Badge key={tag} variant="secondary" className="text-xs font-medium">
                   {tag}
                 </Badge>
               ))}

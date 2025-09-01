@@ -160,7 +160,7 @@ export default function MKSDashboardPage() {
       label: "Region",
       sortable: true,
       render: (value: string) => (
-        <Badge variant="secondary" className="text-xs">
+        <Badge variant="secondary" className="text-xs font-medium">
           {getRegionDisplayName(value)}
         </Badge>
       ),
@@ -213,13 +213,13 @@ export default function MKSDashboardPage() {
         return (
           <div className="flex flex-wrap gap-2 max-w-xs">
             {displayTags.map((tag, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
+              <Badge key={index} variant="secondary" className="text-xs font-medium">
                 {tag}
               </Badge>
             ))}
             {remainingCount > 0 && (
               <TooltipWrapper content={value.slice(2).join(', ')}>
-                <Badge variant="outline" className="text-xs cursor-help">
+                <Badge variant="outline" className="text-xs font-medium cursor-help">
                   +{remainingCount}
                 </Badge>
               </TooltipWrapper>
