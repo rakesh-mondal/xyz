@@ -301,15 +301,9 @@ export default function NodePoolCreationPage() {
 
   // Generate YAML preview
   const generateYAML = () => {
-    const yaml = `apiVersion: v1
-kind: Cluster
-metadata:
-  name: mks-cluster
-spec:
-  nodePools:
-${nodePools.map(pool => {
-  const flavor = getSelectedFlavor(pool.instanceFlavor)
-  return `  - name: ${pool.name}
+    const nodePoolsYAML = nodePools.map(pool => {
+      const flavor = getSelectedFlavor(pool.instanceFlavor)
+      let poolYAML = `  - name: ${pool.name}
     instanceType: ${flavor.name}
     vcpus: ${flavor.vcpus}
     memory: ${flavor.ram}GB
@@ -317,16 +311,42 @@ ${nodePools.map(pool => {
     scaling:
       desired: ${pool.desiredNodes}
       min: ${pool.minNodes}
-      max: ${pool.maxNodes}
-    ${pool.labels.length > 0 ? `labels:
-${pool.labels.map(label => `      ${label.key}: "${label.value}"`).join('\n')}` : ''}
-    ${pool.taints.length > 0 ? `taints:
-${pool.taints.map(taint => `      - key: "${taint.key}"
-        value: "${taint.value}"
-        effect: ${taint.effect}`).join('\n')}` : ''}
-    ${pool.tags.length > 0 && pool.tags.some(tag => tag.key && tag.value) ? `tags:
-${pool.tags.filter(tag => tag.key && tag.value).map(tag => `      ${tag.key}: "${tag.value}"`).join('\n')}` : ''}`
-}).join('\n')}`
+      max: ${pool.maxNodes}`
+
+      // Add labels if any
+      if (pool.labels.length > 0 && pool.labels.some(label => label.key && label.value)) {
+        poolYAML += '\n    labels:'
+        pool.labels.filter(label => label.key && label.value).forEach(label => {
+          poolYAML += `\n      ${label.key}: "${label.value}"`
+        })
+      }
+
+      // Add taints if any
+      if (pool.taints.length > 0 && pool.taints.some(taint => taint.key && taint.value)) {
+        poolYAML += '\n    taints:'
+        pool.taints.filter(taint => taint.key && taint.value).forEach(taint => {
+          poolYAML += `\n      - key: "${taint.key}"\n        value: "${taint.value}"\n        effect: ${taint.effect}`
+        })
+      }
+
+      // Add tags if any
+      if (pool.tags.length > 0 && pool.tags.some(tag => tag.key && tag.value)) {
+        poolYAML += '\n    tags:'
+        pool.tags.filter(tag => tag.key && tag.value).forEach(tag => {
+          poolYAML += `\n      ${tag.key}: "${tag.value}"`
+        })
+      }
+
+      return poolYAML
+    }).join('\n')
+
+    const yaml = `apiVersion: v1
+kind: Cluster
+metadata:
+  name: mks-cluster
+spec:
+  nodePools:
+${nodePoolsYAML}`
     
     return yaml
   }
