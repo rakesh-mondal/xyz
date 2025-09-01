@@ -14,6 +14,7 @@ interface PoolSectionProps {
   formData: ALBFormData
   updateFormData: (section: string, data: any) => void
   isSection?: boolean
+  isEditMode?: boolean
 }
 
 interface Pool {
@@ -24,7 +25,7 @@ interface Pool {
   targetGroup: string
 }
 
-export function PoolSection({ formData, updateFormData, isSection = false }: PoolSectionProps) {
+export function PoolSection({ formData, updateFormData, isSection = false, isEditMode = false }: PoolSectionProps) {
   const [pools, setPools] = useState<Pool[]>(formData.pools)
 
   // Sync props to local state when they change
@@ -175,8 +176,9 @@ export function PoolSection({ formData, updateFormData, isSection = false }: Poo
                   <Select 
                     value={pool.protocol} 
                     onValueChange={(value) => updatePool(pool.id, "protocol", value)}
+                    disabled={isEditMode}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={isEditMode ? 'bg-muted text-muted-foreground' : ''}>
                       <SelectValue placeholder="Select protocol" />
                     </SelectTrigger>
                     <SelectContent>
@@ -206,7 +208,7 @@ export function PoolSection({ formData, updateFormData, isSection = false }: Poo
                     value={pool.algorithm} 
                     onValueChange={(value) => updatePool(pool.id, "algorithm", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="text-left">
                       <SelectValue placeholder="Select load balancing algorithm" />
                     </SelectTrigger>
                     <SelectContent>

@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-import { HelpCircle, Plus, Trash2 } from "lucide-react"
+import { HelpCircle, Plus, Trash2, Info } from "lucide-react"
 import { BasicSection } from "./sections/basic-section"
 import { PoolSection } from "./sections/pool-section"
 import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
@@ -30,6 +30,11 @@ export interface NLBFormData {
   region: string
   vpc: string
   subnet: string
+  
+  // Performance Tier
+  performanceTier: string
+  standardConfig: string
+  ipAddressType: string
   
   // Listeners with only pools (no policies/rules for NLB)
   listeners: Array<{
@@ -54,6 +59,9 @@ interface NLBCreateFormProps {
   config: LoadBalancerConfiguration
   onBack: () => void
   onCancel: () => void
+  isEditMode?: boolean
+  editData?: any
+  customBreadcrumbs?: Array<{ href: string; title: string }>
 }
 
 const getLoadBalancerTypeName = (config: LoadBalancerConfiguration) => {
@@ -64,9 +72,10 @@ const getLoadBalancerTypeName = (config: LoadBalancerConfiguration) => {
 interface NLBListenerCardProps {
   listener: NLBFormData['listeners'][0]
   updateListener: (listenerId: string, field: string, value: any) => void
+  isEditMode?: boolean
 }
 
-function NLBListenerCard({ listener, updateListener }: NLBListenerCardProps) {
+function NLBListenerCard({ listener, updateListener, isEditMode = false }: NLBListenerCardProps) {
   const protocolOptions = [
     { value: "TCP", label: "TCP", defaultPort: 80 },
     { value: "UDP", label: "UDP", defaultPort: 80 },
@@ -128,8 +137,9 @@ function NLBListenerCard({ listener, updateListener }: NLBListenerCardProps) {
             <Select 
               value={listener.protocol} 
               onValueChange={(value) => updateListenerField("protocol", value)}
+              disabled={isEditMode}
             >
-              <SelectTrigger>
+              <SelectTrigger className={isEditMode ? 'bg-muted text-muted-foreground' : ''}>
                 <SelectValue placeholder="Select protocol" />
               </SelectTrigger>
               <SelectContent>
@@ -154,11 +164,14 @@ function NLBListenerCard({ listener, updateListener }: NLBListenerCardProps) {
               placeholder="80"
               value={listener.port}
               onChange={(e) => updateListenerField("port", parseInt(e.target.value) || 80)}
-              className="focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${isEditMode ? 'bg-muted text-muted-foreground' : ''}`}
+              disabled={isEditMode}
             />
-            <p className="text-xs text-muted-foreground mt-1">
-              Port auto-fills based on protocol selection
-            </p>
+            {!isEditMode && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Port auto-fills based on protocol selection
+              </p>
+            )}
           </div>
 
           {/* Certificate */}
@@ -205,35 +218,39 @@ function NLBListenerCard({ listener, updateListener }: NLBListenerCardProps) {
           }}
           updateFormData={updatePools}
           isSection={true}
+          isEditMode={isEditMode}
         />
       </div>
     </div>
   )
 }
 
-export function NLBCreateForm({ config, onBack, onCancel }: NLBCreateFormProps) {
+export function NLBCreateForm({ config, onBack, onCancel, isEditMode = false, editData, customBreadcrumbs }: NLBCreateFormProps) {
   const router = useRouter()
   const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
   const [showCreateSubnetModal, setShowCreateSubnetModal] = useState(false)
   const [formData, setFormData] = useState<NLBFormData>({
-    name: "",
-    description: "",
+    name: isEditMode ? editData?.name || "" : "",
+    description: isEditMode ? editData?.description || "" : "",
     loadBalancerType: getLoadBalancerTypeName(config),
-    region: "",
-    vpc: "",
-    subnet: "",
-    listeners: []
+    region: isEditMode ? editData?.region || "" : "",
+    vpc: isEditMode ? editData?.vpc || "" : "",
+    subnet: isEditMode ? editData?.subnet || "" : "",
+    performanceTier: isEditMode ? editData?.performanceTier || "standard" : "standard",
+    standardConfig: isEditMode ? editData?.standardConfig || "" : "",
+    ipAddressType: isEditMode ? editData?.ipAddressType || "" : "",
+    listeners: isEditMode ? editData?.listeners || [] : []
   })
 
-  // Initialize with default listener
+  // Initialize with default listener (only in create mode)
   useEffect(() => {
-    if (formData.listeners.length === 0) {
+    if (!isEditMode && formData.listeners.length === 0) {
       setFormData(prev => ({
         ...prev,
         listeners: [createNewListener()]
       }))
     }
-  }, [])
+  }, [isEditMode])
 
   const createNewListener = () => ({
     id: crypto.randomUUID(),
@@ -293,15 +310,26 @@ export function NLBCreateForm({ config, onBack, onCancel }: NLBCreateFormProps) 
   }
 
   const handleReviewAndCreate = () => {
-    // Navigate to summary page with form data
-    router.push(`/networking/load-balancing/balancer/create/summary?config=${JSON.stringify(config)}&data=${JSON.stringify(formData)}`)
+    if (isEditMode) {
+      // Handle edit save
+      console.log("Saving NLB changes:", formData)
+      // In a real app, this would be an API call to update the load balancer
+      
+      // Navigate back to details page
+      router.push(`/networking/load-balancing/balancer/${editData?.id}`)
+    } else {
+      // Navigate to summary page with form data
+      router.push(`/networking/load-balancing/balancer/create/summary?config=${JSON.stringify(config)}&data=${JSON.stringify(formData)}`)
+    }
   }
 
   const isFormValid = () => {
     const basicValid = formData.name?.trim().length > 0 && 
                       formData.region?.length > 0 && 
                       formData.vpc?.length > 0 &&
-                      formData.subnet?.length > 0
+                      formData.subnet?.length > 0 &&
+                      formData.performanceTier?.length > 0 &&
+                      formData.standardConfig?.length > 0
 
     // At least one listener must have basic configuration
     const listenersValid = formData.listeners.some(listener => 
@@ -315,8 +343,10 @@ export function NLBCreateForm({ config, onBack, onCancel }: NLBCreateFormProps) 
 
   return (
     <PageLayout
-      title="Create Network Load Balancer"
-      description="Configure your Network Load Balancer for high-performance TCP/UDP traffic routing"
+      title={isEditMode ? `Edit ${editData?.name}` : "Create Network Load Balancer"}
+      description={isEditMode ? "Modify your Network Load Balancer configuration" : "Configure your Network Load Balancer for high-performance TCP/UDP traffic routing"}
+      customBreadcrumbs={customBreadcrumbs}
+      hideViewDocs={false}
     >
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Main Content */}
@@ -329,14 +359,18 @@ export function NLBCreateForm({ config, onBack, onCancel }: NLBCreateFormProps) 
                   formData={formData as any}
                   updateFormData={updateFormData}
                   isSection={true}
+                  isEditMode={isEditMode}
                   onCreateVPC={() => setShowCreateVPCModal(true)}
                   onCreateSubnet={() => setShowCreateSubnetModal(true)}
                 />
                 
-                <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <p className="text-gray-600" style={{ fontSize: '13px' }}>
-                    Configure multiple listeners below. Each listener can have its own Pool configuration for TCP/UDP traffic routing.
-                  </p>
+                <div className="border-t border-gray-200 pt-4">
+                  <div className="flex items-start gap-2">
+                    <Info className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-gray-600" style={{ fontSize: '13px' }}>
+                      Configure multiple listeners below. Each listener can have its own Pool configuration for TCP/UDP traffic routing.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -390,6 +424,7 @@ export function NLBCreateForm({ config, onBack, onCancel }: NLBCreateFormProps) 
                         <NLBListenerCard 
                           listener={listener}
                           updateListener={updateListener}
+                          isEditMode={isEditMode}
                         />
                       </AccordionContent>
                     </AccordionItem>
@@ -417,7 +452,7 @@ export function NLBCreateForm({ config, onBack, onCancel }: NLBCreateFormProps) 
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
-                Review & Create
+                {isEditMode ? "Save Changes" : "Review & Create"}
               </Button>
             </div>
           </Card>

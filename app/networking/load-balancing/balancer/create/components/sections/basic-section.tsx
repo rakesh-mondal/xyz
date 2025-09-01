@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { HelpCircle, ChevronDown, Search, Check } from "lucide-react"
 import { vpcs, subnets } from "@/lib/data"
@@ -17,11 +18,12 @@ interface BasicSectionProps {
   formData: ALBFormData
   updateFormData: (section: string, data: any) => void
   isSection?: boolean
+  isEditMode?: boolean
   onCreateVPC?: () => void
   onCreateSubnet?: () => void
 }
 
-export function BasicSection({ formData, updateFormData, isSection = false, onCreateVPC, onCreateSubnet }: BasicSectionProps) {
+export function BasicSection({ formData, updateFormData, isSection = false, isEditMode = false, onCreateVPC, onCreateSubnet }: BasicSectionProps) {
   const [formTouched, setFormTouched] = useState(false)
   
   const updateField = (field: string, value: string) => {
@@ -114,11 +116,20 @@ export function BasicSection({ formData, updateFormData, isSection = false, onCr
     }
   }
 
+  const isPublicSubnet = (subnetId: string) => {
+    const selectedVPCName = vpcs.find(vpc => vpc.id === formData.vpc)?.name
+    const subnet = subnets.find(s => s.id === subnetId && s.vpcName === selectedVPCName)
+    return subnet?.type === "Public"
+  }
+
   const isFormValid = () => {
     return formData.name?.trim().length > 0 && 
            formData.region?.length > 0 && 
            formData.vpc?.length > 0 &&
-           formData.subnet?.length > 0
+           formData.subnet?.length > 0 &&
+           formData.performanceTier?.length > 0 &&
+           formData.standardConfig?.length > 0 &&
+           (!isPublicSubnet(formData.subnet) || formData.ipAddressType?.length > 0)
   }
 
 
@@ -139,12 +150,15 @@ export function BasicSection({ formData, updateFormData, isSection = false, onCr
             onChange={(e) => handleChange("name", e.target.value)}
             className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
               formTouched && !formData.name?.trim() ? 'border-red-300 bg-red-50' : ''
-            }`}
+            } ${isEditMode ? 'bg-muted text-muted-foreground' : ''}`}
+            disabled={isEditMode}
             required
           />
-          <p className="text-xs text-muted-foreground mt-1">
-            Only alphanumeric characters, hyphens, and underscores allowed.
-          </p>
+          {!isEditMode && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Only alphanumeric characters, hyphens, and underscores allowed.
+            </p>
+          )}
         </div>
 
         {/* Description */}
@@ -178,8 +192,8 @@ export function BasicSection({ formData, updateFormData, isSection = false, onCr
           <Label htmlFor="region" className="block mb-2 font-medium">
             Region <span className="text-destructive">*</span>
           </Label>
-          <Select value={formData.region || ""} onValueChange={(value) => handleChange("region", value)} required>
-            <SelectTrigger className={formTouched && !formData.region ? 'border-red-300 bg-red-50' : ''}>
+          <Select value={formData.region || ""} onValueChange={(value) => handleChange("region", value)} disabled={isEditMode} required>
+            <SelectTrigger className={`${formTouched && !formData.region ? 'border-red-300 bg-red-50' : ''} ${isEditMode ? 'bg-muted text-muted-foreground' : ''}`}>
               <SelectValue placeholder="Select a region" />
             </SelectTrigger>
             <SelectContent>
@@ -247,6 +261,8 @@ export function BasicSection({ formData, updateFormData, isSection = false, onCr
             }
           }}
           formTouched={formTouched}
+          disabled={isEditMode}
+          isEditMode={isEditMode}
         />
 
         {/* Subnet */}
@@ -261,17 +277,164 @@ export function BasicSection({ formData, updateFormData, isSection = false, onCr
             }
           }}
           formTouched={formTouched}
-          disabled={!formData.vpc}
+          disabled={!formData.vpc || isEditMode}
+          isEditMode={isEditMode}
         />
+
+        {/* Performance Tier and Configuration */}
+        <div className="mb-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Performance Tier */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Label className="font-medium">
+                  Performance Tier <span className="text-destructive">*</span>
+                </Label>
+                <TooltipWrapper 
+                  content="Standard Load Balancer contains 4vCPUs and 8GB RAM. Pro Load Balancer contains 8vCPUs and 16GB RAM."
+                  side="top"
+                >
+                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                </TooltipWrapper>
+              </div>
+              
+              <RadioGroup 
+                value={formData.performanceTier || ""} 
+                onValueChange={(value) => handleChange("performanceTier", value)}
+                className="space-y-3 mt-2"
+                disabled={isEditMode}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="standard" id="standard" disabled={isEditMode} />
+                  <Label htmlFor="standard" className={`cursor-pointer ${isEditMode ? 'text-muted-foreground cursor-not-allowed' : ''}`}>
+                    Standard
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="pro" id="pro" disabled />
+                  <Label htmlFor="pro" className="text-muted-foreground cursor-not-allowed">
+                    Pro
+                  </Label>
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    Coming Soon
+                  </Badge>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Configuration */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Label className="font-medium">
+                  Configuration <span className="text-destructive">*</span>
+                </Label>
+                <TooltipWrapper 
+                  content="Standalone Load Balancer is provisioned with 1 node. High Availability option provisions the load balancer with 2 nodes - 1 primary and 1 backup."
+                  side="top"
+                >
+                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                </TooltipWrapper>
+              </div>
+              
+              <RadioGroup 
+                value={formData.standardConfig || ""} 
+                onValueChange={(value) => handleChange("standardConfig", value)}
+                className="space-y-3 mt-2"
+                disabled={isEditMode}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="standalone" id="standalone" disabled={isEditMode} />
+                  <Label htmlFor="standalone" className={`cursor-pointer ${isEditMode ? 'text-muted-foreground cursor-not-allowed' : ''}`}>
+                    Standalone
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="high-availability" id="high-availability" disabled={isEditMode} />
+                  <Label htmlFor="high-availability" className={`cursor-pointer ${isEditMode ? 'text-muted-foreground cursor-not-allowed' : ''}`}>
+                    High Availability
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </div>
+        </div>
+
+        {/* IP Address Type - Only show if public subnet is selected */}
+        {formData.subnet && isPublicSubnet(formData.subnet) && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Label className="font-medium">
+                IP Address Type <span className="text-destructive">*</span>
+              </Label>
+              <TooltipWrapper 
+                content="Choose how the public IP address should be allocated for your load balancer in the public subnet."
+                side="top"
+              >
+                <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+              </TooltipWrapper>
+            </div>
+            
+            <div className={`p-4 border border-gray-200 rounded-lg ${isEditMode ? 'bg-gray-100' : 'bg-gray-50'}`}>
+              <RadioGroup 
+                value={formData.ipAddressType || ""} 
+                onValueChange={(value) => handleChange("ipAddressType", value)}
+                className="space-y-4"
+                disabled={isEditMode}
+              >
+                <div className="flex items-start space-x-2">
+                  <RadioGroupItem value="floating-ip" id="floating-ip" className="mt-0.5" disabled={isEditMode} />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="floating-ip" className={`cursor-pointer ${isEditMode ? 'text-muted-foreground cursor-not-allowed' : ''}`}>
+                        Floating IP
+                      </Label>
+                      <TooltipWrapper 
+                        content="A floating IP can be dynamically assigned and reassigned to different resources. It provides flexibility to move IPs between instances."
+                        side="top"
+                      >
+                        <HelpCircle className="h-3 w-3 text-muted-foreground hover:text-foreground cursor-help" />
+                      </TooltipWrapper>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Dynamic IP assignment that can be moved between resources
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-2">
+                  <RadioGroupItem value="reserve-ip" id="reserve-ip" className="mt-0.5" disabled={isEditMode} />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="reserve-ip" className={`cursor-pointer ${isEditMode ? 'text-muted-foreground cursor-not-allowed' : ''}`}>
+                        Reserve IP
+                      </Label>
+                      <TooltipWrapper 
+                        content="A reserved IP is permanently allocated to your account and remains static. It's ideal for services that require a consistent IP address."
+                        side="top"
+                      >
+                        <HelpCircle className="h-3 w-3 text-muted-foreground hover:text-foreground cursor-help" />
+                      </TooltipWrapper>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Static IP address reserved exclusively for your account
+                    </p>
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
+          </div>
+        )}
     </div>
   )
 }
 
 // VPC Selector Component
-function VPCSelectorInline({ value, onChange, formTouched }: {
+function VPCSelectorInline({ value, onChange, formTouched, disabled = false, isEditMode = false }: {
   value: string
   onChange: (value: string) => void
   formTouched: boolean
+  disabled?: boolean
+  isEditMode?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -299,17 +462,18 @@ function VPCSelectorInline({ value, onChange, formTouched }: {
       <div className="relative">
         <button
           type="button"
-          onClick={() => setOpen(!open)}
-          className={`w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+          onClick={() => !disabled && setOpen(!open)}
+          disabled={disabled}
+          className={`w-full flex items-center justify-between px-3 py-2 border border-input rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
             formTouched && !value ? 'border-red-300 bg-red-50' : ''
-          }`}
+          } ${disabled ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-background'}`}
         >
           <span className={selectedVPC ? "text-foreground" : "!text-[#64748b]"}>
             {selectedVPC ? `${selectedVPC.name} (${selectedVPC.region})` : "Select VPC to isolate your load balancer"}
           </span>
           <ChevronDown className="h-4 w-4 opacity-50" />
         </button>
-        {open && (
+        {open && !disabled && (
           <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
             <div className="p-2 border-b">
               <div className="relative">
@@ -365,12 +529,13 @@ function VPCSelectorInline({ value, onChange, formTouched }: {
 }
 
 // Subnet Selector Component
-function SubnetSelectorInline({ value, vpcId, onChange, formTouched, disabled }: {
+function SubnetSelectorInline({ value, vpcId, onChange, formTouched, disabled, isEditMode = false }: {
   value: string
   vpcId: string
   onChange: (value: string) => void
   formTouched: boolean
   disabled: boolean
+  isEditMode?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -408,11 +573,11 @@ function SubnetSelectorInline({ value, vpcId, onChange, formTouched, disabled }:
           <div className="relative">
             <button
               type="button"
-              onClick={() => setOpen(!open)}
+              onClick={() => !disabled && setOpen(!open)}
               disabled={disabled}
-              className={`w-full flex items-center justify-between px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+              className={`w-full flex items-center justify-between px-3 py-2 border border-input rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
                 formTouched && !value ? 'border-red-300 bg-red-50' : ''
-              }`}
+              } ${disabled ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-background'}`}
             >
               <span className={selectedSubnet ? "text-foreground" : "text-muted-foreground"}>
                 {selectedSubnet 
@@ -423,7 +588,7 @@ function SubnetSelectorInline({ value, vpcId, onChange, formTouched, disabled }:
               <ChevronDown className="h-4 w-4 opacity-50" />
             </button>
 
-            {open && (
+            {open && !disabled && (
               <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md">
                 <div className="p-2 border-b">
                   <div className="relative">
@@ -485,9 +650,11 @@ function SubnetSelectorInline({ value, vpcId, onChange, formTouched, disabled }:
               </div>
             )}
           </div>
-          <p className="text-xs mt-1 text-muted-foreground">
-            Both public and private subnets are available for load balancer placement.
-          </p>
+          {!isEditMode && (
+            <p className="text-xs mt-1 text-muted-foreground">
+              Both public and private subnets are available for load balancer placement.
+            </p>
+          )}
         </>
       ) : disabled ? (
         <>
@@ -496,9 +663,11 @@ function SubnetSelectorInline({ value, vpcId, onChange, formTouched, disabled }:
               Please select a VPC first to see available subnets.
             </p>
           </div>
-          <p className="text-xs mt-2 text-muted-foreground">
-            Subnets will be loaded automatically once you select a VPC.
-          </p>
+          {!isEditMode && (
+            <p className="text-xs mt-2 text-muted-foreground">
+              Subnets will be loaded automatically once you select a VPC.
+            </p>
+          )}
         </>
       ) : (
         <>
@@ -515,9 +684,11 @@ function SubnetSelectorInline({ value, vpcId, onChange, formTouched, disabled }:
               Create Subnet
             </Button>
           </div>
-          <p className="text-xs mt-2 text-muted-foreground">
-            Load balancers can be placed in both public and private subnets.
-          </p>
+          {!isEditMode && (
+            <p className="text-xs mt-2 text-muted-foreground">
+              Load balancers can be placed in both public and private subnets.
+            </p>
+          )}
         </>
       )}
     </div>
