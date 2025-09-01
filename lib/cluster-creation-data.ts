@@ -35,8 +35,7 @@ export interface KubernetesVersion {
 }
 
 export interface APIServerEndpoint {
-  type: 'public' | 'private' | 'whitelisted'
-  whitelistedIPs?: string[]
+  type: 'public'
 }
 
 export interface ClusterConfiguration {
@@ -256,10 +255,8 @@ export const calculateCosts = (configuration: Partial<ClusterConfiguration>): Co
     clusterCost *= 1.05 // Newer versions cost slightly more
   }
   
-  // API endpoint pricing (placeholder)
-  if (configuration.apiServerEndpoint?.type === 'whitelisted') {
-    clusterCost += 0.10 // Additional security features
-  }
+  // API endpoint pricing (placeholder) - only public endpoint available
+  // No additional costs for public endpoint
   
   const hourlyTotal = clusterCost + nodePoolCost
   const monthlyTotal = hourlyTotal * 24 * 30
@@ -309,8 +306,6 @@ ${subnets.map(subnet => `      - id: ${subnet.id}
     version: ${configuration.kubernetesVersion}
   apiServer:
     endpointType: ${configuration.apiServerEndpoint.type}
-${configuration.apiServerEndpoint.type === 'whitelisted' && configuration.apiServerEndpoint.whitelistedIPs ? `    whitelistedIPs:
-${configuration.apiServerEndpoint.whitelistedIPs.map(ip => `      - ${ip}`).join('\n')}` : ''}
   nodePools:
     - name: default-pool
       flavor: t3.medium

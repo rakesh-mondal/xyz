@@ -16,7 +16,8 @@ import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Slider } from "@/components/ui/slider"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight, Search, Check } from "lucide-react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight, Search, Check, HardDrive, Trash2 } from "lucide-react"
 import Link from "next/link"
 import {
   availableRegions,
@@ -29,18 +30,29 @@ import {
 } from "@/lib/cluster-creation-data"
 import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
 
+// Mock security groups data
+const mockSecurityGroups = [
+  { id: "sg-default", name: "default", description: "Default security group" },
+  { id: "sg-web", name: "web-servers", description: "Security group for web servers" },
+  { id: "sg-db", name: "database", description: "Security group for database servers" },
+  { id: "sg-app", name: "application", description: "Security group for application servers" },
+  { id: "sg-cache", name: "cache-servers", description: "Security group for cache servers" }
+]
+
 // Define interfaces at the top level
 interface NodePool {
   id: string
   name: string
   instanceFlavor: string
   storageSize: number
+  subnetId: string
+  securityGroupId?: string
   desiredNodes: number
   minNodes: number
   maxNodes: number
   taints: Array<{ key: string; value: string; effect: string }>
   labels: Array<{ key: string; value: string }>
-  tags: string[]
+  tags: Array<{ key: string; value: string }>
   isDefault: boolean
 }
 
@@ -180,11 +192,7 @@ export default function CreateClusterPage() {
       newErrors.kubernetesVersion = "Kubernetes version is required"
     }
 
-    if (configuration.apiServerEndpoint?.type === "whitelisted" && 
-        (!configuration.apiServerEndpoint.whitelistedIPs || 
-         configuration.apiServerEndpoint.whitelistedIPs.length === 0)) {
-      newErrors.whitelistedIPs = "At least one CIDR range is required for whitelisted access"
-    }
+
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -236,24 +244,7 @@ export default function CreateClusterPage() {
     setConfiguration(prev => ({
       ...prev,
       apiServerEndpoint: {
-        type,
-        whitelistedIPs: type === "whitelisted" ? [""] : undefined
-      }
-    }))
-  }
-
-  // Handle whitelisted IPs change
-  const handleWhitelistedIPChange = (index: number, value: string) => {
-    if (!configuration.apiServerEndpoint?.whitelistedIPs) return
-    
-    const newIPs = [...configuration.apiServerEndpoint.whitelistedIPs]
-    newIPs[index] = value
-    
-    setConfiguration(prev => ({
-      ...prev,
-      apiServerEndpoint: {
-        ...prev.apiServerEndpoint!,
-        whitelistedIPs: newIPs
+        type
       }
     }))
   }
@@ -292,6 +283,7 @@ export default function CreateClusterPage() {
     return <NodePoolsView 
       onBack={() => setStep("configuration")}
       onContinue={() => setStep("addons")}
+      clusterCost={costs.cluster}
     />
   }
 
@@ -399,8 +391,8 @@ export default function CreateClusterPage() {
                 {/* VPC Selection */}
                 <div className="mb-8">
                   <VPCSelectorInline
-                    value={configuration.vpcId}
-                    region={configuration.region}
+                    value={configuration.vpcId || ""}
+                    region={configuration.region || ""}
                     availableVPCs={availableVPCs}
                     onChange={(value) => {
                       if (value === "__create_new__") {
@@ -436,7 +428,14 @@ export default function CreateClusterPage() {
                                 <div className="flex items-center justify-between mb-1">
                                   <div>
                                     <span className="font-medium text-sm">{subnet.name}</span>
-                                    <Badge variant="outline" className="ml-2 text-xs">
+                                    <Badge 
+                                      variant={subnet.type === "Public" ? "default" : "secondary"} 
+                                      className={`ml-2 text-xs ${
+                                        subnet.type === "Public" 
+                                          ? "bg-blue-100 text-blue-800 hover:bg-blue-200" 
+                                          : "bg-orange-100 text-orange-800 hover:bg-orange-200"
+                                      }`}
+                                    >
                                       {subnet.type}
                                     </Badge>
                                   </div>
@@ -506,7 +505,7 @@ export default function CreateClusterPage() {
                                   </Badge>
                                 )}
                               </div>
-                              <span className="text-sm text-muted-foreground">
+                              <span className="text-sm text-muted-foreground ml-4">
                                 EOL: {version.eolDate}
                               </span>
                             </div>
@@ -541,99 +540,10 @@ export default function CreateClusterPage() {
                             </div>
                           </Label>
                         </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="private" id="private" />
-                          <Label htmlFor="private" className="flex-1">
-                            <div className="font-medium">Private</div>
-                            <div className="text-sm text-muted-foreground">
-                              Only accessible via internal VPC (bastion)
-                            </div>
-                          </Label>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="whitelisted" id="whitelisted" />
-                          <Label htmlFor="whitelisted" className="flex-1">
-                            <div className="font-medium">Whitelisted IPs</div>
-                            <div className="text-sm text-muted-foreground">
-                              Requires CIDR input for allowed IP ranges
-                            </div>
-                          </Label>
-                        </div>
                       </RadioGroup>
-                      
-                      <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded-lg">
-                        <p className="font-medium mb-2">Endpoint Options:</p>
-                        <ul className="space-y-1 text-xs">
-                          <li>• <strong>Public:</strong> Best for development and testing</li>
-                          <li>• <strong>Private:</strong> Enhanced security for production</li>
-                          <li>• <strong>Whitelisted:</strong> Controlled access from specific IPs</li>
-                        </ul>
-                      </div>
                     </div>
 
-                    {configuration.apiServerEndpoint?.type === "whitelisted" && (
-                      <div className="space-y-3 pl-6 mt-3">
-                        <Label className="text-sm font-medium">CIDR Ranges</Label>
-                        {configuration.apiServerEndpoint.whitelistedIPs?.map((ip, index) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <Input
-                              placeholder="e.g., 203.0.113.0/24"
-                              value={ip}
-                              onChange={(e) => handleWhitelistedIPChange(index, e.target.value)}
-                              className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.whitelistedIPs ? "border-red-300" : ""}`}
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const newIPs = configuration.apiServerEndpoint?.whitelistedIPs?.filter((_, i) => i !== index) || []
-                                setConfiguration(prev => ({
-                                  ...prev,
-                                  apiServerEndpoint: {
-                                    ...prev.apiServerEndpoint!,
-                                    whitelistedIPs: newIPs
-                                  }
-                                }))
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ))}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const newIPs = [...(configuration.apiServerEndpoint?.whitelistedIPs || []), ""]
-                            setConfiguration(prev => ({
-                              ...prev,
-                              apiServerEndpoint: {
-                                ...prev.apiServerEndpoint!,
-                                whitelistedIPs: newIPs
-                              }
-                            }))
-                          }}
-                        >
-                          Add CIDR Range
-                        </Button>
-                        {errors.whitelistedIPs && (
-                          <p className="text-sm text-red-600 mt-1">{errors.whitelistedIPs}</p>
-                        )}
-                      </div>
-                    )}
 
-                    {configuration.apiServerEndpoint?.type === "private" && (
-                      <Alert className="mt-3">
-                        <Info className="h-4 w-4" />
-                        <AlertDescription>
-                          Private endpoint requires bastion host setup. You'll need to configure SSH access through a bastion host in the same VPC.
-                        </AlertDescription>
-                      </Alert>
-                    )}
                   </div>
                 </div>
               </form>
@@ -744,9 +654,9 @@ export default function CreateClusterPage() {
       <CreateVPCModal
         open={showCreateVPCModal}
         onClose={() => setShowCreateVPCModal(false)}
-        onSuccess={(newVPC) => {
+        onSuccess={(newVpcId) => {
           // Handle successful VPC creation
-          handleVPCChange(newVPC.id)
+          handleVPCChange(newVpcId)
           setShowCreateVPCModal(false)
         }}
         preselectedRegion={configuration.region}
@@ -858,29 +768,36 @@ function VPCSelectorInline({ value, region, availableVPCs, onChange, error }: {
 // Node Pools View Component
 function NodePoolsView({ 
   onBack, 
-  onContinue 
+  onContinue,
+  clusterCost
 }: { 
   onBack: () => void
   onContinue: () => void
+  clusterCost: { hourly: number; monthly: number }
 }) {
   const [nodePools, setNodePools] = useState<NodePool[]>([
     {
       id: "default-pool",
       name: "default-pool",
       instanceFlavor: "cpu-2x-8gb",
-      storageSize: 100,
+      storageSize: 50,
+      subnetId: "",
+      securityGroupId: undefined,
       desiredNodes: 2,
       minNodes: 1,
       maxNodes: 5,
-      taints: [],
-      labels: [],
-      tags: [],
+      taints: [{ key: "", value: "", effect: "NoSchedule" }],
+      labels: [{ key: "", value: "" }],
+      tags: [{ key: "", value: "" }],
       isDefault: true
     }
   ])
 
   const [nextPoolId, setNextPoolId] = useState(2)
   const [yamlPreviewOpen, setYamlPreviewOpen] = useState(false)
+  const [highlightedStorage, setHighlightedStorage] = useState<string | null>(null)
+  const [draggingStorage, setDraggingStorage] = useState<string | null>(null)
+  const [dragValue, setDragValue] = useState<number>(0)
 
   // Instance flavors from the screenshot
   const instanceFlavors = [
@@ -894,11 +811,14 @@ function NodePoolsView({
 
   // Storage presets
   const storagePresets = [
-    { size: 20, label: "20GB" },
+    { size: 50, label: "50GB" },
     { size: 100, label: "100GB" },
     { size: 500, label: "500GB" },
     { size: 1000, label: "1TB" }
   ]
+
+  // Storage notches for visual markers on slider
+  const storageNotches = [50, 100, 250, 500, 1000, 1500, 2048]
 
   // Get selected instance flavor details
   const getSelectedFlavor = (flavorId: string) => {
@@ -922,7 +842,8 @@ function NodePoolsView({
     return {
       totalInstanceCost,
       totalStorageCost,
-      totalCost: totalInstanceCost + totalStorageCost
+      clusterCost: clusterCost.hourly,
+      totalCost: totalInstanceCost + totalStorageCost + clusterCost.hourly
     }
   }, [nodePools])
 
@@ -932,13 +853,15 @@ function NodePoolsView({
       id: `pool-${nextPoolId}`,
       name: `node-pool-${nextPoolId}`,
       instanceFlavor: "cpu-2x-8gb",
-      storageSize: 100,
+      storageSize: 50,
+      subnetId: "",
+      securityGroupId: undefined,
       desiredNodes: 1,
       minNodes: 1,
       maxNodes: 3,
-      taints: [],
-      labels: [],
-      tags: [],
+      taints: [{ key: "", value: "", effect: "NoSchedule" }],
+      labels: [{ key: "", value: "" }],
+      tags: [{ key: "", value: "" }],
       isDefault: false
     }
     
@@ -966,9 +889,8 @@ function NodePoolsView({
   const addTaint = (poolId: string) => {
     const pool = nodePools.find(p => p.id === poolId)
     if (pool) {
-      const newTaint: Taint = { key: "", value: "", effect: "NoSchedule" }
       updateNodePool(poolId, {
-        taints: [...pool.taints, newTaint]
+        taints: [...pool.taints, { key: "", value: "", effect: "NoSchedule" }]
       })
     }
   }
@@ -998,9 +920,8 @@ function NodePoolsView({
   const addLabel = (poolId: string) => {
     const pool = nodePools.find(p => p.id === poolId)
     if (pool) {
-      const newLabel: Label = { key: "", value: "" }
       updateNodePool(poolId, {
-        labels: [...pool.labels, newLabel]
+        labels: [...pool.labels, { key: "", value: "" }]
       })
     }
   }
@@ -1027,22 +948,32 @@ function NodePoolsView({
   }
 
   // Add tag
-  const addTag = (poolId: string, tag: string) => {
+  const addTag = (poolId: string) => {
     const pool = nodePools.find(p => p.id === poolId)
-    if (pool && tag.trim() && !pool.tags.includes(tag.trim())) {
+    if (pool) {
       updateNodePool(poolId, {
-        tags: [...pool.tags, tag.trim()]
+        tags: [...pool.tags, { key: "", value: "" }]
       })
     }
   }
 
   // Remove tag
-  const removeTag = (poolId: string, tag: string) => {
+  const removeTag = (poolId: string, index: number) => {
     const pool = nodePools.find(p => p.id === poolId)
     if (pool) {
       updateNodePool(poolId, {
-        tags: pool.tags.filter(t => t !== tag)
+        tags: pool.tags.filter((_, i) => i !== index)
       })
+    }
+  }
+
+  // Update tag
+  const updateTag = (poolId: string, index: number, field: 'key' | 'value', value: string) => {
+    const pool = nodePools.find(p => p.id === poolId)
+    if (pool) {
+      const newTags = [...pool.tags]
+      newTags[index][field] = value
+      updateNodePool(poolId, { tags: newTags })
     }
   }
 
@@ -1120,7 +1051,6 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Server className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <CardTitle className="text-lg">
                           {pool.name}
@@ -1130,9 +1060,6 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
                             </Badge>
                           )}
                         </CardTitle>
-                        <CardDescription>
-                          {pool.isDefault ? "Primary node pool for your cluster" : "Additional node pool"}
-                        </CardDescription>
                       </div>
                     </div>
                     {!pool.isDefault && (
@@ -1142,7 +1069,7 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
                         onClick={() => removeNodePool(pool.id)}
                         className="text-destructive hover:text-destructive"
                       >
-                        <X className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
@@ -1181,91 +1108,19 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
                           }`}
                           onClick={() => updateNodePool(pool.id, { instanceFlavor: flavor.id })}
                         >
-                          <CardContent className="p-3 text-center">
+                          <CardContent className="p-3">
+                            <div className="flex items-start justify-between mb-1">
                             <div className="font-medium text-sm">{flavor.name}</div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                              {flavor.vcpus} vCPU • {flavor.ram} GB RAM
+                              <div className="text-sm font-semibold text-primary">
+                                ₹{flavor.pricePerHour}/hour/node
                             </div>
-                            <div className="text-sm font-semibold text-primary mt-2">
-                              ₹{flavor.pricePerHour}/hour
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {flavor.vcpus} vCPU • {flavor.ram} GB RAM
                             </div>
                           </CardContent>
                         </Card>
                       ))}
-                    </div>
-                  </div>
-
-                  {/* Storage Selection */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">
-                      Storage Size (GB) <span className="text-destructive">*</span>
-                    </Label>
-                    <div className="space-y-4">
-                      {/* Quick Presets + Custom Input Row */}
-                      <div className="flex items-end gap-3">
-                        <div className="flex-1">
-                          <Label className="text-xs text-muted-foreground mb-2 block">Quick Select</Label>
-                          <div className="grid grid-cols-4 gap-2">
-                            {storagePresets.map((preset) => (
-                              <Button
-                                key={preset.size}
-                                type="button"
-                                variant={pool.storageSize === preset.size ? "default" : "outline"}
-                                size="sm"
-                                className={`h-9 text-xs font-medium ${
-                                  pool.storageSize === preset.size ? "bg-primary text-primary-foreground" : ""
-                                }`}
-                                onClick={() => updateNodePool(pool.id, { storageSize: preset.size })}
-                              >
-                                {preset.label}
-                              </Button>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="w-28">
-                          <Label className="text-xs text-muted-foreground mb-2 block">Custom</Label>
-                          <div className="relative">
-                            <Input
-                              type="number"
-                              value={pool.storageSize}
-                              onChange={(e) => {
-                                const value = Math.max(4, Math.min(2048, Number(e.target.value) || 4))
-                                updateNodePool(pool.id, { storageSize: value })
-                              }}
-                              className="w-full h-9 text-xs text-center pr-8"
-                              min={4}
-                              max={2048}
-                            />
-                            <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">GB</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Slider */}
-                      <div className="space-y-2">
-                        <Slider
-                          value={[pool.storageSize]}
-                          onValueChange={(value) => updateNodePool(pool.id, { storageSize: value[0] })}
-                          max={2048}
-                          min={4}
-                          step={1}
-                          className="w-full"
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>4 GB</span>
-                          <span>2048 GB</span>
-                        </div>
-                      </div>
-
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                        <div className="flex items-start gap-2">
-                          <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                          <p className="text-xs text-amber-800">
-                            <strong>Note:</strong> Volume size cannot be edited later. Choose carefully.
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   </div>
 
@@ -1276,22 +1131,22 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
                     </Label>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <Label className="text-xs text-muted-foreground mb-2 block">Desired Nodes</Label>
-                        <Input
-                          type="number"
-                          value={pool.desiredNodes}
-                          onChange={(e) => updateNodePool(pool.id, { desiredNodes: Math.max(1, Number(e.target.value) || 1) })}
-                          min={1}
-                          className="text-center"
-                        />
-                      </div>
-                      <div>
                         <Label className="text-xs text-muted-foreground mb-2 block">Min Nodes</Label>
                         <Input
                           type="number"
                           value={pool.minNodes}
                           onChange={(e) => updateNodePool(pool.id, { minNodes: Math.max(0, Number(e.target.value) || 0) })}
                           min={0}
+                          className="text-center"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground mb-2 block">Desired Nodes</Label>
+                        <Input
+                          type="number"
+                          value={pool.desiredNodes}
+                          onChange={(e) => updateNodePool(pool.id, { desiredNodes: Math.max(1, Number(e.target.value) || 1) })}
+                          min={1}
                           className="text-center"
                         />
                       </div>
@@ -1319,157 +1174,389 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
                     )}
                   </div>
 
-                  {/* Taints */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium">Taints (Optional)</Label>
+                  {/* Storage Selection */}
+                  <div className="space-y-4">
+                    <Label className="text-sm font-medium">
+                      Storage Size (GB) <span className="text-destructive">*</span>
+                    </Label>
+
+                    {/* Enhanced Storage Selection UI */}
+                    <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 rounded-xl space-y-5">
+                      
+                      {/* Custom Input Field with Enhanced Highlighting */}
+                      <div className="flex items-center justify-center">
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            value={pool.storageSize}
+                            onChange={(e) => {
+                              const value = Math.max(50, Math.min(2048, Number(e.target.value) || 50))
+                              updateNodePool(pool.id, { storageSize: value })
+                              setTimeout(() => {
+                                setHighlightedStorage(pool.id)
+                                setTimeout(() => setHighlightedStorage(null), 2000)
+                              }, 300)
+                            }}
+                            className={`w-32 h-12 text-center text-lg font-semibold pr-10 border-2 transition-all duration-500 ${
+                              highlightedStorage === pool.id 
+                                ? "border-green-500 bg-green-50 shadow-lg shadow-green-500/30 scale-110 ring-4 ring-green-500/20 animate-pulse" 
+                                : draggingStorage === pool.id
+                                ? "border-green-400 bg-green-50 scale-105"
+                                : "border-slate-300 hover:border-slate-400"
+                            }`}
+                            min={50}
+                            max={2048}
+                            placeholder="Size"
+                          />
+                          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-medium text-muted-foreground pointer-events-none">
+                            GB
+                          </span>
+                          {highlightedStorage === pool.id && (
+                            <div className="absolute -inset-1 bg-gradient-to-r from-green-500/20 to-green-400/10 rounded-lg blur-sm"></div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Enhanced Slider with Notches */}
+                      <div className="space-y-4">
+                        <Label className="text-xs font-medium text-muted-foreground">Select size by dragging the slider</Label>
+                        <div className="relative px-2 pb-8">
+                          <Slider
+                            value={[pool.storageSize]}
+                            onValueChange={(value) => {
+                              updateNodePool(pool.id, { storageSize: value[0] })
+                              setDragValue(value[0])
+                              if (!draggingStorage) {
+                                setDraggingStorage(pool.id)
+                              }
+                            }}
+                            onValueCommit={(value) => {
+                              setDraggingStorage(null)
+                              setTimeout(() => {
+                                setHighlightedStorage(pool.id)
+                                setTimeout(() => setHighlightedStorage(null), 2000)
+                              }, 300)
+                            }}
+                            max={2048}
+                            min={50}
+                            step={25}
+                            className="w-full"
+                          />
+                          
+                          {/* Dragging Tooltip */}
+                          {draggingStorage === pool.id && (
+                            <div 
+                              className="absolute pointer-events-none z-10 transform -translate-x-1/2 -translate-y-full"
+                              style={{ 
+                                left: `${((dragValue - 50) / (2048 - 50)) * 100}%`,
+                                top: '-10px'
+                              }}
+                            >
+                              <div className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-sm font-semibold shadow-lg">
+                                {dragValue} GB
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-primary"></div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Notches */}
+                          <div className="absolute top-8 left-0 right-0 pointer-events-none">
+                            <div className="flex justify-between px-3">
+                              <div className="flex flex-col items-center">
+                                <div className={`w-0.5 h-2 transition-all duration-200 ${
+                                  Math.abs(pool.storageSize - 50) <= 25 ? "bg-primary" : "bg-slate-300"
+                                }`} />
+                                <span className={`text-xs mt-1 transition-all duration-200 ${
+                                  Math.abs(pool.storageSize - 50) <= 25 ? "text-primary font-medium" : "text-muted-foreground"
+                                }`}>
+                                  50GB
+                                </span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className={`w-0.5 h-2 transition-all duration-200 ${
+                                  Math.abs(pool.storageSize - 2048) <= 25 ? "bg-primary" : "bg-slate-300"
+                                }`} />
+                                <span className={`text-xs mt-1 transition-all duration-200 ${
+                                  Math.abs(pool.storageSize - 2048) <= 25 ? "text-primary font-medium" : "text-muted-foreground"
+                                }`}>
+                                  2TB
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Quick Preset Buttons */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-medium text-muted-foreground">Quick Select</Label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {storagePresets.map((preset) => (
                       <Button
+                              key={preset.size}
                         type="button"
-                        variant="outline"
+                              variant={pool.storageSize === preset.size ? "default" : "outline"}
                         size="sm"
-                        onClick={() => addTaint(pool.id)}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add Taint
+                              className={`h-10 text-sm font-medium transition-all duration-200 ${
+                                pool.storageSize === preset.size 
+                                  ? "bg-primary text-primary-foreground shadow-md scale-105" 
+                                  : "hover:scale-105 hover:shadow-sm"
+                              }`}
+                              onClick={() => {
+                                updateNodePool(pool.id, { storageSize: preset.size })
+                                setTimeout(() => {
+                                  setHighlightedStorage(pool.id)
+                                  setTimeout(() => setHighlightedStorage(null), 1500)
+                                }, 300)
+                              }}
+                            >
+                              {preset.label}
                       </Button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                     
-                    {pool.taints.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">No taints configured</p>
-                    ) : (
+                    {/* Volume Size Warning */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-amber-800">
+                          <strong>Note:</strong> Volume size cannot be edited later. Choose carefully.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Subnet Selection */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">
+                      Subnet <span className="text-destructive">*</span>
+                    </Label>
+                    <Select 
+                      value={pool.subnetId} 
+                      onValueChange={(value) => updateNodePool(pool.id, { subnetId: value })}
+                    >
+                      <SelectTrigger className={!pool.subnetId ? 'border-red-300 bg-red-50' : ''}>
+                        <SelectValue placeholder="Select a subnet" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mockSubnets.map((subnet) => (
+                          <SelectItem key={subnet.id} value={subnet.id}>
+                            <div className="flex items-center justify-between w-full">
+                              <span>{subnet.name}</span>
+                              <Badge 
+                                variant="secondary" 
+                                className={`ml-2 text-xs ${
+                                  subnet.type === 'Public' 
+                                    ? 'bg-blue-100 text-blue-800' 
+                                    : 'bg-orange-100 text-orange-800'
+                                }`}
+                              >
+                                {subnet.type}
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {!pool.subnetId && (
+                      <p className="text-xs text-destructive">Please select a subnet</p>
+                    )}
+                  </div>
+
+                  {/* Advanced Settings */}
+                  <div>
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="advanced-settings">
+                        <AccordionTrigger className="text-base font-semibold">
+                          Advanced Settings
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="pt-4 space-y-5">
+                            {/* Security Group Selection */}
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium">Security Group</Label>
+                              <Select 
+                                value={pool.securityGroupId || "none"} 
+                                onValueChange={(value) => updateNodePool(pool.id, { securityGroupId: value === "none" ? undefined : value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a security group (optional)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">
+                                    <span className="text-muted-foreground">No security group</span>
+                                  </SelectItem>
+                                  {mockSecurityGroups.map((sg) => (
+                                    <SelectItem key={sg.id} value={sg.id}>
+                                      <div className="flex flex-col items-start">
+                                        <span>{sg.name}</span>
+                                        <span className="text-xs text-muted-foreground">{sg.description}</span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Taints */}
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium">Taints</Label>
                       <div className="space-y-3">
                         {pool.taints.map((taint, index) => (
-                          <div key={index} className="grid grid-cols-3 gap-2">
+                                  <div key={index} className="grid grid-cols-3 gap-3">
                             <Input
                               placeholder="Key"
                               value={taint.key}
-                              onChange={(e) => updateTaint(pool.id, index, "key", e.target.value)}
-                              className="text-sm"
+                                      onChange={(e) => updateTaint(pool.id, index, 'key', e.target.value)}
+                                      className="text-xs"
                             />
                             <Input
                               placeholder="Value"
                               value={taint.value}
-                              onChange={(e) => updateTaint(pool.id, index, "value", e.target.value)}
-                              className="text-sm"
+                                      onChange={(e) => updateTaint(pool.id, index, 'value', e.target.value)}
+                                      className="text-xs"
                             />
                             <div className="flex gap-2">
-                              <select
+                                      <Select 
                                 value={taint.effect}
-                                onChange={(e) => updateTaint(pool.id, index, "effect", e.target.value)}
-                                className="flex-1 px-3 py-2 text-sm border border-input rounded-md bg-background"
-                              >
-                                <option value="NoSchedule">NoSchedule</option>
-                                <option value="PreferNoSchedule">PreferNoSchedule</option>
-                                <option value="NoExecute">NoExecute</option>
-                              </select>
+                                        onValueChange={(value) => updateTaint(pool.id, index, 'effect', value)}
+                                      >
+                                        <SelectTrigger className="text-xs">
+                                          <SelectValue placeholder="Effect" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="NoSchedule">NoSchedule</SelectItem>
+                                          <SelectItem value="PreferNoSchedule">PreferNoSchedule</SelectItem>
+                                          <SelectItem value="NoExecute">NoExecute</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      {pool.taints.length > 1 ? (
                               <Button
                                 type="button"
-                                variant="ghost"
+                                          variant="outline"
                                 size="sm"
                                 onClick={() => removeTaint(pool.id, index)}
-                                className="h-4 w-4 mr-1"
+                                          className="px-2"
                               >
-                                <X className="h-4 w-4" />
+                                          <X className="h-3 w-3" />
                               </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Labels */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium">Labels (Optional)</Label>
+                                      ) : (
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => addLabel(pool.id)}
+                                          onClick={() => addTaint(pool.id)}
+                                          className="px-2"
                       >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add Label
+                                          <Plus className="h-3 w-3" />
                       </Button>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
                     </div>
                     
-                    {pool.labels.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">No labels configured</p>
-                      ) : (
+                            {/* Labels */}
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium">Labels</Label>
                       <div className="space-y-3">
                         {pool.labels.map((label, index) => (
-                          <div key={index} className="grid grid-cols-2 gap-2">
+                                  <div key={index} className="grid grid-cols-2 gap-3">
                             <Input
                               placeholder="Key"
                               value={label.key}
-                              onChange={(e) => updateLabel(pool.id, index, "key", e.target.value)}
-                              className="text-sm"
+                                      onChange={(e) => updateLabel(pool.id, index, 'key', e.target.value)}
+                                      className="text-xs"
                             />
                             <div className="flex gap-2">
                               <Input
                                 placeholder="Value"
                                 value={label.value}
-                                onChange={(e) => updateLabel(pool.id, index, "value", e.target.value)}
-                                className="text-sm"
+                                        onChange={(e) => updateLabel(pool.id, index, 'value', e.target.value)}
+                                        className="text-xs"
                               />
+                                      {pool.labels.length > 1 ? (
                               <Button
                                 type="button"
-                                variant="ghost"
+                                          variant="outline"
                                 size="sm"
                                 onClick={() => removeLabel(pool.id, index)}
-                                className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                                          className="px-2"
                               >
-                                <X className="h-4 w-4" />
+                                          <X className="h-3 w-3" />
                               </Button>
+                                      ) : (
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => addLabel(pool.id)}
+                                          className="px-2"
+                                        >
+                                          <Plus className="h-3 w-3" />
+                                        </Button>
+                                      )}
                             </div>
                           </div>
                         ))}
                       </div>
-                    )}
                   </div>
 
                   {/* Tags */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium">Tags (Optional)</Label>
-                    
-                    {/* Tag Input */}
+                              <Label className="text-sm font-medium">Tags</Label>
+                              <div className="space-y-3">
+                                {pool.tags.map((tag, index) => (
+                                  <div key={index} className="grid grid-cols-2 gap-3">
+                                    <Input
+                                      placeholder="Key"
+                                      value={tag.key}
+                                      onChange={(e) => updateTag(pool.id, index, 'key', e.target.value)}
+                                      className="text-xs"
+                                    />
                     <div className="flex gap-2">
                       <Input
-                        placeholder="Enter tag and press Enter"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            const input = e.target as HTMLInputElement
-                            if (input.value.trim()) {
-                              addTag(pool.id, input.value.trim())
-                              input.value = ''
-                            }
-                          }
-                        }}
-                        className="text-sm"
-                      />
-                    </div>
-                    
-                    {/* Tags Display */}
-                    {pool.tags.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">No tags added</p>
-                    ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {pool.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {tag}
-                            <button
+                                        placeholder="Value"
+                                        value={tag.value}
+                                        onChange={(e) => updateTag(pool.id, index, 'value', e.target.value)}
+                                        className="text-xs"
+                                      />
+                                      {pool.tags.length > 1 ? (
+                                        <Button 
+                                          type="button" 
+                                          variant="outline" 
+                                          size="sm"
+                                          onClick={() => removeTag(pool.id, index)}
+                                          className="px-2"
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </Button>
+                                      ) : (
+                                        <Button 
                               type="button"
-                              onClick={() => removeTag(pool.id, tag)}
-                              className="ml-1 hover:text-destructive"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </Badge>
+                                          variant="outline" 
+                                          size="sm" 
+                                          onClick={() => addTag(pool.id)}
+                                          className="px-2"
+                                        >
+                                          <Plus className="h-3 w-3" />
+                                        </Button>
+                                      )}
+                                    </div>
+                                  </div>
                         ))}
                       </div>
-                    )}
                   </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
+
+
                 </CardContent>
               </Card>
             ))}
@@ -1490,9 +1577,6 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
 
                 {/* Action Buttons */}
                 <div className="pt-6 border-t">
-                  <div className="text-sm text-muted-foreground mb-4">
-                    Review your node pool configuration and continue to the next step.
-                  </div>
                   <div className="flex justify-end gap-4">
                     <Button variant="outline" onClick={onBack}>
                       Back to Configuration
@@ -1508,66 +1592,6 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
 
         {/* Right Side Panel */}
         <div className="w-full md:w-80 space-y-6">
-            {/* Node Pool Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-normal">Node Pool Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {nodePools.map((pool) => {
-                  const flavor = getSelectedFlavor(pool.instanceFlavor)
-                  return (
-                    <div key={pool.id} className="p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-sm">{pool.name}</span>
-                        {pool.isDefault && (
-                          <Badge variant="secondary" className="text-xs">Default</Badge>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <div>{flavor.name} • {pool.desiredNodes} nodes</div>
-                        <div>{pool.storageSize} GB storage</div>
-                        <div>₹{(flavor.pricePerHour * pool.desiredNodes).toFixed(2)}/hour</div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </CardContent>
-            </Card>
-
-            {/* Configuration Preview */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-normal">Configuration Preview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Collapsible open={yamlPreviewOpen} onOpenChange={setYamlPreviewOpen}>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between">
-                      <span>View YAML</span>
-                      {yamlPreviewOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-3">
-                    <div className="bg-muted p-3 rounded-lg">
-                      <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
-                        {generateYAML()}
-                      </pre>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={downloadYAML}
-                      className="w-full mt-3"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download YAML
-                    </Button>
-                  </CollapsibleContent>
-                </Collapsible>
-              </CardContent>
-            </Card>
 
             {/* Cost Summary */}
             <div 
@@ -1586,6 +1610,13 @@ ${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
               </div>
               <div className="space-y-4">
                 <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Cluster</span>
+                    <div className="text-right">
+                      <div className="font-medium">₹{calculateCosts.clusterCost.toFixed(2)}/hr</div>
+                      <div className="text-xs text-muted-foreground">₹{(calculateCosts.clusterCost * 24 * 30).toFixed(2)}/mo</div>
+                    </div>
+                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Instance Costs</span>
                     <div className="text-right">
@@ -1951,7 +1982,16 @@ function ConfirmationView({
                 <div className="space-y-1">
                   {selectedSubnets.map(subnet => (
                     <div key={subnet.id} className="flex items-center gap-2">
-                      <Badge variant="outline">{subnet.type}</Badge>
+                      <Badge 
+                        variant={subnet.type === "Public" ? "default" : "secondary"} 
+                        className={`text-xs ${
+                          subnet.type === "Public" 
+                            ? "bg-blue-100 text-blue-800" 
+                            : "bg-orange-100 text-orange-800"
+                        }`}
+                      >
+                        {subnet.type}
+                      </Badge>
                       <span className="text-sm">{subnet.name} ({subnet.cidr})</span>
                     </div>
                   ))}
@@ -1969,11 +2009,6 @@ function ConfirmationView({
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">API Endpoint</Label>
                 <p className="font-medium capitalize">{configuration.apiServerEndpoint.type}</p>
-                {configuration.apiServerEndpoint.type === "whitelisted" && (
-                  <p className="text-sm text-muted-foreground">
-                    {configuration.apiServerEndpoint.whitelistedIPs?.join(", ")}
-                  </p>
-                )}
               </div>
             </div>
             
