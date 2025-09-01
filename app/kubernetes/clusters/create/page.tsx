@@ -18,8 +18,10 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight, Search, Check, HardDrive, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { useToast } from "@/hooks/use-toast"
 import {
   availableRegions,
   mockVPCs,
@@ -118,8 +120,12 @@ function StepIndicator({ currentStep }: { currentStep: "configuration" | "nodePo
 
 export default function CreateClusterPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [step, setStep] = useState<"configuration" | "nodePoolsAndAddons">("configuration")
   const [clusterCreationStarted, setClusterCreationStarted] = useState(false)
+  const [showNavigationGuard, setShowNavigationGuard] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
   
   const [configuration, setConfiguration] = useState<Partial<ClusterConfiguration>>({
     region: "",
@@ -135,6 +141,92 @@ export default function CreateClusterPage() {
   const [costs, setCosts] = useState(calculateCosts(configuration))
   const [formTouched, setFormTouched] = useState(false)
   const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
+
+  // Navigation guard - prevent accidental navigation when cluster creation started
+  useEffect(() => {
+    if (!clusterCreationStarted || step !== "nodePoolsAndAddons") {
+      return
+    }
+
+    // Navigation interception - intercept sidebar navigation attempts
+    const handleNavigationClick = (e: Event) => {
+      const target = e.target as HTMLElement
+      
+      // Skip if it's within a modal or dialog
+      if (target.closest('[role="dialog"]') || target.closest('.modal')) {
+        return
+      }
+      
+      // Skip if it's within the main page content (not sidebar)
+      if (target.closest('main') && !target.closest('.sidebar')) {
+        return
+      }
+      
+      // Intercept anchor tags that would navigate away from create flow
+      if (target.tagName === 'A' || target.closest('a')) {
+        const anchor = (target.tagName === 'A' ? target : target.closest('a')) as HTMLAnchorElement
+        const href = anchor.getAttribute('href')
+        
+        if (href && !href.includes('/kubernetes/clusters/create') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+          e.preventDefault()
+          e.stopPropagation()
+          setPendingNavigation(href)
+          setShowNavigationGuard(true)
+          return
+        }
+      }
+      
+      // Intercept navigation buttons
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        const button = (target.tagName === 'BUTTON' ? target : target.closest('button')) as HTMLButtonElement
+        const buttonText = button.textContent?.toLowerCase() || ''
+        
+        // Check for navigation keywords
+        const navigationKeywords = [
+          'dashboard', 'home', 'compute', 'storage', 'networking', 'kubernetes', 
+          'security', 'ai', 'bhashik', 'models', 'maps', 'vpc', 'volumes'
+        ]
+        
+        const hasNavText = navigationKeywords.some(keyword => buttonText.includes(keyword))
+        
+        if (hasNavText) {
+          e.preventDefault()
+          e.stopPropagation()
+          setShowNavigationGuard(true)
+          return
+        }
+      }
+    }
+
+    // Intercept browser back/forward navigation
+    const handlePopState = (e: PopStateEvent) => {
+      setShowNavigationGuard(true)
+      // Push the current state back to prevent navigation
+      window.history.pushState(null, '', window.location.href)
+    }
+
+    // Browser close/refresh guard - shows native browser dialog
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      return (e.returnValue = '')
+    }
+
+    // Add event listeners
+    document.addEventListener('click', handleNavigationClick, true)
+    document.addEventListener('mousedown', handleNavigationClick, true)
+    window.addEventListener('popstate', handlePopState)
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    
+    // Push initial state for popstate detection
+    window.history.pushState(null, '', window.location.href)
+
+    return () => {
+      document.removeEventListener('click', handleNavigationClick, true)
+      document.removeEventListener('mousedown', handleNavigationClick, true)
+      window.removeEventListener('popstate', handlePopState)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [clusterCreationStarted, step])
 
   // Mock region availability data (same as VPC page)
   const regionAvailability = {
@@ -316,8 +408,54 @@ export default function CreateClusterPage() {
     // Finalize cluster setup with node pools and add-ons
     console.log("Completing cluster setup with node pools and add-ons")
     
+    // Show success toast message
+    toast({
+      title: "Cluster Created Successfully! 🎉",
+      description: "Your Kubernetes cluster has been created and is being provisioned. You can monitor its status from the dashboard."
+    })
+    
     // Redirect back to Kubernetes dashboard
     router.push("/kubernetes")
+  }
+
+  // Handle cluster deletion from navigation guard
+  const handleDeleteCluster = async () => {
+    setIsDeleting(true)
+    
+    try {
+      // In a real implementation, this would call the API to delete the cluster
+      console.log("Deleting cluster...")
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      toast({
+        title: "Cluster Deleted Successfully",
+        description: "The cluster has been deleted and billing has stopped."
+      })
+      
+      // Reset states and navigate to pending destination or kubernetes dashboard
+      setClusterCreationStarted(false)
+      setShowNavigationGuard(false)
+      
+      const destination = pendingNavigation || "/kubernetes"
+      setPendingNavigation(null)
+      router.push(destination)
+    } catch (error) {
+      toast({
+        title: "Failed to Delete Cluster",
+        description: "There was an error deleting the cluster. Please try again or delete it manually from the dashboard.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  // Handle staying on current page
+  const handleStayOnPage = () => {
+    setShowNavigationGuard(false)
+    setPendingNavigation(null)
   }
 
   // CIDR validation regex
@@ -335,12 +473,59 @@ export default function CreateClusterPage() {
 
   // Render different views based on step
   if (step === "nodePoolsAndAddons") {
-    return <NodePoolsAndAddonsView 
-      onBack={() => setStep("configuration")}
-      onContinue={handleCompleteCluster}
-      clusterCost={costs.cluster}
-      clusterCreationStarted={clusterCreationStarted}
-    />
+    return (
+      <>
+        <NodePoolsAndAddonsView 
+          onBack={() => setStep("configuration")}
+          onContinue={handleCompleteCluster}
+          clusterCost={costs.cluster}
+          clusterCreationStarted={clusterCreationStarted}
+        />
+        
+        {/* Navigation Guard Modal - always rendered when cluster creation started */}
+        <Dialog open={showNavigationGuard} onOpenChange={setShowNavigationGuard}>
+          <DialogContent className="sm:max-w-md" style={{ boxShadow: 'rgba(31, 34, 37, 0.09) 0px 0px 0px 1px, rgba(0, 0, 0, 0.16) 0px 16px 40px -6px, rgba(0, 0, 0, 0.04) 0px 12px 24px -6px' }}>
+            <DialogHeader className="space-y-3 pb-4">
+              <DialogTitle className="text-base font-semibold text-black pr-8">
+                Cluster creation has started and billing is now active
+              </DialogTitle>
+              <hr className="border-border" />
+            </DialogHeader>
+            
+            <div className="pt-2 pb-4">
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Your Kubernetes cluster is being provisioned in the background. If you cancel or leave this page, 
+                  <strong> billing will continue until you manually delete the cluster</strong> from the dashboard.
+                </AlertDescription>
+              </Alert>
+            </div>
+            
+            <DialogFooter className="flex gap-3 sm:justify-end" style={{ paddingTop: '.5rem' }}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleStayOnPage}
+                className="min-w-20"
+                disabled={isDeleting}
+              >
+                Back to Setup
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDeleteCluster}
+                className="min-w-20"
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete Cluster"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    )
   }
 
   // Main configuration view
@@ -698,6 +883,8 @@ export default function CreateClusterPage() {
         }}
         preselectedRegion={configuration.region}
       />
+
+
     </PageLayout>
   )
 }
@@ -839,30 +1026,35 @@ function NodePoolsAndAddonsView({
       id: "cni",
       name: "CNI (Cilium – default)",
       description: "Handles pod networking and connectivity within the cluster.",
+      version: "v1.15.3",
       enabled: true
     },
     {
       id: "csi",
       name: "CSI",
       description: "Manages storage provisioning and attachment for workloads.",
+      version: "v1.9.2",
       enabled: true
     },
     {
       id: "coredns",
       name: "CoreDNS",
       description: "Provides internal DNS resolution for services and pods.",
+      version: "v1.11.1",
       enabled: true
     },
     {
       id: "kube-proxy",
       name: "Kube-proxy",
       description: "Handles network proxying and load balancing for services.",
+      version: "v1.29.0",
       enabled: true
     },
     {
       id: "dns-proxy",
       name: "DNS-proxy",
       description: "Optimizes DNS query handling for improved performance.",
+      version: "v2.4.1",
       enabled: true
     }
   ])
@@ -1733,8 +1925,11 @@ ${nodePoolsYAML}`
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
                   {defaultAddons.map((addon) => (
-                    <div key={addon.id} className="p-4 border rounded-lg">
-                      <div className="space-y-1">
+                    <div key={addon.id} className="p-4 border rounded-lg relative">
+                      <Badge variant="outline" className="absolute top-3 right-3 text-xs font-medium">
+                        {addon.version}
+                      </Badge>
+                      <div className="space-y-1 pr-16">
                         <div className="text-sm font-medium leading-none">
                           {addon.name}
                         </div>
@@ -1869,30 +2064,35 @@ function AddonsView({
       id: "cni",
       name: "CNI (Cilium – default)",
       description: "Handles pod networking and connectivity within the cluster.",
+      version: "v1.15.3",
       enabled: true
     },
     {
       id: "csi",
       name: "CSI",
       description: "Manages storage provisioning and attachment for workloads.",
+      version: "v1.9.2",
       enabled: true
     },
     {
       id: "coredns",
       name: "CoreDNS",
       description: "Provides internal DNS resolution for services and pods.",
+      version: "v1.11.1",
       enabled: true
     },
     {
       id: "kube-proxy",
       name: "Kube-proxy",
       description: "Handles network proxying and load balancing for services.",
+      version: "v1.29.0",
       enabled: true
     },
     {
       id: "dns-proxy",
       name: "DNS-proxy",
       description: "Optimizes DNS query handling for improved performance.",
+      version: "v2.4.1",
       enabled: true
     }
   ])

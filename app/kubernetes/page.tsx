@@ -14,8 +14,9 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ClusterDeleteModal } from "@/components/mks/cluster-delete-modal"
 import { ClusterUpgradeModal } from "@/components/mks/cluster-upgrade-modal"
+import { NodePoolUpgradeModal } from "@/components/mks/node-pool-upgrade-modal"
 import { mockMKSClusters, type MKSCluster, isK8sVersionDeprecated, getNextK8sVersion } from "@/lib/mks-data"
-import { MoreVertical, ExternalLink, Clock, CheckCircle, AlertCircle, XCircle, AlertTriangle, RefreshCw } from "lucide-react"
+import { MoreVertical, ExternalLink, Clock, CheckCircle, AlertCircle, XCircle, AlertTriangle, RefreshCw, Server } from "lucide-react"
 import Link from "next/link"
 
 export default function MKSDashboardPage() {
@@ -25,6 +26,8 @@ export default function MKSDashboardPage() {
   const [clusterToDelete, setClusterToDelete] = useState<MKSCluster | null>(null)
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false)
   const [clusterToUpgrade, setClusterToUpgrade] = useState<MKSCluster | null>(null)
+  const [nodePoolUpgradeModalOpen, setNodePoolUpgradeModalOpen] = useState(false)
+  const [clusterForNodePoolUpgrade, setClusterForNodePoolUpgrade] = useState<MKSCluster | null>(null)
 
   // Filter clusters to only show Bangalore and Hyderabad regions
   const filteredClusters = clusters.filter(cluster => 
@@ -108,6 +111,11 @@ export default function MKSDashboardPage() {
     setUpgradeModalOpen(true)
   }
 
+  const handleUpgradeNodePools = (cluster: MKSCluster) => {
+    setClusterForNodePoolUpgrade(cluster)
+    setNodePoolUpgradeModalOpen(true)
+  }
+
   const handleConfirmDelete = async (clusterId: string) => {
     // In a real implementation, this would call the API to delete the cluster
     console.log('Deleting cluster:', clusterId)
@@ -133,6 +141,46 @@ export default function MKSDashboardPage() {
           : c
       ))
     }, 3000)
+  }
+
+  const handleConfirmNodePoolUpgrade = async (selectedNodePoolIds: string[], targetVersion: string) => {
+    if (!clusterForNodePoolUpgrade) return
+    
+    // In a real implementation, this would call the API to upgrade node pools
+    console.log('Upgrading node pools:', selectedNodePoolIds, 'to version:', targetVersion)
+    
+    // Update the cluster's node pools to show upgrading status
+    setClusters(prev => prev.map(c => 
+      c.id === clusterForNodePoolUpgrade.id
+        ? {
+            ...c,
+            nodePools: c.nodePools.map(pool =>
+              selectedNodePoolIds.includes(pool.id)
+                ? { ...pool, status: 'updating' as const }
+                : pool
+            )
+          }
+        : c
+    ))
+    
+    // Simulate upgrade completion after a delay
+    setTimeout(() => {
+      setClusters(prev => prev.map(c => 
+        c.id === clusterForNodePoolUpgrade.id
+          ? {
+              ...c,
+              nodePools: c.nodePools.map(pool =>
+                selectedNodePoolIds.includes(pool.id)
+                  ? { ...pool, status: 'active' as const }
+                  : pool
+              )
+            }
+          : c
+      ))
+    }, 5000)
+    
+    setNodePoolUpgradeModalOpen(false)
+    setClusterForNodePoolUpgrade(null)
   }
 
   const handleRefresh = () => {
@@ -260,6 +308,15 @@ export default function MKSDashboardPage() {
           })
         }
         
+        // Add Upgrade Node Pools action only if cluster has node pools and cluster is not being updated
+        if (row.nodePools && row.nodePools.length > 0 && row.status !== 'updating' && row.status !== 'deleting') {
+          customActions.push({
+            label: "Upgrade Node Pools",
+            onClick: () => handleUpgradeNodePools(row),
+            icon: <Server className="mr-2 h-4 w-4" />
+          })
+        }
+        
         return (
           <div className="flex justify-end">
             <ActionMenu
@@ -339,6 +396,18 @@ export default function MKSDashboardPage() {
           }}
           onConfirm={handleConfirmUpgrade}
         />
+
+        {clusterForNodePoolUpgrade && (
+          <NodePoolUpgradeModal
+            cluster={clusterForNodePoolUpgrade}
+            isOpen={nodePoolUpgradeModalOpen}
+            onClose={() => {
+              setNodePoolUpgradeModalOpen(false)
+              setClusterForNodePoolUpgrade(null)
+            }}
+            onConfirm={handleConfirmNodePoolUpgrade}
+          />
+        )}
       </PageShell>
     </TooltipProvider>
   )

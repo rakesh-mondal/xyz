@@ -32,6 +32,7 @@ export interface MKSNodePool {
   labels: Record<string, string>
   status: 'creating' | 'active' | 'updating' | 'deleting' | 'error'
   createdAt: string
+  k8sVersion: string
 }
 
 export interface MKSAddOn {
@@ -176,7 +177,8 @@ export const mockMKSClusters: MKSCluster[] = [
         taints: [],
         labels: { environment: 'production', workload: 'web' },
         status: 'active',
-        createdAt: '2024-01-15T10:30:00Z'
+        createdAt: '2024-01-15T10:30:00Z',
+        k8sVersion: '1.33.0'
       },
       {
         id: 'np-prod-2',
@@ -189,7 +191,8 @@ export const mockMKSClusters: MKSCluster[] = [
         taints: ['dedicated=database:NoSchedule'],
         labels: { environment: 'production', workload: 'database' },
         status: 'active',
-        createdAt: '2024-01-15T10:30:00Z'
+        createdAt: '2024-01-15T10:30:00Z',
+        k8sVersion: '1.33.0'
       }
     ],
     addOns: defaultKrutrimAddOns.map(addon => ({ ...addon, isEnabled: addon.id !== 'addon-development' }))
@@ -219,7 +222,8 @@ export const mockMKSClusters: MKSCluster[] = [
         taints: [],
         labels: { environment: 'staging', workload: 'testing' },
         status: 'active',
-        createdAt: '2024-02-20T14:15:00Z'
+        createdAt: '2024-02-20T14:15:00Z',
+        k8sVersion: '1.29.0'
       },
       {
         id: 'np-staging-2',
@@ -232,7 +236,8 @@ export const mockMKSClusters: MKSCluster[] = [
         taints: ['dedicated=database:NoSchedule'],
         labels: { environment: 'staging', workload: 'database' },
         status: 'active',
-        createdAt: '2024-02-20T14:15:00Z'
+        createdAt: '2024-02-20T14:15:00Z',
+        k8sVersion: '1.29.0'
       }
     ],
     addOns: defaultKrutrimAddOns.map(addon => ({ ...addon, isEnabled: addon.id !== 'addon-development' }))
@@ -262,7 +267,8 @@ export const mockMKSClusters: MKSCluster[] = [
         taints: [],
         labels: { environment: 'development', workload: 'experimental' },
         status: 'active',
-        createdAt: '2024-12-19T09:00:00Z'
+        createdAt: '2024-12-19T09:00:00Z',
+        k8sVersion: '1.29.0'
       }
     ],
     addOns: defaultKrutrimAddOns.map(addon => ({ ...addon, isEnabled: addon.id === 'addon-monitoring' }))
@@ -292,7 +298,8 @@ export const mockMKSClusters: MKSCluster[] = [
         taints: [],
         labels: { environment: 'testing', workload: 'qa' },
         status: 'active',
-        createdAt: '2024-11-10T16:45:00Z'
+        createdAt: '2024-11-10T16:45:00Z',
+        k8sVersion: '1.31.0'
       }
     ],
     addOns: defaultKrutrimAddOns.map(addon => ({ ...addon, isEnabled: addon.id === 'addon-monitoring' }))
@@ -322,7 +329,8 @@ export const mockMKSClusters: MKSCluster[] = [
         taints: [],
         labels: { environment: 'demo', workload: 'presentation' },
         status: 'active',
-        createdAt: '2024-10-05T11:20:00Z'
+        createdAt: '2024-10-05T11:20:00Z',
+        k8sVersion: '1.31.0'
       }
     ],
     addOns: defaultKrutrimAddOns.map(addon => ({ ...addon, isEnabled: addon.id === 'addon-monitoring' }))
