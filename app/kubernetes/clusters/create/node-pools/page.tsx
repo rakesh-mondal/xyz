@@ -324,8 +324,8 @@ ${pool.labels.map(label => `      ${label.key}: "${label.value}"`).join('\n')}` 
 ${pool.taints.map(taint => `      - key: "${taint.key}"
         value: "${taint.value}"
         effect: ${taint.effect}`).join('\n')}` : ''}
-    ${pool.tags.length > 0 ? `tags:
-${pool.tags.map(tag => `      - ${tag}`).join('\n')}` : ''}`
+    ${pool.tags.length > 0 && pool.tags.some(tag => tag.key && tag.value) ? `tags:
+${pool.tags.filter(tag => tag.key && tag.value).map(tag => `      ${tag.key}: "${tag.value}"`).join('\n')}` : ''}`
 }).join('\n')}`
     
     return yaml
