@@ -877,17 +877,16 @@ ${nodePoolsYAML}`
                                 </div>
                       ))}
                     </div>
-                </div>
                         </div>
+                      </div>
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
                 </div>
 
-
               </CardContent>
             </Card>
-          ))}
+          )}
 
             {/* Add Node Pool Button */}
             <Button
