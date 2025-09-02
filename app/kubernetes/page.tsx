@@ -191,7 +191,7 @@ export default function MKSDashboardPage() {
   const columns = [
     {
       key: "name",
-      label: "Cluster Name", 
+      label: "Cluster", 
       sortable: true,
       searchable: true,
       render: (value: string, row: any) => (
@@ -221,7 +221,7 @@ export default function MKSDashboardPage() {
     },
     {
       key: "k8sVersion",
-      label: "K8s Version", 
+      label: "Kubernetes Version", 
       sortable: true,
       render: (value: string, row: any) => (
         <div className="flex items-center gap-2">
@@ -234,7 +234,7 @@ export default function MKSDashboardPage() {
                 <AlertTriangle className="h-4 w-4 text-yellow-500" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Upgrade your cluster's kubernetes version. EOL of this version has been reached and we have deprecated this version and is no longer supported.</p>
+                <p>This version is deprecated. Please upgrade your cluster to a supported Kubernetes version.</p>
               </TooltipContent>
             </Tooltip>
           )}
@@ -243,7 +243,7 @@ export default function MKSDashboardPage() {
     },
     {
       key: "nodeCount",
-      label: "Node Pool Count",
+      label: "Node Pools",
       sortable: true,
       align: "center" as const,
       render: (value: number) => (

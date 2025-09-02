@@ -629,7 +629,7 @@ export default function EditClusterPage() {
                         </div>
                         
                         <div className="space-y-2">
-                          <Label htmlFor="new-pool-flavor" className="text-sm font-medium">Instance Flavor</Label>
+                          <Label htmlFor="new-pool-flavor" className="text-sm font-medium">Instance Type</Label>
                           <Select value={newPool.flavor} onValueChange={(value) => setNewPool({ ...newPool, flavor: value })}>
                             <SelectTrigger className="h-9">
                               <SelectValue placeholder="Select instance type" />

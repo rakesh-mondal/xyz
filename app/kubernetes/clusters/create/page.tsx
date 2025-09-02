@@ -487,7 +487,7 @@ export default function CreateClusterPage() {
           <DialogContent className="sm:max-w-md" style={{ boxShadow: 'rgba(31, 34, 37, 0.09) 0px 0px 0px 1px, rgba(0, 0, 0, 0.16) 0px 16px 40px -6px, rgba(0, 0, 0, 0.04) 0px 12px 24px -6px' }}>
             <DialogHeader className="space-y-3 pb-4">
               <DialogTitle className="text-base font-semibold text-black pr-8">
-                Cluster creation has started and billing is now active
+                Cluster creation in progress
               </DialogTitle>
               <hr className="border-border" />
             </DialogHeader>
@@ -496,8 +496,7 @@ export default function CreateClusterPage() {
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  Your Kubernetes cluster is being provisioned in the background. If you cancel or leave this page, 
-                  <strong> billing will continue until you manually delete the cluster</strong> from the dashboard.
+                  Your cluster is being created in the background. Once the cluster is ready, billing will begin and continue until you delete it from the dashboard.
                 </AlertDescription>
               </Alert>
             </div>
@@ -510,7 +509,7 @@ export default function CreateClusterPage() {
                 className="min-w-20"
                 disabled={isDeleting}
               >
-                Back to Setup
+                Go Back
               </Button>
               <Button
                 type="button"
@@ -531,7 +530,7 @@ export default function CreateClusterPage() {
   // Main configuration view
   return (
     <PageLayout
-      title="Create Kubernetes Cluster"
+      title="Set Up Your Cluster"
       description="Configure and deploy a new Kubernetes cluster with enterprise-grade reliability"
     >
       <div className="flex flex-col md:flex-row gap-6">
@@ -688,7 +687,7 @@ export default function CreateClusterPage() {
                       )
                     ) : (
                       <div className="text-muted-foreground">
-                        Please select a VPC first
+                        Pick a VPC to see available subnets
                       </div>
                     )}
                     {errors.subnets && (
@@ -708,7 +707,7 @@ export default function CreateClusterPage() {
                       onValueChange={(value) => setConfiguration(prev => ({ ...prev, kubernetesVersion: value }))}
                     >
                       <SelectTrigger className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.kubernetesVersion ? "border-red-300 bg-red-50" : ""}`}>
-                        <SelectValue placeholder="Choose Kubernetes version" />
+                        <SelectValue placeholder="Select a version" />
                       </SelectTrigger>
                       <SelectContent>
                         {availableKubernetesVersions.map((version) => (
@@ -745,7 +744,7 @@ export default function CreateClusterPage() {
                 <div className="mb-8">
                   <div className="mb-5">
                     <Label className="block mb-4 font-medium">
-                      Kube-API Server Endpoint Settings
+                      API Server Access
                     </Label>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <RadioGroup
@@ -914,7 +913,7 @@ function VPCSelectorInline({ value, region, availableVPCs, onChange, error }: {
       </Label>
       {!region ? (
         <div className="text-muted-foreground py-2 px-3 border border-input bg-background rounded-md">
-          Please select a region first
+          Pick a region to see available VPCs
         </div>
       ) : (
         <div className="relative">
@@ -1392,7 +1391,7 @@ ${nodePoolsYAML}`
                   {/* Instance Selection */}
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">
-                      Instance Flavor <span className="text-destructive">*</span>
+                      Instance Type <span className="text-destructive">*</span>
                     </Label>
                     <Select
                       value={pool.instanceFlavor}
@@ -1441,7 +1440,7 @@ ${nodePoolsYAML}`
                   {/* Node Scaling */}
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">
-                      Node Scaling <span className="text-destructive">*</span>
+                      Scaling Settings <span className="text-destructive">*</span>
                     </Label>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
@@ -1640,7 +1639,7 @@ ${nodePoolsYAML}`
                       <div className="flex gap-2">
                         <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" style={{ marginTop: '1px' }} />
                         <p className="text-xs text-amber-800 leading-relaxed">
-                          <strong>Note:</strong> Volume size cannot be edited later. Choose carefully.
+                          <strong>Note:</strong> Once chosen, storage size cannot be changed later. Please select carefully.
                         </p>
                       </div>
                     </div>
@@ -1977,11 +1976,10 @@ ${nodePoolsYAML}`
                     </div>
                     <div>
                       <CardTitle className="text-base leading-relaxed" style={{ color: 'rgb(194, 65, 12)' }}>
-                        Cluster creation has started and billing is now active
+                        Cluster creation in progress
                       </CardTitle>
                       <CardDescription className="text-sm mt-2 leading-relaxed" style={{ color: 'rgb(194, 65, 12)', opacity: 0.8 }}>
-                        Your Kubernetes cluster is being provisioned in the background. If you cancel or leave this page, 
-                        <strong> billing will continue until you manually delete the cluster</strong> from the dashboard.
+                        Your cluster is being created in the background. Once it's ready, billing will begin and continue until you delete the cluster from the dashboard.
                       </CardDescription>
                     </div>
                   </div>
