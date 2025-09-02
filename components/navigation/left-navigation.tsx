@@ -123,6 +123,7 @@ const navigationConfig = {
           { href: "/networking/security-groups", label: "Security Groups" },
           { href: "/networking/static-ips", label: "Static IP Addresses" },
           { href: "/networking/load-balancing", label: "Load Balancers" },
+          { href: "/networking/dns", label: "DNS" },
         ],
       },
     ],
@@ -493,6 +494,7 @@ const navConfig = [
       { label: "Subnets", href: "/networking/subnets" },
       { label: "Security Groups", href: "/networking/security-groups" },
       { label: "Static IP Addresses", href: "/networking/static-ips" },
+      { label: "DNS", href: "/networking/dns" },
     ],
   },
   {

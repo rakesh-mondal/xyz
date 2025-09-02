@@ -43,6 +43,11 @@ export function NavigationBar() {
       href: "/networking/static-ips",
       icon: <Server className="w-5 h-5" />,
     },
+    {
+      name: "DNS",
+      href: "/networking/dns",
+      icon: <Globe className="w-5 h-5" />,
+    },
   ]
 
   const isActive = (href: string) => {

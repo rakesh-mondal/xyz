@@ -1,0 +1,733 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { PageLayout } from "@/components/page-layout"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DetailGrid } from "@/components/detail-grid"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { VercelTabs } from "@/components/ui/vercel-tabs"
+import { Badge } from "@/components/ui/badge"
+import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
+import { ActionMenu } from "@/components/action-menu"
+import { StatusBadge } from "@/components/status-badge"
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
+import { EmptyState } from "@/components/ui/empty-state"
+import { getEmptyStateMessage } from "@/lib/demo-data-filter"
+import { 
+  Plus, 
+  Info, 
+  CheckCircle,
+  HelpCircle,
+  Trash2
+} from "lucide-react"
+import { DeleteDnsRecordModal } from "@/components/modals/delete-dns-record-modal"
+
+// DNS Records illustration
+const dnsRecordsIcon = (
+  <svg width="215" height="140" viewBox="0 0 215 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="215" height="140" fill="#FFFFFF"/>
+    
+    {/* Grid background */}
+    <path d="M64 0L64 140" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"/>
+    <path d="M151 0L151 140" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"/>
+    <path d="M215 32H0" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"/>
+    <path d="M215 108H0" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"/>
+    <path d="M215 71H0" stroke="#EEEFF1" strokeWidth="0.8" strokeMiterlimit="10" strokeDasharray="3 3"/>
+    
+    {/* DNS server illustration */}
+    <rect x="85" y="45" width="45" height="50" rx="4" fill="#F8F9FF" stroke="#E1E5F5" strokeWidth="1.5"/>
+    <rect x="90" y="50" width="35" height="6" rx="2" fill="#4F46E5"/>
+    <rect x="90" y="60" width="25" height="3" rx="1.5" fill="#CBD5E1"/>
+    <rect x="90" y="67" width="30" height="3" rx="1.5" fill="#CBD5E1"/>
+    <rect x="90" y="74" width="20" height="3" rx="1.5" fill="#CBD5E1"/>
+    <rect x="90" y="81" width="35" height="3" rx="1.5" fill="#10B981"/>
+    <rect x="90" y="88" width="15" height="3" rx="1.5" fill="#CBD5E1"/>
+    
+    {/* DNS connection lines */}
+    <path d="M70 70 Q 45 65 30 70" stroke="#10B981" strokeWidth="2" fill="none" strokeDasharray="4 4"/>
+    <path d="M145 70 Q 170 65 185 70" stroke="#10B981" strokeWidth="2" fill="none" strokeDasharray="4 4"/>
+    
+    {/* Domain/Globe icons */}
+    <circle cx="25" cy="70" r="12" fill="#F0F9FF" stroke="#0EA5E9" strokeWidth="1.5"/>
+    <path d="M20 65 Q 25 62 30 65 Q 25 68 20 65Z" fill="#0EA5E9"/>
+    <path d="M20 75 Q 25 78 30 75 Q 25 72 20 75Z" fill="#0EA5E9"/>
+    <path d="M25 58V82" stroke="#0EA5E9" strokeWidth="1"/>
+    <path d="M13 70H37" stroke="#0EA5E9" strokeWidth="1"/>
+    
+    <circle cx="190" cy="70" r="12" fill="#F0FDF4" stroke="#10B981" strokeWidth="1.5"/>
+    <path d="M185 65 Q 190 62 195 65 Q 190 68 185 65Z" fill="#10B981"/>
+    <path d="M185 75 Q 190 78 195 75 Q 190 72 185 75Z" fill="#10B981"/>
+    <path d="M190 58V82" stroke="#10B981" strokeWidth="1"/>
+    <path d="M178 70H202" stroke="#10B981" strokeWidth="1"/>
+    
+    {/* Record type indicators */}
+    <rect x="95" y="35" width="8" height="8" rx="1" fill="#10B981"/>
+    <text x="97" y="41" fontSize="6" fill="white" fontWeight="bold">A</text>
+    <rect x="107" y="35" width="12" height="8" rx="1" fill="#6366F1"/>
+    <text x="109" y="41" fontSize="5" fill="white" fontWeight="bold">CNAME</text>
+    <rect x="123" y="35" width="8" height="8" rx="1" fill="#F59E0B"/>
+    <text x="125" y="41" fontSize="6" fill="white" fontWeight="bold">MX</text>
+  </svg>
+)
+
+// Mock hosted zone data (in real app, fetch from API based on ID)
+const hostedZoneData = {
+  id: "hz-1",
+  domainName: "example.com",
+  type: "Public",
+  status: "success",
+  recordCount: 8,
+  createdOn: "2023-10-15T10:00:00Z",
+  description: "Main production domain for example.com website"
+}
+
+// Mock DNS records data
+const mockDnsRecords = [
+  {
+    id: "record-1",
+    recordName: "www.example.com",
+    type: "A",
+    value: "203.0.113.1",
+    routingProtocol: "Simple",
+    ttl: 300,
+    status: "active"
+  },
+  {
+    id: "record-2", 
+    recordName: "api.example.com",
+    type: "A",
+    value: "203.0.113.50", 
+    routingProtocol: "Weighted",
+    ttl: 600,
+    status: "active"
+  },
+  {
+    id: "record-3",
+    recordName: "mail.example.com",
+    type: "MX", 
+    value: "10 mail.example.com",
+    routingProtocol: "Simple",
+    ttl: 3600,
+    status: "active"
+  },
+  {
+    id: "record-4",
+    recordName: "cdn.example.com",
+    type: "CNAME",
+    value: "cloudfront.amazonaws.com",
+    routingProtocol: "Simple", 
+    ttl: 300,
+    status: "active"
+  },
+  {
+    id: "record-5",
+    recordName: "example.com",
+    type: "TXT",
+    value: '"v=spf1 include:_spf.google.com ~all"',
+    routingProtocol: "Simple",
+    ttl: 300,
+    status: "active"
+  }
+]
+
+const TTL_OPTIONS = [
+  { value: "5", label: "5 secs" },
+  { value: "60", label: "1 min" },
+  { value: "300", label: "5 mins" },
+  { value: "1800", label: "30 mins" },
+  { value: "3600", label: "60 mins" },
+  { value: "86400", label: "24 hours" },
+]
+
+const ROUTING_PROTOCOLS = [
+  { value: "Simple", label: "Simple", description: "Directly maps your domain to one or more IPs." },
+  { value: "Weighted", label: "Weighted", description: "Distributes traffic across multiple IPs based on weights you set. Use when you have multiple resources and want to control what percentage of traffic goes to each." },
+  { value: "GeoIP", label: "GeoIP", description: "Route users to different IPs based on their country or region. Useful for serving content closer to your users." },
+  { value: "HealthPort", label: "HealthPort", description: "Checks if servers are healthy on a specific port before routing traffic. Supports automatic failover to backup servers." },
+  { value: "HealthURL", label: "HealthURL", description: "Monitors the availability of your servers via an HTTP/HTTPS URL. Routes traffic only to healthy IPs." },
+]
+
+export default function ManageHostedZonePage({ params }: { params: { id: string } }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const isNewlyCreated = searchParams?.get("created") === "true"
+
+  const [showSkipMessage, setShowSkipMessage] = useState(isNewlyCreated)
+  const [activeRecordTab, setActiveRecordTab] = useState("A")
+  const [dnsRecords, setDnsRecords] = useState(mockDnsRecords)
+  const [recordValues, setRecordValues] = useState<string[]>([""])
+  const [selectedRecord, setSelectedRecord] = useState<any>(null)
+  const [isDeleteRecordModalOpen, setIsDeleteRecordModalOpen] = useState(false)
+  
+  // Form state for adding DNS records
+  const [recordForm, setRecordForm] = useState({
+    recordName: "",
+    ttl: "300",
+    routingProtocol: "Simple",
+    value: "",
+  })
+
+  const handleAddRecord = () => {
+    const newRecord = {
+      id: `record-${Date.now()}`,
+      recordName: recordForm.recordName,
+      type: activeRecordTab,
+      value: recordForm.value,
+      routingProtocol: recordForm.routingProtocol,
+      ttl: parseInt(recordForm.ttl),
+      status: "active"
+    }
+    
+    setDnsRecords(prev => [...prev, newRecord])
+    
+    // Reset form
+    setRecordForm({
+      recordName: "",
+      ttl: "300", 
+      routingProtocol: "Simple",
+      value: "",
+    })
+    setRecordValues([""])
+  }
+
+  const handleDeleteRecordClick = (record: any) => {
+    setSelectedRecord(record)
+    setIsDeleteRecordModalOpen(true)
+  }
+
+  const handleDeleteRecordConfirm = async () => {
+    if (selectedRecord) {
+      // Simulate delete API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log("DNS record deleted:", selectedRecord.recordName)
+      
+      // Remove from records list
+      setDnsRecords(prev => prev.filter(record => record.id !== selectedRecord.id))
+      
+      // Close modal and reset state
+      setIsDeleteRecordModalOpen(false)
+      setSelectedRecord(null)
+    }
+  }
+
+  const handleDeleteRecordCancel = () => {
+    setIsDeleteRecordModalOpen(false)
+    setSelectedRecord(null)
+  }
+
+  const addRecordValue = () => {
+    setRecordValues(prev => [...prev, ""])
+  }
+
+  const removeRecordValue = (index: number) => {
+    if (recordValues.length > 1) {
+      setRecordValues(prev => {
+        const newValues = prev.filter((_, i) => i !== index)
+        setRecordForm(prevForm => ({ ...prevForm, value: newValues.join(", ") }))
+        return newValues
+      })
+    }
+  }
+
+  const updateRecordValue = (index: number, value: string) => {
+    setRecordValues(prev => {
+      const newValues = [...prev]
+      newValues[index] = value
+      return newValues
+    })
+    setRecordForm(prev => ({ ...prev, value: recordValues.join(", ") }))
+  }
+
+  // DNS Records Table Columns
+  const dnsColumns = [
+    {
+      key: "recordName",
+      label: "Record Name",
+      sortable: true,
+      searchable: true,
+      render: (value: string) => (
+        <span className="font-medium">{value}</span>
+      ),
+    },
+    {
+      key: "type",
+      label: "Type",
+      sortable: true,
+      render: (value: string) => (
+        <Badge variant="secondary" className="font-mono">
+          {value}
+        </Badge>
+      ),
+    },
+    {
+      key: "value",
+      label: "Value",
+      searchable: true,
+      render: (value: string) => (
+        <span className="font-mono text-sm text-muted-foreground truncate max-w-xs" title={value}>
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: "routingProtocol",
+      label: "Routing Protocol", 
+      sortable: true,
+      render: (value: string) => (
+        <span className="text-sm">{value}</span>
+      ),
+    },
+    {
+      key: "ttl",
+      label: "TTL",
+      sortable: true,
+      align: "right" as const,
+      render: (value: number) => (
+        <span className="text-sm text-muted-foreground">{value}s</span>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "right" as const,
+      render: (value: any, row: any) => (
+        <div className="flex justify-end">
+          <ActionMenu
+            onCustomDelete={() => handleDeleteRecordClick(row)}
+            deleteLabel="Delete Record"
+            resourceName={row.recordName}
+            resourceType="DNS Record"
+          />
+        </div>
+      ),
+    },
+  ]
+
+  const getRecordTypeDescription = (type: string) => {
+    switch (type) {
+      case "A":
+        return "Maps your domain name to an IPv4 address."
+      case "AAAA":
+        return "Maps your domain name to an IPv6 address."
+      case "CNAME":
+        return "Acts as an alias by mapping your domain name to another domain name."
+      case "MX":
+        return "Directs where emails for your domain should be delivered."
+      case "NS":
+        return "Defines the name servers that control DNS settings for your domain."
+      case "TXT":
+        return "Can be used to attach textual data to a domain. Often used to prove domain ownership (for services like Google or AWS) or to set up email safety checks."
+      default:
+        return ""
+    }
+  }
+
+  const getRecordValuesDescription = (type: string) => {
+    switch (type) {
+      case "A":
+        return "Enter the IPv4 addresses you want to direct traffic to and their weights."
+      case "AAAA":
+        return "Enter the IPv6 addresses you want to direct traffic to and their weights."
+      case "CNAME":
+        return "Enter the domain name this record should point to."
+      case "MX":
+        return "Enter the mail server addresses with their priority values."
+      case "NS":
+        return "Enter the name server addresses for this domain."
+      case "TXT":
+        return "Enter the text records for domain verification or configuration."
+      default:
+        return "Enter the record values."
+    }
+  }
+
+  useEffect(() => {
+    if (showSkipMessage) {
+      const timer = setTimeout(() => {
+        setShowSkipMessage(false)
+      }, 8000) // Hide after 8 seconds with smooth transition
+      
+      return () => clearTimeout(timer)
+    }
+  }, [showSkipMessage])
+
+  return (
+    <PageLayout 
+      title={`Manage Hosted Zone - ${hostedZoneData.domainName}`}
+      description="Configure DNS records and manage your hosted zone settings"
+    >
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Main Content */}
+        <div className="flex-1 space-y-6">
+          {/* Skip Message for newly created zones */}
+          {showSkipMessage && (
+            <Card 
+              className="border-0 transition-all duration-500 ease-out"
+              style={{ 
+                background: 'linear-gradient(265deg, #E0F2E0 0%, #F0F7F0 100%)',
+                opacity: showSkipMessage ? 1 : 0,
+                transform: showSkipMessage ? 'translateY(0)' : 'translateY(-10px)'
+              }}
+            >
+              <CardContent className="pt-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div className="flex-1">
+                    <h4 className="font-medium text-green-900">Hosted Zone Created Successfully!</h4>
+                    <p className="text-sm text-green-700 mt-1">
+                      You can now add DNS records to manage your domain's routing, or skip this step and configure records later.
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowSkipMessage(false)}
+                    className="text-green-600 hover:text-green-700"
+                  >
+                    ×
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Hosted Zone Summary - matching VPC details page style */}
+          <div className="mb-6 group relative" style={{
+            borderRadius: '16px',
+            border: '4px solid #FFF',
+            background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+            boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+            padding: '1.5rem'
+          }}>
+            <DetailGrid>
+              {/* Domain Name, Type, Status, Created On in first row */}
+              <div className="col-span-full grid grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Domain Name</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>{hostedZoneData.domainName}</div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Type</label>
+                  <div>
+                    <Badge className={
+                      hostedZoneData.type === "Public" 
+                        ? "bg-green-100 text-green-800 hover:bg-green-100" 
+                        : "bg-blue-100 text-blue-800 hover:bg-blue-100"
+                    }>
+                      {hostedZoneData.type}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
+                  <div>
+                    <StatusBadge status={hostedZoneData.status} />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Created On</label>
+                  <div className="font-medium" style={{ fontSize: '14px' }}>{new Date(hostedZoneData.createdOn).toLocaleDateString()} {new Date(hostedZoneData.createdOn).toLocaleTimeString()}</div>
+                </div>
+              </div>
+              
+              {/* Description in second row */}
+              {hostedZoneData.description && (
+                <div className="col-span-full">
+                  <div className="space-y-1">
+                    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Description</label>
+                    <div className="font-medium" style={{ fontSize: '14px' }}>{hostedZoneData.description}</div>
+                  </div>
+                </div>
+              )}
+            </DetailGrid>
+          </div>
+
+          {/* DNS Records Section */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold">DNS Records</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Records Table */}
+              <div>
+                {dnsRecords.length > 0 ? (
+                  <ShadcnDataTable 
+                    columns={dnsColumns} 
+                    data={dnsRecords}
+                    searchableColumns={["recordName", "value"]}
+                    pageSize={10}
+                    enableSearch={true}
+                    enableColumnVisibility={false}
+                    enablePagination={true}
+                  />
+                ) : (
+                  <div className="border rounded-lg">
+                    <EmptyState
+                      {...getEmptyStateMessage('dns')}
+                      onAction={() => {
+                        // Scroll to Add DNS Record section
+                        const addRecordSection = document.getElementById('add-dns-record');
+                        if (addRecordSection) {
+                          addRecordSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
+                      icon={dnsRecordsIcon}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Add New Record Section */}
+              <div id="add-dns-record" className="border-t pt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <h3 className="text-base font-semibold">Add New DNS Record</h3>
+                </div>
+                
+                <VercelTabs
+                  tabs={[
+                    { id: "A", label: "A" },
+                    { id: "AAAA", label: "AAAA" },
+                    { id: "CNAME", label: "CNAME" },
+                    { id: "MX", label: "MX" },
+                    { id: "NS", label: "NS" },
+                    { id: "TXT", label: "TXT" }
+                  ]}
+                  activeTab={activeRecordTab}
+                  onTabChange={setActiveRecordTab}
+                  size="lg"
+                />
+
+                <div className="space-y-4 mt-6">
+                  <div className="text-sm text-muted-foreground mb-4">
+                    {getRecordTypeDescription(activeRecordTab)}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="recordName">
+                          Record Name <span className="text-destructive">*</span>
+                        </Label>
+                        <TooltipWrapper content="Name kept by the user to identify the DNS record">
+                          <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                        </TooltipWrapper>
+                      </div>
+                      <Input
+                        id="recordName"
+                        placeholder="Enter record name"
+                        value={recordForm.recordName}
+                        onChange={(e) => setRecordForm(prev => ({
+                          ...prev,
+                          recordName: e.target.value
+                        }))}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="ttl">TTL</Label>
+                      <Select
+                        value={recordForm.ttl}
+                        onValueChange={(value) => setRecordForm(prev => ({
+                          ...prev,
+                          ttl: value
+                        }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TTL_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {(activeRecordTab === "A" || activeRecordTab === "AAAA") && (
+                    <div className="space-y-2">
+                      <Label htmlFor="routingProtocol">Routing Protocol</Label>
+                      <Select
+                        value={recordForm.routingProtocol}
+                        onValueChange={(value) => setRecordForm(prev => ({
+                          ...prev,
+                          routingProtocol: value
+                        }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ROUTING_PROTOCOLS.map((protocol) => (
+                            <SelectItem key={protocol.value} value={protocol.value}>
+                              {protocol.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label>Record Values:</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {getRecordValuesDescription(activeRecordTab)}
+                    </p>
+                    
+                    <div className="space-y-2">
+                      {recordValues.map((value, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            placeholder={
+                              activeRecordTab === "A" ? "203.0.113.1" :
+                              activeRecordTab === "AAAA" ? "2001:0db8:85a3:0000:0000:8a2e:0370:7334" :
+                              activeRecordTab === "CNAME" ? "example.com" :
+                              activeRecordTab === "MX" ? "10 mail.example.com" :
+                              activeRecordTab === "NS" ? "ns1.example.com" :
+                              activeRecordTab === "TXT" ? '"v=spf1 include:_spf.google.com ~all"' :
+                              "Enter record value"
+                            }
+                            value={value}
+                            onChange={(e) => updateRecordValue(index, e.target.value)}
+                            className="flex-1"
+                          />
+                          <div className="flex gap-1">
+                            {recordValues.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => removeRecordValue(index)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {index === recordValues.length - 1 && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={addRecordValue}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4 border-t">
+                    <Button
+                      onClick={handleAddRecord}
+                      className="bg-black text-white hover:bg-black/90"
+                      disabled={!recordForm.recordName || !recordValues.some(v => v.trim())}
+                    >
+                      Add Record
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Done Button */}
+          <div className="flex justify-end">
+            <Button
+              onClick={() => router.push("/networking/dns")}
+              className="bg-black text-white hover:bg-black/90"
+            >
+              Done
+            </Button>
+          </div>
+        </div>
+
+        {/* Side Panel */}
+        <div className="w-full md:w-80 space-y-6">
+          {/* DNS Management Tips */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">DNS Best Practices</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use lower TTL values for testing and higher values for production</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Always test DNS changes in a staging environment first</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use CNAME records for subdomains that point to other domains</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Keep DNS records organized and documented</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Pricing Summary */}
+          <div 
+            style={{
+              borderRadius: '16px',
+              border: '4px solid #FFF',
+              background: 'linear-gradient(265deg, #FFF -13.17%, #F7F8FD 133.78%)',
+              boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
+              padding: '1.5rem'
+            }}
+          >
+            <div className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Pricing Summary</h3>
+              </div>
+            </div>
+            <div>
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold">₹0.50</span>
+                  <span className="text-sm text-muted-foreground">per month</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Per hosted zone. Includes 1 million queries per month.
+                </p>
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  <p>• Hosted Zone: ₹0.50/month</p>
+                  <p>• DNS queries: ₹0.40 per million</p>
+                  <p>• Health checks: ₹0.50 per check/month</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Delete DNS Record Modal */}
+      {selectedRecord && (
+        <DeleteDnsRecordModal
+          open={isDeleteRecordModalOpen}
+          onClose={handleDeleteRecordCancel}
+          dnsRecord={{
+            id: selectedRecord.id,
+            recordName: selectedRecord.recordName,
+            type: selectedRecord.type,
+            value: selectedRecord.value
+          }}
+          onConfirm={handleDeleteRecordConfirm}
+        />
+      )}
+    </PageLayout>
+  )
+}

@@ -122,6 +122,16 @@ export function getEmptyStateMessage(resourceType: string): {
         description: "Create target groups to define health check settings and routing rules for your load balancers.",
         actionText: "Create Target Group"
       },
+      dns: {
+        title: "No DNS Records yet",
+        description: "Create DNS records to resolve domain names to IP addresses and configure domain settings.",
+        actionText: "Create DNS Record"
+      },
+      'hosted-zones': {
+        title: "No Hosted Zones yet",
+        description: "Create hosted zones to manage DNS records for your domains and subdomains.",
+        actionText: "Create Hosted Zone"
+      },
       volumes: {
         title: "No Volumes yet",
         description: "Create block storage volumes to provide persistent storage for your cloud instances.",
@@ -182,7 +192,7 @@ export function getEmptyStateMessage(resourceType: string): {
   
   // For existing users, this shouldn't be called since they have data
   return {
-    title: "No data available",
+    title: "No record available",
     description: "No information to display at this time."
   }
 } 

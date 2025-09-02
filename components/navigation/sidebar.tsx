@@ -88,7 +88,7 @@ const navigationStructure: NavigationCategory[] = [
         items: [
           { title: "Network Security", href: "/networking/security" },
           { title: "Load Balancing", href: "/networking/load-balancing" },
-          { title: "DNS Management", href: "/networking/dns" },
+          { title: "DNS", href: "/networking/dns" },
         ],
       },
       {

@@ -18,6 +18,7 @@ interface CustomAction {
 
 interface ActionMenuProps {
   viewHref?: string
+  viewLabel?: string  // Custom label for view action
   editHref?: string
   deleteHref?: string
   resourceName?: string
@@ -63,6 +64,7 @@ interface ActionMenuProps {
  */
 export function ActionMenu({
   viewHref,
+  viewLabel = "View",
   editHref,
   deleteHref,
   resourceName = "this resource",
@@ -115,7 +117,7 @@ export function ActionMenu({
             <DropdownMenuItem asChild>
               <Link href={viewHref} className="flex items-center cursor-pointer">
                 <Eye className="mr-2 h-4 w-4" />
-                <span>View</span>
+                <span>{viewLabel}</span>
               </Link>
             </DropdownMenuItem>
           )}

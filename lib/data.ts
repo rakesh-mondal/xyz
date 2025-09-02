@@ -3047,6 +3047,176 @@ export const targetGroups: TargetGroup[] = [
   }
 ]
 
+// Hosted Zones mock data
+export const hostedZones = [
+  {
+    id: "hz-1",
+    domainName: "example.com",
+    type: "Public",
+    status: "success",
+    recordCount: 8,
+    recordBreakdown: {
+      A: 3,
+      AAAA: 1,
+      CNAME: 2,
+      NS: 2,
+    },
+    nameServers: [
+      "ns-123.awsdns-12.com",
+      "ns-456.awsdns-34.net",
+      "ns-789.awsdns-56.org",
+      "ns-012.awsdns-78.co.uk"
+    ],
+    createdOn: "2023-10-15T10:00:00Z",
+    description: "Main production domain for example.com website",
+    vpc: null,
+  },
+  {
+    id: "hz-2",
+    domainName: "api.company.com",
+    type: "Public",
+    status: "success",
+    recordCount: 5,
+    recordBreakdown: {
+      A: 2,
+      AAAA: 0,
+      CNAME: 1,
+      NS: 2,
+    },
+    nameServers: [
+      "ns-234.awsdns-23.com",
+      "ns-567.awsdns-45.net",
+      "ns-890.awsdns-67.org",
+      "ns-123.awsdns-89.co.uk"
+    ],
+    createdOn: "2023-09-20T14:30:00Z",
+    description: "API subdomain for microservices",
+    vpc: null,
+  },
+  {
+    id: "hz-3",
+    domainName: "internal.company.com",
+    type: "Private",
+    status: "success",
+    recordCount: 12,
+    recordBreakdown: {
+      A: 6,
+      AAAA: 2,
+      CNAME: 2,
+      NS: 2,
+    },
+    nameServers: [],
+    createdOn: "2023-11-05T09:15:00Z",
+    description: "Private hosted zone for internal services",
+    vpc: "production-vpc",
+  },
+  {
+    id: "hz-4",
+    domainName: "dev.example.com",
+    type: "Public",
+    status: "success",
+    recordCount: 4,
+    recordBreakdown: {
+      A: 2,
+      AAAA: 0,
+      CNAME: 0,
+      NS: 2,
+    },
+    nameServers: [
+      "ns-345.awsdns-34.com",
+      "ns-678.awsdns-56.net",
+      "ns-901.awsdns-78.org",
+      "ns-234.awsdns-90.co.uk"
+    ],
+    createdOn: "2023-08-10T16:45:00Z",
+    description: "Development environment subdomain",
+    vpc: null,
+  },
+  {
+    id: "hz-5",
+    domainName: "staging.example.com",
+    type: "Public",
+    status: "success",
+    recordCount: 6,
+    recordBreakdown: {
+      A: 3,
+      AAAA: 1,
+      CNAME: 0,
+      NS: 2,
+    },
+    nameServers: [
+      "ns-456.awsdns-45.com",
+      "ns-789.awsdns-67.net",
+      "ns-012.awsdns-89.org",
+      "ns-345.awsdns-01.co.uk"
+    ],
+    createdOn: "2023-07-25T11:20:00Z",
+    description: "Staging environment for pre-production testing",
+    vpc: null,
+  },
+  {
+    id: "hz-6",
+    domainName: "blog.example.com",
+    type: "Public",
+    status: "success",
+    recordCount: 3,
+    recordBreakdown: {
+      A: 1,
+      AAAA: 0,
+      CNAME: 0,
+      NS: 2,
+    },
+    nameServers: [
+      "ns-567.awsdns-56.com",
+      "ns-890.awsdns-78.net",
+      "ns-123.awsdns-90.org",
+      "ns-456.awsdns-12.co.uk"
+    ],
+    createdOn: "2023-06-15T13:30:00Z",
+    description: "Blog subdomain with CDN integration",
+    vpc: null,
+  },
+  {
+    id: "hz-7",
+    domainName: "test.company.com",
+    type: "Private",
+    status: "failure",
+    recordCount: 0,
+    recordBreakdown: {
+      A: 0,
+      AAAA: 0,
+      CNAME: 0,
+      NS: 0,
+    },
+    nameServers: [],
+    createdOn: "2023-12-01T10:00:00Z",
+    description: "Testing environment - failed to configure",
+    vpc: "test-vpc",
+  },
+  {
+    id: "hz-8",
+    domainName: "cdn.example.com",
+    type: "Public",
+    status: "success",
+    recordCount: 7,
+    recordBreakdown: {
+      A: 2,
+      AAAA: 1,
+      CNAME: 2,
+      NS: 2,
+    },
+    nameServers: [
+      "ns-678.awsdns-67.com",
+      "ns-901.awsdns-89.net",
+      "ns-234.awsdns-01.org",
+      "ns-567.awsdns-23.co.uk"
+    ],
+    createdOn: "2023-05-30T15:45:00Z",
+    description: "Content delivery network subdomain",
+    vpc: null,
+  },
+]
+
 export const getModelsByCapability = (capability: string) => {
   return models.filter((model) => model.capabilities.includes(capability))
 }

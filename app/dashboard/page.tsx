@@ -535,7 +535,8 @@ function ServicesAvailable() {
       items: [
         { name: "VPC", href: "/networking/vpc", description: "Virtual Private Cloud" },
         { name: "Subnets", href: "/networking/subnets", description: "Network segmentation" },
-        { name: "Security Groups", href: "/networking/security-groups", description: "Firewall rules" }
+        { name: "Security Groups", href: "/networking/security-groups", description: "Firewall rules" },
+        { name: "DNS", href: "/networking/dns", description: "Hosted zones and DNS records management" }
       ]
     },
     {
