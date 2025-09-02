@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Globe, Edit, Trash2, Shield } from "lucide-react"
+import { Globe, Trash2, Shield } from "lucide-react"
 import { DetailGrid } from "@/components/detail-grid"
 import { useState, use } from "react"
 
@@ -52,10 +52,7 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
     description: "SSL certificate for production API endpoints"
   }
 
-  const handleEdit = () => {
-    // Navigate to edit page
-    console.log("Edit certificate:", certificate.id)
-  }
+
 
   const handleDelete = () => {
     setIsDeleteModalOpen(true)
@@ -124,16 +121,8 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
         boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
         padding: '1.5rem'
       }}>
-        {/* Overlay Edit/Delete Buttons */}
+        {/* Overlay Delete Button */}
         <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleEdit}
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
           <Button
             variant="ghost"
             size="sm"

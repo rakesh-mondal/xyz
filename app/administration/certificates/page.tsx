@@ -297,7 +297,7 @@ export default function CertificateManagerPage() {
   return (
     <PageShell
       title="Certificate Manager"
-      description="Manage SSL/TLS certificates, code signing certificates, and other security credentials for your applications and services."
+      description="Import and manage all your SSL/TLS certificates"
       headerActions={
         <CreateButton href="/administration/certificates/import" label="Import Certificate" />
       }

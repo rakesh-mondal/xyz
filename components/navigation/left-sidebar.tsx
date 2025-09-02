@@ -23,6 +23,7 @@ import {
   PackageIcon as PipelineIcon,
   Zap,
   Network,
+  Key,
   ChevronRight,
   ChevronDown,
 } from "lucide-react"
@@ -86,6 +87,11 @@ const navigationStructure: NavCategory[] = [
         title: "Networking",
         href: "/compute/networking",
         icon: <Network className="h-5 w-5" />,
+      },
+      {
+        title: "SSH Keys",
+        href: "/compute/ssh-keys",
+        icon: <Key className="h-5 w-5" />,
       },
       {
         title: "Kubernetes Clusters",

@@ -70,6 +70,7 @@ const navigationStructure: NavigationCategory[] = [
         items: [
           { title: "Machines", href: "/compute/machines" },
           { title: "AI Pods", href: "/compute/ai-pods" },
+          { title: "SSH Keys", href: "/compute/ssh-keys" },
         ],
       },
       {
@@ -184,7 +185,6 @@ const navigationStructure: NavigationCategory[] = [
         href: "/settings",
         icon: <Settings className="h-5 w-5" />,
         items: [
-          { title: "SSH Keys", href: "/settings/ssh-keys" },
           { title: "API Keys", href: "/settings/api-keys" },
           { title: "MFA", href: "/settings/mfa" },
           { title: "VS Studio Integration", href: "/settings/vs-studio" },

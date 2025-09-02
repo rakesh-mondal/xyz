@@ -88,6 +88,10 @@ const navigationConfig = {
             href: "/compute/machines/images",
             label: "Machine Images",
           },
+          {
+            href: "/compute/ssh-keys",
+            label: "SSH Keys",
+          },
         ],
       },
       {
@@ -241,7 +245,6 @@ const navigationConfig = {
         subItems: [
           { href: "/administration/kms/storage", label: "Storage" },
           { href: "/administration/kms/models", label: "Models" },
-          { href: "/administration/kms/ssh", label: "SSH Keys" },
           { href: "/administration/kms/service", label: "Key Management Service" },
         ],
       },

@@ -20,13 +20,7 @@ export default function KMSPage() {
           </a>
         </div>
         
-        <div className="rounded-lg border p-6">
-          <h3 className="text-lg font-semibold mb-2">SSH Keys</h3>
-          <p className="text-muted-foreground mb-4">Manage SSH keys for secure access</p>
-          <a href="/administration/kms/ssh" className="text-primary hover:underline">
-            Go to SSH Keys →
-          </a>
-        </div>
+
         
         <div className="rounded-lg border p-6">
           <h3 className="text-lg font-semibold mb-2">Key Management Service</h3>

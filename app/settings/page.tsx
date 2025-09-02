@@ -7,18 +7,12 @@ export default function SettingsPage() {
         <div className="rounded-lg border p-6">
           <h2 className="text-xl font-semibold mb-4">Account Settings</h2>
           <p className="text-muted-foreground mb-4">
-            Manage your account settings, security configurations, and developer tools. Configure SSH keys, API access,
+            Manage your account settings, security configurations, and developer tools. Configure API access,
             multi-factor authentication, and integration options from this central dashboard.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            <div className="border rounded-lg p-5">
-              <h3 className="font-medium mb-2">SSH Keys</h3>
-              <p className="text-sm text-muted-foreground mb-4">Manage SSH keys for secure server access.</p>
-              <a href="/settings/ssh-keys" className="text-sm text-primary">
-                Manage SSH Keys →
-              </a>
-            </div>
+
             <div className="border rounded-lg p-5">
               <h3 className="font-medium mb-2">API Keys</h3>
               <p className="text-sm text-muted-foreground mb-4">Create and manage API keys for programmatic access.</p>
