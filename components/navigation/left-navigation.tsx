@@ -25,7 +25,7 @@ import {
   KeyIcon, 
   BoltIcon 
 } from "@heroicons/react/24/outline"
-import { Settings, HelpCircle, BookOpen, ChevronRight, ChevronLeft, Network, HardDrive, Map, X } from "lucide-react"
+import { Settings, HelpCircle, BookOpen, ChevronRight, ChevronLeft, Network, HardDrive, Map, X, Code } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -243,6 +243,18 @@ const navigationConfig = {
           { href: "/administration/kms/ssh", label: "SSH Keys" },
           { href: "/administration/kms/service", label: "Key Management Service" },
         ],
+      },
+    ],
+  },
+  developertools: {
+    href: "/developer",
+    icon: <Code className="h-[18px] w-[18px] text-[#64748b]" />,
+    label: "Developer tools",
+    isCategory: true,
+    subItems: [
+      {
+        href: "/developer/sdks",
+        label: "SDKs",
       },
     ],
   },
@@ -825,6 +837,22 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             onExpand={handleExpand}
             subItems={navigationConfig.administration.subItems}
             isCategory={navigationConfig.administration.isCategory}
+            expandedSubItem={expandedSubItem}
+            onSubItemExpand={handleSubItemExpand}
+            expandedTertiaryItem={expandedTertiaryItem}
+          />
+
+          {/* Developer tools */}
+          <NavItem
+            href={navigationConfig.developertools.href}
+            icon={navigationConfig.developertools.icon}
+            label={navigationConfig.developertools.label}
+            exactActive={isExactActive(navigationConfig.developertools.href)}
+            active={isActive(navigationConfig.developertools.href)}
+            expanded={expandedItem}
+            onExpand={handleExpand}
+            subItems={navigationConfig.developertools.subItems}
+            isCategory={navigationConfig.developertools.isCategory}
             expandedSubItem={expandedSubItem}
             onSubItemExpand={handleSubItemExpand}
             expandedTertiaryItem={expandedTertiaryItem}

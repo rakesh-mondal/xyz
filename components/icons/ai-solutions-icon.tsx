@@ -12,11 +12,11 @@ export function AiSolutionsIcon({ className = "", width = 24, height = 24 }: AiS
       xmlns="http://www.w3.org/2000/svg" 
       fill="none" 
       viewBox="0 0 24 24" 
-      strokeWidth="1.73" 
+      strokeWidth="1.5" 
       stroke="currentColor" 
       aria-hidden="true" 
       data-slot="icon" 
-      className={`h-[18px] w-[18px] ${className}`}
+      className={className}
       width={width}
       height={height}
     >

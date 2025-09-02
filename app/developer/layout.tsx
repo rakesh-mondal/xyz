@@ -6,12 +6,8 @@ export default function DeveloperLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
-      <div className="flex-1 overflow-auto">
-        <div className="p-4 md:p-6">
-          <div className="mt-6">{children}</div>
-        </div>
-      </div>
+    <div className="h-full">
+      <div className="p-4">{children}</div>
     </div>
   )
 }
