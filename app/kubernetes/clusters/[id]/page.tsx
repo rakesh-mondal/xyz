@@ -219,14 +219,13 @@ export default function ClusterDetailsPage() {
                 </Badge>
                 {isDeprecated && (
                   <Badge variant="destructive" className="text-xs">
-                    Deprecated
+                    Unsupported
                   </Badge>
                 )}
               </div>
               {isUpgradeAvailable && (
                 <div className="text-sm text-gray-700 mt-2">
-                  <strong>Upgrade Available:</strong> A newer Kubernetes version ({nextVersion}) is available for your cluster. 
-                  Upgrading will provide security patches and new features.
+                  <strong>Action Required:</strong> Your cluster is running on an unsupported version. Please upgrade to version {nextVersion} — the nearest supported release — to ensure continued security and support.
                   <Button 
                     onClick={() => setIsUpgradeModalOpen(true)}
                     variant="link"

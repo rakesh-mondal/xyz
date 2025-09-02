@@ -344,8 +344,8 @@ export default function EditClusterPage() {
                   <Alert className="mt-2">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
-                      This Kubernetes version is deprecated and will not receive security updates. 
-                      Consider upgrading to {nextVersion} or later.
+                      This Kubernetes version is no longer supported and will not receive security updates. 
+                      Please upgrade to {nextVersion} or later immediately.
                     </AlertDescription>
                   </Alert>
                 )}

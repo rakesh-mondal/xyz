@@ -120,8 +120,7 @@ export function ClusterOverview({ cluster }: ClusterOverviewProps) {
           <Alert className="border-blue-200 bg-blue-50">
             <ArrowUpRight className="h-4 w-4 text-blue-600" />
             <AlertDescription className="text-blue-800">
-              <strong>Upgrade Available:</strong> A newer Kubernetes version ({nextVersion}) is available for your cluster. 
-              Upgrading will provide security patches and new features.
+              <strong>Action Required:</strong> Your cluster is running on an unsupported version. Please upgrade to version {nextVersion} — the nearest supported release — to ensure continued security and support.
             </AlertDescription>
           </Alert>
         )}
@@ -130,8 +129,8 @@ export function ClusterOverview({ cluster }: ClusterOverviewProps) {
           <Alert className="border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">
-              <strong>Version Deprecated:</strong> Your current Kubernetes version ({cluster.k8sVersion}) is deprecated 
-              and will no longer receive security updates. Please upgrade to a supported version.
+              <strong>Unsupported Version:</strong> Your current Kubernetes version ({cluster.k8sVersion}) is no longer supported 
+              and will not receive security updates. Please upgrade to a supported version immediately.
             </AlertDescription>
           </Alert>
         )}
