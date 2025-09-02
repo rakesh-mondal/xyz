@@ -148,6 +148,11 @@ export const navigationStructure: NavCategory[] = [
         icon: <Key className="h-5 w-5" />,
       },
       {
+        title: "Certificate Manager",
+        href: "/administration/certificates",
+        icon: <Shield className="h-5 w-5" />,
+      },
+      {
         title: "IAM",
         href: "/iam",
         icon: <Shield className="h-5 w-5" />,
@@ -272,6 +277,11 @@ export const leftSidebarNavigation: NavCategory[] = [
         title: "Key Management System",
         href: "/key-management",
         icon: <Key className="h-5 w-5" />,
+      },
+      {
+        title: "Certificate Manager",
+        href: "/administration/certificates",
+        icon: <Shield className="h-5 w-5" />,
       },
       {
         title: "IAM",

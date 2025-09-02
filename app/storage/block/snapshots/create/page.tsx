@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
-import { HelpCircle } from "lucide-react"
+import { HelpCircle, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 // Mock data for volumes - using the same structure as block storage page
@@ -485,24 +485,25 @@ export default function CreateInstantSnapshotPage() {
                             className="text-sm"
                           />
                         </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={addTag}
-                          className="text-sm"
-                        >
-                          Add Tag
-                        </Button>
-                        {tags.length > 1 && (
+                        {index === tags.length - 1 ? (
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="outline"
+                            size="sm"
+                            onClick={addTag}
+                            className="text-sm"
+                          >
+                            Add
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
                             size="sm"
                             onClick={() => removeTag(index)}
-                            className="text-sm text-muted-foreground hover:text-destructive"
+                            className="px-2"
                           >
-                            Remove
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         )}
                       </div>

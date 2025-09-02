@@ -180,6 +180,11 @@ export function getEmptyStateMessage(resourceType: string): {
         description: "Create automated backups to ensure your data is protected and can be restored when needed.",
         actionText: "Create Backup"
       },
+      certificates: {
+        title: "No Certificates yet",
+        description: "Import SSL/TLS certificates and other security credentials to secure your applications and services.",
+        actionText: "Import Certificate"
+      },
       default: {
         title: `No ${resourceType} yet`,
         description: `Create your first ${resourceType} to get started.`,

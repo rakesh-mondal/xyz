@@ -28,6 +28,8 @@ export default function ClientLayout({
     setMobileSidebarOpen(false)
   }, [pathname])
 
+
+
   if (!isMounted) {
     return null
   }
@@ -70,7 +72,7 @@ export default function ClientLayout({
 
             {/* Main Content with Scroll Fade */}
             <main 
-              className="flex-1 relative z-0 mx-4 mb-2 rounded-2xl" 
+              className="flex-1 relative z-0 mx-4 mb-2 rounded-2xl overflow-hidden" 
               style={{ backgroundColor: '#ffffff' }}
             >
               <ScrollFadeContainer 
@@ -79,7 +81,7 @@ export default function ClientLayout({
                 showTopFade={true}
                 showBottomFade={true}
               >
-                <div className="h-full w-full p-4">
+                <div className="w-full p-4">
                   {children}
                 </div>
               </ScrollFadeContainer>

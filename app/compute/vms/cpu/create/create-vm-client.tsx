@@ -14,7 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
-import { HelpCircle, RefreshCw, Plus, X, ChevronDown, Search, Check } from "lucide-react"
+import { HelpCircle, RefreshCw, Plus, X, ChevronDown, Search, Check, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { CreateVPCModal, CreateSSHKeyModal } from "@/components/modals/vm-creation-modals"
 
@@ -994,18 +994,24 @@ export default function CreateVMClient() {
                             value={tag.value}
                             onChange={(e) => updateTag(index, "value", e.target.value)}
                           />
-                          {formData.tags.length > 1 ? (
+                          {index === formData.tags.length - 1 ? (
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              size="sm"
+                              onClick={addTag}
+                            >
+                              Add
+                            </Button>
+                          ) : (
                             <Button 
                               type="button" 
                               variant="outline" 
                               size="sm"
                               onClick={() => removeTag(index)}
+                              className="px-2"
                             >
-                              Remove
-                            </Button>
-                          ) : (
-                            <Button type="button" variant="outline" size="sm" onClick={addTag}>
-                              Add Tag
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           )}
                         </div>

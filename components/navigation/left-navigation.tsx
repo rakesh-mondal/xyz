@@ -245,6 +245,10 @@ const navigationConfig = {
           { href: "/administration/kms/service", label: "Key Management Service" },
         ],
       },
+      {
+        href: "/administration/certificates",
+        label: "Certificate Manager",
+      },
     ],
   },
   developertools: {
