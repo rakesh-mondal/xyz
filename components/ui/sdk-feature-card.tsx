@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Code, Download, BookOpen } from "lucide-react";
+import { ExternalLink, BookOpen } from "lucide-react";
 
 interface SdkFeatureCardProps {
   title: string;
@@ -38,28 +38,18 @@ function SdkFeatureCard({
                 </div>
                 
                 {/* Actions */}
-                <div className="space-y-4 mt-2">
+                <div className="flex items-center gap-6 mt-2">
                   {/* Primary Button */}
-                  <Button className="gap-2 w-fit" size="lg">
-                    <Download className="h-4 w-4" />
-                    Download SDK
+                  <Button className="gap-2" size="lg">
+                    <BookOpen className="h-4 w-4" />
+                    View Documentation
                   </Button>
                   
-                  {/* Links */}
-                  <div className="flex flex-wrap gap-6 text-sm">
-                    <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200">
-                      <BookOpen className="h-4 w-4" />
-                      View Documentation
-                    </a>
-                    <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200">
-                      <Code className="h-4 w-4" />
-                      Code Examples
-                    </a>
-                    <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200">
-                      <ExternalLink className="h-4 w-4" />
-                      API Reference
-                    </a>
-                  </div>
+                  {/* API Reference Link */}
+                  <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200 text-sm">
+                    <ExternalLink className="h-4 w-4" />
+                    API Reference
+                  </a>
                 </div>
               </div>
               
@@ -117,28 +107,18 @@ function SdkFeatureCard({
                 </div>
                 
                 {/* Actions */}
-                <div className="space-y-4 mt-2">
+                <div className="flex items-center gap-6 mt-2">
                   {/* Primary Button */}
-                  <Button className="gap-2 w-fit" size="lg">
-                    <Download className="h-4 w-4" />
-                    Download SDK
+                  <Button className="gap-2" size="lg">
+                    <BookOpen className="h-4 w-4" />
+                    View Documentation
                   </Button>
                   
-                  {/* Links */}
-                  <div className="flex flex-wrap gap-6 text-sm">
-                    <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200">
-                      <BookOpen className="h-4 w-4" />
-                      View Documentation
-                    </a>
-                    <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200">
-                      <Code className="h-4 w-4" />
-                      Code Examples
-                    </a>
-                    <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200">
-                      <ExternalLink className="h-4 w-4" />
-                      API Reference
-                    </a>
-                  </div>
+                  {/* API Reference Link */}
+                  <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200 text-sm">
+                    <ExternalLink className="h-4 w-4" />
+                    API Reference
+                  </a>
                 </div>
               </div>
             </>
