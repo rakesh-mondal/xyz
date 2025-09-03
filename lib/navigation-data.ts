@@ -67,6 +67,7 @@ export const navigationStructure: NavCategory[] = [
         items: [
           { title: "Virtual Machines", href: "/compute/machines" },
           { title: "AI Pods", href: "/compute/ai-pods" },
+          { title: "Auto Scaling Groups", href: "/compute/auto-scaling" },
         ],
       },
       {
@@ -198,6 +199,7 @@ export const leftSidebarNavigation: NavCategory[] = [
         items: [
           { title: "Virtual Machines", href: "/compute/machines" },
           { title: "AI Pods", href: "/compute/ai-pods" },
+          { title: "Auto Scaling Groups", href: "/compute/auto-scaling" },
         ],
       },
       {

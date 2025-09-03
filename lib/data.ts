@@ -3410,3 +3410,352 @@ export const keyManagementServices: KeyManagementService[] = [
     tags: { Environment: "Production", Purpose: "Compliance" }
   }
 ]
+
+// Auto Scaling Groups interface and data
+export interface AutoScalingGroup {
+  id: string
+  name: string
+  status: "Creating" | "Active" | "Failed" | "Updating"
+  instanceType: string
+  desiredCapacity: number
+  minCapacity: number
+  maxCapacity: number
+  vpc: string
+  createdOn: string
+  healthCheckType: string
+  healthCheckGracePeriod: number
+  defaultCooldown: number
+  availabilityZones: string[]
+  loadBalancers?: string[]
+  targetGroups?: string[]
+  tags: Record<string, string>
+}
+
+export const autoScalingGroups: AutoScalingGroup[] = [
+  {
+    id: "asg-1",
+    name: "worker-node-asg",
+    status: "Creating",
+    instanceType: "t3.xlarge",
+    desiredCapacity: 5,
+    minCapacity: 3,
+    maxCapacity: 15,
+    vpc: "vpc-main-prod",
+    createdOn: "2024-12-19T14:45:00Z",
+    healthCheckType: "ELB",
+    healthCheckGracePeriod: 300,
+    defaultCooldown: 300,
+    availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"],
+    loadBalancers: ["elb-worker-nodes"],
+    tags: { Environment: "Production", Purpose: "Worker Nodes", Team: "Backend" }
+  },
+  {
+    id: "asg-2",
+    name: "media-processing-asg",
+    status: "Active",
+    instanceType: "t3.xlarge",
+    desiredCapacity: 4,
+    minCapacity: 2,
+    maxCapacity: 8,
+    vpc: "vpc-media",
+    createdOn: "2024-03-05T21:40:00Z",
+    healthCheckType: "EC2",
+    healthCheckGracePeriod: 300,
+    defaultCooldown: 300,
+    availabilityZones: ["us-east-1a", "us-east-1b"],
+    targetGroups: ["tg-media-processing"],
+    tags: { Environment: "Production", Purpose: "Media Processing", Team: "Media" }
+  },
+  {
+    id: "asg-3",
+    name: "analytics-asg",
+    status: "Failed",
+    instanceType: "t3.2xlarge",
+    desiredCapacity: 6,
+    minCapacity: 3,
+    maxCapacity: 12,
+    vpc: "vpc-analytics",
+    createdOn: "2024-03-01T15:15:00Z",
+    healthCheckType: "ELB",
+    healthCheckGracePeriod: 600,
+    defaultCooldown: 600,
+    availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"],
+    loadBalancers: ["elb-analytics"],
+    tags: { Environment: "Production", Purpose: "Analytics", Team: "Data" }
+  },
+  {
+    id: "asg-4",
+    name: "cache-asg",
+    status: "Active",
+    instanceType: "t3.medium",
+    desiredCapacity: 2,
+    minCapacity: 1,
+    maxCapacity: 4,
+    vpc: "vpc-main-prod",
+    createdOn: "2024-02-22T16:50:00Z",
+    healthCheckType: "EC2",
+    healthCheckGracePeriod: 300,
+    defaultCooldown: 300,
+    availabilityZones: ["us-east-1a", "us-east-1b"],
+    tags: { Environment: "Production", Purpose: "Cache Layer", Team: "Backend" }
+  },
+  {
+    id: "asg-5",
+    name: "ml-training-asg",
+    status: "Updating",
+    instanceType: "g4dn.xlarge",
+    desiredCapacity: 8,
+    minCapacity: 4,
+    maxCapacity: 20,
+    vpc: "vpc-ml",
+    createdOn: "2024-02-15T18:00:00Z",
+    healthCheckType: "EC2",
+    healthCheckGracePeriod: 600,
+    defaultCooldown: 900,
+    availabilityZones: ["us-east-1a", "us-east-1b"],
+    tags: { Environment: "Production", Purpose: "ML Training", Team: "AI" }
+  },
+  {
+    id: "asg-6",
+    name: "staging-asg",
+    status: "Active",
+    instanceType: "t3.small",
+    desiredCapacity: 1,
+    minCapacity: 1,
+    maxCapacity: 3,
+    vpc: "vpc-staging",
+    createdOn: "2024-02-10T22:15:00Z",
+    healthCheckType: "EC2",
+    healthCheckGracePeriod: 300,
+    defaultCooldown: 300,
+    availabilityZones: ["us-east-1a"],
+    tags: { Environment: "Staging", Purpose: "Test Environment", Team: "QA" }
+  },
+  {
+    id: "asg-7",
+    name: "app-server-asg",
+    status: "Active",
+    instanceType: "t3.large",
+    desiredCapacity: 2,
+    minCapacity: 1,
+    maxCapacity: 5,
+    vpc: "vpc-main-prod",
+    createdOn: "2024-01-20T19:52:00Z",
+    healthCheckType: "ELB",
+    healthCheckGracePeriod: 300,
+    defaultCooldown: 300,
+    availabilityZones: ["us-east-1a", "us-east-1b"],
+    loadBalancers: ["elb-app-servers"],
+    tags: { Environment: "Production", Purpose: "Application Server", Team: "Frontend" }
+  },
+  {
+    id: "asg-8",
+    name: "web-server-asg",
+    status: "Active",
+    instanceType: "t3.medium",
+    desiredCapacity: 3,
+    minCapacity: 2,
+    maxCapacity: 10,
+    vpc: "vpc-main-prod",
+    createdOn: "2024-01-15T16:00:00Z",
+    healthCheckType: "ELB",
+    healthCheckGracePeriod: 300,
+    defaultCooldown: 300,
+    availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"],
+    loadBalancers: ["elb-web-servers"],
+    targetGroups: ["tg-web-tier"],
+    tags: { Environment: "Production", Purpose: "Web Server", Team: "Frontend" }
+  }
+]
+
+// Templates for Auto Scaling Groups
+export interface AutoScalingTemplate {
+  id: string
+  name: string
+  description: string
+  instanceType: string
+  isLatest: boolean
+  imageId: string
+  keyName: string
+  securityGroups: string[]
+  userData?: string
+  iamInstanceProfile?: string
+  monitoring: boolean
+  createdOn: string
+  lastModified: string
+  version: number
+  tags: Record<string, string>
+}
+
+export const autoScalingTemplates: AutoScalingTemplate[] = [
+  {
+    id: "lt-1",
+    name: "analytics-template",
+    description: "Template for analytics processing auto scaling gr...",
+    instanceType: "t3.2xlarge",
+    isLatest: true,
+    imageId: "ami-0c7217cdde317cfec",
+    keyName: "analytics-keypair",
+    securityGroups: ["sg-analytics"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y python3 spark",
+    iamInstanceProfile: "EC2-Analytics-Role",
+    monitoring: true,
+    createdOn: "2024-01-25T18:50:00Z",
+    lastModified: "2024-01-25T18:50:00Z",
+    version: 7,
+    tags: { Environment: "Production", Purpose: "Analytics", Team: "Data" }
+  },
+  {
+    id: "lt-2",
+    name: "cache-server-template",
+    description: "Template for cache server auto scaling groups",
+    instanceType: "t3.medium",
+    isLatest: true,
+    imageId: "ami-0c7217cdde317cfec",
+    keyName: "production-keypair",
+    securityGroups: ["sg-cache-servers"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y redis",
+    iamInstanceProfile: "EC2-Cache-Role",
+    monitoring: true,
+    createdOn: "2024-01-22T22:00:00Z",
+    lastModified: "2024-01-22T22:00:00Z",
+    version: 6,
+    tags: { Environment: "Production", Purpose: "Cache", Team: "Backend" }
+  },
+  {
+    id: "lt-3",
+    name: "ml-training-template",
+    description: "Template for ML training auto scaling groups",
+    instanceType: "g4dn.xlarge",
+    isLatest: true,
+    imageId: "ami-0d70546e43a941d70",
+    keyName: "ml-keypair",
+    securityGroups: ["sg-ml-training"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y nvidia-driver cuda-toolkit",
+    iamInstanceProfile: "EC2-ML-Role",
+    monitoring: true,
+    createdOn: "2024-01-20T17:15:00Z",
+    lastModified: "2024-01-20T17:15:00Z",
+    version: 5,
+    tags: { Environment: "Production", Purpose: "ML Training", Team: "AI" }
+  },
+  {
+    id: "lt-4",
+    name: "staging-template",
+    description: "Template for staging environment auto scaling gr...",
+    instanceType: "t3.small",
+    isLatest: true,
+    imageId: "ami-0c7217cdde317cfec",
+    keyName: "staging-keypair",
+    securityGroups: ["sg-staging"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y httpd",
+    iamInstanceProfile: "EC2-Staging-Role",
+    monitoring: false,
+    createdOn: "2024-01-18T14:45:00Z",
+    lastModified: "2024-01-18T14:45:00Z",
+    version: 4,
+    tags: { Environment: "Staging", Purpose: "Testing", Team: "QA" }
+  },
+  {
+    id: "lt-5",
+    name: "worker-node-template",
+    description: "Template for worker node auto scaling groups",
+    instanceType: "t3.xlarge",
+    isLatest: true,
+    imageId: "ami-0c7217cdde317cfec",
+    keyName: "production-keypair",
+    securityGroups: ["sg-worker-nodes"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y docker\nsystemctl start docker",
+    iamInstanceProfile: "EC2-Worker-Role",
+    monitoring: true,
+    createdOn: "2024-01-15T19:50:00Z",
+    lastModified: "2024-01-15T19:50:00Z",
+    version: 3,
+    tags: { Environment: "Production", Purpose: "Worker Nodes", Team: "Backend" }
+  },
+  {
+    id: "lt-6",
+    name: "app-server-template",
+    description: "Template for application server auto scaling grou...",
+    instanceType: "t3.large",
+    isLatest: true,
+    imageId: "ami-0c7217cdde317cfec",
+    keyName: "production-keypair",
+    securityGroups: ["sg-app-servers"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y nodejs npm",
+    iamInstanceProfile: "EC2-App-Role",
+    monitoring: true,
+    createdOn: "2024-01-12T16:00:00Z",
+    lastModified: "2024-01-12T16:00:00Z",
+    version: 2,
+    tags: { Environment: "Production", Purpose: "App Server", Team: "Backend" }
+  },
+  {
+    id: "lt-7",
+    name: "web-server-template",
+    description: "Standard template for web server auto scaling gr...",
+    instanceType: "t3.medium",
+    isLatest: true,
+    imageId: "ami-0c7217cdde317cfec",
+    keyName: "production-keypair",
+    securityGroups: ["sg-web-servers"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y httpd php\nsystemctl start httpd",
+    iamInstanceProfile: "EC2-WebServer-Role",
+    monitoring: true,
+    createdOn: "2024-01-10T13:30:00Z",
+    lastModified: "2024-01-10T13:30:00Z",
+    version: 1,
+    tags: { Environment: "Production", Purpose: "Web Server", Team: "Frontend" }
+  },
+  {
+    id: "lt-8",
+    name: "app-server-template",
+    description: "Original template for application server auto scali...",
+    instanceType: "t3.medium",
+    isLatest: false,
+    imageId: "ami-0c7217cdde317cfec",
+    keyName: "production-keypair",
+    securityGroups: ["sg-app-servers"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y nodejs npm",
+    iamInstanceProfile: "EC2-App-Role",
+    monitoring: true,
+    createdOn: "2024-01-10T13:30:00Z",
+    lastModified: "2024-01-10T13:30:00Z",
+    version: 1,
+    tags: { Environment: "Production", Purpose: "App Server", Team: "Backend" }
+  },
+  {
+    id: "lt-9",
+    name: "media-processing-template",
+    description: "Template for media processing auto scaling grou...",
+    instanceType: "t3.large",
+    isLatest: false,
+    imageId: "ami-0c7217cdde317cfec",
+    keyName: "production-keypair",
+    securityGroups: ["sg-media-processing"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y ffmpeg",
+    iamInstanceProfile: "EC2-MediaProcessing-Role",
+    monitoring: true,
+    createdOn: "2024-01-10T13:30:00Z",
+    lastModified: "2024-01-10T13:30:00Z",
+    version: 1,
+    tags: { Environment: "Production", Purpose: "Media Processing", Team: "Media" }
+  },
+  {
+    id: "lt-10",
+    name: "media-processing-template",
+    description: "Template for media processing auto scaling grou...",
+    instanceType: "t3.xlarge",
+    isLatest: true,
+    imageId: "ami-0c7217cdde317cfec",
+    keyName: "production-keypair",
+    securityGroups: ["sg-media-processing"],
+    userData: "#!/bin/bash\nyum update -y\nyum install -y ffmpeg",
+    iamInstanceProfile: "EC2-MediaProcessing-Role",
+    monitoring: true,
+    createdOn: "2024-01-10T13:30:00Z",
+    lastModified: "2024-01-10T13:30:00Z",
+    version: 8,
+    tags: { Environment: "Production", Purpose: "Media Processing", Team: "Media" }
+  }
+]

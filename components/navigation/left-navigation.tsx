@@ -92,6 +92,10 @@ const navigationConfig = {
             href: "/compute/ssh-keys",
             label: "SSH Keys",
           },
+          {
+            href: "/compute/auto-scaling",
+            label: "Auto Scaling Groups",
+          },
         ],
       },
       {

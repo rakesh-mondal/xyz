@@ -17,7 +17,7 @@ export function getUserType(): 'new' | 'existing' | 'regular' {
 }
 
 // Filter function for list data
-export function filterDataForUser<T>(data: T[]): T[] {
+export function filterDataForUser<T>(data: T[], resourceType?: string): T[] {
   const userType = getUserType()
   
   // NEW USER: Show empty lists (no data)
@@ -78,7 +78,7 @@ export function filterBillingDataForUser(data: any): any {
 }
 
 // Check if user should see empty states
-export function shouldShowEmptyState(): boolean {
+export function shouldShowEmptyState(data?: any[], resourceType?: string): boolean {
   return getUserType() === 'new'
 }
 
@@ -184,6 +184,16 @@ export function getEmptyStateMessage(resourceType: string): {
         title: "No Certificates yet",
         description: "Import SSL/TLS certificates and other security credentials to secure your applications and services.",
         actionText: "Import Certificate"
+      },
+      asg: {
+        title: "No Auto Scaling Groups yet",
+        description: "Create auto scaling groups to automatically adjust the number of instances based on demand and maintain application availability.",
+        actionText: "Create Auto Scaling Group"
+      },
+      template: {
+        title: "No Templates yet",
+        description: "Create auto scaling templates to standardize your instance configurations and make it easier to launch consistent auto scaling groups.",
+        actionText: "Create Template"
       },
       default: {
         title: `No ${resourceType} yet`,
