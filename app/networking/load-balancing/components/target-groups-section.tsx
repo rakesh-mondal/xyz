@@ -174,16 +174,11 @@ export default function TargetGroupsSection() {
                 <div className="space-y-3">
                   {filteredMembers.slice(0, 3).map((member, index) => (
                     <div key={member.id} className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium text-sm">{member.name}</span>
-                          <span className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
-                            {member.type}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <StatusBadge status={member.status} />
-                        </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-medium text-sm">{member.name}</span>
+                        <span className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
+                          {member.type}
+                        </span>
                       </div>
                       <div className="text-xs text-muted-foreground pl-0">
                         {member.ipAddress}:{member.port}
@@ -217,11 +212,7 @@ export default function TargetGroupsSection() {
         </div>
       ),
     },
-    {
-      key: "status",
-      label: "Status",
-      render: (value: string) => <StatusBadge status={value} />,
-    },
+
     {
       key: "createdOn",
       label: "Created On",

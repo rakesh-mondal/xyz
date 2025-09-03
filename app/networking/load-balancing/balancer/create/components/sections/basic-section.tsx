@@ -128,7 +128,6 @@ export function BasicSection({ formData, updateFormData, isSection = false, isEd
            formData.vpc?.length > 0 &&
            formData.subnet?.length > 0 &&
            formData.performanceTier?.length > 0 &&
-           formData.standardConfig?.length > 0 &&
            (!isPublicSubnet(formData.subnet) || formData.ipAddressType?.length > 0)
   }
 
@@ -329,32 +328,26 @@ export function BasicSection({ formData, updateFormData, isSection = false, isEd
                   Configuration <span className="text-destructive">*</span>
                 </Label>
                 <TooltipWrapper 
-                  content="Standalone Load Balancer is provisioned with 1 node. High Availability option provisions the load balancer with 2 nodes - 1 primary and 1 backup."
+                  content="High Availability provisions the load balancer with 2 nodes - 1 primary and 1 backup for enhanced reliability and fault tolerance."
                   side="top"
                 >
                   <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
                 </TooltipWrapper>
               </div>
               
-              <RadioGroup 
-                value={formData.standardConfig || ""} 
-                onValueChange={(value) => handleChange("standardConfig", value)}
-                className="space-y-3 mt-2"
-                disabled={isEditMode}
-              >
+              <div className="mt-2">
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="standalone" id="standalone" disabled={isEditMode} />
-                  <Label htmlFor="standalone" className={`cursor-pointer ${isEditMode ? 'text-muted-foreground cursor-not-allowed' : ''}`}>
-                    Standalone
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="high-availability" id="high-availability" disabled={isEditMode} />
-                  <Label htmlFor="high-availability" className={`cursor-pointer ${isEditMode ? 'text-muted-foreground cursor-not-allowed' : ''}`}>
+                  <div className="flex items-center justify-center w-5 h-5 bg-gray-100 border-2 border-gray-300 rounded-full">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                  </div>
+                  <Label className="text-foreground font-medium cursor-default">
                     High Availability
                   </Label>
                 </div>
-              </RadioGroup>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Load balancer will be provisioned with 2 nodes (1 primary, 1 backup) for enhanced reliability and fault tolerance.
+                </p>
+              </div>
             </div>
           </div>
         </div>

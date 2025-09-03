@@ -19,6 +19,7 @@ import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { PolicyRulesSection } from "./sections/policy-rules-section"
 import { PoolSection } from "./sections/pool-section"
+import { ALBProgressModal } from "./alb-progress-modal"
 import { vpcs } from "@/lib/data"
 
 import type { LoadBalancerConfiguration } from "../page"
@@ -93,10 +94,7 @@ interface ListenerCardProps {
 function ListenerCard({ listener, updateListener, isEditMode = false }: ListenerCardProps) {
   const protocolOptions = [
     { value: "HTTP", label: "HTTP", defaultPort: 80 },
-    { value: "HTTPS", label: "HTTPS", defaultPort: 443 },
-    { value: "TERMINATED_HTTPS", label: "TERMINATED_HTTPS", defaultPort: 443 },
-    { value: "TCP", label: "TCP", defaultPort: 80 },
-    { value: "UDP", label: "UDP", defaultPort: 80 }
+    { value: "HTTPS", label: "HTTPS", defaultPort: 443 }
   ]
 
   const certificateOptions = [
@@ -271,8 +269,11 @@ function ListenerCard({ listener, updateListener, isEditMode = false }: Listener
 
 export function ALBCreateForm({ config, onBack, onCancel, isEditMode = false, editData, customBreadcrumbs }: ALBCreateFormProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
   const [showCreateSubnetModal, setShowCreateSubnetModal] = useState(false)
+  const [showProgressModal, setShowProgressModal] = useState(false)
+  const [taskId, setTaskId] = useState("")
   const [formData, setFormData] = useState<ALBFormData>({
     name: isEditMode ? editData?.name || "" : "",
     description: isEditMode ? editData?.description || "" : "",
@@ -281,7 +282,7 @@ export function ALBCreateForm({ config, onBack, onCancel, isEditMode = false, ed
     vpc: isEditMode ? editData?.vpc || "" : "",
     subnet: isEditMode ? editData?.subnet || "" : "",
     performanceTier: isEditMode ? editData?.performanceTier || "standard" : "standard",
-    standardConfig: isEditMode ? editData?.standardConfig || "" : "",
+    standardConfig: isEditMode ? editData?.standardConfig || "high-availability" : "high-availability",
     ipAddressType: isEditMode ? editData?.ipAddressType || "" : "",
     listeners: isEditMode ? editData?.listeners || [] : []
   })
@@ -374,9 +375,29 @@ export function ALBCreateForm({ config, onBack, onCancel, isEditMode = false, ed
       // Navigate back to details page
       router.push(`/networking/load-balancing/balancer/${editData?.id}`)
     } else {
-      // Navigate to summary page with form data
-      router.push(`/networking/load-balancing/balancer/create/summary?config=${JSON.stringify(config)}&data=${JSON.stringify(formData)}`)
+      // Generate a unique task ID
+      const newTaskId = crypto.randomUUID()
+      setTaskId(newTaskId)
+      
+      // Show progress modal
+      setShowProgressModal(true)
+      
+      // In a real app, this would trigger the actual load balancer creation API call
+      console.log("Creating ALB with data:", formData)
     }
+  }
+
+  const handleProgressModalClose = () => {
+    setShowProgressModal(false)
+  }
+
+  const handleProgressSuccess = () => {
+    setShowProgressModal(false)
+    // Show success toast
+    toast({
+      title: "Application Load Balancer created successfully",
+      description: `Load Balancer "${formData.name}" has been created successfully`,
+    })
   }
 
   const isFormValid = () => {
@@ -384,8 +405,7 @@ export function ALBCreateForm({ config, onBack, onCancel, isEditMode = false, ed
                       formData.region?.length > 0 && 
                       formData.vpc?.length > 0 &&
                       formData.subnet?.length > 0 &&
-                      formData.performanceTier?.length > 0 &&
-                      formData.standardConfig?.length > 0
+                      formData.performanceTier?.length > 0
 
     // At least one listener must have basic configuration
     const listenersValid = formData.listeners.some(listener => 
@@ -594,6 +614,15 @@ export function ALBCreateForm({ config, onBack, onCancel, isEditMode = false, ed
           />
         </DialogContent>
       </Dialog>
+
+      {/* ALB Progress Modal */}
+      <ALBProgressModal
+        isOpen={showProgressModal}
+        onClose={handleProgressModalClose}
+        taskId={taskId}
+        onSuccess={handleProgressSuccess}
+        formData={formData}
+      />
     </PageLayout>
   )
 }

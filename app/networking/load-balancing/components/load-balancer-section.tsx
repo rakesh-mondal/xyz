@@ -131,8 +131,13 @@ export default function LoadBalancerSection() {
       ),
     },
     {
-      key: "status",
-      label: "Status",
+      key: "provisioningStatus",
+      label: "Provisioning Status",
+      render: (value: string) => <StatusBadge status={value} />,
+    },
+    {
+      key: "operatingStatus",
+      label: "Operating Status",
       render: (value: string) => <StatusBadge status={value} />,
     },
     {
@@ -143,7 +148,7 @@ export default function LoadBalancerSection() {
         
         // Handle no target groups case
         if (targetGroups.length === 0) {
-          return <span className="text-muted-foreground text-sm">0 Target Groups</span>
+          return <span className="text-muted-foreground leading-5">0 Target Groups</span>
         }
         
         const totalCount = targetGroups.length
@@ -152,7 +157,7 @@ export default function LoadBalancerSection() {
         
         return (
           <div className="relative group">
-            <span className="cursor-help text-sm font-medium">
+            <span className="cursor-help leading-5 font-medium">
               {totalCount} Target Group{totalCount !== 1 ? 's' : ''}
             </span>
             

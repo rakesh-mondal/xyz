@@ -15,6 +15,7 @@ interface PoolSectionProps {
   updateFormData: (section: string, data: any) => void
   isSection?: boolean
   isEditMode?: boolean
+  loadBalancerType?: "ALB" | "NLB"
 }
 
 interface Pool {
@@ -25,7 +26,7 @@ interface Pool {
   targetGroup: string
 }
 
-export function PoolSection({ formData, updateFormData, isSection = false, isEditMode = false }: PoolSectionProps) {
+export function PoolSection({ formData, updateFormData, isSection = false, isEditMode = false, loadBalancerType = "ALB" }: PoolSectionProps) {
   const [pools, setPools] = useState<Pool[]>(formData.pools)
 
   // Sync props to local state when they change
@@ -33,13 +34,14 @@ export function PoolSection({ formData, updateFormData, isSection = false, isEdi
     setPools(formData.pools)
   }, [formData.pools])
 
-  const protocolOptions = [
-    { value: "HTTP", label: "HTTP" },
-    { value: "HTTPS", label: "HTTPS" },
-    { value: "TCP", label: "TCP" },
-    { value: "UDP", label: "UDP" },
-    { value: "GRPC", label: "gRPC" }
-  ]
+  const protocolOptions = loadBalancerType === "NLB" 
+    ? [
+        { value: "HTTP", label: "HTTP" },
+        { value: "TCP", label: "TCP" }
+      ]
+    : [
+        { value: "HTTP", label: "HTTP" }
+      ]
 
   const algorithmOptions = [
     { 
@@ -269,18 +271,11 @@ export function PoolSection({ formData, updateFormData, isSection = false, isEdi
                       <div className="text-sm">
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-medium">Target Group Details</span>
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            targetGroupInfo.status === "healthy" 
-                              ? "bg-green-100 text-green-700" 
-                              : "bg-red-100 text-red-700"
-                          }`}>
-                            {targetGroupInfo.status}
-                          </span>
                         </div>
                         <div className="text-xs text-muted-foreground space-y-1">
                           <div>Type: {targetGroupInfo.type}</div>
                           <div>Protocol: {targetGroupInfo.protocol}</div>
-                          <div>Targets: {targetGroupInfo.targets} healthy targets</div>
+                          <div>Targets: {targetGroupInfo.targets} targets</div>
                         </div>
                       </div>
                     </div>

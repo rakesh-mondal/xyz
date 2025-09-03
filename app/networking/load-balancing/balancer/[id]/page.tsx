@@ -480,12 +480,18 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
             </div>
           </div>
 
-          {/* Runtime Information from List Page - Third Row: Status, Target Group Health, IP Addresses */}
-          <div className="col-span-full grid grid-cols-3 gap-4 mt-4">
+          {/* Runtime Information from List Page - Third Row: Provisioning Status, Operating Status, Target Group Health, IP Addresses */}
+          <div className="col-span-full grid grid-cols-4 gap-4 mt-4">
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Provisioning Status</label>
               <div>
-                <StatusBadge status={loadBalancer.status} />
+                <StatusBadge status={loadBalancer.provisioningStatus} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Operating Status</label>
+              <div>
+                <StatusBadge status={loadBalancer.operatingStatus} />
               </div>
             </div>
             <div className="space-y-1">

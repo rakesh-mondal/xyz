@@ -81,12 +81,7 @@ export default function TargetGroupDetailsPage({ params }: { params: { id: strin
         <div className="text-right">{value}</div>
       ),
     },
-    {
-      key: "status",
-      label: "Status",
-      sortable: true,
-      render: (value: string) => <StatusBadge status={value} />,
-    },
+
   ]
 
   const customBreadcrumbs = [
@@ -128,7 +123,7 @@ export default function TargetGroupDetailsPage({ params }: { params: { id: strin
         </div>
         
         <DetailGrid>
-          {/* Target Group ID, Protocol, Port, Status in one row */}
+          {/* Target Group ID, Protocol, Port, VPC in first row */}
           <div className="col-span-full grid grid-cols-4 gap-4">
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Target Group ID</label>
@@ -143,19 +138,13 @@ export default function TargetGroupDetailsPage({ params }: { params: { id: strin
               <div className="font-medium" style={{ fontSize: '14px' }}>{targetGroup.port}</div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
-              <div>
-                <StatusBadge status={targetGroup.status} />
-              </div>
-            </div>
-          </div>
-          
-          {/* VPC, Load Balancer, Type, Created On in second row */}
-          <div className="col-span-full grid grid-cols-4 gap-4 mt-4">
-            <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VPC</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{targetGroup.vpc}</div>
             </div>
+          </div>
+          
+          {/* Load Balancer, Type, Created On in second row */}
+          <div className="col-span-full grid grid-cols-4 gap-4 mt-4">
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Attached Load Balancer</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{targetGroup.loadBalancer || "—"}</div>
@@ -167,6 +156,9 @@ export default function TargetGroupDetailsPage({ params }: { params: { id: strin
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Created On</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{formatDate(targetGroup.createdOn)}</div>
+            </div>
+            <div className="space-y-1">
+              {/* Empty column for alignment */}
             </div>
           </div>
 

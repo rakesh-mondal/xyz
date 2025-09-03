@@ -2514,7 +2514,9 @@ export interface TargetGroupHealth {
 export interface LoadBalancer {
   id: string
   name: string
-  status: "provisioning" | "error" | "active" | "offline"
+  status: "provisioning" | "error" | "active" | "offline" // Keep for backward compatibility
+  provisioningStatus: "provisioning" | "provisioned" | "failed"
+  operatingStatus: "active" | "inactive" | "degraded" | "error"
   type: "application" | "network"
   scheme: "internet-facing" | "internal"
   vpc: string
@@ -2567,6 +2569,8 @@ export const loadBalancers: LoadBalancer[] = [
     id: "lb-1",
     name: "production-app-lb",
     status: "active",
+    provisioningStatus: "provisioned",
+    operatingStatus: "active",
     type: "application",
     scheme: "internet-facing",
     vpc: "production-vpc",
@@ -2599,6 +2603,8 @@ export const loadBalancers: LoadBalancer[] = [
     id: "lb-2", 
     name: "api-gateway-lb",
     status: "active",
+    provisioningStatus: "provisioned",
+    operatingStatus: "active",
     type: "application",
     scheme: "internet-facing",
     vpc: "production-vpc",
@@ -2623,7 +2629,9 @@ export const loadBalancers: LoadBalancer[] = [
   {
     id: "lb-3",
     name: "internal-services-lb",
-    status: "offline", 
+    status: "offline",
+    provisioningStatus: "provisioned",
+    operatingStatus: "degraded", 
     type: "network",
     scheme: "internal",
     vpc: "production-vpc",
@@ -2663,6 +2671,8 @@ export const loadBalancers: LoadBalancer[] = [
     id: "lb-4",
     name: "staging-web-lb",
     status: "error",
+    provisioningStatus: "provisioned",
+    operatingStatus: "error",
     type: "application",
     scheme: "internet-facing", 
     vpc: "staging-vpc",
@@ -2688,6 +2698,8 @@ export const loadBalancers: LoadBalancer[] = [
     id: "lb-5",
     name: "dev-app-lb",
     status: "provisioning",
+    provisioningStatus: "provisioning",
+    operatingStatus: "inactive",
     type: "application",
     scheme: "internet-facing",
     vpc: "development-vpc", 

@@ -39,10 +39,7 @@ export function ListenersSection({ formData, updateFormData, isSection = false }
 
   const protocolOptions = [
     { value: "HTTP", label: "HTTP", defaultPort: 80 },
-    { value: "HTTPS", label: "HTTPS", defaultPort: 443 },
-    { value: "TERMINATED_HTTPS", label: "TERMINATED_HTTPS", defaultPort: 443 },
-    { value: "TCP", label: "TCP", defaultPort: 80 },
-    { value: "UDP", label: "UDP", defaultPort: 80 }
+    { value: "HTTPS", label: "HTTPS", defaultPort: 443 }
   ]
 
   const certificateOptions = [

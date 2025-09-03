@@ -13,20 +13,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { vpcs } from "@/lib/data"
-import { Search, Check, HelpCircle, ChevronDown } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ChevronDown, Search, Check, HelpCircle } from "lucide-react"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { StatusBadge } from "@/components/status-badge"
 
 // Mock VMs data for selection
 const mockVMs = [
-  { id: "krn:vm:colo-2-accept-001", name: "masakari-testing", status: "active" },
-  { id: "krn:vm:colo-2-accept-002", name: "simple-instance3", status: "active" },
-  { id: "krn:vm:colo-2-accept-003", name: "vmsep3-1", status: "stopped" },
-  { id: "krn:vm:colo-2-accept-004", name: "instance-config-2", status: "in-progress" },
-  { id: "krn:vm:colo-2-accept-005", name: "instance-config-2", status: "active" },
+  { id: "vm-1", name: "masakari-testing", ipAddress: "10.0.1.10", vpc: "production-vpc", status: "active" },
+  { id: "vm-2", name: "simple-instance3", ipAddress: "10.0.1.11", vpc: "production-vpc", status: "active" },
+  { id: "vm-3", name: "vmsep3-1", ipAddress: "10.0.2.20", vpc: "production-vpc", status: "stopped" },
+  { id: "vm-4", name: "instance-config-2", ipAddress: "10.0.2.21", vpc: "production-vpc", status: "in-progress" },
+  { id: "vm-5", name: "instance-config-2", ipAddress: "10.0.3.30", vpc: "production-vpc", status: "active" },
+  { id: "vm-6", name: "web-server-01", ipAddress: "10.1.1.10", vpc: "staging-vpc", status: "active" },
+  { id: "vm-7", name: "api-server-01", ipAddress: "10.1.1.11", vpc: "staging-vpc", status: "active" },
+  { id: "vm-8", name: "mysql-primary", ipAddress: "10.0.4.40", vpc: "production-vpc", status: "stopped" },
+  { id: "vm-9", name: "redis-primary", ipAddress: "10.0.5.50", vpc: "production-vpc", status: "active" },
+  { id: "vm-10", name: "analytics-vm-01", ipAddress: "10.0.7.72", vpc: "production-vpc", status: "in-progress" },
 ]
 
 const protocols = ["HTTP", "TCP"]
@@ -61,8 +71,9 @@ export default function CreateTargetGroupPage() {
   const [formTouched, setFormTouched] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Get VMs filtered by selected VPC (for now, show all VMs when VPC is selected)
-  const filteredVMs = formData.vpc ? mockVMs : []
+  // Get VMs filtered by selected VPC
+  const selectedVPCName = vpcs.find(vpc => vpc.id === formData.vpc)?.name
+  const filteredVMs = selectedVPCName ? mockVMs.filter(vm => vm.vpc === selectedVPCName) : []
   
   // Filter VPCs based on search term
   const filteredVPCs = vpcs.filter(vpc =>
@@ -311,42 +322,40 @@ export default function CreateTargetGroupPage() {
                   <h3 className="text-lg font-semibold mb-4">Configure Health Checks</h3>
                   
                   <div className="space-y-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="healthCheckName" className="block mb-2 font-medium">
-                          Health Check Name <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="healthCheckName"
-                          placeholder="Enter health check name"
-                          value={formData.healthCheckName}
-                          onChange={handleInputChange('healthCheckName')}
-                          className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-                            formTouched && !formData.healthCheckName.trim() ? 'border-red-300 bg-red-50' : ''
-                          }`}
-                          required
-                        />
-                      </div>
+                    <div>
+                      <Label htmlFor="healthCheckName" className="block mb-2 font-medium">
+                        Health Check Name <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="healthCheckName"
+                        placeholder="Enter health check name"
+                        value={formData.healthCheckName}
+                        onChange={handleInputChange('healthCheckName')}
+                        className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                          formTouched && !formData.healthCheckName.trim() ? 'border-red-300 bg-red-50' : ''
+                        }`}
+                        required
+                      />
+                    </div>
 
-                      <div>
-                        <Label htmlFor="protocol" className="block mb-2 font-medium">
-                          Protocol <span className="text-destructive">*</span>
-                        </Label>
-                        <Select value={formData.protocol} onValueChange={handleSelectChange('protocol')}>
-                          <SelectTrigger className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-                            formTouched && !formData.protocol ? 'border-red-300 bg-red-50' : ''
-                          }`}>
-                            <SelectValue placeholder="Select protocol" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {protocols.map((protocol) => (
-                              <SelectItem key={protocol} value={protocol}>
-                                {protocol}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div>
+                      <Label htmlFor="protocol" className="block mb-2 font-medium">
+                        Protocol <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={formData.protocol} onValueChange={handleSelectChange('protocol')}>
+                        <SelectTrigger className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                          formTouched && !formData.protocol ? 'border-red-300 bg-red-50' : ''
+                        }`}>
+                          <SelectValue placeholder="Select protocol" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {protocols.map((protocol) => (
+                            <SelectItem key={protocol} value={protocol}>
+                              {protocol}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     {formData.protocol === 'HTTP' && (
@@ -438,167 +447,161 @@ export default function CreateTargetGroupPage() {
                         Select VMs <span className="text-destructive">*</span>
                       </Label>
                       {formData.vpc ? (
-                        <div className="space-y-4">
-                          {/* Select All Button */}
-                          {filteredVMs.length > 0 && (
-                            <div className="flex items-center justify-between">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  setFormTouched(true)
-                                  const activeVMs = filteredVMs.filter(vm => vm.status === "active")
-                                  const allActiveSelected = activeVMs.every(vm => formData.selectedVMs.includes(vm.id))
-                                  
-                                  if (allActiveSelected) {
-                                    // Deselect all active VMs
-                                    setFormData(prev => ({
-                                      ...prev,
-                                      selectedVMs: prev.selectedVMs.filter(id => !activeVMs.some(vm => vm.id === id)),
-                                      vmWeights: Object.fromEntries(
-                                        Object.entries(prev.vmWeights).filter(([id]) => !activeVMs.some(vm => vm.id === id))
-                                      )
-                                    }))
-                                  } else {
-                                    // Select all active VMs
-                                    const defaultWeights = activeVMs.reduce((acc, vm) => {
-                                      acc[vm.id] = 100
-                                      return acc
-                                    }, {} as Record<string, number>)
-                                    setFormData(prev => ({
-                                      ...prev,
-                                      selectedVMs: [...new Set([...prev.selectedVMs, ...activeVMs.map(vm => vm.id)])],
-                                      vmWeights: { ...prev.vmWeights, ...defaultWeights }
-                                    }))
-                                  }
-                                }}
-                                className="text-sm"
-                              >
-                                {(() => {
-                                  const activeVMs = filteredVMs.filter(vm => vm.status === "active")
-                                  const allActiveSelected = activeVMs.every(vm => formData.selectedVMs.includes(vm.id))
-                                  return allActiveSelected ? 'Deselect All' : 'Select All'
-                                })()} ({filteredVMs.filter(vm => vm.status === "active").length} active)
-                              </Button>
-                              <span className="text-sm text-muted-foreground">
-                                {formData.selectedVMs.length} VM{formData.selectedVMs.length !== 1 ? 's' : ''} selected
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              className={`w-full justify-between focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                                formTouched && formData.selectedVMs.length === 0 ? 'border-red-300 bg-red-50' : ''
+                              }`}
+                            >
+                              <span className="text-left">
+                                {formData.selectedVMs.length === 0 ? (
+                                  <span className="text-muted-foreground">Select VMs</span>
+                                ) : (
+                                  <span>
+                                    {formData.selectedVMs.length} VM{formData.selectedVMs.length > 1 ? 's' : ''} selected
+                                    {formData.selectedVMs.length <= 2 && (
+                                      <span className="ml-1 text-muted-foreground">
+                                        ({filteredVMs
+                                          .filter(vm => formData.selectedVMs.includes(vm.id))
+                                          .map(vm => vm.name)
+                                          .join(', ')})
+                                      </span>
+                                    )}
+                                  </span>
+                                )}
                               </span>
-                            </div>
-                          )}
-
-                          {/* VM Selection Table */}
-                          {filteredVMs.length > 0 ? (
-                            <div>
-                              <ShadcnDataTable
-                                data={filteredVMs.map(vm => ({
-                                  ...vm,
-                                  isSelected: formData.selectedVMs.includes(vm.id),
-                                  weight: formData.vmWeights[vm.id] || 100,
-                                  isActive: vm.status === "active"
-                                }))}
-                                columns={[
-                                  {
-                                    key: "select",
-                                    label: "",
-                                    render: (_: any, row: any) => {
-                                      const isActive = row.status === "active"
-                                      const isDisabled = !isActive
-                                      
-                                      return (
-                                        <input
-                                          type="checkbox"
-                                          checked={row.isSelected}
-                                          disabled={isDisabled}
-                                          onChange={() => {
-                                            if (isDisabled) return
-                                            
-                                            setFormTouched(true)
-                                            if (row.isSelected) {
-                                              setFormData(prev => {
-                                                const newWeights = { ...prev.vmWeights }
-                                                delete newWeights[row.id]
-                                                return {
-                                                  ...prev,
-                                                  selectedVMs: prev.selectedVMs.filter(id => id !== row.id),
-                                                  vmWeights: newWeights
-                                                }
-                                              })
-                                            } else {
+                              <ChevronDown className="h-4 w-4 opacity-50" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start" className="w-[400px] max-h-[300px] overflow-y-auto">
+                            {filteredVMs.length > 0 ? (
+                              <>
+                                <div
+                                  className={`flex items-center space-x-3 px-2 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer rounded-sm font-medium ${
+                                    formData.selectedVMs.length === filteredVMs.length ? 'bg-accent/50' : ''
+                                  }`}
+                                  onClick={() => {
+                                    setFormTouched(true)
+                                    const allSelected = formData.selectedVMs.length === filteredVMs.length
+                                    if (allSelected) {
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        selectedVMs: [],
+                                        vmWeights: {}
+                                      }))
+                                    } else {
+                                      const defaultWeights = filteredVMs.reduce((acc, vm) => {
+                                        acc[vm.id] = 100
+                                        return acc
+                                      }, {} as Record<string, number>)
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        selectedVMs: filteredVMs.map(vm => vm.id),
+                                        vmWeights: { ...prev.vmWeights, ...defaultWeights }
+                                      }))
+                                    }
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={formData.selectedVMs.length === filteredVMs.length}
+                                    onChange={() => {}} // Handled by parent div click
+                                    className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 pointer-events-none"
+                                  />
+                                  <span>Select All ({filteredVMs.length})</span>
+                                </div>
+                                <div className="border-t my-1" />
+                                {filteredVMs.map((vm) => (
+                                  <div
+                                    key={vm.id}
+                                    className={`px-2 py-2 rounded-sm ${
+                                      formData.selectedVMs.includes(vm.id) ? 'bg-accent/50' : ''
+                                    }`}
+                                  >
+                                    <div
+                                      className="flex items-center space-x-3 cursor-pointer hover:bg-accent hover:text-accent-foreground p-1 rounded"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setFormTouched(true)
+                                        const isSelected = formData.selectedVMs.includes(vm.id)
+                                        if (isSelected) {
+                                          setFormData(prev => {
+                                            const newWeights = { ...prev.vmWeights }
+                                            delete newWeights[vm.id]
+                                            return {
+                                              ...prev,
+                                              selectedVMs: prev.selectedVMs.filter(id => id !== vm.id),
+                                              vmWeights: newWeights
+                                            }
+                                          })
+                                        } else {
+                                          setFormData(prev => ({
+                                            ...prev,
+                                            selectedVMs: [...prev.selectedVMs, vm.id],
+                                            vmWeights: { ...prev.vmWeights, [vm.id]: 100 } // Default weight
+                                          }))
+                                        }
+                                      }}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={formData.selectedVMs.includes(vm.id)}
+                                        onChange={() => {}} // Handled by parent div click
+                                        className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 pointer-events-none"
+                                      />
+                                      <div className="flex flex-col flex-1">
+                                        <span className="font-medium text-sm">{vm.name}</span>
+                                        <span className="text-xs text-muted-foreground">{vm.ipAddress}</span>
+                                      </div>
+                                    </div>
+                                    {formData.selectedVMs.includes(vm.id) && (
+                                      <div className="mt-2 pl-7">
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs font-medium">Weight:</Label>
+                                          <Input
+                                            type="number"
+                                            min="0"
+                                            max="255"
+                                            value={formData.vmWeights[vm.id] || 100}
+                                            onChange={(e) => {
+                                              const weight = parseInt(e.target.value) || 0
                                               setFormData(prev => ({
                                                 ...prev,
-                                                selectedVMs: [...prev.selectedVMs, row.id],
-                                                vmWeights: { ...prev.vmWeights, [row.id]: 100 }
+                                                vmWeights: { ...prev.vmWeights, [vm.id]: weight }
                                               }))
-                                            }
-                                          }}
-                                          className={`rounded border-gray-300 text-black focus:ring-black focus:ring-2 h-4 w-4 ${
-                                            isDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'cursor-pointer bg-white hover:bg-gray-50'
-                                          }`}
-                                        />
-                                      )
-                                    },
-                                  },
-                                  {
-                                    key: "name",
-                                    label: "Name",
-                                    sortable: true,
-                                    render: (value: string, row: any) => (
-                                      <div className={`font-medium text-sm ${
-                                        row.isActive 
-                                          ? 'hover:underline cursor-pointer text-gray-900' 
-                                          : 'text-gray-400 cursor-not-allowed'
-                                      }`}>
-                                        {value}
+                                            }}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="w-20 h-7 text-xs"
+                                            placeholder="100"
+                                          />
+                                          <span className="text-xs text-muted-foreground">(0-255)</span>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          Higher weights receive more traffic
+                                        </p>
                                       </div>
-                                    ),
-                                  },
-                                  {
-                                    key: "id",
-                                    label: "Id",
-                                    sortable: true,
-                                    render: (value: string, row: any) => (
-                                      <div className={`text-sm font-mono ${
-                                        row.isActive ? 'text-muted-foreground' : 'text-gray-300'
-                                      }`}>
-                                        {value}
-                                      </div>
-                                    ),
-                                  },
-                                  {
-                                    key: "status",
-                                    label: "Status",
-                                    render: (value: string) => (
-                                      <StatusBadge status={value} />
-                                    ),
-                                  },
-                                ]}
-                                searchable={false}
-                                enableSearch={false}
-                                pagination={false}
-                                className="max-h-[400px]"
-                              />
-                            </div>
-                          ) : (
-                            <div className="text-center text-muted-foreground py-8 border-2 border-dashed border-gray-200 rounded-lg">
-                              <p>No VMs available in selected VPC</p>
-                            </div>
-                          )}
-                        </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </>
+                            ) : (
+                              <div className="text-center text-muted-foreground py-4 px-2">
+                                No VMs available in selected VPC
+                              </div>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       ) : (
-                        <div className="text-center text-muted-foreground py-12 border-2 border-dashed border-gray-200 rounded-lg">
-                          <div className="flex flex-col items-center space-y-3">
-                            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">No VPC Selected</p>
-                              <p className="text-xs text-gray-500 mt-1">Please select a VPC above to view available VMs</p>
-                            </div>
-                          </div>
-                        </div>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between cursor-not-allowed" 
+                          disabled
+                        >
+                          <span className="text-muted-foreground">Please select a VPC first</span>
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </Button>
                       )}
                       {formTouched && formData.selectedVMs.length === 0 && (
                         <p className="text-xs text-red-600 mt-1">Please select at least one VM</p>
