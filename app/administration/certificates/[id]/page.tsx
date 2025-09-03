@@ -14,6 +14,8 @@ import {
 import { Globe, Trash2, Shield, MoreVertical, Eye } from "lucide-react"
 import { DetailGrid } from "@/components/detail-grid"
 import { useState, use } from "react"
+import { toast } from "@/hooks/use-toast"
+import { DeleteCertificateModal } from "@/components/modals/delete-certificate-modal"
 
 interface CertificateDetails {
   id: string
@@ -39,6 +41,7 @@ interface CertificateDetails {
 
 export default function CertificateDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [selectedCertificate, setSelectedCertificate] = useState<CertificateDetails | null>(null)
   const resolvedParams = use(params)
 
   // Mock certificate data - in real app would fetch based on params.id
@@ -71,7 +74,23 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
 
 
   const handleDelete = () => {
+    // Always open the delete modal - it will show appropriate content based on usage
+    setSelectedCertificate(certificate)
     setIsDeleteModalOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    // Mock delete operation
+    if (selectedCertificate) {
+      console.log("Deleting certificate:", selectedCertificate.certificateName)
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
+  }
+
+  const handleDeleteModalClose = () => {
+    setIsDeleteModalOpen(false)
+    setSelectedCertificate(null)
   }
 
   const formatDate = (dateString: string) => {
@@ -148,12 +167,12 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
         </div>
 
         <div className="space-y-6">
-          {/* Row 1: Primary Domain | Status | VPC */}
+          {/* Row 1: Certificate ID | Status | VPC */}
           <DetailGrid>
-            {/* Primary Domain */}
+            {/* Certificate ID */}
             <div>
-              <span className="text-sm font-medium text-muted-foreground mb-2 block">Primary Domain</span>
-              <span className="text-sm font-medium text-foreground">{certificate.primaryDomain}</span>
+              <span className="text-sm font-medium text-muted-foreground mb-2 block">Certificate ID</span>
+              <span className="text-sm font-medium text-foreground">{certificate.certificateId}</span>
             </div>
 
             {/* Status */}
@@ -169,24 +188,12 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
             </div>
           </DetailGrid>
 
-          {/* Row 2: In Use | Tags */}
+          {/* Row 2: In Use */}
           <DetailGrid>
             {/* In Use */}
             <div>
               <span className="text-sm font-medium text-muted-foreground mb-2 block">In Use</span>
               <span className="text-sm font-medium text-foreground">Yes</span>
-            </div>
-
-            {/* Tags */}
-            <div>
-              <span className="text-sm font-medium text-muted-foreground mb-2 block">Tags</span>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="text-xs">production</Badge>
-                <Badge variant="outline" className="text-xs">ssl</Badge>
-                <Badge variant="outline" className="text-xs">web</Badge>
-                <Badge variant="outline" className="text-xs">api</Badge>
-                <Badge variant="outline" className="text-xs">secure</Badge>
-              </div>
             </div>
           </DetailGrid>
 
@@ -198,21 +205,7 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
             </div>
           </div>
 
-          {/* Row 3: Environment | Team | Cost Center */}
-          <DetailGrid>
-            <div>
-              <span className="text-sm font-medium text-muted-foreground mb-2 block">Environment</span>
-              <span className="text-sm font-medium text-foreground">Production</span>
-            </div>
-            <div>
-              <span className="text-sm font-medium text-muted-foreground mb-2 block">Team</span>
-              <span className="text-sm font-medium text-foreground">Platform Engineering</span>
-            </div>
-            <div>
-              <span className="text-sm font-medium text-muted-foreground mb-2 block">Cost Center</span>
-              <span className="text-sm font-medium text-foreground">IT-001</span>
-            </div>
-          </DetailGrid>
+
         </div>
       </div>
 
@@ -224,6 +217,11 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
             <CardTitle className="text-lg">Certificate Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div>
+              <Label>Certificate ID</Label>
+              <p className="text-sm font-medium">{certificate.certificateId}</p>
+            </div>
+            
             <div>
               <Label>Domain Name (CN)</Label>
               <p className="text-sm font-medium">{certificate.primaryDomain}</p>
@@ -365,6 +363,14 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
           </CardContent>
         </Card>
       </div>
+
+      {/* Delete Certificate Modal */}
+      <DeleteCertificateModal
+        open={isDeleteModalOpen}
+        onClose={handleDeleteModalClose}
+        certificate={selectedCertificate}
+        onConfirm={handleDeleteConfirm}
+      />
     </PageLayout>
   )
 }

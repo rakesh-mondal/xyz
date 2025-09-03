@@ -19,6 +19,7 @@ import {
 import { shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
 import { useRouter } from "next/navigation"
 import { DeleteCertificateModal } from "@/components/modals/delete-certificate-modal"
+import { toast } from "@/hooks/use-toast"
 
 // Certificate interface
 interface Certificate {
@@ -195,6 +196,7 @@ export default function CertificateManagerPage() {
   }
 
   const handleDeleteCertificate = (certificate: Certificate) => {
+    // Always open the delete modal - it will show appropriate content based on usage
     setSelectedCertificate(certificate)
     setIsDeleteModalOpen(true)
   }
@@ -224,6 +226,8 @@ export default function CertificateManagerPage() {
 
   // Add "All VPCs" option at the beginning
   vpcOptions.unshift({ value: "all", label: "All VPCs" })
+
+
 
   const formatExpirationDate = (dateString: string, status: Certificate['status']) => {
     const formattedDate = new Date(dateString).toLocaleDateString('en-US', {
@@ -314,16 +318,7 @@ export default function CertificateManagerPage() {
       sortable: true,
       render: (value: Certificate['status']) => getStatusBadge(value),
     },
-    {
-      key: "vpc",
-      label: "VPC",
-      sortable: true,
-      render: (value: string) => (
-        <div className="font-mono text-sm text-muted-foreground">
-          {value}
-        </div>
-      ),
-    },
+
     {
       key: "inUse",
       label: "In Use",

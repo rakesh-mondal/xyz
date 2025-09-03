@@ -14,11 +14,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
+import { Shield, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface Certificate {
   id: string
   certificateName: string
+  inUse: "Yes" | "No"
 }
 
 interface DeleteCertificateModalProps {
@@ -86,6 +88,8 @@ export function DeleteCertificateModal({
 
   if (!certificate) return null
 
+  const isInUse = certificate.inUse === "Yes"
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
@@ -96,45 +100,75 @@ export function DeleteCertificateModal({
       >
         <DialogHeader className="space-y-3 pb-4">
           <DialogTitle className="text-base font-semibold text-black pr-8">
-            Please enter the certificate name to confirm deletion
+            {isInUse ? "Cannot Delete Certificate" : "Please enter the certificate name to confirm deletion"}
           </DialogTitle>
           <hr className="border-border" />
           <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-            Are you sure you want to delete this certificate?
+            {isInUse 
+              ? "This certificate is currently in use and cannot be deleted."
+              : "Are you sure you want to delete this certificate?"
+            }
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6 py-2">
           <div className="p-3 bg-muted rounded-md">
-            <Label className="text-xs text-muted-foreground">Certificate Name to delete:</Label>
+            <Label className="text-xs text-muted-foreground">Certificate Name:</Label>
             <div className="font-mono font-medium text-sm mt-1">{certificate.certificateName}</div>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="certificate-name">Type certificate name to confirm *</Label>
-            <Input
-              id="certificate-name"
-              ref={inputRef}
-              value={certificateName}
-              onChange={handleInputChange}
-              onPaste={handlePaste}
-              onKeyDown={handleKeyDown}
-              placeholder={`Type "${certificate.certificateName}" to confirm`}
-              className="font-mono"
-              autoComplete="off"
-            />
-            <p className="text-xs text-muted-foreground">
-              Pasting is disabled. You must type the certificate name manually.
-            </p>
-          </div>
+          {isInUse ? (
+            // Show instructions for certificates in use
+            <div className="space-y-4">
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Certificate in Use:</strong> This certificate cannot be deleted because it is currently associated with one or more Krutrim resources.
+                </AlertDescription>
+              </Alert>
+              
+              <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-md">
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium text-gray-900">To delete this certificate:</h4>
+                  <ul className="text-sm text-gray-700 space-y-2 list-disc list-outside ml-4">
+                    <li>Navigate to the resources using this certificate</li>
+                    <li>Disassociate the certificate from all load balancers, applications, or services</li>
+                    <li>Verify the certificate is no longer in use</li>
+                    <li>Return here to delete the certificate</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Show normal deletion flow for certificates not in use
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="certificate-name">Type certificate name to confirm *</Label>
+                <Input
+                  id="certificate-name"
+                  ref={inputRef}
+                  value={certificateName}
+                  onChange={handleInputChange}
+                  onPaste={handlePaste}
+                  onKeyDown={handleKeyDown}
+                  placeholder={`Type "${certificate.certificateName}" to confirm`}
+                  className="font-mono"
+                  autoComplete="off"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Pasting is disabled. You must type the certificate name manually.
+                </p>
+              </div>
 
-          <Alert variant="destructive">
-            <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Warning:</strong> This will permanently delete certificate "{certificate.certificateName}". 
-              This action cannot be undone.
-            </AlertDescription>
-          </Alert>
+              <Alert variant="destructive">
+                <ExclamationTriangleIcon className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Warning:</strong> This will permanently delete certificate "{certificate.certificateName}". 
+                  This action cannot be undone.
+                </AlertDescription>
+              </Alert>
+            </>
+          )}
         </div>
         
         <DialogFooter className="flex gap-3 sm:justify-end" style={{ paddingTop: '.5rem' }}>
@@ -145,17 +179,19 @@ export function DeleteCertificateModal({
             className="min-w-20"
             disabled={isDeleting}
           >
-            Cancel
+            {isInUse ? "Close" : "Cancel"}
           </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={handleConfirm}
-            className="min-w-32"
-            disabled={!isConfirmationValid || isDeleting}
-          >
-            {isDeleting ? "Deleting..." : "Confirm deletion"}
-          </Button>
+          {!isInUse && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirm}
+              className="min-w-32"
+              disabled={!isConfirmationValid || isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Confirm deletion"}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
