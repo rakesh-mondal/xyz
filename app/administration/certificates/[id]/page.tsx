@@ -153,7 +153,7 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
             {/* Primary Domain */}
             <div>
               <span className="text-sm font-medium text-muted-foreground mb-2 block">Primary Domain</span>
-              <span className="font-medium text-foreground">{certificate.primaryDomain}</span>
+              <span className="text-sm font-medium text-foreground">{certificate.primaryDomain}</span>
             </div>
 
             {/* Status */}
@@ -165,7 +165,7 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
             {/* VPC */}
             <div>
               <span className="text-sm font-medium text-muted-foreground mb-2 block">VPC</span>
-              <span className="font-medium text-foreground">{certificate.vpc}</span>
+              <span className="text-sm font-medium text-foreground">{certificate.vpc}</span>
             </div>
           </DetailGrid>
 
@@ -174,7 +174,7 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
             {/* In Use */}
             <div>
               <span className="text-sm font-medium text-muted-foreground mb-2 block">In Use</span>
-              <span className="font-medium text-foreground">Yes</span>
+              <span className="text-sm font-medium text-foreground">Yes</span>
             </div>
 
             {/* Tags */}
@@ -202,15 +202,15 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
           <DetailGrid>
             <div>
               <span className="text-sm font-medium text-muted-foreground mb-2 block">Environment</span>
-              <span className="font-medium text-foreground">Production</span>
+              <span className="text-sm font-medium text-foreground">Production</span>
             </div>
             <div>
               <span className="text-sm font-medium text-muted-foreground mb-2 block">Team</span>
-              <span className="font-medium text-foreground">Platform Engineering</span>
+              <span className="text-sm font-medium text-foreground">Platform Engineering</span>
             </div>
             <div>
               <span className="text-sm font-medium text-muted-foreground mb-2 block">Cost Center</span>
-              <span className="font-medium text-foreground">IT-001</span>
+              <span className="text-sm font-medium text-foreground">IT-001</span>
             </div>
           </DetailGrid>
         </div>
