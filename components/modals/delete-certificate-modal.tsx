@@ -119,7 +119,7 @@ export function DeleteCertificateModal({
           
           {isInUse ? (
             // Show instructions for certificates in use
-            <div className="space-y-4">
+            <>
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
@@ -132,13 +132,13 @@ export function DeleteCertificateModal({
                   <h4 className="text-sm font-medium text-gray-900">To delete this certificate:</h4>
                   <ul className="text-sm text-gray-700 space-y-2 list-disc list-outside ml-4">
                     <li>Navigate to the resources using this certificate</li>
-                    <li>Disassociate the certificate from all load balancers, applications, or services</li>
+                    <li>Disassociate the certificate from all associated Krutrim resources</li>
                     <li>Verify the certificate is no longer in use</li>
                     <li>Return here to delete the certificate</li>
                   </ul>
                 </div>
               </div>
-            </div>
+            </>
           ) : (
             // Show normal deletion flow for certificates not in use
             <>
