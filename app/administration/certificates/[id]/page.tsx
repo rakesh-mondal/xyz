@@ -5,7 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Globe, Trash2, Shield } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Globe, Trash2, Shield, MoreVertical, Eye } from "lucide-react"
 import { DetailGrid } from "@/components/detail-grid"
 import { useState, use } from "react"
 
@@ -13,18 +19,21 @@ interface CertificateDetails {
   id: string
   certificateName: string
   certificateId: string
+  krn: string
   primaryDomain: string
-  type: "Generic" | "F5"
+  type: "Generic"
   expirationDate: string
   issueDate: string
   status: "active" | "expired" | "expiring-soon" | "pending"
   inUse: "Yes" | "No"
+  vpc: string
   issuer: string
   serialNumber: string
   fingerprint: string
   keySize: string
   signatureAlgorithm: string
   alternativeNames: string[]
+  tags: { [key: string]: string }
   description?: string
 }
 
@@ -35,20 +44,27 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
   // Mock certificate data - in real app would fetch based on params.id
   const certificate: CertificateDetails = {
     id: resolvedParams.id,
-    certificateName: "production-ssl-cert",
+    certificateName: "prod-a",
     certificateId: "cert-prod-12345",
-    primaryDomain: "api.production.com",
+    krn: "krn:krutrim:certificates:in-bangalore-1:123456789:certificate/cert-abc123",
+    primaryDomain: "api.example.com",
     type: "Generic",
-    expirationDate: "2024-06-15T00:00:00Z",
-    issueDate: "2023-06-15T00:00:00Z",
+    expirationDate: "2024-12-15T00:00:00Z",
+    issueDate: "2024-03-15T00:00:00Z",
     status: "active",
     inUse: "Yes",
+    vpc: "vpc-prod-001",
     issuer: "Let's Encrypt Authority X3",
-    serialNumber: "03:B2:C4:DE:F6:8A:12:34:56:78:9A:BC:DE:F0:12:34",
+    serialNumber: "03:A1:B2:C3:D4:E5:F6:78:90:AB:CD:EF",
     fingerprint: "SHA256: 12:34:56:78:9A:BC:DE:F0:12:34:56:78:9A:BC:DE:F0:12:34:56:78:9A:BC:DE:F0:12:34:56:78:9A:BC",
     keySize: "2048 bits",
     signatureAlgorithm: "SHA256withRSA",
-    alternativeNames: ["api.production.com", "www.api.production.com"],
+    alternativeNames: ["api-v2.example.com", "staging-api.example.com", "dev-api.example.com"],
+    tags: {
+      "Environment": "Production",
+      "Team": "Platform", 
+      "Cost Center": "Engineering"
+    },
     description: "SSL certificate for production API endpoints"
   }
 
@@ -62,9 +78,7 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric'
     })
   }
 
@@ -113,7 +127,7 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
       customBreadcrumbs={customBreadcrumbs} 
       hideViewDocs={true}
     >
-      {/* Certificate Basic Information */}
+      {/* General Information */}
       <div className="mb-6 group relative" style={{
         borderRadius: '16px',
         border: '4px solid #FFF',
@@ -132,68 +146,74 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-        
-        <DetailGrid>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Shield className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">Certificate ID</span>
+
+        <div className="space-y-6">
+          {/* Row 1: Primary Domain | Status | VPC */}
+          <DetailGrid>
+            {/* Primary Domain */}
+            <div>
+              <span className="text-sm font-medium text-muted-foreground mb-2 block">Primary Domain</span>
+              <span className="font-medium text-foreground">{certificate.primaryDomain}</span>
             </div>
-            <p className="font-mono text-sm">{certificate.certificateId}</p>
+
+            {/* Status */}
+            <div>
+              <span className="text-sm font-medium text-muted-foreground mb-2 block">Status</span>
+              {getStatusBadge(certificate.status)}
+            </div>
+
+            {/* VPC */}
+            <div>
+              <span className="text-sm font-medium text-muted-foreground mb-2 block">VPC</span>
+              <span className="font-medium text-foreground">{certificate.vpc}</span>
+            </div>
+          </DetailGrid>
+
+          {/* Row 2: In Use | Tags */}
+          <DetailGrid>
+            {/* In Use */}
+            <div>
+              <span className="text-sm font-medium text-muted-foreground mb-2 block">In Use</span>
+              <span className="font-medium text-foreground">Yes</span>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <span className="text-sm font-medium text-muted-foreground mb-2 block">Tags</span>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline" className="text-xs">production</Badge>
+                <Badge variant="outline" className="text-xs">ssl</Badge>
+                <Badge variant="outline" className="text-xs">web</Badge>
+                <Badge variant="outline" className="text-xs">api</Badge>
+                <Badge variant="outline" className="text-xs">secure</Badge>
+              </div>
+            </div>
+          </DetailGrid>
+
+          {/* KRN Section - Full Width */}
+          <div>
+            <span className="text-sm font-medium text-muted-foreground mb-2 block">KRN (Krutrim Resource Name)</span>
+            <div className="bg-white/60 rounded-lg p-3 border border-gray-200">
+              <code className="text-sm font-mono break-all text-foreground">{certificate.krn}</code>
+            </div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">Primary Domain</span>
-            </div>
-            <p className="font-medium">{certificate.primaryDomain}</p>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-muted-foreground">Type</span>
-            </div>
-            <div className="text-sm">
-              {certificate.type}
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-muted-foreground">Status</span>
-            </div>
-            {getStatusBadge(certificate.status)}
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-muted-foreground">Expiration</span>
+          {/* Row 3: Environment | Team | Cost Center */}
+          <DetailGrid>
+            <div>
+              <span className="text-sm font-medium text-muted-foreground mb-2 block">Environment</span>
+              <span className="font-medium text-foreground">Production</span>
             </div>
             <div>
-              {formatExpirationDate(certificate.expirationDate, certificate.status)}
+              <span className="text-sm font-medium text-muted-foreground mb-2 block">Team</span>
+              <span className="font-medium text-foreground">Platform Engineering</span>
             </div>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-muted-foreground">In Use</span>
+            <div>
+              <span className="text-sm font-medium text-muted-foreground mb-2 block">Cost Center</span>
+              <span className="font-medium text-foreground">IT-001</span>
             </div>
-            <Badge variant={certificate.inUse === "Yes" ? "default" : "secondary"} className={
-              certificate.inUse === "Yes" 
-                ? "bg-green-100 text-green-700 border-green-200" 
-                : "bg-gray-100 text-gray-700 border-gray-200"
-            }>
-              {certificate.inUse}
-            </Badge>
-          </div>
-        </DetailGrid>
-
-        {certificate.description && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <p className="text-sm text-muted-foreground">{certificate.description}</p>
-          </div>
-        )}
+          </DetailGrid>
+        </div>
       </div>
 
       {/* Detailed Certificate Information */}
@@ -201,68 +221,146 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
         {/* Certificate Details */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              Certificate Details
-            </CardTitle>
+            <CardTitle className="text-lg">Certificate Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Issuer</Label>
-              <p className="font-medium">{certificate.issuer}</p>
+              <Label>Domain Name (CN)</Label>
+              <p className="text-sm font-medium">{certificate.primaryDomain}</p>
             </div>
             
-            <div>
-              <Label>Serial Number</Label>
-              <p className="font-mono text-sm">{certificate.serialNumber}</p>
-            </div>
-            
-            <div>
-              <Label>Key Size</Label>
-              <p className="text-sm">{certificate.keySize}</p>
-            </div>
-            
-            <div>
-              <Label>Signature Algorithm</Label>
-              <p className="text-sm">{certificate.signatureAlgorithm}</p>
-            </div>
-
-            <div>
-              <Label>Issue Date</Label>
-              <div>
-                <span className="text-sm">{formatDate(certificate.issueDate)}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Alternative Names & Security */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" />
-              Domain Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
             <div>
               <Label>Subject Alternative Names</Label>
-              <div className="mt-2 space-y-1">
+              <div className="flex flex-wrap gap-2 mt-1">
                 {certificate.alternativeNames.map((name, index) => (
-                  <Badge key={index} variant="outline" className="mr-2 mb-1">
+                  <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-700 border-gray-200 text-xs px-2 py-1">
                     {name}
                   </Badge>
                 ))}
               </div>
             </div>
-
-            <Separator />
-
+            
             <div>
-              <Label>Fingerprint (SHA256)</Label>
-              <p className="font-mono text-xs break-all bg-gray-50 p-2 rounded mt-1">
-                {certificate.fingerprint}
-              </p>
+              <Label>Serial Number</Label>
+              <p className="font-mono text-sm font-medium">{certificate.serialNumber}</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Issuer</Label>
+                <p className="text-sm font-medium">{certificate.issuer}</p>
+              </div>
+              
+              <div>
+                <Label>Signature Algorithm</Label>
+                <p className="text-sm font-medium">{certificate.signatureAlgorithm}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Valid From</Label>
+                <p className="text-sm font-medium">{formatDate(certificate.issueDate)}</p>
+              </div>
+
+              <div>
+                <Label>Valid To</Label>
+                <p className="text-sm font-medium">{formatDate(certificate.expirationDate)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Associated Resources */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Associated Resources</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="h-10 px-3 text-left align-middle text-xs font-medium text-muted-foreground">
+                      Name
+                    </th>
+                    <th className="h-10 px-3 text-left align-middle text-xs font-medium text-muted-foreground">
+                      Type
+                    </th>
+                    <th className="h-10 px-3 text-right align-middle text-xs font-medium text-muted-foreground">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b transition-colors hover:bg-muted/50">
+                    <td className="p-3 align-middle">
+                      <div className="flex items-center gap-2">
+                        <a 
+                          href="/networking/load-balancing/balancer/prod-load-balancer" 
+                          className="text-primary hover:underline text-sm"
+                        >
+                          prod-load-balancer
+                        </a>
+                        <svg className="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </div>
+                    </td>
+                    <td className="p-3 align-middle text-sm">Load Balancer</td>
+                    <td className="p-3 align-middle">
+                      <div className="flex items-center justify-end">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => window.open('/networking/load-balancing/balancer/prod-load-balancer', '_blank')}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr className="border-b transition-colors hover:bg-muted/50">
+                    <td className="p-3 align-middle">
+                      <div className="flex items-center gap-2">
+                        <a 
+                          href="/networking/api-gateway/api-gateway" 
+                          className="text-primary hover:underline text-sm"
+                        >
+                          api-gateway
+                        </a>
+                        <svg className="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </div>
+                    </td>
+                    <td className="p-3 align-middle text-sm">API Gateway</td>
+                    <td className="p-3 align-middle">
+                      <div className="flex items-center justify-end">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => window.open('/networking/api-gateway/api-gateway', '_blank')}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>

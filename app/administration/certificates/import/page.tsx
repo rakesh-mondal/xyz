@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+
 import { Upload, FileText, ChevronDown, Search, Check, Trash2 } from "lucide-react"
 import { vpcs } from "@/lib/data"
 import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
@@ -19,10 +19,7 @@ import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
 interface CertificateImportData {
   certificateName: string
   certificateFile: File | null
-  type: "Generic" | "F5"
   vpc: string
-  tenant: string
-  partitionId: string
   tags: Array<{ key: string; value: string }>
 }
 
@@ -35,10 +32,7 @@ export default function ImportCertificatePage() {
   const [formData, setFormData] = useState<CertificateImportData>({
     certificateName: "",
     certificateFile: null,
-    type: "Generic",
     vpc: "",
-    tenant: "",
-    partitionId: "",
     tags: [{ key: "", value: "" }]
   })
 
@@ -47,10 +41,6 @@ export default function ImportCertificatePage() {
     const hasValidName = formData.certificateName.trim().length > 0
     const hasValidVPC = formData.vpc.length > 0
     const hasValidFile = formData.certificateFile !== null
-    
-    if (formData.type === "F5") {
-      return hasValidName && hasValidVPC && hasValidFile && formData.tenant && formData.partitionId
-    }
     
     return hasValidName && hasValidVPC && hasValidFile
   }
@@ -289,26 +279,12 @@ export default function ImportCertificatePage() {
                         <span className="text-muted-foreground">Name:</span>
                         <span className="font-medium">{formData.certificateName}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Type:</span>
-                        <span className="font-medium">{formData.type}</span>
-                      </div>
+
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">VPC:</span>
                         <span className="font-medium">{vpcs.find(v => v.id === formData.vpc)?.name}</span>
                       </div>
-                      {formData.type === "F5" && (
-                        <>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Tenant:</span>
-                            <span className="font-medium">{formData.tenant}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Partition ID:</span>
-                            <span className="font-medium">{formData.partitionId}</span>
-                          </div>
-                        </>
-                      )}
+
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Certificate File:</span>
                         <span className="font-medium">{formData.certificateFile?.name}</span>
@@ -379,59 +355,7 @@ export default function ImportCertificatePage() {
           <Card>
             <CardContent className="space-y-6 pt-6">
               <form onSubmit={handleSubmit}>
-                {/* Certificate Type Selection */}
-                <div className="mb-8">
-                  <div className="mb-5">
-                    <Label className="block mb-2 font-medium">Select Certificate Type</Label>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Choose the type of load balancer the certificate is intended for
-                    </p>
-                  </div>
-                  
-                  <RadioGroup 
-                    value={formData.type} 
-                    onValueChange={(value: any) => handleInputChange("type", value)}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                  >
-                    <Label 
-                      htmlFor="generic"
-                      className={`flex items-center space-x-2 border rounded-lg p-4 cursor-pointer transition-all hover:border-primary hover:shadow-sm ${
-                        formData.type === "Generic" 
-                          ? "border-primary bg-primary/5 shadow-sm" 
-                          : "border-gray-200"
-                      }`}
-                    >
-                      <RadioGroupItem value="Generic" id="generic" />
-                      <div className="flex-1">
-                        <div className="space-y-1">
-                          <div className="font-medium">Generic</div>
-                          <div className="text-xs text-muted-foreground">
-                            Standard SSL/TLS certificates for general use
-                          </div>
-                        </div>
-                      </div>
-                    </Label>
-                    
-                    <Label 
-                      htmlFor="f5"
-                      className={`flex items-center space-x-2 border rounded-lg p-4 cursor-pointer transition-all hover:border-primary hover:shadow-sm ${
-                        formData.type === "F5" 
-                          ? "border-primary bg-primary/5 shadow-sm" 
-                          : "border-gray-200"
-                      }`}
-                    >
-                      <RadioGroupItem value="F5" id="f5" />
-                      <div className="flex-1">
-                        <div className="space-y-1">
-                          <div className="font-medium">F5</div>
-                          <div className="text-xs text-muted-foreground">
-                            Certificates specifically for F5 load balancers
-                          </div>
-                        </div>
-                      </div>
-                    </Label>
-                  </RadioGroup>
-                </div>
+
 
                 {/* Certificate Details */}
                 <div className="mb-8">
@@ -455,54 +379,7 @@ export default function ImportCertificatePage() {
                     </p>
                   </div>
 
-                  {/* F5 Specific Fields */}
-                  {formData.type === "F5" && (
-                    <>
-                      {/* Tenant */}
-                      <div className="mb-5">
-                        <Label htmlFor="tenant" className="block mb-2 font-medium">
-                          Tenant <span className="text-destructive">*</span>
-                        </Label>
-                        <Select 
-                          value={formData.tenant} 
-                          onValueChange={(value) => handleInputChange("tenant", value)} 
-                          required
-                        >
-                          <SelectTrigger className={formTouched && !formData.tenant ? 'border-red-300 bg-red-50' : ''}>
-                            <SelectValue placeholder="Select tenant" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="tenant-1">Tenant 1</SelectItem>
-                            <SelectItem value="tenant-2">Tenant 2</SelectItem>
-                            <SelectItem value="tenant-3">Tenant 3</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Select the F5 tenant for this certificate
-                        </p>
-                      </div>
 
-                      {/* Partition ID */}
-                      <div className="mb-5">
-                        <Label htmlFor="partitionId" className="block mb-2 font-medium">
-                          Partition ID <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="partitionId"
-                          placeholder="Enter partition ID"
-                          value={formData.partitionId}
-                          onChange={(e) => handleInputChange("partitionId", e.target.value)}
-                          className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-                            formTouched && formData.type === "F5" && !formData.partitionId.trim() ? 'border-red-300 bg-red-50' : ''
-                          }`}
-                          required
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Specify the F5 partition ID
-                        </p>
-                      </div>
-                    </>
-                  )}
 
                   {/* VPC Selection */}
                   <div className="mb-5">
@@ -519,9 +396,9 @@ export default function ImportCertificatePage() {
                   <FileUploadField
                     label="Certificate File"
                     field="certificateFile"
-                    accept=".crt,.cer,.pem"
+                    accept=".p12,.pem"
                     required={true}
-                    description="Upload your SSL/TLS certificate file (.crt, .cer, .pem)"
+                    description="Upload your SSL/TLS certificate file (.p12, .pem)"
                   />
 
                   {/* Tags */}
@@ -609,27 +486,27 @@ export default function ImportCertificatePage() {
               <ul className="space-y-3">
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use certificates from trusted Certificate Authorities (CAs)</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use certificates issued by trusted Certificate Authorities (CAs).</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Keep private keys secure and never share them</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Ensure the certificate file is a bundled package containing the server certificate, private key, and full chain of intermediate certificates.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Monitor certificate expiration dates proactively</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Keep private keys secure and never share them.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use descriptive names for easy identification</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Use clear, descriptive names for easy identification.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Choose the correct type (Generic or F5) for your use case</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Apply tags to organize and track certificates efficiently.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Tags help organize and track certificates efficiently</span>
+                  <span className="text-muted-foreground" style={{ fontSize: '13px' }}>Keep file size under 5 MB.</span>
                 </li>
               </ul>
             </CardContent>

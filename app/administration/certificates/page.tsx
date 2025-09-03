@@ -26,13 +26,21 @@ interface Certificate {
   certificateName: string
   certificateId: string
   primaryDomain: string
-  type: "Generic" | "F5"
+  type: "Generic"
   expirationDate: string
   status: "active" | "expired" | "expiring-soon" | "pending"
   inUse: "Yes" | "No"
+  vpc: string
 }
 
-// Mock certificate data
+// Helper function to get relative dates
+const getRelativeDate = (daysFromNow: number): string => {
+  const date = new Date()
+  date.setDate(date.getDate() + daysFromNow)
+  return date.toISOString()
+}
+
+// Mock certificate data with realistic relative dates
 const mockCertificates: Certificate[] = [
   {
     id: "cert-1",
@@ -40,19 +48,21 @@ const mockCertificates: Certificate[] = [
     certificateId: "cert-prod-12345",
     primaryDomain: "api.production.com",
     type: "Generic",
-    expirationDate: "2024-06-15T00:00:00Z",
+    expirationDate: getRelativeDate(95), // 95 days from now - Active
     status: "active",
-    inUse: "Yes"
+    inUse: "Yes",
+    vpc: "vpc-prod-001"
   },
   {
     id: "cert-2", 
     certificateName: "staging-ssl-cert",
     certificateId: "cert-stage-67890",
     primaryDomain: "api.staging.com",
-    type: "F5",
-    expirationDate: "2024-03-30T00:00:00Z",
+    type: "Generic",
+    expirationDate: getRelativeDate(15), // 15 days from now - Expiring soon
     status: "expiring-soon",
-    inUse: "Yes"
+    inUse: "Yes",
+    vpc: "vpc-staging-001"
   },
   {
     id: "cert-3",
@@ -60,19 +70,21 @@ const mockCertificates: Certificate[] = [
     certificateId: "cert-dev-11111",
     primaryDomain: "*.development.com",
     type: "Generic", 
-    expirationDate: "2024-12-20T00:00:00Z",
+    expirationDate: getRelativeDate(180), // 180 days from now - Active
     status: "active",
-    inUse: "No"
+    inUse: "No",
+    vpc: "vpc-dev-001"
   },
   {
     id: "cert-4",
     certificateName: "code-signing-cert",
     certificateId: "cert-code-22222",
     primaryDomain: "signing.company.com",
-    type: "F5",
-    expirationDate: "2023-12-01T00:00:00Z",
+    type: "Generic",
+    expirationDate: getRelativeDate(-45), // 45 days ago - Expired
     status: "expired",
-    inUse: "No"
+    inUse: "No",
+    vpc: "vpc-security-001"
   },
   {
     id: "cert-5",
@@ -80,19 +92,65 @@ const mockCertificates: Certificate[] = [
     certificateId: "cert-client-33333",
     primaryDomain: "client.secure.com",
     type: "Generic", 
-    expirationDate: "2024-09-10T00:00:00Z",
+    expirationDate: getRelativeDate(25), // 25 days from now - Expiring soon
     status: "active",
-    inUse: "Yes"
+    inUse: "Yes",
+    vpc: "vpc-prod-001"
   },
   {
     id: "cert-6",
     certificateName: "load-balancer-cert",
     certificateId: "cert-lb-44444",
     primaryDomain: "lb.production.com",
-    type: "F5",
-    expirationDate: "2024-04-25T00:00:00Z",
+    type: "Generic",
+    expirationDate: getRelativeDate(7), // 7 days from now - Expiring soon
     status: "expiring-soon",
-    inUse: "Yes"
+    inUse: "Yes",
+    vpc: "vpc-prod-001"
+  },
+  {
+    id: "cert-7",
+    certificateName: "backup-ssl-cert",
+    certificateId: "cert-backup-55555",
+    primaryDomain: "backup.company.com",
+    type: "Generic",
+    expirationDate: getRelativeDate(-10), // 10 days ago - Expired
+    status: "expired",
+    inUse: "No",
+    vpc: "vpc-backup-001"
+  },
+  {
+    id: "cert-8",
+    certificateName: "test-environment-cert",
+    certificateId: "cert-test-66666",
+    primaryDomain: "test.internal.com",
+    type: "Generic",
+    expirationDate: getRelativeDate(2), // 2 days from now - Expiring soon (critical)
+    status: "expiring-soon",
+    inUse: "Yes",
+    vpc: "vpc-dev-001"
+  },
+  {
+    id: "cert-9",
+    certificateName: "monitoring-cert",
+    certificateId: "cert-monitor-77777",
+    primaryDomain: "monitoring.company.com",
+    type: "Generic",
+    expirationDate: getRelativeDate(365), // 1 year from now - Active
+    status: "active",
+    inUse: "Yes",
+    vpc: "vpc-monitoring-001"
+  },
+  {
+    id: "cert-10",
+    certificateName: "legacy-app-cert",
+    certificateId: "cert-legacy-88888",
+    primaryDomain: "legacy.oldapp.com",
+    type: "Generic",
+    expirationDate: getRelativeDate(-120), // 4 months ago - Expired
+    status: "expired",
+    inUse: "No",
+    vpc: "vpc-legacy-001"
   }
 ]
 
@@ -103,7 +161,34 @@ export default function CertificateManagerPage() {
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
-  const filteredCertificates = certificates
+  // Function to determine if a certificate is expiring soon (within 30 days)
+  const isExpiringSoon = (expirationDate: string): boolean => {
+    const expDate = new Date(expirationDate)
+    const now = new Date()
+    const thirtyDaysFromNow = new Date()
+    thirtyDaysFromNow.setDate(now.getDate() + 30)
+    
+    return expDate > now && expDate <= thirtyDaysFromNow
+  }
+
+  // Update certificate statuses based on expiration dates
+  const processedCertificates = certificates.map(cert => {
+    const now = new Date()
+    const expDate = new Date(cert.expirationDate)
+    
+    let status: Certificate['status']
+    if (expDate < now) {
+      status = 'expired'
+    } else if (isExpiringSoon(cert.expirationDate)) {
+      status = 'expiring-soon'
+    } else {
+      status = 'active'
+    }
+    
+    return { ...cert, status }
+  })
+
+  const filteredCertificates = processedCertificates
 
   const handleViewDetails = (certificate: Certificate) => {
     router.push(`/administration/certificates/${certificate.id}`)
@@ -131,6 +216,14 @@ export default function CertificateManagerPage() {
   const handleRefresh = () => {
     window.location.reload()
   }
+
+  // Get unique VPCs for filter options
+  const vpcOptions = Array.from(new Set(processedCertificates.map(cert => cert.vpc)))
+    .map(vpc => ({ value: vpc, label: vpc }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+
+  // Add "All VPCs" option at the beginning
+  vpcOptions.unshift({ value: "all", label: "All VPCs" })
 
   const formatExpirationDate = (dateString: string, status: Certificate['status']) => {
     const formattedDate = new Date(dateString).toLocaleDateString('en-US', {
@@ -168,12 +261,7 @@ export default function CertificateManagerPage() {
     )
   }
 
-  // Certificate type filter options
-  const typeOptions = [
-    { value: "all", label: "All" },
-    { value: "Generic", label: "Generic" },
-    { value: "F5", label: "F5" },
-  ]
+
 
   // Table columns definition
   const columns = [
@@ -213,16 +301,7 @@ export default function CertificateManagerPage() {
         </div>
       ),
     },
-    {
-      key: "type",
-      label: "Type",
-      sortable: true,
-      render: (value: Certificate['type']) => (
-        <div className="text-sm">
-          {value}
-        </div>
-      ),
-    },
+
     {
       key: "expirationDate",
       label: "Expiration Date",
@@ -234,6 +313,16 @@ export default function CertificateManagerPage() {
       label: "Status",
       sortable: true,
       render: (value: Certificate['status']) => getStatusBadge(value),
+    },
+    {
+      key: "vpc",
+      label: "VPC",
+      sortable: true,
+      render: (value: string) => (
+        <div className="font-mono text-sm text-muted-foreground">
+          {value}
+        </div>
+      ),
     },
     {
       key: "inUse",
@@ -323,11 +412,10 @@ export default function CertificateManagerPage() {
           enablePagination={true}
           onRefresh={handleRefresh}
           enableAutoRefresh={true}
-          enableVpcFilter={false}
-          enableStatusFilter={true}
-          statusOptions={typeOptions}
-          statusFilterColumn="type"
-          searchPlaceholder="Search certificates..."
+          enableVpcFilter={true}
+          vpcOptions={vpcOptions}
+          enableStatusFilter={false}
+          searchPlaceholder="Search Certificate by name"
         />
       )}
 
