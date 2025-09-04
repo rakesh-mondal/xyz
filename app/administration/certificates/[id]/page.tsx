@@ -5,17 +5,37 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Globe, Trash2, Shield, MoreVertical, Eye } from "lucide-react"
+import { Globe, Trash2, Shield, Eye, MoreVertical } from "lucide-react"
 import { DetailGrid } from "@/components/detail-grid"
 import { useState, use } from "react"
 import { toast } from "@/hooks/use-toast"
 import { DeleteCertificateModal } from "@/components/modals/delete-certificate-modal"
+import { UpdateCertificateModal } from "@/components/modals/update-certificate-modal"
+
+// Custom Update Icon Component
+const UpdateIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="16" 
+    height="16" 
+    viewBox="0 0 12 12" 
+    className={className}
+  >
+    <title>cloud-upload-2</title>
+    <g fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" stroke="currentColor">
+      <line x1="6" y1="11.25" x2="6" y2="6"></line>
+      <path d="m10.767,7.215c.3-.412.483-.916.483-1.465,0-1.381-1.119-2.5-2.5-2.5-.243,0-.473.046-.695.11-.485-1.51-1.884-2.61-3.555-2.61C2.429.75.75,2.429.75,4.5c0,.847.292,1.62.765,2.248"></path>
+      <polyline points="3.5 8.25 6 5.75 8.5 8.25"></polyline>
+    </g>
+  </svg>
+)
 
 interface CertificateDetails {
   id: string
@@ -41,6 +61,7 @@ interface CertificateDetails {
 
 export default function CertificateDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
   const [selectedCertificate, setSelectedCertificate] = useState<CertificateDetails | null>(null)
   const resolvedParams = use(params)
 
@@ -90,6 +111,23 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
 
   const handleDeleteModalClose = () => {
     setIsDeleteModalOpen(false)
+    setSelectedCertificate(null)
+  }
+
+  const handleUpdateCertificate = () => {
+    setSelectedCertificate(certificate)
+    setIsUpdateModalOpen(true)
+  }
+
+  const handleUpdateConfirm = async (data: { certificateName: string; tags: { [key: string]: string } }) => {
+    // Mock update operation
+    console.log("Updating certificate:", certificate.certificateName, "with data:", data)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+  }
+
+  const handleUpdateModalClose = () => {
+    setIsUpdateModalOpen(false)
     setSelectedCertificate(null)
   }
 
@@ -154,52 +192,78 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
         boxShadow: '0px 8px 39.1px -9px rgba(0, 27, 135, 0.08)',
         padding: '1.5rem'
       }}>
-        {/* Overlay Delete Button */}
+        {/* Overlay Action Buttons */}
         <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDelete}
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleUpdateCertificate}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-blue-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                >
+                  <UpdateIcon className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Update Certificate</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDelete}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 bg-white/80 hover:bg-white border border-gray-200 shadow-sm"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Delete Certificate</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         <div className="space-y-6">
-          {/* Row 1: Certificate ID | Status | VPC */}
-          <DetailGrid>
-            {/* Certificate ID */}
-            <div>
-              <span className="text-sm font-medium text-muted-foreground mb-2 block">Certificate ID</span>
-              <span className="text-sm font-medium text-foreground">{certificate.certificateId}</span>
-            </div>
-
+          {/* Row 1: Status | VPC | In Use */}
+          <div className="col-span-full grid grid-cols-3 gap-4 mt-2">
             {/* Status */}
-            <div>
-              <span className="text-sm font-medium text-muted-foreground mb-2 block">Status</span>
-              {getStatusBadge(certificate.status)}
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
+              <div>
+                {getStatusBadge(certificate.status)}
+              </div>
             </div>
 
             {/* VPC */}
-            <div>
-              <span className="text-sm font-medium text-muted-foreground mb-2 block">VPC</span>
-              <span className="text-sm font-medium text-foreground">{certificate.vpc}</span>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VPC</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{certificate.vpc}</div>
             </div>
-          </DetailGrid>
 
-          {/* Row 2: In Use */}
-          <DetailGrid>
             {/* In Use */}
-            <div>
-              <span className="text-sm font-medium text-muted-foreground mb-2 block">In Use</span>
-              <span className="text-sm font-medium text-foreground">Yes</span>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>In Use</label>
+              <div>
+                <Badge variant={certificate.inUse === "Yes" ? "default" : "secondary"} className={
+                  certificate.inUse === "Yes" 
+                    ? "bg-green-100 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-700 cursor-default" 
+                    : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-100 hover:text-gray-700 cursor-default"
+                }>
+                  {certificate.inUse}
+                </Badge>
+              </div>
             </div>
-          </DetailGrid>
+          </div>
 
-          {/* KRN Section - Full Width */}
-          <div>
-            <span className="text-sm font-medium text-muted-foreground mb-2 block">KRN (Krutrim Resource Name)</span>
+          {/* Row 2: KRN (Krutrim Resource Name) */}
+          <div className="space-y-1">
+            <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>KRN (Krutrim Resource Name)</label>
             <div className="bg-white/60 rounded-lg p-3 border border-gray-200">
               <code className="text-sm font-mono break-all text-foreground">{certificate.krn}</code>
             </div>
@@ -217,11 +281,6 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
             <CardTitle className="text-lg">Certificate Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label>Certificate ID</Label>
-              <p className="text-sm font-medium">{certificate.certificateId}</p>
-            </div>
-            
             <div>
               <Label>Domain Name (CN)</Label>
               <p className="text-sm font-medium">{certificate.primaryDomain}</p>
@@ -370,6 +429,14 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
         onClose={handleDeleteModalClose}
         certificate={selectedCertificate}
         onConfirm={handleDeleteConfirm}
+      />
+
+      {/* Update Certificate Modal */}
+      <UpdateCertificateModal
+        open={isUpdateModalOpen}
+        onClose={handleUpdateModalClose}
+        certificate={selectedCertificate}
+        onConfirm={handleUpdateConfirm}
       />
     </PageLayout>
   )

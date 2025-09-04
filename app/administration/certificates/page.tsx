@@ -19,7 +19,26 @@ import {
 import { shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
 import { useRouter } from "next/navigation"
 import { DeleteCertificateModal } from "@/components/modals/delete-certificate-modal"
+import { UpdateCertificateModal } from "@/components/modals/update-certificate-modal"
 import { toast } from "@/hooks/use-toast"
+
+// Custom Update Icon Component
+const UpdateIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="16" 
+    height="16" 
+    viewBox="0 0 12 12" 
+    className={className}
+  >
+    <title>cloud-upload-2</title>
+    <g fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" stroke="currentColor">
+      <line x1="6" y1="11.25" x2="6" y2="6"></line>
+      <path d="m10.767,7.215c.3-.412.483-.916.483-1.465,0-1.381-1.119-2.5-2.5-2.5-.243,0-.473.046-.695.11-.485-1.51-1.884-2.61-3.555-2.61C2.429.75.75,2.429.75,4.5c0,.847.292,1.62.765,2.248"></path>
+      <polyline points="3.5 8.25 6 5.75 8.5 8.25"></polyline>
+    </g>
+  </svg>
+)
 
 // Certificate interface
 interface Certificate {
@@ -32,6 +51,7 @@ interface Certificate {
   status: "active" | "expired" | "expiring-soon" | "pending"
   inUse: "Yes" | "No"
   vpc: string
+  tags: { [key: string]: string }
 }
 
 // Helper function to get relative dates
@@ -52,7 +72,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(95), // 95 days from now - Active
     status: "active",
     inUse: "Yes",
-    vpc: "vpc-prod-001"
+    vpc: "vpc-prod-001",
+    tags: {
+      "Environment": "Production",
+      "Team": "Platform"
+    }
   },
   {
     id: "cert-2", 
@@ -63,7 +87,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(15), // 15 days from now - Expiring soon
     status: "expiring-soon",
     inUse: "Yes",
-    vpc: "vpc-staging-001"
+    vpc: "vpc-staging-001",
+    tags: {
+      "Environment": "Staging",
+      "Team": "Platform"
+    }
   },
   {
     id: "cert-3",
@@ -74,7 +102,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(180), // 180 days from now - Active
     status: "active",
     inUse: "No",
-    vpc: "vpc-dev-001"
+    vpc: "vpc-dev-001",
+    tags: {
+      "Environment": "Development",
+      "Team": "Platform"
+    }
   },
   {
     id: "cert-4",
@@ -85,7 +117,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(-45), // 45 days ago - Expired
     status: "expired",
     inUse: "No",
-    vpc: "vpc-security-001"
+    vpc: "vpc-security-001",
+    tags: {
+      "Environment": "Production",
+      "Team": "Security"
+    }
   },
   {
     id: "cert-5",
@@ -96,7 +132,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(25), // 25 days from now - Expiring soon
     status: "active",
     inUse: "Yes",
-    vpc: "vpc-prod-001"
+    vpc: "vpc-prod-001",
+    tags: {
+      "Environment": "Production",
+      "Team": "Security"
+    }
   },
   {
     id: "cert-6",
@@ -107,7 +147,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(7), // 7 days from now - Expiring soon
     status: "expiring-soon",
     inUse: "Yes",
-    vpc: "vpc-prod-001"
+    vpc: "vpc-prod-001",
+    tags: {
+      "Environment": "Production",
+      "Team": "Platform"
+    }
   },
   {
     id: "cert-7",
@@ -118,7 +162,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(-10), // 10 days ago - Expired
     status: "expired",
     inUse: "No",
-    vpc: "vpc-backup-001"
+    vpc: "vpc-backup-001",
+    tags: {
+      "Environment": "Production",
+      "Team": "Backup"
+    }
   },
   {
     id: "cert-8",
@@ -129,7 +177,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(2), // 2 days from now - Expiring soon (critical)
     status: "expiring-soon",
     inUse: "Yes",
-    vpc: "vpc-dev-001"
+    vpc: "vpc-dev-001",
+    tags: {
+      "Environment": "Testing",
+      "Team": "QA"
+    }
   },
   {
     id: "cert-9",
@@ -140,7 +192,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(365), // 1 year from now - Active
     status: "active",
     inUse: "Yes",
-    vpc: "vpc-monitoring-001"
+    vpc: "vpc-monitoring-001",
+    tags: {
+      "Environment": "Production",
+      "Team": "Monitoring"
+    }
   },
   {
     id: "cert-10",
@@ -151,7 +207,11 @@ const mockCertificates: Certificate[] = [
     expirationDate: getRelativeDate(-120), // 4 months ago - Expired
     status: "expired",
     inUse: "No",
-    vpc: "vpc-legacy-001"
+    vpc: "vpc-legacy-001",
+    tags: {
+      "Environment": "Production",
+      "Team": "Legacy"
+    }
   }
 ]
 
@@ -161,6 +221,7 @@ export default function CertificateManagerPage() {
   const [certificates] = useState(mockCertificates)
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
 
   // Function to determine if a certificate is expiring soon (within 30 days)
   const isExpiringSoon = (expirationDate: string): boolean => {
@@ -212,6 +273,25 @@ export default function CertificateManagerPage() {
 
   const handleDeleteModalClose = () => {
     setIsDeleteModalOpen(false)
+    setSelectedCertificate(null)
+  }
+
+  const handleUpdateCertificate = (certificate: Certificate) => {
+    setSelectedCertificate(certificate)
+    setIsUpdateModalOpen(true)
+  }
+
+  const handleUpdateConfirm = async (data: { certificateName: string; tags: { [key: string]: string } }) => {
+    // Mock update operation
+    if (selectedCertificate) {
+      console.log("Updating certificate:", selectedCertificate.certificateName, "with data:", data)
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
+  }
+
+  const handleUpdateModalClose = () => {
+    setIsUpdateModalOpen(false)
     setSelectedCertificate(null)
   }
 
@@ -284,17 +364,6 @@ export default function CertificateManagerPage() {
       ),
     },
     {
-      key: "certificateId", 
-      label: "Certificate ID",
-      sortable: true,
-      searchable: true,
-      render: (value: string) => (
-        <div className="font-mono text-sm text-muted-foreground">
-          {value}
-        </div>
-      ),
-    },
-    {
       key: "primaryDomain",
       label: "Primary Domain", 
       sortable: true,
@@ -349,6 +418,10 @@ export default function CertificateManagerPage() {
               <DropdownMenuItem onClick={() => handleViewDetails(row)}>
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleUpdateCertificate(row)}>
+                <UpdateIcon className="mr-2 h-4 w-4" />
+                Update Certificate
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
@@ -420,6 +493,14 @@ export default function CertificateManagerPage() {
         onClose={handleDeleteModalClose}
         certificate={selectedCertificate}
         onConfirm={handleDeleteConfirm}
+      />
+
+      {/* Update Certificate Modal */}
+      <UpdateCertificateModal
+        open={isUpdateModalOpen}
+        onClose={handleUpdateModalClose}
+        certificate={selectedCertificate}
+        onConfirm={handleUpdateConfirm}
       />
     </PageShell>
   )
