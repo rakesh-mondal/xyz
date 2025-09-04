@@ -17,6 +17,7 @@ import { StatusBadge } from "@/components/status-badge"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { EmptyState } from "@/components/ui/empty-state"
 import { getEmptyStateMessage } from "@/lib/demo-data-filter"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { 
   Plus, 
   Info, 
@@ -89,55 +90,37 @@ const hostedZoneData = {
 const mockDnsRecords = [
   {
     id: "record-1",
-    recordName: "www.example.com",
+    recordName: "www",
     type: "A",
-    value: "203.0.113.1",
+    value: "192.168.1.1",
     routingProtocol: "Simple",
     ttl: 300,
     status: "active"
   },
   {
     id: "record-2", 
-    recordName: "api.example.com",
+    recordName: "@",
     type: "A",
-    value: "203.0.113.50", 
-    routingProtocol: "Weighted",
-    ttl: 600,
+    value: "192.168.1.1", 
+    routingProtocol: "Simple",
+    ttl: 300,
     status: "active"
   },
   {
     id: "record-3",
-    recordName: "mail.example.com",
+    recordName: "mail",
     type: "MX", 
-    value: "10 mail.example.com",
+    value: "10 mail.example123.com",
     routingProtocol: "Simple",
     ttl: 3600,
-    status: "active"
-  },
-  {
-    id: "record-4",
-    recordName: "cdn.example.com",
-    type: "CNAME",
-    value: "cloudfront.amazonaws.com",
-    routingProtocol: "Simple", 
-    ttl: 300,
-    status: "active"
-  },
-  {
-    id: "record-5",
-    recordName: "example.com",
-    type: "TXT",
-    value: '"v=spf1 include:_spf.google.com ~all"',
-    routingProtocol: "Simple",
-    ttl: 300,
     status: "active"
   }
 ]
 
 const TTL_OPTIONS = [
+  { value: "300", label: "5 mins" },
   { value: "5", label: "5 secs" },
   { value: "60", label: "1 min" },
-  { value: "300", label: "5 mins" },
   { value: "1800", label: "30 mins" },
   { value: "3600", label: "60 mins" },
   { value: "86400", label: "24 hours" },
@@ -162,6 +145,14 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
   const [recordValues, setRecordValues] = useState<string[]>([""])
   const [selectedRecord, setSelectedRecord] = useState<any>(null)
   const [isDeleteRecordModalOpen, setIsDeleteRecordModalOpen] = useState(false)
+  const [isEditRecordModalOpen, setIsEditRecordModalOpen] = useState(false)
+  const [editingRecord, setEditingRecord] = useState<any>(null)
+  const [editForm, setEditForm] = useState({
+    recordName: "",
+    ttl: "300",
+    routingProtocol: "Simple",
+    value: "",
+  })
   
   // Form state for adding DNS records
   const [recordForm, setRecordForm] = useState({
@@ -217,6 +208,53 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
   const handleDeleteRecordCancel = () => {
     setIsDeleteRecordModalOpen(false)
     setSelectedRecord(null)
+  }
+
+  const handleEditRecordClick = (record: any) => {
+    setEditingRecord(record)
+    setEditForm({
+      recordName: record.recordName,
+      ttl: record.ttl.toString(),
+      routingProtocol: record.routingProtocol,
+      value: record.value,
+    })
+    setIsEditRecordModalOpen(true)
+  }
+
+  const handleEditRecordSave = () => {
+    if (editingRecord) {
+      setDnsRecords(prev => prev.map(record => 
+        record.id === editingRecord.id 
+          ? {
+              ...record,
+              recordName: editForm.recordName,
+              ttl: parseInt(editForm.ttl),
+              routingProtocol: editForm.routingProtocol,
+              value: editForm.value,
+            }
+          : record
+      ))
+      
+      setIsEditRecordModalOpen(false)
+      setEditingRecord(null)
+      setEditForm({
+        recordName: "",
+        ttl: "300",
+        routingProtocol: "Simple",
+        value: "",
+      })
+    }
+  }
+
+  const handleEditRecordCancel = () => {
+    setIsEditRecordModalOpen(false)
+    setEditingRecord(null)
+    setEditForm({
+      recordName: "",
+      ttl: "300",
+      routingProtocol: "Simple",
+      value: "",
+    })
   }
 
   const addRecordValue = () => {
@@ -298,6 +336,7 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
         <div className="flex justify-end">
           <ActionMenu
             onCustomDelete={() => handleDeleteRecordClick(row)}
+            onEdit={() => handleEditRecordClick(row)}
             deleteLabel="Delete Record"
             resourceName={row.recordName}
             resourceType="DNS Record"
@@ -333,13 +372,13 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
       case "AAAA":
         return "Enter the IPv6 addresses you want to direct traffic to and their weights."
       case "CNAME":
-        return "Enter the domain name this record should point to."
+        return "Add the domain names you want to create an alias for."
       case "MX":
-        return "Enter the mail server addresses with their priority values."
+        return "Add the priority and the mail exchanger host you want to route to."
       case "NS":
-        return "Enter the name server addresses for this domain."
+        return "Add the nameserver domain name. It is important to end the domain name with a trailing dot (.) for correct DNS resolution."
       case "TXT":
-        return "Enter the text records for domain verification or configuration."
+        return "Add the text you want to attach to your domain."
       default:
         return "Enter the record values."
     }
@@ -460,7 +499,7 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
                     data={dnsRecords}
                     searchableColumns={["recordName", "value"]}
                     pageSize={10}
-                    enableSearch={true}
+                    enableSearch={false}
                     enableColumnVisibility={false}
                     enablePagination={true}
                   />
@@ -528,7 +567,12 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="ttl">TTL</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="ttl">TTL</Label>
+                        <TooltipWrapper content="Time To Live - how long DNS resolvers should cache this record">
+                          <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                        </TooltipWrapper>
+                      </div>
                       <Select
                         value={recordForm.ttl}
                         onValueChange={(value) => setRecordForm(prev => ({
@@ -587,10 +631,10 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
                             placeholder={
                               activeRecordTab === "A" ? "203.0.113.1" :
                               activeRecordTab === "AAAA" ? "2001:0db8:85a3:0000:0000:8a2e:0370:7334" :
-                              activeRecordTab === "CNAME" ? "example.com" :
-                              activeRecordTab === "MX" ? "10 mail.example.com" :
-                              activeRecordTab === "NS" ? "ns1.example.com" :
-                              activeRecordTab === "TXT" ? '"v=spf1 include:_spf.google.com ~all"' :
+                              activeRecordTab === "CNAME" ? "webserver-01.yourcompany.com" :
+                              activeRecordTab === "MX" ? "10 mx.example.net." :
+                              activeRecordTab === "NS" ? "ns.nameserver.com." :
+                              activeRecordTab === "TXT" ? "This is a text record" :
                               "Enter record value"
                             }
                             value={value}
@@ -728,6 +772,110 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
           onConfirm={handleDeleteRecordConfirm}
         />
       )}
+
+      {/* Edit DNS Record Modal */}
+      <Dialog open={isEditRecordModalOpen} onOpenChange={setIsEditRecordModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit DNS Record</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="editRecordName">
+                Record Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="editRecordName"
+                placeholder="Enter record name"
+                value={editForm.recordName}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  recordName: e.target.value
+                }))}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="editTtl">TTL</Label>
+                <TooltipWrapper content="Time To Live - how long DNS resolvers should cache this record">
+                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+                </TooltipWrapper>
+              </div>
+              <Select
+                value={editForm.ttl}
+                onValueChange={(value) => setEditForm(prev => ({
+                  ...prev,
+                  ttl: value
+                }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TTL_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(editingRecord?.type === "A" || editingRecord?.type === "AAAA") && (
+              <div className="space-y-2">
+                <Label htmlFor="editRoutingProtocol">Routing Protocol</Label>
+                <Select
+                  value={editForm.routingProtocol}
+                  onValueChange={(value) => setEditForm(prev => ({
+                    ...prev,
+                    routingProtocol: value
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROUTING_PROTOCOLS.map((protocol) => (
+                      <SelectItem key={protocol.value} value={protocol.value}>
+                        {protocol.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="editValue">Record Value</Label>
+              <Input
+                id="editValue"
+                placeholder="Enter record value"
+                value={editForm.value}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  value: e.target.value
+                }))}
+              />
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={handleEditRecordCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditRecordSave}
+              className="bg-black text-white hover:bg-black/90"
+            >
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </PageLayout>
   )
 }
