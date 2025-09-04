@@ -445,8 +445,8 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
 // Helper Label component
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-sm font-medium text-muted-foreground">
+    <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>
       {children}
-    </span>
+    </label>
   )
 }
