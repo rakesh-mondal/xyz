@@ -46,9 +46,14 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
       <div className="bg-card text-card-foreground border-border border rounded-lg">
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">
-              Node Pools
-            </h3>
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold">
+                Node Pools
+              </h3>
+              <div className="bg-gray-800 text-white text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center">
+                {cluster.nodePools.length}
+              </div>
+            </div>
             {hasOutdatedNodePools && (
               <Button
                 variant="outline"
@@ -77,32 +82,10 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
               
               return (
                 <div key={pool.id} className="border border-border hover:border-gray-300 transition-colors rounded-lg bg-card p-4 relative">
-                  {/* Header with name, version, and badges */}
-                  <div className="flex items-start justify-between mb-3">
+                  {/* Header with pool name and status badges */}
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-sm truncate">{pool.name}</h4>
-                        {isOutdated && (
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <AlertTriangle className="h-4 w-4 text-orange-500 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Upgrade node pool to match cluster version for optimal performance</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">
-                          v{pool.k8sVersion}
-                        </Badge>
-                        {isOutdated && (
-                          <span className="text-xs text-orange-600">
-                            (Cluster: v{cluster.k8sVersion})
-                          </span>
-                        )}
-                      </div>
+                      <h4 className="font-medium text-sm truncate">{pool.name}</h4>
                     </div>
                     
                     <div className="flex items-center gap-2 flex-shrink-0">
@@ -124,9 +107,9 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                     </div>
                   </div>
 
-                  {/* Compact info grid */}
-                  <div className="space-y-2.5 text-xs">
-                    {/* Instance Type */}
+                  {/* Fields in specified order */}
+                  <div className="space-y-3 text-xs">
+                    {/* 1) Instance type (flavour, vcpu count and ram) */}
                     <div>
                       <Label className="text-xs text-muted-foreground">Instance Type</Label>
                       <div className="flex items-center gap-2 mt-1">
@@ -141,10 +124,10 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                       </div>
                     </div>
 
-                    {/* Node Counts */}
-                    <div className="py-1">
+                    {/* 2) Node counts (min, desired, max) */}
+                    <div>
                       <Label className="text-xs text-muted-foreground">Node Counts</Label>
-                      <div className="mt-2 grid grid-cols-3 gap-3">
+                      <div className="flex items-center gap-6 mt-2">
                         <div className="text-center">
                           <div className="text-xs text-muted-foreground mb-1">Min</div>
                           <div className="font-semibold text-lg">{pool.minCount}</div>
@@ -160,47 +143,47 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                       </div>
                     </div>
 
-                    {/* Disk Size and Created Date on same row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* 3) Disk Size, Created On, and K8s Version in same row */}
+                    <div className="grid grid-cols-3 gap-4">
+                      {/* Disk Size */}
                       <div>
                         <Label className="text-xs text-muted-foreground">Disk Size</Label>
                         <div className="mt-1">{pool.diskSize} GB</div>
                       </div>
+
+                      {/* Created On */}
                       <div>
-                        <Label className="text-xs text-muted-foreground">Created</Label>
-                        <div className="text-xs mt-1">
+                        <Label className="text-xs text-muted-foreground">Created On</Label>
+                        <div className="mt-1">
                           {new Date(pool.createdAt).toLocaleDateString()}
                         </div>
                       </div>
+
+                      {/* K8s Version */}
+                      <div>
+                        <Label className="text-xs text-muted-foreground">K8s Version</Label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs font-mono">
+                            v{pool.k8sVersion}
+                          </Badge>
+                          {isOutdated && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setIsUpgradeModalOpen(true)}
+                              className="text-xs h-6 px-2 text-orange-600 border-orange-200 hover:bg-orange-50"
+                            >
+                              Upgrade
+                            </Button>
+                          )}
+                        </div>
+                        {isOutdated && (
+                          <div className="text-xs text-orange-600 mt-1">
+                            Cluster: v{cluster.k8sVersion}
+                          </div>
+                        )}
+                      </div>
                     </div>
-
-                    {/* Labels */}
-                    {Object.keys(pool.labels).length > 0 && (
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Labels</Label>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {Object.entries(pool.labels).map(([key, value]) => (
-                            <Badge key={key} variant="outline" className="text-xs">
-                              {key}={value}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Taints */}
-                    {pool.taints.length > 0 && (
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Taints</Label>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {pool.taints.map((taint, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {taint}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               )

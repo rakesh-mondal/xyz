@@ -167,7 +167,7 @@ export default function ClusterDetailsPage() {
         )}
         
         <DetailGrid>
-          {/* Cluster ID, Region, Status, Created On in first row */}
+          {/* First row: Cluster ID, Region, Status, Created On */}
           <div className="col-span-full grid grid-cols-4 gap-4 mt-2">
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Cluster ID</label>
@@ -189,30 +189,18 @@ export default function ClusterDetailsPage() {
             </div>
           </div>
 
-          {/* Total Nodes, VPC, Subnets, Node Pools in second row */}
+          {/* Second row: VPC, Node Pools, Cluster Version, Node Pool Version */}
           <div className="col-span-full grid grid-cols-4 gap-4 mt-4">
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Total Nodes</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.nodeCount}</div>
-            </div>
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VPC</label>
               <div className="font-medium font-mono" style={{ fontSize: '14px' }}>{cluster.vpcId}</div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnets</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.subnetIds.length}</div>
-            </div>
-            <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Node Pools</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.nodePools.length}</div>
             </div>
-          </div>
-          
-          {/* Kubernetes Version and API Endpoint on same row */}
-          <div className="col-span-full grid grid-cols-2 gap-4 mt-4">
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Kubernetes Version</label>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Cluster Version</label>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="font-mono">
                   {cluster.k8sVersion}
@@ -238,6 +226,24 @@ export default function ClusterDetailsPage() {
               )}
             </div>
             <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Node Pool Version</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>
+                {cluster.nodePools.length > 0 ? cluster.nodePools[0].k8sVersion : 'N/A'}
+              </div>
+            </div>
+          </div>
+          
+          {/* Additional info row: Total Nodes, Subnets, API Endpoint - spans 2 columns */}
+          <div className="col-span-full grid grid-cols-4 gap-4 mt-4">
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Total Nodes</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.nodeCount}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnets</label>
+              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.subnetIds.length}</div>
+            </div>
+            <div className="col-span-2 space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>API Endpoint</label>
               <div className="bg-muted/50 p-3 rounded-lg">
                 <code className="text-sm font-mono break-all">
