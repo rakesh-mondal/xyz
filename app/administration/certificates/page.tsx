@@ -320,6 +320,7 @@ export default function CertificateManagerPage() {
       label: "Certificate Name",
       sortable: true,
       searchable: true,
+      width: "25%",
       render: (value: string, row: Certificate) => (
         <a
           href={`/administration/certificates/${row.id}`}
@@ -334,6 +335,7 @@ export default function CertificateManagerPage() {
       label: "Primary Domain", 
       sortable: true,
       searchable: true,
+      width: "25%",
       render: (value: string) => (
         <div className="font-medium">
           {value}
@@ -345,6 +347,7 @@ export default function CertificateManagerPage() {
       key: "expirationDate",
       label: "Expiration Date & Status",
       sortable: true,
+      width: "20%",
       render: (value: string, row: Certificate) => {
         const formattedDate = new Date(value).toLocaleDateString('en-US', {
           year: 'numeric',
@@ -392,10 +395,11 @@ export default function CertificateManagerPage() {
       label: "Resources Attached",
       sortable: true,
       align: "center" as const,
+      width: "15%",
       render: (value: number) => (
         <div className="text-center">
           {value > 0 ? (
-            <Badge variant="default" className="bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-700 cursor-default font-mono">
+            <Badge variant="default" className="bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-100 hover:text-gray-700 cursor-default font-mono">
               {value}
             </Badge>
           ) : (
@@ -408,6 +412,7 @@ export default function CertificateManagerPage() {
       key: "actions",
       label: "Actions",
       align: "right" as const,
+      width: "15%",
       render: (value: any, row: Certificate) => (
         <div className="flex items-center justify-end">
           <DropdownMenu>

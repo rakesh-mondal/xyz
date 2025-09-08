@@ -57,6 +57,7 @@ export interface Column<T = any> {
   searchable?: boolean
   render?: (value: any, row: T) => React.ReactNode
   align?: "left" | "right" | "center"
+  width?: string | number
 }
 
 interface ShadcnDataTableProps<T = any> {
@@ -518,8 +519,14 @@ export function ShadcnDataTable<T = any>({
                   {headerGroup.headers.map((header, index) => {
                     const isFirst = index === 0;
                     const isLast = index === headerGroup.headers.length - 1;
+                    const column = columns.find(col => col.key === header.id);
+                    const width = column?.width ? (typeof column.width === 'number' ? `${column.width}px` : column.width) : undefined;
                     return (
-                      <th key={header.id} className={`h-10 px-4 text-left align-middle font-medium text-muted-foreground ${isFirst ? 'rounded-tl-md' : ''} ${isLast ? 'rounded-tr-md' : ''}`}>
+                      <th 
+                        key={header.id} 
+                        className={`h-10 px-4 text-left align-middle font-medium text-muted-foreground ${isFirst ? 'rounded-tl-md' : ''} ${isLast ? 'rounded-tr-md' : ''}`}
+                        style={{ width }}
+                      >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -545,8 +552,14 @@ export function ShadcnDataTable<T = any>({
                       {row.getVisibleCells().map((cell, cellIndex) => {
                         const isFirst = cellIndex === 0;
                         const isLast = cellIndex === row.getVisibleCells().length - 1;
+                        const column = columns.find(col => col.key === cell.column.id);
+                        const width = column?.width ? (typeof column.width === 'number' ? `${column.width}px` : column.width) : undefined;
                         return (
-                          <td key={cell.id} className={`px-4 py-2 align-middle ${isLastRow && isFirst ? 'rounded-bl-md' : ''} ${isLastRow && isLast ? 'rounded-br-md' : ''}`}>
+                          <td 
+                            key={cell.id} 
+                            className={`px-4 py-2 align-middle ${isLastRow && isFirst ? 'rounded-bl-md' : ''} ${isLastRow && isLast ? 'rounded-br-md' : ''}`}
+                            style={{ width }}
+                          >
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext()
