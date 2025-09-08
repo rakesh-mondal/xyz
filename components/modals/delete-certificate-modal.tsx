@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast"
 interface Certificate {
   id: string
   certificateName: string
-  inUse: "Yes" | "No"
+  resourcesAttached: number
 }
 
 interface DeleteCertificateModalProps {
@@ -88,7 +88,7 @@ export function DeleteCertificateModal({
 
   if (!certificate) return null
 
-  const isInUse = certificate.inUse === "Yes"
+  const isInUse = certificate.resourcesAttached > 0
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

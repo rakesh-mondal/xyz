@@ -49,7 +49,7 @@ interface Certificate {
   type: "Generic"
   expirationDate: string
   status: "active" | "expired" | "expiring-soon" | "pending"
-  inUse: "Yes" | "No"
+  resourcesAttached: number
   vpc: string
   tags: { [key: string]: string }
 }
@@ -71,7 +71,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic",
     expirationDate: getRelativeDate(95), // 95 days from now - Active
     status: "active",
-    inUse: "Yes",
+    resourcesAttached: 5,
     vpc: "vpc-prod-001",
     tags: {
       "Environment": "Production",
@@ -86,7 +86,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic",
     expirationDate: getRelativeDate(15), // 15 days from now - Expiring soon
     status: "expiring-soon",
-    inUse: "Yes",
+    resourcesAttached: 3,
     vpc: "vpc-staging-001",
     tags: {
       "Environment": "Staging",
@@ -101,7 +101,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic", 
     expirationDate: getRelativeDate(180), // 180 days from now - Active
     status: "active",
-    inUse: "No",
+    resourcesAttached: 0,
     vpc: "vpc-dev-001",
     tags: {
       "Environment": "Development",
@@ -116,7 +116,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic",
     expirationDate: getRelativeDate(-45), // 45 days ago - Expired
     status: "expired",
-    inUse: "No",
+    resourcesAttached: 0,
     vpc: "vpc-security-001",
     tags: {
       "Environment": "Production",
@@ -131,7 +131,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic", 
     expirationDate: getRelativeDate(25), // 25 days from now - Expiring soon
     status: "active",
-    inUse: "Yes",
+    resourcesAttached: 2,
     vpc: "vpc-prod-001",
     tags: {
       "Environment": "Production",
@@ -146,7 +146,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic",
     expirationDate: getRelativeDate(7), // 7 days from now - Expiring soon
     status: "expiring-soon",
-    inUse: "Yes",
+    resourcesAttached: 8,
     vpc: "vpc-prod-001",
     tags: {
       "Environment": "Production",
@@ -161,7 +161,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic",
     expirationDate: getRelativeDate(-10), // 10 days ago - Expired
     status: "expired",
-    inUse: "No",
+    resourcesAttached: 0,
     vpc: "vpc-backup-001",
     tags: {
       "Environment": "Production",
@@ -176,7 +176,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic",
     expirationDate: getRelativeDate(2), // 2 days from now - Expiring soon (critical)
     status: "expiring-soon",
-    inUse: "Yes",
+    resourcesAttached: 1,
     vpc: "vpc-dev-001",
     tags: {
       "Environment": "Testing",
@@ -191,7 +191,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic",
     expirationDate: getRelativeDate(365), // 1 year from now - Active
     status: "active",
-    inUse: "Yes",
+    resourcesAttached: 12,
     vpc: "vpc-monitoring-001",
     tags: {
       "Environment": "Production",
@@ -206,7 +206,7 @@ const mockCertificates: Certificate[] = [
     type: "Generic",
     expirationDate: getRelativeDate(-120), // 4 months ago - Expired
     status: "expired",
-    inUse: "No",
+    resourcesAttached: 0,
     vpc: "vpc-legacy-001",
     tags: {
       "Environment": "Production",
@@ -389,17 +389,20 @@ export default function CertificateManagerPage() {
     },
 
     {
-      key: "inUse",
-      label: "In Use",
+      key: "resourcesAttached",
+      label: "Resources Attached",
       sortable: true,
-      render: (value: Certificate['inUse']) => (
-        <Badge variant={value === "Yes" ? "default" : "secondary"} className={
-          value === "Yes" 
-            ? "bg-green-100 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-700 cursor-default" 
-            : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-100 hover:text-gray-700 cursor-default"
-        }>
-          {value}
-        </Badge>
+      align: "center" as const,
+      render: (value: number) => (
+        <div className="text-center">
+          {value > 0 ? (
+            <Badge variant="default" className="bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-700 cursor-default font-mono">
+              {value}
+            </Badge>
+          ) : (
+            <span className="text-gray-500 font-mono">0</span>
+          )}
+        </div>
       ),
     },
     {

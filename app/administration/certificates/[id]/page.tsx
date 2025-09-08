@@ -47,7 +47,7 @@ interface CertificateDetails {
   expirationDate: string
   issueDate: string
   status: "active" | "expired" | "expiring-soon" | "pending"
-  inUse: "Yes" | "No"
+  resourcesAttached: number
   vpc: string
   issuer: string
   serialNumber: string
@@ -76,7 +76,7 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
     expirationDate: "2024-12-15T00:00:00Z",
     issueDate: "2024-03-15T00:00:00Z",
     status: "active",
-    inUse: "Yes",
+    resourcesAttached: 2,
     vpc: "vpc-prod-001",
     issuer: "Let's Encrypt Authority X3",
     serialNumber: "03:A1:B2:C3:D4:E5:F6:78:90:AB:CD:EF",
@@ -246,17 +246,17 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
               <div className="font-medium" style={{ fontSize: '14px' }}>{certificate.vpc}</div>
             </div>
 
-            {/* In Use */}
+            {/* Resources Attached */}
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>In Use</label>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Resources Attached</label>
               <div>
-                <Badge variant={certificate.inUse === "Yes" ? "default" : "secondary"} className={
-                  certificate.inUse === "Yes" 
-                    ? "bg-green-100 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-700 cursor-default" 
-                    : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-100 hover:text-gray-700 cursor-default"
-                }>
-                  {certificate.inUse}
-                </Badge>
+                {certificate.resourcesAttached > 0 ? (
+                  <Badge variant="default" className="bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-700 cursor-default font-mono">
+                    {certificate.resourcesAttached}
+                  </Badge>
+                ) : (
+                  <span className="text-gray-500 font-mono">0</span>
+                )}
               </div>
             </div>
           </div>
@@ -321,7 +321,7 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
               </div>
 
               <div>
-                <Label>Valid To</Label>
+                <Label>Valid Till</Label>
                 <p className="text-sm font-medium">{formatDate(certificate.expirationDate)}</p>
               </div>
             </div>

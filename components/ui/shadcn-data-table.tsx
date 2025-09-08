@@ -271,7 +271,7 @@ export function ShadcnDataTable<T = any>({
       id: col.key,
       header: ({ column }) => {
         if (!col.sortable) {
-          return <div className={`font-medium ${col.align === "right" ? "text-right" : "text-left"}`}>{col.label}</div>
+          return <div className={`font-medium ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}`}>{col.label}</div>
         }
         // Determine sort state
         const isSorted = column.getIsSorted();
@@ -280,7 +280,7 @@ export function ShadcnDataTable<T = any>({
           <button
             type="button"
             onClick={() => column.toggleSorting(isSorted === "asc")}
-            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === "right" ? "justify-end" : "text-left"} pr-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
+            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === "right" ? "justify-end" : col.align === "center" ? "justify-center" : "text-left"} pr-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
             style={{ minWidth: 0 }}
           >
             <span className="truncate">{col.label}</span>
@@ -304,7 +304,7 @@ export function ShadcnDataTable<T = any>({
         if (col.render) {
           return col.render(value, row.original)
         }
-        return <div className={`${col.align === "right" ? "text-right" : "text-left"}`}>{String(value ?? '')}</div>
+        return <div className={`${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}`}>{String(value ?? '')}</div>
       },
       enableSorting: col.sortable,
       enableHiding: true,
