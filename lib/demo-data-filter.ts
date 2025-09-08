@@ -183,7 +183,7 @@ export function getEmptyStateMessage(resourceType: string): {
       certificates: {
         title: "No Certificates yet",
         description: "Import SSL/TLS certificates and other security credentials to secure your applications and services.",
-        actionText: "Import Certificate"
+        actionText: "Upload Certificate"
       },
       asg: {
         title: "No Auto Scaling Groups yet",

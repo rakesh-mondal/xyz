@@ -263,7 +263,7 @@ export default function ImportCertificatePage() {
           { href: "/dashboard", title: "Home" },
           { href: "/administration", title: "Administration" },
           { href: "/administration/certificates", title: "Certificate Manager" },
-          { href: "/administration/certificates/import", title: "Import Certificate" },
+          { href: "/administration/certificates/import", title: "Upload Certificate" },
           { href: "/administration/certificates/import/review", title: "Review" }
         ]}
       >
@@ -340,12 +340,12 @@ export default function ImportCertificatePage() {
     { href: "/dashboard", title: "Home" },
     { href: "/administration", title: "Administration" },
     { href: "/administration/certificates", title: "Certificate Manager" },
-    { href: "/administration/certificates/import", title: "Import Certificate" }
+    { href: "/administration/certificates/import", title: "Upload Certificate" }
   ]
 
   return (
     <PageLayout 
-      title="Import Certificate" 
+      title="Upload Certificate" 
       description="Import SSL/TLS certificates for load balancers and other infrastructure"
       customBreadcrumbs={customBreadcrumbs}
     >

@@ -456,7 +456,7 @@ export default function CertificateManagerPage() {
       title="Certificate Manager"
       description="Import and manage all your SSL/TLS certificates"
       headerActions={
-        <CreateButton href="/administration/certificates/import" label="Import Certificate" />
+        <CreateButton href="/administration/certificates/import" label="Upload Certificate" />
       }
     >
       {showEmptyState ? (
