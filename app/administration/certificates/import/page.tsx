@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Upload, FileText, ChevronDown, Search, Check, Trash2 } from "lucide-react"
 import { vpcs } from "@/lib/data"
 import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
+import { useToast } from "@/hooks/use-toast"
 
 interface CertificateImportData {
   certificateName: string
@@ -25,8 +26,8 @@ interface CertificateImportData {
 
 export default function ImportCertificatePage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
-  const [showReview, setShowReview] = useState(false)
   const [showCreateVPCModal, setShowCreateVPCModal] = useState(false)
   const [formTouched, setFormTouched] = useState(false)
   const [formData, setFormData] = useState<CertificateImportData>({
@@ -100,16 +101,30 @@ export default function ImportCertificatePage() {
     
     if (!isFormValid()) return
     
-    setShowReview(true)
-  }
-
-  const handleFinalImport = async () => {
     setIsLoading(true)
     
-    // Mock import process
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    router.push("/administration/certificates")
+    try {
+      // Mock upload process
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Show success toast
+      toast({
+        title: "Certificate Uploaded Successfully",
+        description: `Certificate "${formData.certificateName}" has been uploaded and is ready to use.`,
+      })
+      
+      // Redirect to certificates list
+      router.push("/administration/certificates")
+    } catch (error) {
+      // Show error toast
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your certificate. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // File Upload Component
@@ -254,87 +269,6 @@ export default function ImportCertificatePage() {
     )
   }
 
-  if (showReview) {
-    return (
-      <PageLayout 
-        title="Review Certificate Import" 
-        description="Review your certificate details before importing"
-        customBreadcrumbs={[
-          { href: "/dashboard", title: "Home" },
-          { href: "/administration", title: "Administration" },
-          { href: "/administration/certificates", title: "Certificate Manager" },
-          { href: "/administration/certificates/import", title: "Upload Certificate" },
-          { href: "/administration/certificates/import/review", title: "Review" }
-        ]}
-      >
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1 space-y-6">
-            <Card>
-              <CardContent className="space-y-6 pt-6">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Certificate Details</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Name:</span>
-                        <span className="font-medium">{formData.certificateName}</span>
-                      </div>
-
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">VPC:</span>
-                        <span className="font-medium">{vpcs.find(v => v.id === formData.vpc)?.name}</span>
-                      </div>
-
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Certificate File:</span>
-                        <span className="font-medium">{formData.certificateFile?.name}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {formData.tags.some(tag => tag.key || tag.value) && (
-                    <div>
-                      <h4 className="font-medium mb-2">Tags</h4>
-                      <div className="space-y-1">
-                        {formData.tags.filter(tag => tag.key || tag.value).map((tag, index) => (
-                          <div key={index} className="flex gap-2 text-sm">
-                            <span className="text-muted-foreground">{tag.key}:</span>
-                            <span>{tag.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-              
-              <div className="flex justify-end gap-4 px-6 pb-6">
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  className="hover:bg-secondary transition-colors"
-                  onClick={() => setShowReview(false)}
-                >
-                  Back
-                </Button>
-                <Button 
-                  onClick={handleFinalImport}
-                  disabled={isLoading}
-                  className={`transition-colors ${
-                    isLoading 
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                      : 'bg-black text-white hover:bg-black/90'
-                  }`}
-                >
-                  {isLoading ? "Importing..." : "Import"}
-                </Button>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </PageLayout>
-    )
-  }
 
   const customBreadcrumbs = [
     { href: "/dashboard", title: "Home" },
@@ -461,15 +395,15 @@ export default function ImportCertificatePage() {
               </Button>
               <Button 
                 type="submit" 
-                disabled={!isFormValid()}
+                disabled={!isFormValid() || isLoading}
                 className={`transition-colors ${
-                  isFormValid() 
+                  isFormValid() && !isLoading
                     ? 'bg-black text-white hover:bg-black/90 hover:scale-105' 
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
                 onClick={handleSubmit}
               >
-                {!isFormValid() ? (formTouched ? "Fill Required Fields" : "Review and Import") : "Review and Import"}
+                {isLoading ? "Uploading..." : (!isFormValid() ? (formTouched ? "Fill Required Fields" : "Upload Certificate") : "Upload Certificate")}
               </Button>
             </div>
           </Card>

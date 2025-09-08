@@ -59,6 +59,13 @@ interface CertificateDetails {
   description?: string
 }
 
+// Helper function to get relative dates
+const getRelativeDate = (daysFromNow: number): string => {
+  const date = new Date()
+  date.setDate(date.getDate() + daysFromNow)
+  return date.toISOString()
+}
+
 export default function CertificateDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
@@ -66,29 +73,183 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
   const resolvedParams = use(params)
 
   // Mock certificate data - in real app would fetch based on params.id
+  // Using the same data source as the main certificates page
+  const mockCertificates = [
+    {
+      id: "cert-1",
+      certificateName: "production-ssl-cert",
+      certificateId: "cert-prod-12345",
+      primaryDomain: "api.production.com",
+      type: "Generic",
+      expirationDate: getRelativeDate(95), // 95 days from now - Active
+      status: "active",
+      resourcesAttached: 5,
+      vpc: "vpc-prod-001",
+      tags: {
+        "Environment": "Production",
+        "Team": "Platform"
+      }
+    },
+    {
+      id: "cert-2", 
+      certificateName: "staging-ssl-cert",
+      certificateId: "cert-stage-67890",
+      primaryDomain: "api.staging.com",
+      type: "Generic",
+      expirationDate: getRelativeDate(15), // 15 days from now - Expiring soon
+      status: "expiring-soon",
+      resourcesAttached: 3,
+      vpc: "vpc-staging-001",
+      tags: {
+        "Environment": "Staging",
+        "Team": "Platform"
+      }
+    },
+    {
+      id: "cert-3",
+      certificateName: "dev-wildcard-cert",
+      certificateId: "cert-dev-11111",
+      primaryDomain: "*.development.com",
+      type: "Generic", 
+      expirationDate: getRelativeDate(180), // 180 days from now - Active
+      status: "active",
+      resourcesAttached: 0,
+      vpc: "vpc-dev-001",
+      tags: {
+        "Environment": "Development",
+        "Team": "Platform"
+      }
+    },
+    {
+      id: "cert-4",
+      certificateName: "code-signing-cert",
+      certificateId: "cert-code-22222",
+      primaryDomain: "signing.company.com",
+      type: "Generic",
+      expirationDate: getRelativeDate(-45), // 45 days ago - Expired
+      status: "expired",
+      resourcesAttached: 0,
+      vpc: "vpc-security-001",
+      tags: {
+        "Environment": "Production",
+        "Team": "Security"
+      }
+    },
+    {
+      id: "cert-5",
+      certificateName: "client-auth-cert",
+      certificateId: "cert-client-33333",
+      primaryDomain: "client.secure.com",
+      type: "Generic",
+      expirationDate: getRelativeDate(25), // 25 days from now - Expiring soon
+      status: "active",
+      resourcesAttached: 2,
+      vpc: "vpc-prod-001",
+      tags: {
+        "Environment": "Production",
+        "Team": "Security"
+      }
+    },
+    {
+      id: "cert-6",
+      certificateName: "load-balancer-cert",
+      certificateId: "cert-lb-44444",
+      primaryDomain: "lb.production.com",
+      type: "Generic",
+      expirationDate: getRelativeDate(7), // 7 days from now - Expiring soon
+      status: "expiring-soon",
+      resourcesAttached: 8,
+      vpc: "vpc-prod-001",
+      tags: {
+        "Environment": "Production",
+        "Team": "Platform"
+      }
+    },
+    {
+      id: "cert-7",
+      certificateName: "backup-ssl-cert",
+      certificateId: "cert-backup-55555",
+      primaryDomain: "backup.company.com",
+      type: "Generic",
+      expirationDate: getRelativeDate(-10), // 10 days ago - Expired
+      status: "expired",
+      resourcesAttached: 0,
+      vpc: "vpc-backup-001",
+      tags: {
+        "Environment": "Production",
+        "Team": "Backup"
+      }
+    },
+    {
+      id: "cert-8",
+      certificateName: "test-environment-cert",
+      certificateId: "cert-test-66666",
+      primaryDomain: "test.internal.com",
+      type: "Generic",
+      expirationDate: getRelativeDate(2), // 2 days from now - Expiring soon (critical)
+      status: "expiring-soon",
+      resourcesAttached: 1,
+      vpc: "vpc-dev-001",
+      tags: {
+        "Environment": "Testing",
+        "Team": "QA"
+      }
+    },
+    {
+      id: "cert-9",
+      certificateName: "monitoring-cert",
+      certificateId: "cert-monitor-77777",
+      primaryDomain: "monitoring.company.com",
+      type: "Generic",
+      expirationDate: getRelativeDate(365), // 1 year from now - Active
+      status: "active",
+      resourcesAttached: 12,
+      vpc: "vpc-monitoring-001",
+      tags: {
+        "Environment": "Production",
+        "Team": "Monitoring"
+      }
+    },
+    {
+      id: "cert-10",
+      certificateName: "legacy-app-cert",
+      certificateId: "cert-legacy-88888",
+      primaryDomain: "legacy.oldapp.com",
+      type: "Generic",
+      expirationDate: getRelativeDate(-120), // 4 months ago - Expired
+      status: "expired",
+      resourcesAttached: 0,
+      vpc: "vpc-legacy-001",
+      tags: {
+        "Environment": "Production",
+        "Team": "Legacy"
+      }
+    }
+  ]
+
+  // Find the certificate by ID
+  const baseCertificate = mockCertificates.find(cert => cert.id === resolvedParams.id) || mockCertificates[0]
+  
+  // Convert to CertificateDetails format with additional fields
   const certificate: CertificateDetails = {
-    id: resolvedParams.id,
-    certificateName: "prod-a",
-    certificateId: "cert-prod-12345",
-    krn: "krn:krutrim:certificates:in-bangalore-1:123456789:certificate/cert-abc123",
-    primaryDomain: "api.example.com",
-    type: "Generic",
-    expirationDate: "2024-12-15T00:00:00Z",
-    issueDate: "2024-03-15T00:00:00Z",
-    status: "active",
-    resourcesAttached: 2,
-    vpc: "vpc-prod-001",
+    id: baseCertificate.id,
+    certificateName: baseCertificate.certificateName,
+    certificateId: baseCertificate.certificateId,
+    krn: `krn:krutrim:certificates:in-bangalore-1:123456789:certificate/${baseCertificate.id}`,
+    primaryDomain: baseCertificate.primaryDomain,
+    type: baseCertificate.type,
+    expirationDate: baseCertificate.expirationDate,
+    issueDate: new Date(new Date(baseCertificate.expirationDate).getTime() - 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year before expiration
+    status: baseCertificate.status,
+    resourcesAttached: baseCertificate.resourcesAttached,
+    vpc: baseCertificate.vpc,
     issuer: "Let's Encrypt Authority X3",
     serialNumber: "03:A1:B2:C3:D4:E5:F6:78:90:AB:CD:EF",
     fingerprint: "SHA256: 12:34:56:78:9A:BC:DE:F0:12:34:56:78:9A:BC:DE:F0:12:34:56:78:9A:BC:DE:F0:12:34:56:78:9A:BC",
     keySize: "2048 bits",
     signatureAlgorithm: "SHA256withRSA",
     alternativeNames: ["api-v2.example.com", "staging-api.example.com", "dev-api.example.com"],
-    tags: {
-      "Environment": "Production",
-      "Team": "Platform", 
-      "Cost Center": "Engineering"
-    },
+    tags: baseCertificate.tags,
     description: "SSL certificate for production API endpoints"
   }
 
@@ -230,13 +391,23 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
         </div>
 
         <div className="space-y-6">
-          {/* Row 1: Status | VPC | In Use */}
-          <div className="col-span-full grid grid-cols-3 gap-4 mt-2">
+          {/* Row 1: Status | VPC */}
+          <div className="col-span-full grid grid-cols-2 gap-4 mt-2">
             {/* Status */}
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Status</label>
-              <div>
+              <div className="flex items-center gap-2">
                 {getStatusBadge(certificate.status)}
+                {(certificate.status === 'expiring-soon' || certificate.status === 'expired') && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleUpdateCertificate}
+                    className="h-6 px-2 text-xs border-black text-black hover:bg-black hover:text-white"
+                  >
+                    Update Certificate
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -244,20 +415,6 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>VPC</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>{certificate.vpc}</div>
-            </div>
-
-            {/* Resources Attached */}
-            <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Resources Attached</label>
-              <div>
-                {certificate.resourcesAttached > 0 ? (
-                  <Badge variant="default" className="bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-700 cursor-default font-mono">
-                    {certificate.resourcesAttached}
-                  </Badge>
-                ) : (
-                  <span className="text-gray-500 font-mono">0</span>
-                )}
-              </div>
             </div>
           </div>
 
@@ -331,58 +488,71 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
         {/* Associated Resources */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Associated Resources</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="h-10 px-3 text-left align-middle text-xs font-medium text-muted-foreground">
-                      Name
-                    </th>
-                    <th className="h-10 px-3 text-left align-middle text-xs font-medium text-muted-foreground">
-                      Type
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b transition-colors hover:bg-muted/50">
-                    <td className="p-3 align-middle">
-                      <div className="flex items-center gap-2">
-                        <a 
-                          href="/networking/load-balancing/balancer/prod-load-balancer" 
-                          className="text-primary hover:underline text-sm"
-                        >
-                          prod-load-balancer
-                        </a>
-                        <svg className="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                      </div>
-                    </td>
-                    <td className="p-3 align-middle text-sm">Load Balancer</td>
-                  </tr>
-                  <tr className="border-b transition-colors hover:bg-muted/50">
-                    <td className="p-3 align-middle">
-                      <div className="flex items-center gap-2">
-                        <a 
-                          href="/networking/api-gateway/api-gateway" 
-                          className="text-primary hover:underline text-sm"
-                        >
-                          api-gateway
-                        </a>
-                        <svg className="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                      </div>
-                    </td>
-                    <td className="p-3 align-middle text-sm">API Gateway</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-lg">Associated Resources</CardTitle>
+              <div className="flex items-center justify-center w-6 h-6 bg-gray-800 text-white rounded-full text-xs font-medium">
+                {certificate.resourcesAttached}
+              </div>
             </div>
-          </CardContent>
+          </CardHeader>
+          {certificate.resourcesAttached > 0 ? (
+            <CardContent>
+              <div className="rounded-md border">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="h-10 px-3 text-left align-middle text-xs font-medium text-muted-foreground">
+                        Name
+                      </th>
+                      <th className="h-10 px-3 text-left align-middle text-xs font-medium text-muted-foreground">
+                        Type
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b transition-colors hover:bg-muted/50">
+                      <td className="p-3 align-middle">
+                        <div className="flex items-center gap-2">
+                          <a 
+                            href="/networking/load-balancing/balancer/prod-load-balancer" 
+                            className="text-primary hover:underline text-sm"
+                          >
+                            prod-load-balancer
+                          </a>
+                          <svg className="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </div>
+                      </td>
+                      <td className="p-3 align-middle text-sm">Load Balancer</td>
+                    </tr>
+                    <tr className="border-b transition-colors hover:bg-muted/50">
+                      <td className="p-3 align-middle">
+                        <div className="flex items-center gap-2">
+                          <a 
+                            href="/networking/api-gateway/api-gateway" 
+                            className="text-primary hover:underline text-sm"
+                          >
+                            api-gateway
+                          </a>
+                          <svg className="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </div>
+                      </td>
+                      <td className="p-3 align-middle text-sm">API Gateway</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          ) : (
+            <CardContent>
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-sm">No resources are currently attached to this certificate.</p>
+              </div>
+            </CardContent>
+          )}
         </Card>
       </div>
 
