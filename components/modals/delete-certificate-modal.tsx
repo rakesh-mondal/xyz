@@ -112,31 +112,48 @@ export function DeleteCertificateModal({
         </DialogHeader>
         
         <div className="space-y-6 py-2">
-          <div className="p-3 bg-muted rounded-md">
-            <Label className="text-xs text-muted-foreground">Certificate Name:</Label>
-            <div className="font-mono font-medium text-sm mt-1">{certificate.certificateName}</div>
-          </div>
-          
           {isInUse ? (
             // Show instructions for certificates in use
             <>
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Certificate in Use:</strong> This certificate cannot be deleted because it is currently associated with one or more Krutrim resources.
-                </AlertDescription>
-              </Alert>
-              
-              <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-md">
-                <div className="space-y-3">
-                  <h4 className="text-sm font-medium text-gray-900">To delete this certificate:</h4>
-                  <ul className="text-sm text-gray-700 space-y-2 list-disc list-outside ml-4">
-                    <li>Navigate to the resources using this certificate</li>
-                    <li>Disassociate the certificate from all associated Krutrim resources</li>
-                    <li>Verify the certificate is no longer in use</li>
-                    <li>Return here to delete the certificate</li>
-                  </ul>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-700">
+                  The certificate <strong>{certificate.certificateName}</strong> cannot be deleted because it is being used by:
+                </p>
+                
+                {/* Associated Resources List */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="space-y-3">
+                    {/* Resource 1 */}
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <a 
+                          href="/networking/load-balancing/balancer/prod-load-balancer" 
+                          className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium"
+                        >
+                          prod-load-balancer
+                        </a>
+                        <p className="text-xs text-gray-500 mt-1">Load Balancer</p>
+                      </div>
+                    </div>
+                    
+                    {/* Resource 2 */}
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <a 
+                          href="/networking/api-gateway/api-gateway" 
+                          className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium"
+                        >
+                          api-gateway
+                        </a>
+                        <p className="text-xs text-gray-500 mt-1">API Gateway</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+                
+                <p className="text-sm text-gray-700">
+                  Please disassociate the certificate from these resources before attempting to delete it.
+                </p>
               </div>
             </>
           ) : (
