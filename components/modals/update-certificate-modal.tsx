@@ -127,6 +127,27 @@ export function UpdateCertificateModal({
           <hr className="border-border" />
         </DialogHeader>
         
+        {/* Tip Text */}
+        <div className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-md">
+          <div className="flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" className="flex-shrink-0 mt-0.5">
+              <title>lightbulb-3</title>
+              <g fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" stroke="#212121">
+                <path d="M9 0.75V1.75"></path> 
+                <path d="M14.834 3.16599L14.127 3.87299"></path> 
+                <path d="M17.25 9H16.25"></path> 
+                <path d="M3.16599 3.16599L3.87299 3.87299"></path> 
+                <path d="M0.75 9H1.75"></path> 
+                <path d="M13.75 8.99999C13.75 6.04069 11.0445 3.71348 7.972 4.35818C6.0998 4.75108 4.62103 6.31669 4.31453 8.20489C3.93513 10.5427 5.26681 12.6193 7.25001 13.407V15.25C7.25001 16.0784 7.92161 16.75 8.75001 16.75H9.25001C10.0784 16.75 10.75 16.0784 10.75 15.25V13.407C12.505 12.71 13.75 11.004 13.75 8.99999Z"></path> 
+                <path d="M6.897 13.25H11.103"></path>
+              </g>
+            </svg>
+            <p className="text-sm text-gray-700">
+              Updating the name, tags, or file will not detach the certificate from its currently associated resources as the KRN will remain the same.
+            </p>
+          </div>
+        </div>
+        
         <div className="space-y-6 py-2">
           {/* Certificate Name */}
           <div className="space-y-2">

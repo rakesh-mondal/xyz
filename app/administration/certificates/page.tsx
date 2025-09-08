@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { MoreVertical, Eye, Trash2 } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -309,41 +310,6 @@ export default function CertificateManagerPage() {
 
 
 
-  const formatExpirationDate = (dateString: string, status: Certificate['status']) => {
-    const formattedDate = new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-    
-    // Color based on status - simple span without wrapper for better alignment
-    if (status === 'expired') {
-      // Expired - red text
-      return <span className="text-red-600 font-medium">{formattedDate}</span>
-    } else if (status === 'expiring-soon') {
-      // Expiring soon - orange text
-      return <span className="text-orange-600 font-medium">{formattedDate}</span>
-    } else {
-      // Active/pending - black text
-      return <span className="text-black">{formattedDate}</span>
-    }
-  }
-
-  const getStatusBadge = (status: Certificate['status']) => {
-    const variants = {
-      active: { variant: "default" as const, className: "bg-green-100 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-700 cursor-default" },
-      expired: { variant: "destructive" as const, className: "hover:bg-destructive hover:text-destructive-foreground cursor-default" },
-      "expiring-soon": { variant: "secondary" as const, className: "bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-100 hover:text-orange-700 cursor-default" },
-      pending: { variant: "outline" as const, className: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-700 cursor-default" }
-    }
-    
-    const config = variants[status]
-    return (
-      <Badge variant={config.variant} className={config.className}>
-        {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
-      </Badge>
-    )
-  }
 
 
 
@@ -377,15 +343,48 @@ export default function CertificateManagerPage() {
 
     {
       key: "expirationDate",
-      label: "Expiration Date",
+      label: "Expiration Date & Status",
       sortable: true,
-      render: (value: string, row: Certificate) => formatExpirationDate(value, row.status),
-    },
-    {
-      key: "status",
-      label: "Status",
-      sortable: true,
-      render: (value: Certificate['status']) => getStatusBadge(value),
+      render: (value: string, row: Certificate) => {
+        const formattedDate = new Date(value).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        })
+        
+        const statusText = row.status.charAt(0).toUpperCase() + row.status.slice(1).replace('-', ' ')
+        
+        return (
+          <TooltipProvider>
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <div className="cursor-help flex items-center gap-2 hover:bg-gray-50 px-1 py-0.5 rounded">
+                  {/* Status dot */}
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    row.status === 'expired' 
+                      ? 'bg-red-600' 
+                      : row.status === 'expiring-soon' 
+                        ? 'bg-amber-500' 
+                        : 'bg-green-600'
+                  }`} />
+                  
+                  {/* Date */}
+                  {row.status === 'expired' ? (
+                    <span className="text-red-700 font-medium">{formattedDate}</span>
+                  ) : row.status === 'expiring-soon' ? (
+                    <span className="text-amber-700 font-medium">{formattedDate}</span>
+                  ) : (
+                    <span className="text-green-700 font-medium">{formattedDate}</span>
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" align="center" className="z-50">
+                <p className="text-sm">Status: {statusText}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
+      },
     },
 
     {

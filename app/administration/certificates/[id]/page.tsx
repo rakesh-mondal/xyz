@@ -344,9 +344,6 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
                     <th className="h-10 px-3 text-left align-middle text-xs font-medium text-muted-foreground">
                       Type
                     </th>
-                    <th className="h-10 px-3 text-right align-middle text-xs font-medium text-muted-foreground">
-                      Actions
-                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -365,23 +362,6 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
                       </div>
                     </td>
                     <td className="p-3 align-middle text-sm">Load Balancer</td>
-                    <td className="p-3 align-middle">
-                      <div className="flex items-center justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => window.open('/networking/load-balancing/balancer/prod-load-balancer', '_blank')}>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Details
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </td>
                   </tr>
                   <tr className="border-b transition-colors hover:bg-muted/50">
                     <td className="p-3 align-middle">
@@ -398,23 +378,6 @@ export default function CertificateDetailsPage({ params }: { params: Promise<{ i
                       </div>
                     </td>
                     <td className="p-3 align-middle text-sm">API Gateway</td>
-                    <td className="p-3 align-middle">
-                      <div className="flex items-center justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => window.open('/networking/api-gateway/api-gateway', '_blank')}>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Details
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </td>
                   </tr>
                 </tbody>
               </table>
