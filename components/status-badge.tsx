@@ -15,6 +15,7 @@ interface StatusBadgeProps {
  * <StatusBadge status="completed" />   // Green badge  
  * <StatusBadge status="in-progress" /> // Yellow badge
  * <StatusBadge status="failed" />      // Red badge
+ * <StatusBadge status="inactive" />    // Gray badge
  * <StatusBadge status="incremental" /> // Purple badge
  * <StatusBadge status="full" />        // Blue badge
  */
@@ -71,7 +72,6 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
       break
     
     // Error/Failed States - Red (#ef4444 / #dc2626)
-    case "inactive":
     case "stopped":
     case "error":
     case "failed":
@@ -124,6 +124,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "unknown":
     case "unassigned":
     case "disabled":
+    case "inactive":
       bgColor = "bg-secondary"
       textColor = "text-secondary-foreground"
       break
