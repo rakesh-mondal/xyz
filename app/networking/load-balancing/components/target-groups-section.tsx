@@ -1,14 +1,11 @@
 "use client"
 
-import { PageShell } from "@/components/page-shell"
-import { CreateButton } from "@/components/create-button"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { StatusBadge } from "@/components/status-badge"
 import { targetGroups } from "@/lib/data"
 import { ActionMenu } from "@/components/action-menu"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
-import { Button } from "@/components/ui/button"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { useToast } from "@/hooks/use-toast"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
@@ -16,7 +13,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Card, CardContent } from "@/components/ui/card"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
-export default function TargetGroupsPage() {
+export default function TargetGroupsSection() {
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -151,28 +148,31 @@ export default function TargetGroupsPage() {
           return <span className="text-muted-foreground leading-5">No targets</span>
         }
 
-        // Count types
-        const typeCounts = value.reduce((acc, member) => {
-          acc[member.type] = (acc[member.type] || 0) + 1
-          return acc
-        }, {} as Record<string, number>)
+        // Filter to only show VMs with healthy/unhealthy status
+        const filteredMembers = value.filter(member => 
+          member.type === "VM" && 
+          (member.status === "healthy" || member.status === "unhealthy")
+        )
 
-        const typesSummary = Object.entries(typeCounts)
-          .map(([type, count]) => `${count} ${type}${count > 1 ? 's' : ''}`)
-          .join(', ')
+        if (filteredMembers.length === 0) {
+          return <span className="text-muted-foreground leading-5">No VM targets</span>
+        }
+
+        // Count VMs only
+        const vmCount = filteredMembers.length
 
         return (
           <HoverCard>
             <HoverCardTrigger asChild>
               <div className="leading-5 cursor-pointer text-primary hover:underline">
-                {value.length} target{value.length > 1 ? 's' : ''} ({typesSummary})...
+                {vmCount} VM{vmCount > 1 ? 's' : ''}
               </div>
             </HoverCardTrigger>
             <HoverCardContent className="min-w-80 max-w-md" side="top" align="start">
               <div className="space-y-3">
                 <h4 className="font-semibold text-sm">Target Group Members</h4>
                 <div className="space-y-3">
-                  {value.map((member, index) => (
+                  {filteredMembers.slice(0, 3).map((member, index) => (
                     <div key={member.id} className="space-y-1">
                       <div className="flex items-center space-x-2">
                         <span className="font-medium text-sm">{member.name}</span>
@@ -185,6 +185,11 @@ export default function TargetGroupsPage() {
                       </div>
                     </div>
                   ))}
+                  {filteredMembers.length > 3 && (
+                    <div className="text-xs text-muted-foreground text-center pt-2 border-t">
+                      +{filteredMembers.length - 3} more
+                    </div>
+                  )}
                 </div>
               </div>
             </HoverCardContent>
@@ -247,13 +252,7 @@ export default function TargetGroupsPage() {
   }
 
   return (
-    <PageShell
-      title="Target Groups"
-      description="Define health check settings and routing rules for your load balancers to ensure traffic is directed to healthy targets."
-      headerActions={
-        <CreateButton href="/networking/load-balancing/target-groups/create" label="Create Target Group" />
-      }
-    >
+    <div>
       {showEmptyState ? (
         <Card className="mt-8">
           <CardContent>
@@ -275,6 +274,7 @@ export default function TargetGroupsPage() {
           enablePagination={true}
           onRefresh={handleRefresh}
           enableVpcFilter={true}
+          searchPlaceholder="Search TG name..."
           vpcOptions={[
             { value: "all", label: "All VPCs" },
             { value: "production-vpc", label: "production-vpc" },
@@ -295,6 +295,6 @@ export default function TargetGroupsPage() {
         resourceType="Target Group"
         onConfirm={handleDeleteConfirm}
       />
-    </PageShell>
+    </div>
   )
 }

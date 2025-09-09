@@ -25,7 +25,7 @@ import {
   KeyIcon, 
   BoltIcon 
 } from "@heroicons/react/24/outline"
-import { Settings, HelpCircle, BookOpen, ChevronRight, ChevronLeft, Network, HardDrive, Map, X } from "lucide-react"
+import { Settings, HelpCircle, BookOpen, ChevronRight, ChevronLeft, Network, HardDrive, Map, X, Code } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -88,6 +88,14 @@ const navigationConfig = {
             href: "/compute/machines/images",
             label: "Machine Images",
           },
+          {
+            href: "/compute/ssh-keys",
+            label: "SSH Keys",
+          },
+          {
+            href: "/compute/auto-scaling",
+            label: "Auto Scaling Groups",
+          },
         ],
       },
       {
@@ -122,6 +130,8 @@ const navigationConfig = {
           { href: "/networking/subnets", label: "Subnets" },
           { href: "/networking/security-groups", label: "Security Groups" },
           { href: "/networking/static-ips", label: "Static IP Addresses" },
+          { href: "/networking/load-balancing", label: "Load Balancers" },
+          { href: "/networking/dns", label: "DNS" },
         ],
       },
     ],
@@ -198,6 +208,22 @@ const navigationConfig = {
       },
     ],
   },
+  kubernetes: {
+    href: "/kubernetes",
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[18px] w-[18px] text-[#64748b]">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+    ),
+    label: "Kubernetes",
+    isCategory: true,
+    subItems: [
+      {
+        href: "/kubernetes",
+        label: "Managed Kubernetes",
+      },
+    ],
+  },
   maps: {
     href: "/maps",
     icon: <MapIcon className="h-[18px] w-[18px] text-[#64748b]" />,
@@ -223,8 +249,24 @@ const navigationConfig = {
         subItems: [
           { href: "/administration/kms/storage", label: "Storage" },
           { href: "/administration/kms/models", label: "Models" },
-          { href: "/administration/kms/ssh", label: "SSH Keys" },
+          { href: "/administration/kms/service", label: "Key Management Service" },
         ],
+      },
+      {
+        href: "/administration/certificates",
+        label: "Certificate Manager",
+      },
+    ],
+  },
+  developertools: {
+    href: "/developer",
+    icon: <Code className="h-[18px] w-[18px] text-[#64748b]" />,
+    label: "Developer tools",
+    isCategory: true,
+    subItems: [
+      {
+        href: "/developer/sdks",
+        label: "SDKs",
       },
     ],
   },
@@ -463,6 +505,7 @@ const navConfig = [
       { label: "Subnets", href: "/networking/subnets" },
       { label: "Security Groups", href: "/networking/security-groups" },
       { label: "Static IP Addresses", href: "/networking/static-ips" },
+      { label: "DNS", href: "/networking/dns" },
     ],
   },
   {
@@ -769,6 +812,22 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             expandedTertiaryItem={expandedTertiaryItem}
           />
 
+          {/* Kubernetes */}
+          <NavItem
+            href={navigationConfig.kubernetes.href}
+            icon={navigationConfig.kubernetes.icon}
+            label={navigationConfig.kubernetes.label}
+            exactActive={isExactActive(navigationConfig.kubernetes.href)}
+            active={isActive(navigationConfig.kubernetes.href)}
+            expanded={expandedItem}
+            onExpand={handleExpand}
+            subItems={navigationConfig.kubernetes.subItems}
+            isCategory={navigationConfig.kubernetes.isCategory}
+            expandedSubItem={expandedSubItem}
+            onSubItemExpand={handleSubItemExpand}
+            expandedTertiaryItem={expandedTertiaryItem}
+          />
+
           {/* Maps */}
           <div className="mt-[10px]">
             <NavItem
@@ -791,6 +850,22 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
             onExpand={handleExpand}
             subItems={navigationConfig.administration.subItems}
             isCategory={navigationConfig.administration.isCategory}
+            expandedSubItem={expandedSubItem}
+            onSubItemExpand={handleSubItemExpand}
+            expandedTertiaryItem={expandedTertiaryItem}
+          />
+
+          {/* Developer tools */}
+          <NavItem
+            href={navigationConfig.developertools.href}
+            icon={navigationConfig.developertools.icon}
+            label={navigationConfig.developertools.label}
+            exactActive={isExactActive(navigationConfig.developertools.href)}
+            active={isActive(navigationConfig.developertools.href)}
+            expanded={expandedItem}
+            onExpand={handleExpand}
+            subItems={navigationConfig.developertools.subItems}
+            isCategory={navigationConfig.developertools.isCategory}
             expandedSubItem={expandedSubItem}
             onSubItemExpand={handleSubItemExpand}
             expandedTertiaryItem={expandedTertiaryItem}

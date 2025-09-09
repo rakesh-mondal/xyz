@@ -1,14 +1,11 @@
 "use client"
 
-import { PageShell } from "@/components/page-shell"
-import { CreateButton } from "@/components/create-button"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { StatusBadge } from "@/components/status-badge"
 import { loadBalancers } from "@/lib/data"
 import { ActionMenu } from "@/components/action-menu"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
-import { Button } from "@/components/ui/button"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { useToast } from "@/hooks/use-toast"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
@@ -16,8 +13,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Card, CardContent } from "@/components/ui/card"
 import { HealthIndicator, calculateOverallHealth } from "@/components/ui/health-indicator"
 
-
-export default function LoadBalancerPage() {
+export default function LoadBalancerSection() {
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -270,13 +266,7 @@ export default function LoadBalancerPage() {
   }
 
   return (
-    <PageShell
-      title="Load Balancers"
-      description="Distribute incoming traffic across multiple targets to ensure high availability and fault tolerance for your applications."
-      headerActions={
-        <CreateButton href="/networking/load-balancing/balancer/create" label="Create Load Balancer" />
-      }
-    >
+    <div>
       {showEmptyState ? (
         <Card className="mt-8">
           <CardContent>
@@ -319,6 +309,6 @@ export default function LoadBalancerPage() {
         resourceType="Load Balancer"
         onConfirm={handleDeleteConfirm}
       />
-    </PageShell>
+    </div>
   )
 }
