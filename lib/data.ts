@@ -3771,3 +3771,8 @@ export const autoScalingTemplates: AutoScalingTemplate[] = [
     tags: { Environment: "Production", Purpose: "Media Processing", Team: "Media" }
   }
 ]
+
+// Helper functions for Load Balancer data
+export const getLoadBalancer = (id: string) => {
+  return loadBalancers.find(lb => lb.id === id)
+}

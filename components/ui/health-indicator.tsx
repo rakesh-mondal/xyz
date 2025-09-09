@@ -1,79 +1,83 @@
 "use client"
 
-import { cn } from "@/lib/utils"
+import React from 'react'
+import { cn } from '@/lib/utils'
 
-export type HealthStatus = "healthy" | "mixed" | "unhealthy" | "no-targets"
+export type HealthStatus = 
+  | 'healthy' 
+  | 'unhealthy' 
+  | 'partial' 
+  | 'no-targets' 
+  | 'draining'
+  | 'unknown'
 
 interface HealthIndicatorProps {
   status: HealthStatus
-  size?: "sm" | "md" | "lg"
+  size?: 'sm' | 'md' | 'lg'
   showLabel?: boolean
   className?: string
 }
 
 const statusConfig = {
   healthy: {
-    color: "bg-green-500",
-    label: "All targets healthy",
-    textColor: "text-green-600"
-  },
-  mixed: {
-    color: "bg-yellow-500", 
-    label: "Some targets unhealthy",
-    textColor: "text-orange-600"
+    color: 'bg-green-500',
+    label: 'Healthy',
+    textColor: 'text-green-700'
   },
   unhealthy: {
-    color: "bg-red-500",
-    label: "All targets unhealthy", 
-    textColor: "text-red-600"
+    color: 'bg-red-500',
+    label: 'Unhealthy',
+    textColor: 'text-red-700'
   },
-  "no-targets": {
-    color: "bg-gray-400",
-    label: "No targets",
-    textColor: "text-muted-foreground"
+  partial: {
+    color: 'bg-yellow-500',
+    label: 'Partially Healthy',
+    textColor: 'text-yellow-700'
+  },
+  'no-targets': {
+    color: 'bg-gray-400',
+    label: 'No Targets',
+    textColor: 'text-gray-600'
+  },
+  draining: {
+    color: 'bg-blue-500',
+    label: 'Draining',
+    textColor: 'text-blue-700'
+  },
+  unknown: {
+    color: 'bg-gray-400',
+    label: 'Unknown',
+    textColor: 'text-gray-600'
   }
 }
 
 const sizeConfig = {
-  sm: {
-    dot: "h-2 w-2",
-    text: "text-xs"
-  },
-  md: {
-    dot: "h-2.5 w-2.5", 
-    text: "text-sm"
-  },
-  lg: {
-    dot: "h-3 w-3",
-    text: "text-base"
-  }
+  sm: 'w-2 h-2',
+  md: 'w-3 h-3',
+  lg: 'w-4 h-4'
 }
 
 export function HealthIndicator({ 
   status, 
-  size = "md", 
+  size = 'md', 
   showLabel = false, 
   className 
 }: HealthIndicatorProps) {
   const config = statusConfig[status]
-  const sizeStyles = sizeConfig[size]
-  
+  const sizeClass = sizeConfig[size]
+
   return (
-    <div className={cn("flex items-center gap-1.5", className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       <div 
         className={cn(
           "rounded-full flex-shrink-0",
           config.color,
-          sizeStyles.dot
+          sizeClass
         )}
         aria-label={config.label}
       />
       {showLabel && (
-        <span className={cn(
-          "font-medium",
-          config.textColor,
-          sizeStyles.text
-        )}>
+        <span className={cn("text-sm font-medium", config.textColor)}>
           {config.label}
         </span>
       )}
@@ -81,36 +85,44 @@ export function HealthIndicator({
   )
 }
 
-// Helper function to determine overall health status from target groups
-export function calculateOverallHealth(targetGroups: any[], operatingStatus?: string): HealthStatus {
-  // If operating status is inactive, target groups can never be healthy
-  if (operatingStatus === "inactive") {
-    return "unhealthy"
-  }
-  
+// Helper function to calculate overall health from target groups
+export function calculateOverallHealth(
+  targetGroups: any[], 
+  operatingStatus?: string
+): HealthStatus {
   if (!targetGroups || targetGroups.length === 0) {
-    return "no-targets"
+    return 'no-targets'
   }
-  
-  const hasHealthy = targetGroups.some(tg => tg.status === "healthy")
-  const hasUnhealthy = targetGroups.some(tg => tg.status === "unhealthy")
-  const hasMixed = targetGroups.some(tg => tg.status === "mixed")
-  
-  // If all are healthy, return healthy
-  if (hasHealthy && !hasUnhealthy && !hasMixed) {
-    return "healthy"
+
+  // If the load balancer itself is not active, return unknown
+  if (operatingStatus && operatingStatus !== 'active') {
+    return 'unknown'
   }
-  
-  // If all are unhealthy, return unhealthy
-  if (hasUnhealthy && !hasHealthy && !hasMixed) {
-    return "unhealthy"
+
+  // Count health statuses
+  const healthCounts = targetGroups.reduce((acc, group) => {
+    const health = group.status || 'unknown'
+    acc[health] = (acc[health] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  const total = targetGroups.length
+  const healthy = healthCounts.healthy || 0
+  const unhealthy = healthCounts.unhealthy || 0
+  const draining = healthCounts.draining || 0
+
+  // Determine overall health
+  if (healthy === total) {
+    return 'healthy'
+  } else if (unhealthy === total) {
+    return 'unhealthy'
+  } else if (draining > 0) {
+    return 'draining'
+  } else if (healthy > 0) {
+    return 'partial'
+  } else {
+    return 'unknown'
   }
-  
-  // If there's a mix of statuses, return mixed
-  if (hasMixed || (hasHealthy && hasUnhealthy)) {
-    return "mixed"
-  }
-  
-  // Default fallback
-  return "no-targets"
 }
+
+export default HealthIndicator
