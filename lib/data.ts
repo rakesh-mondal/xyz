@@ -3772,11 +3772,7 @@ export const autoScalingTemplates: AutoScalingTemplate[] = [
   }
 ]
 
-// Helper functions for Load Balancer and Target Group data
+// Helper functions for Load Balancer data
 export const getLoadBalancer = (id: string) => {
   return loadBalancers.find(lb => lb.id === id)
-}
-
-export const getTargetGroup = (id: string) => {
-  return targetGroups.find(tg => tg.id === id)
 }
