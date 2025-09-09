@@ -67,6 +67,7 @@ export const navigationStructure: NavCategory[] = [
         items: [
           { title: "Virtual Machines", href: "/compute/machines" },
           { title: "AI Pods", href: "/compute/ai-pods" },
+          { title: "Auto Scaling Groups", href: "/compute/auto-scaling" },
         ],
       },
       {
@@ -148,6 +149,11 @@ export const navigationStructure: NavCategory[] = [
         icon: <Key className="h-5 w-5" />,
       },
       {
+        title: "Certificate Manager",
+        href: "/administration/certificates",
+        icon: <Shield className="h-5 w-5" />,
+      },
+      {
         title: "IAM",
         href: "/iam",
         icon: <Shield className="h-5 w-5" />,
@@ -193,6 +199,7 @@ export const leftSidebarNavigation: NavCategory[] = [
         items: [
           { title: "Virtual Machines", href: "/compute/machines" },
           { title: "AI Pods", href: "/compute/ai-pods" },
+          { title: "Auto Scaling Groups", href: "/compute/auto-scaling" },
         ],
       },
       {
@@ -272,6 +279,11 @@ export const leftSidebarNavigation: NavCategory[] = [
         title: "Key Management System",
         href: "/key-management",
         icon: <Key className="h-5 w-5" />,
+      },
+      {
+        title: "Certificate Manager",
+        href: "/administration/certificates",
+        icon: <Shield className="h-5 w-5" />,
       },
       {
         title: "IAM",
