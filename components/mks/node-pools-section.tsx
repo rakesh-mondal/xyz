@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { AlertTriangle, RefreshCw } from "lucide-react"
-import { type MKSCluster, availableNodeFlavors } from "@/lib/mks-data"
+import { type MKSCluster, availableNodeFlavors, getSubnetById } from "@/lib/mks-data"
 import { NodePoolUpgradeModal } from "./node-pool-upgrade-modal"
 
 interface NodePoolsSectionProps {
@@ -15,6 +15,7 @@ interface NodePoolsSectionProps {
 
 export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+  const [preselectedNodePoolId, setPreselectedNodePoolId] = useState<string | null>(null)
 
   const capitalizeFirstLetter = (text: string) => {
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
@@ -58,7 +59,10 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsUpgradeModalOpen(true)}
+                onClick={() => {
+                  setPreselectedNodePoolId(null) // null means preselect all upgradeable
+                  setIsUpgradeModalOpen(true)
+                }}
                 className="flex items-center gap-2"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -74,9 +78,10 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
             <p className="text-sm">Node pools will appear here once configured.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {cluster.nodePools.map((pool) => {
               const flavorDetails = getFlavorDetails(pool.flavor)
+              const subnetDetails = getSubnetById(pool.subnetId)
               const isDefault = pool.name === 'prod-workers' || pool.name === 'staging-workers' || pool.name === 'dev-workers'
               const isOutdated = isNodePoolOutdated(pool.k8sVersion, cluster.k8sVersion)
               
@@ -104,13 +109,13 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
 
                   {/* Fields in specified order */}
                   <div className="space-y-3 text-xs">
-                    {/* 1) Instance type (flavour, vcpu count and ram) */}
+                    {/* 1) Instance flavour (flavour name, vcpu count and ram) */}
                     <div>
-                      <Label className="text-xs text-muted-foreground">Instance Type</Label>
+                      <Label className="text-xs text-muted-foreground">Instance Flavour</Label>
                       <div className="mt-1">
                         {flavorDetails ? (
                           <span className="text-sm">
-                            {flavorDetails.vcpus} vCPUs, {flavorDetails.memory}GB RAM
+                            {pool.flavor} ({flavorDetails.vcpus} vCPUs, {flavorDetails.memory}GB RAM)
                           </span>
                         ) : (
                           <span className="text-sm">{pool.flavor}</span>
@@ -118,8 +123,20 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                       </div>
                     </div>
 
-                    {/* 2) Disk Size and K8s Version in same row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* 2) Subnet, Disk Size and K8s Version in same row */}
+                    <div className="grid grid-cols-3 gap-6">
+                      {/* Subnet */}
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Subnet</Label>
+                        <div className="mt-1">
+                          {subnetDetails ? (
+                            <div className="text-sm font-medium">{subnetDetails.name}</div>
+                          ) : (
+                            <span className="text-sm">{pool.subnetId}</span>
+                          )}
+                        </div>
+                      </div>
+
                       {/* Disk Size */}
                       <div>
                         <Label className="text-xs text-muted-foreground">Disk Size</Label>
@@ -137,7 +154,10 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setIsUpgradeModalOpen(true)}
+                              onClick={() => {
+                                setPreselectedNodePoolId(pool.id)
+                                setIsUpgradeModalOpen(true)
+                              }}
                               className="text-xs h-6 px-2 text-orange-600 border-orange-200 hover:bg-orange-50"
                             >
                               Upgrade
@@ -152,10 +172,10 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                       </div>
                     </div>
 
-                    {/* 3) Node counts (min, desired, max) */}
+                    {/* 4) Node counts (min, desired, max) */}
                     <div>
                       <Label className="text-xs text-muted-foreground">Node Counts</Label>
-                      <div className="flex items-center gap-6 mt-2">
+                      <div className="flex items-center gap-8 mt-2">
                         <div className="text-center">
                           <div className="text-xs text-muted-foreground mb-1">Min</div>
                           <div className="font-semibold text-lg">{pool.minCount}</div>
@@ -184,8 +204,12 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
       <NodePoolUpgradeModal
         cluster={cluster}
         isOpen={isUpgradeModalOpen}
-        onClose={() => setIsUpgradeModalOpen(false)}
+        onClose={() => {
+          setIsUpgradeModalOpen(false)
+          setPreselectedNodePoolId(null)
+        }}
         onConfirm={handleNodePoolUpgradeConfirm}
+        preselectedNodePoolId={preselectedNodePoolId}
       />
     </TooltipProvider>
   )

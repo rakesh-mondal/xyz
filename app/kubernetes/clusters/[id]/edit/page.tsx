@@ -274,7 +274,7 @@ export default function EditClusterPage() {
       description="Modify node pools and cluster configuration"
       customBreadcrumbs={[
         { title: 'Kubernetes', href: '/kubernetes' },
-        { title: 'Clusters', href: '/kubernetes' },
+        { title: 'Clusters', href: '/kubernetes/clusters' },
         { title: cluster.name, href: `/kubernetes/clusters/${cluster.id}` },
         { title: 'Edit', href: `/kubernetes/clusters/${cluster.id}/edit` }
       ]}

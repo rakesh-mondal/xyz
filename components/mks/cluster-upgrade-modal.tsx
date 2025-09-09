@@ -48,15 +48,11 @@ export function ClusterUpgradeModal({ cluster, isOpen, onClose, onConfirm }: Clu
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0 pb-4">
-          <DialogTitle className="flex items-center gap-2">
-            {canUpgrade ? (
-              <CheckCircle className="h-5 w-5 text-blue-600" />
-            ) : (
-              <XCircle className="h-5 w-5 text-red-600" />
-            )}
+        <DialogHeader className="space-y-3 pb-4">
+          <DialogTitle className="text-base font-semibold text-black pr-8">
             {canUpgrade ? 'Upgrade Kubernetes Cluster' : 'No Upgrade Available'}
           </DialogTitle>
+          <hr className="border-border" />
           <DialogDescription>
             {canUpgrade 
               ? `Upgrade ${cluster.name} to a newer Kubernetes version`

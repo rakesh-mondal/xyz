@@ -116,7 +116,7 @@ export default function ClusterDetailsPage() {
   const customBreadcrumbs = [
     { href: "/dashboard", title: "Home" },
     { href: "/kubernetes", title: "Kubernetes" },
-    { href: "/kubernetes", title: "Clusters" },
+    { href: "/kubernetes/clusters", title: "Clusters" },
     { href: `/kubernetes/clusters/${cluster.id}`, title: cluster.name }
   ]
 

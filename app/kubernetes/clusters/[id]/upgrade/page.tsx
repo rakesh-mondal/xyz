@@ -67,7 +67,7 @@ export default function UpgradeClusterPage() {
       description="Upgrade your Kubernetes cluster to a newer version"
       customBreadcrumbs={[
         { title: 'Kubernetes', href: '/kubernetes' },
-        { title: 'Clusters', href: '/kubernetes' },
+        { title: 'Clusters', href: '/kubernetes/clusters' },
         { title: cluster.name, href: `/kubernetes/clusters/${cluster.id}` },
         { title: 'Upgrade', href: `/kubernetes/clusters/${cluster.id}/upgrade` }
       ]}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -15,6 +15,7 @@ interface NodePoolUpgradeModalProps {
   onClose: () => void
   cluster: MKSCluster
   onConfirm: (selectedNodePoolIds: string[], targetVersion: string) => void
+  preselectedNodePoolId?: string | null
 }
 
 interface NodePoolUpgradeInfo {
@@ -29,30 +30,35 @@ export function NodePoolUpgradeModal({
   isOpen, 
   onClose, 
   cluster, 
-  onConfirm 
+  onConfirm,
+  preselectedNodePoolId
 }: NodePoolUpgradeModalProps) {
   const { toast } = useToast()
   const [selectedNodePools, setSelectedNodePools] = useState<Set<string>>(new Set())
   const [isUpgrading, setIsUpgrading] = useState(false)
 
-  // Calculate upgrade info for each node pool
-  const nodePoolUpgradeInfo: NodePoolUpgradeInfo[] = cluster.nodePools.map(nodePool => {
-    const currentVersion = nodePool.k8sVersion
-    const nextVersion = getNextK8sVersion(currentVersion)
-    const canUpgrade = nextVersion !== null && currentVersion !== cluster.k8sVersion
+  // Calculate upgrade info for each node pool (memoized to prevent infinite loops)
+  const { nodePoolUpgradeInfo, upgradeableNodePools, nonUpgradeableNodePools } = useMemo(() => {
+    const info: NodePoolUpgradeInfo[] = cluster.nodePools.map(nodePool => {
+      const currentVersion = nodePool.k8sVersion
+      const nextVersion = getNextK8sVersion(currentVersion)
+      const canUpgrade = nextVersion !== null && currentVersion !== cluster.k8sVersion
+
+      return {
+        nodePool,
+        currentVersion,
+        nextVersion,
+        canUpgrade,
+        isSelected: false
+      }
+    })
 
     return {
-      nodePool,
-      currentVersion,
-      nextVersion,
-      canUpgrade,
-      isSelected: false
+      nodePoolUpgradeInfo: info,
+      upgradeableNodePools: info.filter(info => info.canUpgrade),
+      nonUpgradeableNodePools: info.filter(info => !info.canUpgrade)
     }
-  })
-
-  // Filter upgradeable node pools
-  const upgradeableNodePools = nodePoolUpgradeInfo.filter(info => info.canUpgrade)
-  const nonUpgradeableNodePools = nodePoolUpgradeInfo.filter(info => !info.canUpgrade)
+  }, [cluster.nodePools, cluster.k8sVersion])
 
   // Handle individual node pool selection
   const handleNodePoolToggle = (nodePoolId: string) => {
@@ -72,7 +78,7 @@ export function NodePoolUpgradeModal({
       setSelectedNodePools(new Set())
     } else {
       // Select all upgradeable
-      setSelectedNodePools(new Set(upgradeableNodePools.map(info => info.nodePool.id)))
+      setSelectedNodePools(new Set(upgradeableNodePoolIds))
     }
   }
 
@@ -115,21 +121,40 @@ export function NodePoolUpgradeModal({
     }
   }
 
-  // Reset selection when modal opens/closes
+  // Memoize upgradeable node pool IDs to avoid dependency issues
+  const upgradeableNodePoolIds = useMemo(() => 
+    upgradeableNodePools.map(info => info.nodePool.id), 
+    [upgradeableNodePools]
+  )
+
+  // Handle preselection when modal opens
   useEffect(() => {
     if (isOpen) {
-      setSelectedNodePools(new Set())
+      if (preselectedNodePoolId) {
+        // Preselect specific node pool if it's upgradeable
+        if (upgradeableNodePoolIds.includes(preselectedNodePoolId)) {
+          setSelectedNodePools(new Set([preselectedNodePoolId]))
+        } else {
+          setSelectedNodePools(new Set())
+        }
+      } else if (preselectedNodePoolId === null) {
+        // null means preselect all upgradeable node pools
+        setSelectedNodePools(new Set(upgradeableNodePoolIds))
+      } else {
+        // undefined means no preselection
+        setSelectedNodePools(new Set())
+      }
     }
-  }, [isOpen])
+  }, [isOpen, preselectedNodePoolId, upgradeableNodePoolIds])
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Server className="h-5 w-5" />
+        <DialogHeader className="space-y-3 pb-4">
+          <DialogTitle className="text-base font-semibold text-black pr-8">
             Upgrade Node Pools
           </DialogTitle>
+          <hr className="border-border" />
           <DialogDescription>
             Select node pools to upgrade to their next Kubernetes version. Node pools can only be upgraded if the cluster is already on a newer version.
           </DialogDescription>
