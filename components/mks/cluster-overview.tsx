@@ -108,10 +108,18 @@ export function ClusterOverview({ cluster }: ClusterOverviewProps) {
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Server className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">Total Nodes</span>
+              <Network className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Pod CIDR</span>
             </div>
-            <span className="text-2xl font-bold">{cluster.nodeCount}</span>
+            <span className="text-lg font-mono font-medium">{cluster.podCIDR}</span>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Network className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Service CIDR</span>
+            </div>
+            <span className="text-lg font-mono font-medium">{cluster.serviceCIDR}</span>
           </div>
         </div>
 
@@ -163,9 +171,19 @@ export function ClusterOverview({ cluster }: ClusterOverviewProps) {
                 <span className="text-muted-foreground">VPC:</span>
                 <span className="font-mono text-xs">{cluster.vpcId}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-start">
                 <span className="text-muted-foreground">Subnets:</span>
-                <span className="font-mono text-xs">{cluster.subnetIds.length}</span>
+                <div className="text-right">
+                  {cluster.subnetIds.length > 0 ? (
+                    cluster.subnetIds.map((subnetId, index) => (
+                      <div key={subnetId} className="font-medium text-sm">
+                        {subnetId}
+                      </div>
+                    ))
+                  ) : (
+                    <span className="font-medium text-sm">None</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>

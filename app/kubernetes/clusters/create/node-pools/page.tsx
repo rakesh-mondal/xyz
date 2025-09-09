@@ -36,7 +36,7 @@ const storagePresets = [
 ]
 
 // Storage notches for visual markers on slider
-const storageNotches = [50, 100, 250, 500, 1000, 1500, 2048]
+const storageNotches = [50, 100, 250, 500, 750, 1000, 1024]
 
 // Mock security groups data
 const mockSecurityGroups = [
@@ -490,6 +490,23 @@ ${nodePoolsYAML}`
                     </div>
                   </div>
                   
+                  {/* Request Higher Node Limits Link */}
+                  <div className="text-right">
+                    <button 
+                      type="button"
+                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                      onClick={() => {
+                        // In a real implementation, this would open a support form or redirect to limits page
+                        toast({
+                          title: "Request Submitted",
+                          description: "Your request for higher node limits has been submitted to our support team.",
+                        })
+                      }}
+                    >
+                      Request Higher Limits
+                    </button>
+                  </div>
+                  
                   {/* Validation */}
                   {pool.minNodes > pool.maxNodes && (
                     <p className="text-xs text-destructive">Min nodes cannot be greater than max nodes</p>
@@ -502,11 +519,26 @@ ${nodePoolsYAML}`
                   )}
                 </div>
 
-                {/* Storage Selection */}
+                {/* Bootable Volume Selection */}
                 <div className="space-y-4">
                   <Label className="text-sm font-medium">
-                    Storage Size (GB) <span className="text-destructive">*</span>
+                    Bootable Volume <span className="text-destructive">*</span>
                   </Label>
+                  
+                  {/* Machine Image */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Machine Image</Label>
+                    <Input
+                      value="Ubuntu"
+                      disabled
+                      className="bg-muted text-muted-foreground cursor-not-allowed"
+                      placeholder="Ubuntu"
+                    />
+                  </div>
+                  
+                  {/* Storage Size */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Storage Size (GB)</Label>
 
                   {/* Enhanced Storage Selection UI */}
                   <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 rounded-xl space-y-5">
@@ -518,18 +550,18 @@ ${nodePoolsYAML}`
                           type="number"
                           value={pool.storageSize}
                           onChange={(e) => {
-                            const value = Math.max(50, Math.min(2048, Number(e.target.value) || 50))
+                            const value = Math.max(50, Math.min(1024, Number(e.target.value) || 50))
                             updateNodePool(pool.id, { storageSize: value })
                             setTimeout(() => {
                               setHighlightedStorage(pool.id)
                               setTimeout(() => setHighlightedStorage(null), 2000)
                             }, 300)
                           }}
-                          className={`w-32 h-12 text-center text-lg font-semibold pr-10 border-2 transition-all duration-500 ${
+                          className={`w-32 h-12 text-center text-lg font-semibold pr-10 border-2 transition-all duration-300 ${
                             highlightedStorage === pool.id 
-                              ? "border-green-500 bg-green-50 shadow-lg shadow-green-500/30 scale-110 ring-4 ring-green-500/20 animate-pulse" 
+                              ? "border-green-500 bg-green-50" 
                               : draggingStorage === pool.id
-                              ? "border-green-400 bg-green-50 scale-105"
+                              ? "border-green-400 bg-green-50"
                               : "border-slate-300 hover:border-slate-400"
                           }`}
                           min={50}
@@ -539,9 +571,6 @@ ${nodePoolsYAML}`
                         <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-medium text-muted-foreground pointer-events-none">
                           GB
                         </span>
-                        {highlightedStorage === pool.id && (
-                          <div className="absolute -inset-1 bg-gradient-to-r from-green-500/20 to-green-400/10 rounded-lg blur-sm"></div>
-                        )}
                       </div>
                     </div>
 
@@ -565,7 +594,7 @@ ${nodePoolsYAML}`
                               setTimeout(() => setHighlightedStorage(null), 2000)
                             }, 300)
                           }}
-                          max={2048}
+                          max={1024}
                           min={50}
                           step={25}
                           className="w-full"
@@ -602,12 +631,12 @@ ${nodePoolsYAML}`
                             </div>
                             <div className="flex flex-col items-center">
                               <div className={`w-0.5 h-2 transition-all duration-200 ${
-                                Math.abs(pool.storageSize - 2048) <= 25 ? "bg-primary" : "bg-slate-300"
+                                Math.abs(pool.storageSize - 1024) <= 25 ? "bg-primary" : "bg-slate-300"
                               }`} />
                               <span className={`text-xs mt-1 transition-all duration-200 ${
-                                Math.abs(pool.storageSize - 2048) <= 25 ? "text-primary font-medium" : "text-muted-foreground"
+                                Math.abs(pool.storageSize - 1024) <= 25 ? "text-primary font-medium" : "text-muted-foreground"
                               }`}>
-                                2TB
+                                1TB
                               </span>
                             </div>
                           </div>

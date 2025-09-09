@@ -5,11 +5,12 @@ import { useState } from "react"
 import { PageLayout } from "@/components/page-layout"
 import { DetailGrid } from "@/components/detail-grid"
 import { StatusBadge } from "@/components/status-badge"
-import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
+import { ClusterDeleteModal } from "@/components/mks/cluster-delete-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
@@ -82,9 +83,10 @@ export default function ClusterDetailsPage() {
     router.push(`/kubernetes/clusters/${cluster.id}/edit`)
   }
 
-  const handleDelete = () => {
-    // In a real app, this would delete the cluster
-    console.log("Deleting cluster:", cluster.name)
+  const handleDelete = async (clusterId: string) => {
+    // In a real app, this would call the API to delete the cluster
+    console.log("Deleting cluster:", clusterId)
+    setIsDeleteModalOpen(false)
     router.push("/kubernetes")
   }
 
@@ -206,44 +208,77 @@ export default function ClusterDetailsPage() {
                   {cluster.k8sVersion}
                 </Badge>
                 {isDeprecated && (
-                  <Badge variant="destructive" className="text-xs">
-                    Unsupported
-                  </Badge>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="destructive" className="text-xs cursor-help">
+                          Unsupported
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>This version is deprecated. Please upgrade your cluster to a supported Kubernetes version.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                {isUpgradeAvailable && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          onClick={() => setIsUpgradeModalOpen(true)}
+                          variant="outline"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-700 border-blue-200 hover:bg-blue-50"
+                        >
+                          <ArrowUpRight className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Upgrade to version {nextVersion}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
               </div>
-              {isUpgradeAvailable && (
-                <div className="text-sm text-gray-700 mt-2">
-                  <strong>Action Required:</strong> Your cluster is running on an unsupported version. Please upgrade to version {nextVersion} — the nearest supported release — to ensure continued security and support.
-                  <Button 
-                    onClick={() => setIsUpgradeModalOpen(true)}
-                    variant="link"
-                    className="ml-1 p-0 h-auto text-blue-600 hover:text-blue-700 font-medium"
-                    size="sm"
-                  >
-                    Upgrade Now
-                  </Button>
-                </div>
-              )}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Node Pool Version</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>
-                {cluster.nodePools.length > 0 ? cluster.nodePools[0].k8sVersion : 'N/A'}
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="font-mono">
+                  {cluster.nodePools.length > 0 ? cluster.nodePools[0].k8sVersion : 'N/A'}
+                </Badge>
               </div>
             </div>
           </div>
           
-          {/* Additional info row: Total Nodes, Subnets, API Endpoint - spans 2 columns */}
+          {/* Additional info row: Pod CIDR, Service CIDR, Subnets, API Endpoint */}
           <div className="col-span-full grid grid-cols-4 gap-4 mt-4">
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Total Nodes</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.nodeCount}</div>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Pod CIDR</label>
+              <div className="font-medium font-mono" style={{ fontSize: '14px' }}>{cluster.podCIDR}</div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Service CIDR</label>
+              <div className="font-medium font-mono" style={{ fontSize: '14px' }}>{cluster.serviceCIDR}</div>
             </div>
             <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnets</label>
-              <div className="font-medium" style={{ fontSize: '14px' }}>{cluster.subnetIds.length}</div>
+              <div className="font-medium" style={{ fontSize: '14px' }}>
+                {cluster.subnetIds.length > 0 ? (
+                  <div className="space-y-1">
+                    {cluster.subnetIds.map((subnetId, index) => (
+                      <div key={subnetId} className="font-medium" style={{ fontSize: '14px' }}>
+                        {subnetId}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  'None'
+                )}
+              </div>
             </div>
-            <div className="col-span-2 space-y-1">
+            <div className="space-y-1">
               <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>API Endpoint</label>
               <div className="bg-muted/50 p-3 rounded-lg">
                 <code className="text-sm font-mono break-all">
@@ -343,12 +378,12 @@ export default function ClusterDetailsPage() {
         onConfirm={handleConfirmUpgrade}
       />
 
-      <DeleteConfirmationModal
+      <ClusterDeleteModal
+        cluster={cluster}
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        resourceName={cluster.name}
-        resourceType="Cluster"
         onConfirm={handleDelete}
+        onEditCluster={handleEdit}
       />
     </PageLayout>
   )

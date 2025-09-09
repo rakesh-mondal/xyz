@@ -15,6 +15,8 @@ export interface MKSCluster {
   kubeApiEndpoint: string
   nodePools: MKSNodePool[]
   addOns: MKSAddOn[]
+  podCIDR: string
+  serviceCIDR: string
   description?: string
   estimatedCompletionTime?: string
   creationProgress?: number
@@ -165,6 +167,8 @@ export const mockMKSClusters: MKSCluster[] = [
     subnetIds: ['subnet-prod-1a', 'subnet-prod-1b'],
     securityGroupIds: ['sg-prod-cluster'],
     kubeApiEndpoint: 'https://api.production-cluster.k8s.local',
+    podCIDR: '10.244.0.0/16',
+    serviceCIDR: '10.96.0.0/12',
     nodePools: [
       {
         id: 'np-prod-1',
@@ -210,6 +214,8 @@ export const mockMKSClusters: MKSCluster[] = [
     subnetIds: ['subnet-staging-1a'],
     securityGroupIds: ['sg-staging-cluster'],
     kubeApiEndpoint: 'https://api.staging-cluster.k8s.local',
+    podCIDR: '10.245.0.0/16',
+    serviceCIDR: '10.97.0.0/12',
     nodePools: [
       {
         id: 'np-staging-1',
@@ -255,6 +261,8 @@ export const mockMKSClusters: MKSCluster[] = [
     subnetIds: ['subnet-dev-1a'],
     securityGroupIds: ['sg-dev-cluster'],
     kubeApiEndpoint: 'https://api.dev-cluster.k8s.local',
+    podCIDR: '10.246.0.0/16',
+    serviceCIDR: '10.98.0.0/12',
     nodePools: [
       {
         id: 'np-dev-1',
@@ -286,6 +294,8 @@ export const mockMKSClusters: MKSCluster[] = [
     subnetIds: ['subnet-test-1a'],
     securityGroupIds: ['sg-test-cluster'],
     kubeApiEndpoint: 'https://api.test-cluster.k8s.local',
+    podCIDR: '10.247.0.0/16',
+    serviceCIDR: '10.99.0.0/12',
     nodePools: [
       {
         id: 'np-test-1',
@@ -317,6 +327,8 @@ export const mockMKSClusters: MKSCluster[] = [
     subnetIds: ['subnet-demo-1a'],
     securityGroupIds: ['sg-demo-cluster'],
     kubeApiEndpoint: 'https://api.demo-cluster.k8s.local',
+    podCIDR: '10.248.0.0/16',
+    serviceCIDR: '10.100.0.0/12',
     nodePools: [
       {
         id: 'np-demo-1',
@@ -399,6 +411,38 @@ export const getNextK8sVersion = (currentVersion: string): string | null => {
     '1.33.0': null // No upgrade available
   }
   return versionMap[currentVersion] || null
+}
+
+// Add-on version upgrade mappings
+export const addonVersionUpgrades: Record<string, Record<string, string>> = {
+  'addon-monitoring': {
+    'v0.68.0': 'v0.69.0',
+    'v0.69.0': 'v0.70.0'
+  },
+  'addon-networking': {
+    'v3.26.1': 'v3.27.0',
+    'v3.27.0': 'v3.28.0'
+  },
+  'addon-security': {
+    'v1.13.3': 'v1.14.0',
+    'v1.14.0': 'v1.15.0'
+  },
+  'addon-storage': {
+    'v2.20.0': 'v2.21.0',
+    'v2.21.0': 'v2.22.0'
+  },
+  'addon-development': {
+    'v0.35.0': 'v0.36.0',
+    'v0.36.0': 'v0.37.0'
+  }
+}
+
+// Function to get next available add-on version
+export const getNextAddonVersion = (addonId: string, currentVersion: string): string | null => {
+  const addonUpgrades = addonVersionUpgrades[addonId]
+  if (!addonUpgrades) return null
+  
+  return addonUpgrades[currentVersion] || null
 }
 
 export const getRegionDisplayName = (regionId: string): string => {

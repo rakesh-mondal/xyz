@@ -89,11 +89,6 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                     </div>
                     
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {isDefault && (
-                        <Badge variant="secondary" className="text-xs h-5 cursor-default hover:bg-secondary hover:text-secondary-foreground">
-                          Default
-                        </Badge>
-                      )}
                       <Badge 
                         variant="secondary" 
                         className={`text-xs h-5 cursor-default ${
@@ -112,51 +107,23 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                     {/* 1) Instance type (flavour, vcpu count and ram) */}
                     <div>
                       <Label className="text-xs text-muted-foreground">Instance Type</Label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="font-mono text-xs h-5">
-                          {pool.flavor}
-                        </Badge>
-                        {flavorDetails && (
-                          <span className="text-muted-foreground text-xs">
+                      <div className="mt-1">
+                        {flavorDetails ? (
+                          <span className="text-sm">
                             {flavorDetails.vcpus} vCPUs, {flavorDetails.memory}GB RAM
                           </span>
+                        ) : (
+                          <span className="text-sm">{pool.flavor}</span>
                         )}
                       </div>
                     </div>
 
-                    {/* 2) Node counts (min, desired, max) */}
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Node Counts</Label>
-                      <div className="flex items-center gap-6 mt-2">
-                        <div className="text-center">
-                          <div className="text-xs text-muted-foreground mb-1">Min</div>
-                          <div className="font-semibold text-lg">{pool.minCount}</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xs text-muted-foreground mb-1">Desired</div>
-                          <div className="font-semibold text-lg">{pool.desiredCount}</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xs text-muted-foreground mb-1">Max</div>
-                          <div className="font-semibold text-lg">{pool.maxCount}</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 3) Disk Size, Created On, and K8s Version in same row */}
-                    <div className="grid grid-cols-3 gap-4">
+                    {/* 2) Disk Size and K8s Version in same row */}
+                    <div className="grid grid-cols-2 gap-4">
                       {/* Disk Size */}
                       <div>
                         <Label className="text-xs text-muted-foreground">Disk Size</Label>
                         <div className="mt-1">{pool.diskSize} GB</div>
-                      </div>
-
-                      {/* Created On */}
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Created On</Label>
-                        <div className="mt-1">
-                          {new Date(pool.createdAt).toLocaleDateString()}
-                        </div>
                       </div>
 
                       {/* K8s Version */}
@@ -182,6 +149,25 @@ export function NodePoolsSection({ cluster }: NodePoolsSectionProps) {
                             Cluster: v{cluster.k8sVersion}
                           </div>
                         )}
+                      </div>
+                    </div>
+
+                    {/* 3) Node counts (min, desired, max) */}
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Node Counts</Label>
+                      <div className="flex items-center gap-6 mt-2">
+                        <div className="text-center">
+                          <div className="text-xs text-muted-foreground mb-1">Min</div>
+                          <div className="font-semibold text-lg">{pool.minCount}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-xs text-muted-foreground mb-1">Desired</div>
+                          <div className="font-semibold text-lg">{pool.desiredCount}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-xs text-muted-foreground mb-1">Max</div>
+                          <div className="font-semibold text-lg">{pool.maxCount}</div>
+                        </div>
                       </div>
                     </div>
                   </div>

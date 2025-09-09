@@ -13,9 +13,10 @@ interface ClusterDeleteModalProps {
   isOpen: boolean
   onClose: () => void
   onConfirm: (clusterId: string) => void
+  onEditCluster?: () => void
 }
 
-export function ClusterDeleteModal({ cluster, isOpen, onClose, onConfirm }: ClusterDeleteModalProps) {
+export function ClusterDeleteModal({ cluster, isOpen, onClose, onConfirm, onEditCluster }: ClusterDeleteModalProps) {
   const [confirmationText, setConfirmationText] = useState("")
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -50,8 +51,7 @@ export function ClusterDeleteModal({ cluster, isOpen, onClose, onConfirm }: Clus
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
-              <AlertTriangle className="h-5 w-5" />
+            <DialogTitle className="text-red-600">
               Cannot Delete Cluster
             </DialogTitle>
             <DialogDescription>
@@ -88,8 +88,9 @@ export function ClusterDeleteModal({ cluster, isOpen, onClose, onConfirm }: Clus
             </Button>
             <Button 
               onClick={() => {
-                // This would navigate to edit cluster page
-                console.log('Navigate to edit cluster')
+                if (onEditCluster) {
+                  onEditCluster()
+                }
                 onClose()
               }}
               className="bg-black text-white hover:bg-black/90"

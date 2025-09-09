@@ -44,6 +44,8 @@ export interface ClusterConfiguration {
   subnetIds: string[]
   kubernetesVersion: string
   apiServerEndpoint: APIServerEndpoint
+  podCIDR: string
+  serviceCIDR: string
 }
 
 export interface CostBreakdown {

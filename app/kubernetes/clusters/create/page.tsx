@@ -18,6 +18,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ExternalLink, AlertCircle, Info, Plus, X, Server, AlertTriangle, Download, ChevronDown, ChevronRight, Search, Check, HardDrive, Trash2 } from "lucide-react"
 import Link from "next/link"
@@ -134,7 +135,9 @@ export default function CreateClusterPage() {
     kubernetesVersion: "",
     apiServerEndpoint: {
       type: "public"
-    }
+    },
+    podCIDR: "10.244.0.0/16",
+    serviceCIDR: "10.96.0.0/12"
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -720,11 +723,6 @@ export default function CreateClusterPage() {
                                     Recommended
                                   </Badge>
                                 )}
-                                {version.isLatest && (
-                                  <Badge variant="default" className="text-xs">
-                                    Latest
-                                  </Badge>
-                                )}
                               </div>
                               <span className="text-sm text-muted-foreground ml-4">
                                 EOL: {version.eolDate}
@@ -737,6 +735,72 @@ export default function CreateClusterPage() {
                     {errors.kubernetesVersion && (
                       <p className="text-sm text-red-600 mt-1">{errors.kubernetesVersion}</p>
                     )}
+                  </div>
+                </div>
+
+                {/* Network Configuration */}
+                <div className="mb-8">
+                  <div className="mb-5">
+                    <h3 className="text-lg font-medium mb-4">Network Configuration</h3>
+                    
+                    {/* Pod CIDR and Service CIDR in same row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {/* Pod CIDR */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Label className="font-medium">
+                            Pod CIDR <span className="text-destructive">*</span>
+                          </Label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>IP address range for pods in your worker nodes</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <Input
+                          value={configuration.podCIDR || ""}
+                          onChange={(e) => setConfiguration(prev => ({ ...prev, podCIDR: e.target.value }))}
+                          placeholder="10.244.0.0/16"
+                          className={`font-mono ${errors.podCIDR ? "border-red-300 bg-red-50" : ""}`}
+                        />
+                        {errors.podCIDR && (
+                          <p className="text-sm text-red-600 mt-1">{errors.podCIDR}</p>
+                        )}
+                      </div>
+
+                      {/* Service CIDR */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Label className="font-medium">
+                            Service CIDR <span className="text-destructive">*</span>
+                          </Label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>IP address range for services which will be connected to the pods in your worker nodes</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <Input
+                          value={configuration.serviceCIDR || ""}
+                          onChange={(e) => setConfiguration(prev => ({ ...prev, serviceCIDR: e.target.value }))}
+                          placeholder="10.96.0.0/12"
+                          className={`font-mono ${errors.serviceCIDR ? "border-red-300 bg-red-50" : ""}`}
+                        />
+                        {errors.serviceCIDR && (
+                          <p className="text-sm text-red-600 mt-1">{errors.serviceCIDR}</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1000,6 +1064,7 @@ function NodePoolsAndAddonsView({
   clusterCost: { hourly: number; monthly: number }
   clusterCreationStarted: boolean
 }) {
+  const { toast } = useToast()
   // Node Pools State
   const [nodePools, setNodePools] = useState<NodePool[]>([
     {
@@ -1475,6 +1540,23 @@ ${nodePoolsYAML}`
                       </div>
                     </div>
                     
+                    {/* Request Higher Node Limits Link */}
+                    <div className="text-right">
+                      <button 
+                        type="button"
+                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                        onClick={() => {
+                          // In a real implementation, this would open a support form or redirect to limits page
+                          toast({
+                            title: "Request Submitted",
+                            description: "Your request for higher node limits has been submitted to our support team.",
+                          })
+                        }}
+                      >
+                        Request Higher Limits
+                      </button>
+                    </div>
+                    
                     {/* Validation */}
                     {pool.minNodes > pool.maxNodes && (
                       <p className="text-xs text-destructive">Min nodes cannot be greater than max nodes</p>
@@ -1487,11 +1569,27 @@ ${nodePoolsYAML}`
                     )}
                   </div>
 
-                  {/* Storage Selection */}
+                  {/* Bootable Volume Selection */}
                   <div className="space-y-4">
                     <Label className="text-sm font-medium">
-                      Storage Size (GB) <span className="text-destructive">*</span>
+                      Bootable Volume <span className="text-destructive">*</span>
                     </Label>
+                    
+                    {/* Machine Image */}
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Machine Image</Label>
+                      <Input
+                        value="Ubuntu"
+                        disabled
+                        className="bg-muted text-muted-foreground cursor-not-allowed"
+                        placeholder="Ubuntu"
+                      />
+                    </div>
+                    
+                    {/* Storage Size */}
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Storage Size (GB)</Label>
+                    </div>
 
                     {/* Enhanced Storage Selection UI */}
                     <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 rounded-xl space-y-5">
@@ -1506,18 +1604,18 @@ ${nodePoolsYAML}`
                               type="number"
                               value={pool.storageSize}
                               onChange={(e) => {
-                                const value = Math.max(50, Math.min(2048, Number(e.target.value) || 50))
+                                const value = Math.max(50, Math.min(1024, Number(e.target.value) || 50))
                                 updateNodePool(pool.id, { storageSize: value })
                                 setTimeout(() => {
                                   setHighlightedStorage(pool.id)
                                   setTimeout(() => setHighlightedStorage(null), 2000)
                                 }, 300)
                               }}
-                              className={`w-32 h-10 text-center text-base font-semibold pr-10 border-2 transition-all duration-500 ${
+                              className={`w-32 h-10 text-center text-base font-semibold pr-10 border-2 transition-all duration-300 ${
                                 highlightedStorage === pool.id 
-                                  ? "border-green-500 bg-green-50 shadow-lg shadow-green-500/30 scale-110 ring-4 ring-green-500/20 animate-pulse" 
+                                  ? "border-green-500 bg-green-50" 
                                   : draggingStorage === pool.id
-                                  ? "border-green-400 bg-green-50 scale-105"
+                                  ? "border-green-400 bg-green-50"
                                   : "border-slate-300 hover:border-slate-400"
                               }`}
                               min={50}
@@ -1527,9 +1625,6 @@ ${nodePoolsYAML}`
                             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-medium text-muted-foreground pointer-events-none">
                               GB
                             </span>
-                            {highlightedStorage === pool.id && (
-                              <div className="absolute -inset-1 bg-gradient-to-r from-green-500/20 to-green-400/10 rounded-lg blur-sm"></div>
-                            )}
                           </div>
                         </div>
 
@@ -1583,7 +1678,7 @@ ${nodePoolsYAML}`
                                 setTimeout(() => setHighlightedStorage(null), 2000)
                               }, 300)
                             }}
-                            max={2048}
+                            max={1024}
                             min={50}
                             step={25}
                             className="w-full"
@@ -1620,12 +1715,12 @@ ${nodePoolsYAML}`
                               </div>
                               <div className="flex flex-col items-center">
                                 <div className={`w-0.5 h-2 transition-all duration-200 ${
-                                  Math.abs(pool.storageSize - 2048) <= 25 ? "bg-primary" : "bg-slate-300"
+                                  Math.abs(pool.storageSize - 1024) <= 25 ? "bg-primary" : "bg-slate-300"
                                 }`} />
                                 <span className={`text-xs mt-1 transition-all duration-200 ${
-                                  Math.abs(pool.storageSize - 2048) <= 25 ? "text-primary font-medium" : "text-muted-foreground"
+                                  Math.abs(pool.storageSize - 1024) <= 25 ? "text-primary font-medium" : "text-muted-foreground"
                                 }`}>
-                                  2TB
+                                  1TB
                                 </span>
                               </div>
                             </div>
@@ -1924,14 +2019,46 @@ ${nodePoolsYAML}`
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
                   {defaultAddons.map((addon) => (
-                    <div key={addon.id} className="p-4 border rounded-lg relative">
-                      <Badge variant="outline" className="absolute top-3 right-3 text-xs font-medium">
-                        {addon.version}
-                      </Badge>
-                      <div className="space-y-1 pr-16">
-                        <div className="text-sm font-medium leading-none">
-                          {addon.name}
+                    <div 
+                      key={addon.id} 
+                      className={`p-4 border rounded-lg relative cursor-pointer transition-all hover:border-gray-300 ${
+                        addon.enabled 
+                          ? 'border-primary bg-primary/5' 
+                          : 'border-border bg-card'
+                      }`}
+                      onClick={() => {
+                        setDefaultAddons(prev => prev.map(a => 
+                          a.id === addon.id ? { ...a, enabled: !a.enabled } : a
+                        ))
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* Checkbox positioned on the left */}
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                          addon.enabled 
+                            ? 'border-primary bg-primary' 
+                            : 'border-gray-300'
+                        }`}>
+                          {addon.enabled && (
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
                         </div>
+                        
+                        {/* Title and version on the same line */}
+                        <div className="flex items-center justify-between flex-1 min-w-0">
+                          <div className="text-sm font-medium leading-none">
+                            {addon.name}
+                          </div>
+                          <Badge variant="outline" className="text-xs font-medium ml-2">
+                            {addon.version}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {/* Description on separate line */}
+                      <div className="mt-2 ml-8">
                         <p className="text-sm text-muted-foreground">
                           {addon.description}
                         </p>

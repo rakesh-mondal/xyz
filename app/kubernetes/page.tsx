@@ -16,7 +16,7 @@ import { ClusterDeleteModal } from "@/components/mks/cluster-delete-modal"
 import { ClusterUpgradeModal } from "@/components/mks/cluster-upgrade-modal"
 import { NodePoolUpgradeModal } from "@/components/mks/node-pool-upgrade-modal"
 import { mockMKSClusters, type MKSCluster, isK8sVersionDeprecated, getNextK8sVersion } from "@/lib/mks-data"
-import { MoreVertical, ExternalLink, Clock, CheckCircle, AlertCircle, XCircle, AlertTriangle, RefreshCw, Server } from "lucide-react"
+import { MoreVertical, ExternalLink, Clock, CheckCircle, AlertCircle, XCircle, AlertTriangle, RefreshCw, Server, Download } from "lucide-react"
 import Link from "next/link"
 
 export default function MKSDashboardPage() {
@@ -114,6 +114,43 @@ export default function MKSDashboardPage() {
   const handleUpgradeNodePools = (cluster: MKSCluster) => {
     setClusterForNodePoolUpgrade(cluster)
     setNodePoolUpgradeModalOpen(true)
+  }
+
+  const handleDownloadKubeconfig = (cluster: MKSCluster) => {
+    // In a real implementation, this would call the API to get the kubeconfig
+    console.log('Downloading kubeconfig for cluster:', cluster.name)
+    
+    // Create a mock kubeconfig content
+    const kubeconfigContent = `apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t
+    server: https://${cluster.name}.k8s.example.com:6443
+  name: ${cluster.name}
+contexts:
+- context:
+    cluster: ${cluster.name}
+    user: ${cluster.name}-admin
+  name: ${cluster.name}
+current-context: ${cluster.name}
+kind: Config
+preferences: {}
+users:
+- name: ${cluster.name}-admin
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t
+    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQ==`
+
+    // Create a blob and download it
+    const blob = new Blob([kubeconfigContent], { type: 'text/yaml' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${cluster.name}-kubeconfig.yaml`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
   }
 
   const handleConfirmDelete = async (clusterId: string) => {
@@ -314,6 +351,15 @@ export default function MKSDashboardPage() {
             label: "Upgrade Node Pools",
             onClick: () => handleUpgradeNodePools(row),
             icon: <Server className="mr-2 h-4 w-4" />
+          })
+        }
+        
+        // Add Download Kubeconfig action for active clusters
+        if (row.status === 'active') {
+          customActions.push({
+            label: "Download Kubeconfig",
+            onClick: () => handleDownloadKubeconfig(row),
+            icon: <Download className="mr-2 h-4 w-4" />
           })
         }
         
