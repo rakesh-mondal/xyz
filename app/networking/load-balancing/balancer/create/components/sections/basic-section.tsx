@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Checkbox } from "@/components/ui/checkbox"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
 import { HelpCircle, ChevronDown, Search, Check } from "lucide-react"
 import { vpcs, subnets } from "@/lib/data"
@@ -72,9 +73,73 @@ export function BasicSection({ formData, updateFormData, isSection = false, isEd
   }
 
   const vpcOptions = [
-    { value: "production-vpc", label: "production-vpc", subnets: ["subnet-prod-1", "subnet-prod-2", "subnet-prod-3"] },
-    { value: "development-vpc", label: "development-vpc", subnets: ["subnet-dev-1", "subnet-dev-2"] },
-    { value: "staging-vpc", label: "staging-vpc", subnets: ["subnet-staging-1", "subnet-staging-2"] }
+    { value: "vpc-1", label: "production-vpc", subnets: ["subnet-1", "subnet-2"] },
+    { value: "vpc-2", label: "development-vpc", subnets: ["subnet-3"] },
+    { value: "vpc-3", label: "staging-vpc", subnets: ["subnet-4", "subnet-5"] },
+    { value: "vpc-4", label: "testing-vpc", subnets: ["subnet-6"] },
+    { value: "vpc-6", label: "analytics-vpc", subnets: ["subnet-7"] },
+    { value: "vpc-7", label: "security-vpc", subnets: ["subnet-8"] },
+    { value: "vpc-9", label: "integration-vpc", subnets: ["subnet-9"] },
+    { value: "vpc-10", label: "legacy-vpc", subnets: ["subnet-10"] },
+    { value: "vpc-11", label: "ml-vpc", subnets: ["subnet-11"] },
+    { value: "vpc-12", label: "cdn-vpc", subnets: ["subnet-12"] },
+    { value: "vpc-14", label: "gaming-vpc", subnets: ["subnet-13"] },
+    { value: "vpc-15", label: "blockchain-vpc", subnets: ["subnet-14"] }
+  ]
+
+  // Mock reserved IPs data (using actual subnet IDs from lib/data.ts)
+  const reservedIPs = [
+    // Production VPC (vpc-1) - subnet-1, subnet-2
+    { id: "ip-1", address: "203.0.113.1", subnet: "subnet-1", attached: false },
+    { id: "ip-2", address: "203.0.113.2", subnet: "subnet-1", attached: false },
+    { id: "ip-3", address: "203.0.113.3", subnet: "subnet-1", attached: true },
+    { id: "ip-4", address: "203.0.113.4", subnet: "subnet-2", attached: false },
+    { id: "ip-5", address: "203.0.113.5", subnet: "subnet-2", attached: false },
+    
+    // Development VPC (vpc-2) - subnet-3
+    { id: "ip-6", address: "203.0.113.6", subnet: "subnet-3", attached: false },
+    { id: "ip-7", address: "203.0.113.7", subnet: "subnet-3", attached: false },
+    
+    // Staging VPC (vpc-3) - subnet-4, subnet-5
+    { id: "ip-8", address: "203.0.113.8", subnet: "subnet-4", attached: false },
+    { id: "ip-9", address: "203.0.113.9", subnet: "subnet-4", attached: false },
+    { id: "ip-10", address: "203.0.113.10", subnet: "subnet-5", attached: false },
+    
+    // Testing VPC (vpc-4) - subnet-6
+    { id: "ip-11", address: "203.0.113.11", subnet: "subnet-6", attached: false },
+    { id: "ip-12", address: "203.0.113.12", subnet: "subnet-6", attached: false },
+    
+    // Analytics VPC (vpc-6) - subnet-7
+    { id: "ip-13", address: "203.0.113.13", subnet: "subnet-7", attached: false },
+    { id: "ip-14", address: "203.0.113.14", subnet: "subnet-7", attached: false },
+    
+    // Security VPC (vpc-7) - subnet-8
+    { id: "ip-15", address: "203.0.113.15", subnet: "subnet-8", attached: false },
+    { id: "ip-16", address: "203.0.113.16", subnet: "subnet-8", attached: false },
+    
+    // Integration VPC (vpc-9) - subnet-9
+    { id: "ip-17", address: "203.0.113.17", subnet: "subnet-9", attached: false },
+    { id: "ip-18", address: "203.0.113.18", subnet: "subnet-9", attached: false },
+    
+    // Legacy VPC (vpc-10) - subnet-10
+    { id: "ip-19", address: "203.0.113.19", subnet: "subnet-10", attached: false },
+    { id: "ip-20", address: "203.0.113.20", subnet: "subnet-10", attached: false },
+    
+    // ML VPC (vpc-11) - subnet-11
+    { id: "ip-21", address: "203.0.113.21", subnet: "subnet-11", attached: false },
+    { id: "ip-22", address: "203.0.113.22", subnet: "subnet-11", attached: false },
+    
+    // CDN VPC (vpc-12) - subnet-12
+    { id: "ip-23", address: "203.0.113.23", subnet: "subnet-12", attached: false },
+    { id: "ip-24", address: "203.0.113.24", subnet: "subnet-12", attached: false },
+    
+    // Gaming VPC (vpc-14) - subnet-13
+    { id: "ip-25", address: "203.0.113.25", subnet: "subnet-13", attached: false },
+    { id: "ip-26", address: "203.0.113.26", subnet: "subnet-13", attached: false },
+    
+    // Blockchain VPC (vpc-15) - subnet-14
+    { id: "ip-27", address: "203.0.113.27", subnet: "subnet-14", attached: false },
+    { id: "ip-28", address: "203.0.113.28", subnet: "subnet-14", attached: false },
   ]
 
   const getAvailabilityColor = (availability: string) => {
@@ -122,13 +187,36 @@ export function BasicSection({ formData, updateFormData, isSection = false, isEd
     return subnet?.type === "Public"
   }
 
+  // Get available reserved IPs for the selected subnet
+  const availableReservedIPs = reservedIPs.filter(ip => ip.subnet === formData.subnet && !ip.attached)
+  
+  // Debug logging
+  console.log('Debug Reserved IPs:', {
+    selectedSubnet: formData.subnet,
+    availableReservedIPs: availableReservedIPs.length,
+    allReservedIPs: reservedIPs.length
+  })
+
+  // Auto-select Floating IP when public subnet is selected, clear when private subnet is selected
+  useEffect(() => {
+    if (formData.subnet) {
+      if (isPublicSubnet(formData.subnet) && !formData.ipAddressType) {
+        handleChange("ipAddressType", "floating-ip")
+      } else if (!isPublicSubnet(formData.subnet)) {
+        // Clear IP address type and reserved IP when private subnet is selected
+        handleChange("ipAddressType", "")
+        handleChange("reservedIpId", "")
+      }
+    }
+  }, [formData.subnet])
+
   const isFormValid = () => {
     return formData.name?.trim().length > 0 && 
            formData.region?.length > 0 && 
            formData.vpc?.length > 0 &&
            formData.subnet?.length > 0 &&
            formData.performanceTier?.length > 0 &&
-           (!isPublicSubnet(formData.subnet) || formData.ipAddressType?.length > 0)
+           (!isPublicSubnet(formData.subnet) || (formData.ipAddressType?.length > 0 && (formData.ipAddressType !== "reserve-ip" || formData.reservedIpId?.length > 0)))
   }
 
 
@@ -355,65 +443,60 @@ export function BasicSection({ formData, updateFormData, isSection = false, isEd
         {/* IP Address Type - Only show if public subnet is selected */}
         {formData.subnet && isPublicSubnet(formData.subnet) && (
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Label className="font-medium">
-                IP Address Type <span className="text-destructive">*</span>
-              </Label>
-              <TooltipWrapper 
-                content="Choose how the public IP address should be allocated for your load balancer in the public subnet."
-                side="top"
-              >
-                <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
-              </TooltipWrapper>
-            </div>
-            
-            <div className={`p-4 border border-gray-200 rounded-lg ${isEditMode ? 'bg-gray-100' : 'bg-gray-50'}`}>
-              <RadioGroup 
-                value={formData.ipAddressType || ""} 
-                onValueChange={(value) => handleChange("ipAddressType", value)}
-                className="space-y-4"
-                disabled={isEditMode}
-              >
-                <div className="flex items-start space-x-2">
-                  <RadioGroupItem value="floating-ip" id="floating-ip" className="mt-0.5" disabled={isEditMode} />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="floating-ip" className={`cursor-pointer ${isEditMode ? 'text-muted-foreground cursor-not-allowed' : ''}`}>
-                        Floating IP
-                      </Label>
-                      <TooltipWrapper 
-                        content="A floating IP can be dynamically assigned and reassigned to different resources. It provides flexibility to move IPs between instances."
-                        side="top"
-                      >
-                        <HelpCircle className="h-3 w-3 text-muted-foreground hover:text-foreground cursor-help" />
-                      </TooltipWrapper>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Dynamic IP assignment that can be moved between resources
-                    </p>
-                  </div>
+            <Label className="block mb-2 font-medium">
+              IP Address Type <span className="text-destructive">*</span>
+            </Label>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="floating-ip"
+                  checked={formData.ipAddressType === "floating-ip"}
+                  onCheckedChange={() => handleChange("ipAddressType", "floating-ip")}
+                  disabled={isEditMode}
+                />
+                <Label htmlFor="floating-ip" className="flex items-center gap-2">
+                  Floating IP
+                  <TooltipWrapper content="Dynamic Public IP address that is automatically assigned to the load balancer from the IP address pool. You will be only billed for the IP address as long as the load balancer is not stopped. Please note that this IP address is not reserved and it can't be guaranteed that you will get the same IP address again once you restart your load balancer">
+                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  </TooltipWrapper>
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="reserve-ip"
+                  checked={formData.ipAddressType === "reserve-ip"}
+                  onCheckedChange={() => handleChange("ipAddressType", "reserve-ip")}
+                  disabled={isEditMode}
+                />
+                <Label htmlFor="reserve-ip" className="flex items-center gap-2">
+                  Reserved IP
+                  <TooltipWrapper content="Fixed IP that is assigned to your load balancer. You will be billed as long as you have not deleted the IP address. The same IP address will be assigned to the load balancer even if you restart your load balancer">
+                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  </TooltipWrapper>
+                </Label>
+              </div>
+
+              {formData.ipAddressType === "reserve-ip" && (
+                <div className="ml-6">
+                  <Select 
+                    value={formData.reservedIpId || ""} 
+                    onValueChange={(value) => handleChange("reservedIpId", value)}
+                    disabled={isEditMode}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select reserved IP" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableReservedIPs.map((ip) => (
+                        <SelectItem key={ip.id} value={ip.id}>
+                          {ip.address}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                
-                <div className="flex items-start space-x-2">
-                  <RadioGroupItem value="reserve-ip" id="reserve-ip" className="mt-0.5" disabled={isEditMode} />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="reserve-ip" className={`cursor-pointer ${isEditMode ? 'text-muted-foreground cursor-not-allowed' : ''}`}>
-                        Reserve IP
-                      </Label>
-                      <TooltipWrapper 
-                        content="A reserved IP is permanently allocated to your account and remains static. It's ideal for services that require a consistent IP address."
-                        side="top"
-                      >
-                        <HelpCircle className="h-3 w-3 text-muted-foreground hover:text-foreground cursor-help" />
-                      </TooltipWrapper>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Static IP address reserved exclusively for your account
-                    </p>
-                  </div>
-                </div>
-              </RadioGroup>
+              )}
             </div>
           </div>
         )}

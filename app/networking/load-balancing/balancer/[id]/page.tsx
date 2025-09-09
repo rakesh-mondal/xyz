@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import { StatusBadge } from "@/components/status-badge"
+import { HealthIndicator, calculateOverallHealth } from "@/components/ui/health-indicator"
 import { Edit, Trash2, ChevronDown, ChevronRight } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
@@ -412,7 +413,7 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
   const customBreadcrumbs = [
     { href: "/dashboard", title: "Home" },
     { href: "/networking", title: "Networking" },
-    { href: "/networking/load-balancing", title: "Load Balancing" },
+    { href: "/networking/load-balancing", title: "Load Balancers" },
     { href: "/networking/load-balancing/balancer", title: "Load Balancers" },
     { href: `/networking/load-balancing/balancer/${id}`, title: loadBalancer.name }
   ]
@@ -502,69 +503,78 @@ export default function LoadBalancerDetailsPage({ params }: { params: Promise<{ 
                   
                   // Handle no target groups case
                   if (targetGroups.length === 0) {
-                    return <span className="text-muted-foreground text-sm">No target groups</span>
+                    return (
+                      <div className="space-y-2">
+                        <HealthIndicator status="no-targets" size="sm" showLabel={true} />
+                        <span className="text-muted-foreground text-sm">No target groups</span>
+                      </div>
+                    )
                   }
+                  
+                  // Calculate overall health status
+                  const overallHealth = calculateOverallHealth(targetGroups, loadBalancer.operatingStatus)
                   
                   // Calculate summary
                   const summary = calculateTargetGroupSummary(targetGroups)
                   const summaryText = formatSummaryText(summary)
                   
-                  // Determine overall health color
-                  let summaryColor = "text-muted-foreground"
-                  if (summary.unhealthy === 0 && summary.mixed === 0) {
-                    summaryColor = "text-green-600" // All healthy
-                  } else if (summary.healthy === 0) {
-                    summaryColor = "text-red-600" // No healthy ones
-                  } else {
-                    summaryColor = "text-orange-600" // Mixed
-                  }
-                  
                   return (
-                    <div className="space-y-1">
-                      {/* Summary Row - Always visible */}
-                      <div 
-                        className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => setExpandedTargetGroups(!expandedTargetGroups)}
-                      >
-                        <ChevronRight 
-                          className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${
-                            expandedTargetGroups ? 'rotate-90' : 'rotate-0'
-                          }`} 
-                        />
-                        <div className="text-sm">
-                          <div className="font-medium">{summary.total} Target Group{summary.total !== 1 ? 's' : ''}</div>
-                          <div className={`text-xs ${summaryColor}`}>
-                            {summaryText || "All configured"}
+                    <div className="space-y-2">
+                      {/* Aggregate Health Indicator */}
+                      <HealthIndicator status={overallHealth} size="sm" showLabel={true} />
+                      
+                      {/* Expandable Details */}
+                      <div className="space-y-1">
+                        <div 
+                          className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => setExpandedTargetGroups(!expandedTargetGroups)}
+                        >
+                          <ChevronRight 
+                            className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${
+                              expandedTargetGroups ? 'rotate-90' : 'rotate-0'
+                            }`} 
+                          />
+                          <div className="text-sm">
+                            <div className="font-medium">{summary.total} Target Group{summary.total !== 1 ? 's' : ''}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {summaryText || "All configured"}
+                            </div>
                           </div>
                         </div>
+                        
+                        {/* Expanded Details */}
+                        {expandedTargetGroups && (
+                          <div className="pl-4 space-y-1 border-l-2 border-muted animate-in slide-in-from-top-2 duration-200">
+                            {targetGroups.map((tg: any) => {
+                              // If operating status is inactive, show as not healthy
+                              const isInactive = loadBalancer.operatingStatus === "inactive"
+                              const healthText = isInactive 
+                                ? "Not healthy (LB inactive)"
+                                : tg.totalTargets === 0 
+                                  ? "No targets" 
+                                  : `${tg.healthyTargets}/${tg.totalTargets} healthy`
+                              
+                              let healthColor = "text-muted-foreground"
+                              if (isInactive) {
+                                healthColor = "text-red-600"
+                              } else if (tg.status === "healthy") {
+                                healthColor = "text-green-600"
+                              } else if (tg.status === "unhealthy") {
+                                healthColor = "text-red-600"
+                              } else if (tg.status === "mixed") {
+                                healthColor = "text-orange-600"
+                              }
+                              
+                              return (
+                                <div key={tg.id} className="flex items-center justify-between text-xs">
+                                  <span className="font-medium text-muted-foreground">{tg.name}</span>
+                                  <span className={healthColor}>{healthText}</span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* Expanded Details */}
-                      {expandedTargetGroups && (
-                        <div className="pl-4 space-y-1 border-l-2 border-muted animate-in slide-in-from-top-2 duration-200">
-                          {targetGroups.map((tg: any) => {
-                            const healthText = tg.totalTargets === 0 
-                              ? "No targets" 
-                              : `${tg.healthyTargets}/${tg.totalTargets} healthy`
-                            
-                            let healthColor = "text-muted-foreground"
-                            if (tg.status === "healthy") {
-                              healthColor = "text-green-600"
-                            } else if (tg.status === "unhealthy") {
-                              healthColor = "text-red-600"
-                            } else if (tg.status === "mixed") {
-                              healthColor = "text-orange-600"
-                            }
-                            
-                            return (
-                              <div key={tg.id} className="flex items-center justify-between text-xs">
-                                <span className="font-medium text-muted-foreground">{tg.name}</span>
-                                <span className={healthColor}>{healthText}</span>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )}
                     </div>
                   )
                 })()}

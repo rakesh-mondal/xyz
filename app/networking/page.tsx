@@ -6,7 +6,7 @@ export default function NetworkingPage() {
       title="Networking"
       description="Configure and manage your network infrastructure"
       tabs={[
-        { title: "Load Balancing", href: "/networking/load-balancing" },
+        { title: "Load Balancers", href: "/networking/load-balancing" },
         { title: "DNS", href: "/networking/dns" },
         { title: "Security", href: "/networking/security" }
       ]}

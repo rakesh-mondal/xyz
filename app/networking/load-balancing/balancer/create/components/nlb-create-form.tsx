@@ -36,6 +36,7 @@ export interface NLBFormData {
   performanceTier: string
   standardConfig: string
   ipAddressType: string
+  reservedIpId: string
   
   // Listeners with only pools (no policies/rules for NLB)
   listeners: Array<{
@@ -241,6 +242,7 @@ export function NLBCreateForm({ config, onBack, onCancel, isEditMode = false, ed
     performanceTier: isEditMode ? editData?.performanceTier || "standard" : "standard",
     standardConfig: isEditMode ? editData?.standardConfig || "high-availability" : "high-availability",
     ipAddressType: isEditMode ? editData?.ipAddressType || "" : "",
+    reservedIpId: isEditMode ? editData?.reservedIpId || "" : "",
     listeners: isEditMode ? editData?.listeners || [] : []
   })
 

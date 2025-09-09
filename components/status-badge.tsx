@@ -73,7 +73,6 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
       break
     
     // Error/Failed States - Red (#ef4444 / #dc2626)
-    case "inactive":
     case "stopped":
     case "error":
     case "failed":
@@ -96,6 +95,12 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "full":
       bgColor = "bg-blue-100"
       textColor = "text-blue-800"
+      break
+    
+    // Inactive/Disabled States - Grey (#6b7280 / #4b5563)
+    case "inactive":
+      bgColor = "bg-gray-100"
+      textColor = "text-gray-600"
       break
     
     // Special Protocol States - Purple (#8b5cf6 / #7c3aed)

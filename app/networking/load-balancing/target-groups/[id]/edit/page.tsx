@@ -123,7 +123,7 @@ export default function EditTargetGroupPage({ params }: { params: { id: string }
   const customBreadcrumbs = [
     { href: "/dashboard", title: "Home" },
     { href: "/networking", title: "Networking" },
-    { href: "/networking/load-balancing", title: "Load Balancing" },
+    { href: "/networking/load-balancing", title: "Load Balancers" },
     { href: "/networking/load-balancing/target-groups", title: "Target Groups" },
     { href: `/networking/load-balancing/target-groups/${params.id}`, title: targetGroup.name },
     { href: `/networking/load-balancing/target-groups/${params.id}/edit`, title: "Edit" }

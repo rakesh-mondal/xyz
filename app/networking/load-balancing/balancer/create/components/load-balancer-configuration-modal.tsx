@@ -68,24 +68,6 @@ export function LoadBalancerConfigurationModal({ isOpen, onComplete, onClose }: 
                     <p className="text-sm text-muted-foreground mb-4">
                       Content-based routing and SSL termination for web applications. Uses policies and rules to make routing decisions based on content of the request.
                     </p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span>HTTP/HTTPS traffic</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span>Content-based routing</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span>SSL termination</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span>Multiple Listeners</span>
-                      </div>
-                    </div>
                     <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-700">
                       <div className="flex items-center gap-2">
                         <Info className="h-4 w-4" />
@@ -119,24 +101,6 @@ export function LoadBalancerConfigurationModal({ isOpen, onComplete, onClose }: 
                     <p className="text-sm text-muted-foreground mb-4">
                       High performance and low latency for TCP/UDP traffic with static IP support. Will handle traffic based on IP addresses and ports, without inspecting the content of the request.
                     </p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span>TCP/UDP traffic</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span>Low latency</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span>Multiple Listeners</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span>Floating or Fixed IPs</span>
-                      </div>
-                    </div>
                     <div className="mt-4 p-3 bg-purple-50 border border-purple-200 rounded text-sm text-purple-700">
                       <div className="flex items-center gap-2">
                         <Info className="h-4 w-4" />

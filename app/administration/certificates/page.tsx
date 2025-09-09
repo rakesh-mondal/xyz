@@ -515,7 +515,7 @@ export default function CertificateManagerPage() {
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" align="center" className="z-50">
-                  <p className="text-sm">Status: {statusText}</p>
+                  <p className="text-sm">{statusText}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

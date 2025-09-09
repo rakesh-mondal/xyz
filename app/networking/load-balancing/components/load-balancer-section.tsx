@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { filterDataForUser, shouldShowEmptyState, getEmptyStateMessage } from "@/lib/demo-data-filter"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Card, CardContent } from "@/components/ui/card"
+import { HealthIndicator, calculateOverallHealth } from "@/components/ui/health-indicator"
 
 export default function LoadBalancerSection() {
   const router = useRouter()
@@ -148,26 +149,40 @@ export default function LoadBalancerSection() {
         
         // Handle no target groups case
         if (targetGroups.length === 0) {
-          return <span className="text-muted-foreground leading-5">0 Target Groups</span>
+          return (
+            <div className="flex items-center gap-2">
+              <HealthIndicator status="no-targets" size="sm" />
+              <span className="text-muted-foreground leading-5">0 Target Groups</span>
+            </div>
+          )
         }
         
+        // Calculate overall health status
+        const overallHealth = calculateOverallHealth(targetGroups, row.operatingStatus)
         const totalCount = targetGroups.length
         const displayGroups = targetGroups.slice(0, 3)
         const hasMore = totalCount > 3
         
         return (
           <div className="relative group">
-            <span className="cursor-help leading-5 font-medium">
-              {totalCount} Target Group{totalCount !== 1 ? 's' : ''}
-            </span>
+            <div className="flex items-center gap-2">
+              <HealthIndicator status={overallHealth} size="sm" />
+              <span className="cursor-help leading-5 font-medium">
+                {totalCount} Target Group{totalCount !== 1 ? 's' : ''}
+              </span>
+            </div>
             
             {/* Hover Tooltip */}
             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 min-w-max">
               <div className="space-y-1">
                 {displayGroups.map((tg: any) => {
-                  const healthText = tg.totalTargets === 0 
-                    ? "No targets" 
-                    : `${tg.healthyTargets}/${tg.totalTargets} targets healthy`
+                  // If operating status is inactive, show as not healthy
+                  const isInactive = row.operatingStatus === "inactive"
+                  const healthText = isInactive 
+                    ? "Not healthy (LB inactive)"
+                    : tg.totalTargets === 0 
+                      ? "No targets" 
+                      : `${tg.healthyTargets}/${tg.totalTargets} targets healthy`
                   
                   return (
                     <div key={tg.id} className="flex items-center justify-between gap-4 text-xs">

@@ -53,7 +53,7 @@ export default function LoadBalancingPage() {
         }
       default:
         return { 
-          title: "Load Balancing", 
+          title: "Load Balancers", 
           description: "Manage your load balancing resources"
         }
     }

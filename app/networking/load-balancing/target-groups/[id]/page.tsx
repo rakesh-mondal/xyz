@@ -87,7 +87,7 @@ export default function TargetGroupDetailsPage({ params }: { params: { id: strin
   const customBreadcrumbs = [
     { href: "/dashboard", title: "Home" },
     { href: "/networking", title: "Networking" },
-    { href: "/networking/load-balancing", title: "Load Balancing" },
+    { href: "/networking/load-balancing", title: "Load Balancers" },
     { href: "/networking/load-balancing/target-groups", title: "Target Groups" },
     { href: `/networking/load-balancing/target-groups/${targetGroup.id}`, title: targetGroup.name }
   ]

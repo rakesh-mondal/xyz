@@ -37,6 +37,7 @@ export interface ALBFormData {
   performanceTier: string
   standardConfig: string
   ipAddressType: string
+  reservedIpId: string
   
   // Listeners with nested Policy & Rules and Pools
   listeners: Array<{
@@ -284,6 +285,7 @@ export function ALBCreateForm({ config, onBack, onCancel, isEditMode = false, ed
     performanceTier: isEditMode ? editData?.performanceTier || "standard" : "standard",
     standardConfig: isEditMode ? editData?.standardConfig || "high-availability" : "high-availability",
     ipAddressType: isEditMode ? editData?.ipAddressType || "" : "",
+    reservedIpId: isEditMode ? editData?.reservedIpId || "" : "",
     listeners: isEditMode ? editData?.listeners || [] : []
   })
 

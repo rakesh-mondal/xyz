@@ -325,7 +325,7 @@ export default function EditLoadBalancerPage({ params }: { params: Promise<{ id:
   const customBreadcrumbs = [
     { href: "/dashboard", title: "Home" },
     { href: "/networking", title: "Networking" },
-    { href: "/networking/load-balancing", title: "Load Balancing" },
+    { href: "/networking/load-balancing", title: "Load Balancers" },
     { href: "/networking/load-balancing/balancer", title: "Load Balancers" },
     { href: `/networking/load-balancing/balancer/${id}`, title: loadBalancer.name },
     { href: `/networking/load-balancing/balancer/${id}/edit`, title: "Edit" }
