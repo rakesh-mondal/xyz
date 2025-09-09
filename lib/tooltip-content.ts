@@ -68,6 +68,7 @@ export const tooltipContent = {
     staticIP: "Manage static IP addresses",
     dns: "Configure DNS settings",
     securityGroups: "Manage network security groups",
+    routingProtocol: "Choose how DNS queries are routed to your resources. Simple routes to one IP, Weighted distributes traffic by percentage, GeoIP routes by location, HealthPort/HealthURL route only to healthy servers.",
   },
 
   // APIs service

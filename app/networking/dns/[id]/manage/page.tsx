@@ -143,6 +143,19 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
   const [activeRecordTab, setActiveRecordTab] = useState("A")
   const [dnsRecords, setDnsRecords] = useState(mockDnsRecords)
   const [recordValues, setRecordValues] = useState<string[]>([""])
+  const [geoipRecords, setGeoipRecords] = useState([
+    { type: "Default", value: "", canDelete: false },
+    { type: "Country Code", value: "", canDelete: true }
+  ])
+  const [healthPortData, setHealthPortData] = useState({
+    port: "80",
+    primaryIPs: "",
+    secondaryIPs: ""
+  })
+  const [healthURLData, setHealthURLData] = useState({
+    url: "",
+    ipv4Addresses: ""
+  })
   const [selectedRecord, setSelectedRecord] = useState<any>(null)
   const [isDeleteRecordModalOpen, setIsDeleteRecordModalOpen] = useState(false)
   const [isEditRecordModalOpen, setIsEditRecordModalOpen] = useState(false)
@@ -280,6 +293,32 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
     setRecordForm(prev => ({ ...prev, value: recordValues.join(", ") }))
   }
 
+  const addGeoipRecord = () => {
+    setGeoipRecords(prev => [...prev, { type: "Country Code", value: "", canDelete: true }])
+  }
+
+  const removeGeoipRecord = (index: number) => {
+    if (geoipRecords[index].canDelete) {
+      setGeoipRecords(prev => prev.filter((_, i) => i !== index))
+    }
+  }
+
+  const updateGeoipRecord = (index: number, newValue: string) => {
+    setGeoipRecords(prev => {
+      const newRecords = [...prev]
+      newRecords[index] = { ...newRecords[index], value: newValue }
+      return newRecords
+    })
+  }
+
+  const updateHealthPortData = (field: keyof typeof healthPortData, value: string) => {
+    setHealthPortData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const updateHealthURLData = (field: keyof typeof healthURLData, value: string) => {
+    setHealthURLData(prev => ({ ...prev, [field]: value }))
+  }
+
   // DNS Records Table Columns
   const dnsColumns = [
     {
@@ -366,6 +405,16 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
   }
 
   const getRecordValuesDescription = (type: string) => {
+    // Handle HealthPort routing protocol description
+    if (recordForm.routingProtocol === "HealthPort") {
+      return "Enter the port you want to run health checks for. Primary IPs are returned as long as atleast one of them is actively listening on the specified port. Secondary IPs are returned if all primary IPs are unhealthy."
+    }
+    
+    // Handle HealthURL routing protocol description
+    if (recordForm.routingProtocol === "HealthURL") {
+      return "Enter the URL you want to run health checks for."
+    }
+    
     switch (type) {
       case "A":
         return "Enter the IPv4 addresses you want to direct traffic to and their weights."
@@ -596,7 +645,12 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
 
                   {(activeRecordTab === "A" || activeRecordTab === "AAAA") && (
                     <div className="space-y-2">
-                      <Label htmlFor="routingProtocol">Routing Protocol</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="routingProtocol">Routing Protocol</Label>
+                        <TooltipWrapper content="Choose how DNS queries are routed to your resources. Simple routes to one IP, Weighted distributes traffic by percentage, GeoIP routes by location, HealthPort/HealthURL route only to healthy servers.">
+                          <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipWrapper>
+                      </div>
                       <Select
                         value={recordForm.routingProtocol}
                         onValueChange={(value) => setRecordForm(prev => ({
@@ -605,12 +659,26 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
                         }))}
                       >
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue>
+                            {recordForm.routingProtocol 
+                              ? ROUTING_PROTOCOLS.find(p => p.value === recordForm.routingProtocol)?.label
+                              : "Select routing protocol"
+                            }
+                          </SelectValue>
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="w-full max-w-none">
                           {ROUTING_PROTOCOLS.map((protocol) => (
-                            <SelectItem key={protocol.value} value={protocol.value}>
-                              {protocol.label}
+                            <SelectItem 
+                              key={protocol.value} 
+                              value={protocol.value}
+                              className="py-3 pl-8 pr-4 min-h-[70px] cursor-pointer hover:bg-accent/50 focus:bg-accent/50"
+                            >
+                              <div className="flex flex-col gap-1 w-full">
+                                <div className="font-semibold text-sm text-foreground">{protocol.label}</div>
+                                <div className="text-xs text-muted-foreground leading-relaxed whitespace-normal break-words">
+                                  {protocol.description}
+                                </div>
+                              </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -624,56 +692,206 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
                       {getRecordValuesDescription(activeRecordTab)}
                     </p>
                     
-                    <div className="space-y-2">
-                      {recordValues.map((value, index) => (
-                        <div key={index} className="flex gap-2">
-                          <Input
-                            placeholder={
-                              activeRecordTab === "A" ? "203.0.113.1" :
-                              activeRecordTab === "AAAA" ? "2001:0db8:85a3:0000:0000:8a2e:0370:7334" :
-                              activeRecordTab === "CNAME" ? "webserver-01.yourcompany.com" :
-                              activeRecordTab === "MX" ? "10 mx.example.net." :
-                              activeRecordTab === "NS" ? "ns.nameserver.com." :
-                              activeRecordTab === "TXT" ? "This is a text record" :
-                              "Enter record value"
-                            }
-                            value={value}
-                            onChange={(e) => updateRecordValue(index, e.target.value)}
-                            className="flex-1"
-                          />
-                          <div className="flex gap-1">
-                            {recordValues.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => removeRecordValue(index)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
-                            {index === recordValues.length - 1 && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={addRecordValue}
-                              >
-                                <Plus className="w-4 h-4" />
-                              </Button>
-                            )}
+                    {recordForm.routingProtocol === "GeoIP" ? (
+                      <div className="space-y-2">
+                        {geoipRecords.map((record, index) => (
+                          <div key={index} className="flex gap-2 items-center">
+                            <div className="w-32">
+                              <div className="px-3 py-2 text-sm font-medium text-foreground bg-gray-50 border rounded-md">
+                                {record.type}
+                              </div>
+                            </div>
+                            <div className="flex-1">
+                              <Input
+                                placeholder={
+                                  activeRecordTab === "A" ? "Eg: \"10.0.0.1, 10.0.0.2, 10.0.0.3\"" :
+                                  activeRecordTab === "AAAA" ? "Eg: \"2001:db8::1, 2001:db8::2\"" :
+                                  "Enter record value"
+                                }
+                                value={record.value}
+                                onChange={(e) => updateGeoipRecord(index, e.target.value)}
+                                className="flex-1"
+                              />
+                            </div>
+                            <div className="flex gap-1">
+                              {record.canDelete && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => removeGeoipRecord(index)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                              {index === geoipRecords.length - 1 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={addGeoipRecord}
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
+                        ))}
+                      </div>
+                    ) : recordForm.routingProtocol === "HealthPort" ? (
+                      <div className="space-y-4">
+                        {/* Port Field */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="port">Port <span className="text-destructive">*</span></Label>
+                            <TooltipWrapper content="The port number for health checks">
+                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                            </TooltipWrapper>
+                          </div>
+                          <Input
+                            id="port"
+                            type="number"
+                            value={healthPortData.port}
+                            onChange={(e) => updateHealthPortData('port', e.target.value)}
+                            placeholder="80"
+                            className="w-full"
+                          />
                         </div>
-                      ))}
-                    </div>
+
+                        {/* Primary IPs Field */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="primaryIPs">Primary IPs <span className="text-destructive">*</span></Label>
+                            <TooltipWrapper content="Primary IP addresses for health checks">
+                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                            </TooltipWrapper>
+                          </div>
+                          <Input
+                            id="primaryIPs"
+                            value={healthPortData.primaryIPs}
+                            onChange={(e) => updateHealthPortData('primaryIPs', e.target.value)}
+                            placeholder="Enter primary IPs as a comma separated list"
+                            className="w-full"
+                          />
+                        </div>
+
+                        {/* Secondary IPs Field */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="secondaryIPs">Secondary IPs</Label>
+                            <TooltipWrapper content="Secondary IP addresses used when primary IPs are unhealthy">
+                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                            </TooltipWrapper>
+                          </div>
+                          <Input
+                            id="secondaryIPs"
+                            value={healthPortData.secondaryIPs}
+                            onChange={(e) => updateHealthPortData('secondaryIPs', e.target.value)}
+                            placeholder="Enter secondary IPs as a comma separated list"
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                    ) : recordForm.routingProtocol === "HealthURL" ? (
+                      <div className="space-y-4">
+                        {/* URL Field */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="url">URL <span className="text-destructive">*</span></Label>
+                            <TooltipWrapper content="The URL endpoint for health checks">
+                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                            </TooltipWrapper>
+                          </div>
+                          <Input
+                            id="url"
+                            type="url"
+                            value={healthURLData.url}
+                            onChange={(e) => updateHealthURLData('url', e.target.value)}
+                            placeholder="https://example.com/health"
+                            className="w-full"
+                          />
+                        </div>
+
+                        {/* IPv4 Addresses Field */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="ipv4Addresses">IPv4 Addresses <span className="text-destructive">*</span></Label>
+                            <TooltipWrapper content="IPv4 addresses to return when the URL health check passes">
+                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                            </TooltipWrapper>
+                          </div>
+                          <Input
+                            id="ipv4Addresses"
+                            value={healthURLData.ipv4Addresses}
+                            onChange={(e) => updateHealthURLData('ipv4Addresses', e.target.value)}
+                            placeholder="Add IPv4 addresses as a comma separated list"
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {recordValues.map((value, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              placeholder={
+                                activeRecordTab === "A" ? "203.0.113.1" :
+                                activeRecordTab === "AAAA" ? "2001:0db8:85a3:0000:0000:8a2e:0370:7334" :
+                                activeRecordTab === "CNAME" ? "webserver-01.yourcompany.com" :
+                                activeRecordTab === "MX" ? "10 mx.example.net." :
+                                activeRecordTab === "NS" ? "ns.nameserver.com." :
+                                activeRecordTab === "TXT" ? "This is a text record" :
+                                "Enter record value"
+                              }
+                              value={value}
+                              onChange={(e) => updateRecordValue(index, e.target.value)}
+                              className="flex-1"
+                            />
+                            <div className="flex gap-1">
+                              {recordValues.length > 1 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => removeRecordValue(index)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                              {index === recordValues.length - 1 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={addRecordValue}
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="pt-4 border-t">
                     <Button
                       onClick={handleAddRecord}
                       className="bg-black text-white hover:bg-black/90"
-                      disabled={!recordForm.recordName || !recordValues.some(v => v.trim())}
+                      disabled={
+                        !recordForm.recordName || 
+                        (recordForm.routingProtocol === "GeoIP" 
+                          ? !geoipRecords.some(r => r.value.trim())
+                          : recordForm.routingProtocol === "HealthPort"
+                          ? !healthPortData.port.trim() || !healthPortData.primaryIPs.trim()
+                          : recordForm.routingProtocol === "HealthURL"
+                          ? !healthURLData.url.trim() || !healthURLData.ipv4Addresses.trim()
+                          : !recordValues.some(v => v.trim())
+                        )
+                      }
                     >
                       Add Record
                     </Button>
