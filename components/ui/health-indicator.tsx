@@ -101,7 +101,7 @@ export function calculateOverallHealth(
 
   // Count health statuses
   const healthCounts = targetGroups.reduce((acc, group) => {
-    const health = group.health || 'unknown'
+    const health = group.status || 'unknown'
     acc[health] = (acc[health] || 0) + 1
     return acc
   }, {} as Record<string, number>)
