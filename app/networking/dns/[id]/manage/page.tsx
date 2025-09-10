@@ -114,6 +114,15 @@ const mockDnsRecords = [
     routingProtocol: "Simple",
     ttl: 3600,
     status: "active"
+  },
+  {
+    id: "record-4",
+    recordName: "@",
+    type: "NS",
+    value: "ns1.example.com",
+    routingProtocol: "Simple",
+    ttl: 86400,
+    status: "active"
   }
 ]
 
@@ -134,6 +143,29 @@ const ROUTING_PROTOCOLS = [
   { value: "HealthURL", label: "HealthURL", description: "Monitors the availability of your servers via an HTTP/HTTPS URL. Routes traffic only to healthy IPs." },
 ]
 
+const COUNTRY_CODES = [
+  { value: "US", label: "United States (US)" },
+  { value: "CA", label: "Canada (CA)" },
+  { value: "GB", label: "United Kingdom (GB)" },
+  { value: "DE", label: "Germany (DE)" },
+  { value: "FR", label: "France (FR)" },
+  { value: "JP", label: "Japan (JP)" },
+  { value: "AU", label: "Australia (AU)" },
+  { value: "IN", label: "India (IN)" },
+  { value: "BR", label: "Brazil (BR)" },
+  { value: "CN", label: "China (CN)" },
+  { value: "RU", label: "Russia (RU)" },
+  { value: "IT", label: "Italy (IT)" },
+  { value: "ES", label: "Spain (ES)" },
+  { value: "NL", label: "Netherlands (NL)" },
+  { value: "SE", label: "Sweden (SE)" },
+  { value: "NO", label: "Norway (NO)" },
+  { value: "DK", label: "Denmark (DK)" },
+  { value: "FI", label: "Finland (FI)" },
+  { value: "BE", label: "Belgium (BE)" },
+  { value: "CH", label: "Switzerland (CH)" },
+]
+
 export default function ManageHostedZonePage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -143,9 +175,10 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
   const [activeRecordTab, setActiveRecordTab] = useState("A")
   const [dnsRecords, setDnsRecords] = useState(mockDnsRecords)
   const [recordValues, setRecordValues] = useState<string[]>([""])
+  const [weightedValues, setWeightedValues] = useState<Array<{value: string, weight: string}>>([{value: "", weight: ""}])
   const [geoipRecords, setGeoipRecords] = useState([
-    { type: "Default", value: "", canDelete: false },
-    { type: "Country Code", value: "", canDelete: true }
+    { type: "Default", value: "", countryCode: "", canDelete: false },
+    { type: "Country Code", value: "", countryCode: "", canDelete: true }
   ])
   const [healthPortData, setHealthPortData] = useState({
     port: "80",
@@ -196,6 +229,7 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
       value: "",
     })
     setRecordValues([""])
+    setWeightedValues([{value: "", weight: ""}])
   }
 
   const handleDeleteRecordClick = (record: any) => {
@@ -294,7 +328,7 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
   }
 
   const addGeoipRecord = () => {
-    setGeoipRecords(prev => [...prev, { type: "Country Code", value: "", canDelete: true }])
+    setGeoipRecords(prev => [...prev, { type: "Country Code", value: "", countryCode: "", canDelete: true }])
   }
 
   const removeGeoipRecord = (index: number) => {
@@ -308,6 +342,40 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
       const newRecords = [...prev]
       newRecords[index] = { ...newRecords[index], value: newValue }
       return newRecords
+    })
+  }
+
+  const updateGeoipCountryCode = (index: number, newCountryCode: string) => {
+    setGeoipRecords(prev => {
+      const newRecords = [...prev]
+      newRecords[index] = { ...newRecords[index], countryCode: newCountryCode }
+      return newRecords
+    })
+  }
+
+  const addWeightedValue = () => {
+    setWeightedValues(prev => [...prev, { value: "", weight: "" }])
+  }
+
+  const removeWeightedValue = (index: number) => {
+    if (weightedValues.length > 1) {
+      setWeightedValues(prev => prev.filter((_, i) => i !== index))
+    }
+  }
+
+  const updateWeightedValue = (index: number, newValue: string) => {
+    setWeightedValues(prev => {
+      const newValues = [...prev]
+      newValues[index] = { ...newValues[index], value: newValue }
+      return newValues
+    })
+  }
+
+  const updateWeightedWeight = (index: number, newWeight: string) => {
+    setWeightedValues(prev => {
+      const newValues = [...prev]
+      newValues[index] = { ...newValues[index], weight: newWeight }
+      return newValues
     })
   }
 
@@ -700,11 +768,31 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
                       <div className="space-y-2">
                         {geoipRecords.map((record, index) => (
                           <div key={index} className="flex gap-2 items-center">
-                            <div className="w-32">
-                              <div className="px-3 py-2 text-sm font-medium text-foreground bg-gray-50 border rounded-md">
-                                {record.type}
+                            {record.type === "Default" ? (
+                              <div className="w-48">
+                                <div className="px-3 py-2 text-sm font-medium text-foreground bg-gray-50 border rounded-md">
+                                  Default
+                                </div>
                               </div>
-                            </div>
+                            ) : (
+                              <div className="w-48">
+                                <Select
+                                  value={record.countryCode}
+                                  onValueChange={(value) => updateGeoipCountryCode(index, value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select Country Code" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {COUNTRY_CODES.map((country) => (
+                                      <SelectItem key={country.value} value={country.value}>
+                                        {country.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
                             <div className="flex-1">
                               <Input
                                 placeholder={
@@ -834,6 +922,56 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
                           />
                         </div>
                       </div>
+                    ) : recordForm.routingProtocol === "Weighted" ? (
+                      <div className="space-y-2">
+                        {weightedValues.map((item, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              placeholder={
+                                activeRecordTab === "A" ? "203.0.113.1" :
+                                activeRecordTab === "AAAA" ? "2001:0db8:85a3:0000:0000:8a2e:0370:7334" :
+                                activeRecordTab === "CNAME" ? "webserver-01.yourcompany.com" :
+                                "Enter record value"
+                              }
+                              value={item.value}
+                              onChange={(e) => updateWeightedValue(index, e.target.value)}
+                              className="flex-1"
+                            />
+                            <Input
+                              type="number"
+                              placeholder="Weight"
+                              value={item.weight}
+                              onChange={(e) => updateWeightedWeight(index, e.target.value)}
+                              className="w-24"
+                              min="1"
+                              max="255"
+                            />
+                            <div className="flex gap-1">
+                              {weightedValues.length > 1 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => removeWeightedValue(index)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                              {index === weightedValues.length - 1 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={addWeightedValue}
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     ) : (
                       <div className="space-y-2">
                         {recordValues.map((value, index) => (
@@ -889,6 +1027,8 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
                         !recordForm.recordName || 
                         (recordForm.routingProtocol === "GeoIP" 
                           ? !geoipRecords.some(r => r.value.trim())
+                          : recordForm.routingProtocol === "Weighted"
+                          ? !weightedValues.some(w => w.value.trim() && w.weight.trim())
                           : recordForm.routingProtocol === "HealthPort"
                           ? !healthPortData.port.trim() || !healthPortData.primaryIPs.trim()
                           : recordForm.routingProtocol === "HealthURL"
