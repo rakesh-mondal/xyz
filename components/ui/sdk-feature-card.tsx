@@ -1,23 +1,24 @@
-
-import { Button } from "@/components/ui/button";
 import { ExternalLink, BookOpen } from "lucide-react";
+import Link from "next/link";
 
 interface SdkFeatureCardProps {
   title: string;
   description: string;
   icon: React.ReactNode;
-  gradient: string;
   imageUrl?: string;
   reverse?: boolean;
+  documentationUrl?: string;
+  apiReferenceUrl?: string;
 }
 
 function SdkFeatureCard({ 
   title, 
   description, 
   icon, 
-  gradient, 
   imageUrl,
-  reverse = false
+  reverse = false,
+  documentationUrl,
+  apiReferenceUrl
 }: SdkFeatureCardProps) {
   return (
     <div className="w-full py-12 lg:py-20">
@@ -39,27 +40,41 @@ function SdkFeatureCard({
                 
                 {/* Actions */}
                 <div className="flex items-center gap-6 mt-2">
-                  {/* Primary Button */}
-                  <Button className="gap-2" size="lg">
-                    <BookOpen className="h-4 w-4" />
-                    View Documentation
-                  </Button>
+                  {/* Documentation Link */}
+                  {documentationUrl ? (
+                    <Link href={documentationUrl} className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200 text-sm">
+                      <BookOpen className="h-4 w-4" />
+                      View Documentation
+                    </Link>
+                  ) : (
+                    <span className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <BookOpen className="h-4 w-4" />
+                      View Documentation
+                    </span>
+                  )}
                   
                   {/* API Reference Link */}
-                  <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200 text-sm">
-                    <ExternalLink className="h-4 w-4" />
-                    API Reference
-                  </a>
+                  {apiReferenceUrl ? (
+                    <Link href={apiReferenceUrl} className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200 text-sm">
+                      <ExternalLink className="h-4 w-4" />
+                      API Reference
+                    </Link>
+                  ) : (
+                    <span className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <ExternalLink className="h-4 w-4" />
+                      API Reference
+                    </span>
+                  )}
                 </div>
               </div>
               
               {/* Visual Area - Right */}
-              <div className={`bg-gradient-to-br ${gradient} rounded-lg w-full aspect-video h-full flex-1 flex items-center justify-center border border-gray-200/50`}>
+              <div className="rounded-lg w-full aspect-video h-full flex-1 flex items-center justify-center">
                 {imageUrl ? (
                   <img 
                     src={imageUrl} 
                     alt={title}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full object-contain rounded-lg"
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-4">
@@ -76,12 +91,12 @@ function SdkFeatureCard({
           ) : (
             <>
               {/* Visual Area - Left */}
-              <div className={`bg-gradient-to-br ${gradient} rounded-lg w-full aspect-video h-full flex-1 flex items-center justify-center border border-gray-200/50`}>
+              <div className="rounded-lg w-full aspect-video h-full flex-1 flex items-center justify-center">
                 {imageUrl ? (
                   <img 
                     src={imageUrl} 
                     alt={title}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full object-contain rounded-lg"
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-4">
@@ -108,17 +123,31 @@ function SdkFeatureCard({
                 
                 {/* Actions */}
                 <div className="flex items-center gap-6 mt-2">
-                  {/* Primary Button */}
-                  <Button className="gap-2" size="lg">
-                    <BookOpen className="h-4 w-4" />
-                    View Documentation
-                  </Button>
+                  {/* Documentation Link */}
+                  {documentationUrl ? (
+                    <Link href={documentationUrl} className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200 text-sm">
+                      <BookOpen className="h-4 w-4" />
+                      View Documentation
+                    </Link>
+                  ) : (
+                    <span className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <BookOpen className="h-4 w-4" />
+                      View Documentation
+                    </span>
+                  )}
                   
                   {/* API Reference Link */}
-                  <a href="#" className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200 text-sm">
-                    <ExternalLink className="h-4 w-4" />
-                    API Reference
-                  </a>
+                  {apiReferenceUrl ? (
+                    <Link href={apiReferenceUrl} className="flex items-center gap-2 text-foreground hover:underline transition-all duration-200 text-sm">
+                      <ExternalLink className="h-4 w-4" />
+                      API Reference
+                    </Link>
+                  ) : (
+                    <span className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <ExternalLink className="h-4 w-4" />
+                      API Reference
+                    </span>
+                  )}
                 </div>
               </div>
             </>
