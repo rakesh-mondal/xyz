@@ -666,23 +666,27 @@ export default function ManageHostedZonePage({ params }: { params: { id: string 
                             }
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="w-full max-w-none">
+                        <SelectContent>
                           {ROUTING_PROTOCOLS.map((protocol) => (
                             <SelectItem 
                               key={protocol.value} 
                               value={protocol.value}
-                              className="py-3 pl-8 pr-4 min-h-[70px] cursor-pointer hover:bg-accent/50 focus:bg-accent/50"
                             >
-                              <div className="flex flex-col gap-1 w-full">
-                                <div className="font-semibold text-sm text-foreground">{protocol.label}</div>
-                                <div className="text-xs text-muted-foreground leading-relaxed whitespace-normal break-words">
-                                  {protocol.description}
-                                </div>
-                              </div>
+                              {protocol.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                      
+                      {/* Show selected routing protocol description */}
+                      {recordForm.routingProtocol && (
+                        <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-md flex items-start gap-2">
+                          <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                          <p className="text-sm text-gray-700 leading-relaxed">
+                            {ROUTING_PROTOCOLS.find(p => p.value === recordForm.routingProtocol)?.description}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
 
