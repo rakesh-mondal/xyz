@@ -33,7 +33,7 @@ import {
   type APIServerEndpoint
 } from "@/lib/cluster-creation-data"
 import { CreateVPCModal } from "@/components/modals/vm-creation-modals"
-import { NodePoolsAndAddonsView } from "./components/node-pools-addons-view"
+// import { NodePoolsAndAddonsView } from "./components/node-pools-addons-view" // Component will be defined inline
 
 // Mock security groups data
 const mockSecurityGroups = [
@@ -1045,7 +1045,18 @@ function VPCSelectorInline({ value, region, availableVPCs, onChange, error }: {
   )
 }
 
-// NodePoolsAndAddonsView component has been moved to ./components/node-pools-addons-view.tsx
+// NodePoolsAndAddonsView component - inline definition
+function NodePoolsAndAddonsView({ 
+  onBack, 
+  onContinue,
+  clusterCost,
+  clusterCreationStarted
+}: { 
+  onBack: () => void
+  onContinue: () => void
+  clusterCost: number
+  clusterCreationStarted: boolean
+}) {
   const { toast } = useToast()
   // Node Pools State
   const [nodePools, setNodePools] = useState<NodePool[]>([
