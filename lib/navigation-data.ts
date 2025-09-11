@@ -145,11 +145,11 @@ export const navigationStructure: NavCategory[] = [
         href: "/billing",
         icon: <CreditCard className="h-5 w-5" />,
       },
-      {
-        title: "Key Management System",
-        href: "/key-management",
-        icon: <Key className="h-5 w-5" />,
-      },
+      // {
+      //   title: "Key Management System",
+      //   href: "/key-management",
+      //   icon: <Key className="h-5 w-5" />,
+      // },
       {
         title: "Certificate Manager",
         href: "/administration/certificates",
@@ -288,11 +288,11 @@ export const leftSidebarNavigation: NavCategory[] = [
         href: "/billing",
         icon: <CreditCard className="h-5 w-5" />,
       },
-      {
-        title: "Key Management System",
-        href: "/key-management",
-        icon: <Key className="h-5 w-5" />,
-      },
+      // {
+      //   title: "Key Management System",
+      //   href: "/key-management",
+      //   icon: <Key className="h-5 w-5" />,
+      // },
       {
         title: "Certificate Manager",
         href: "/administration/certificates",
