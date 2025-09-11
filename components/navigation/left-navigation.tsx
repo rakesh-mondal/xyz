@@ -133,7 +133,7 @@ const navigationConfig = {
           { href: "/networking/load-balancing", label: "Load Balancers" },
           { 
             href: "/networking/dns", 
-            label: "DNS Management",
+            label: "DNS",
             subItems: [
               { href: "/networking/dns", label: "Hosted Zones" },
               { href: "/networking/dns/create", label: "Create Zone" },
