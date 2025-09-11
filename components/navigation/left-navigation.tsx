@@ -250,15 +250,15 @@ const navigationConfig = {
           { href: "/billing/transactions", label: "Transactions" },
         ],
       },
-      // {
-      //   href: "/administration/kms",
-      //   label: "Key Management System",
-      //   subItems: [
-      //     { href: "/administration/kms/storage", label: "Storage" },
-      //     { href: "/administration/kms/models", label: "Models" },
-      //     { href: "/administration/kms/service", label: "Key Management Service" },
-      //   ],
-      // },
+      {
+        href: "/administration/kms",
+        label: "Key Management System",
+        subItems: [
+          { href: "/administration/kms/storage", label: "Storage" },
+          { href: "/administration/kms/models", label: "Models" },
+          // { href: "/administration/kms/service", label: "Key Management Service" }, // Hidden temporarily
+        ],
+      },
       {
         href: "/administration/certificates",
         label: "Certificate Manager",
