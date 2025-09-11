@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge"
 import { type MKSCluster } from "@/lib/mks-data"
-import { CheckCircle2, XCircle } from "lucide-react"
 
 interface AddOnsSectionProps {
   cluster: MKSCluster
@@ -30,46 +29,37 @@ export function AddOnsSection({ cluster, onUpdate }: AddOnsSectionProps) {
         {cluster.addOns.map((addon) => (
           <div 
             key={addon.id} 
-            className="flex items-start gap-4 py-3 px-3 hover:bg-muted/30 rounded-lg transition-colors border border-transparent hover:border-muted-foreground/10"
+            className="py-3 px-3 hover:bg-muted/30 rounded-lg transition-colors border border-transparent hover:border-muted-foreground/10"
           >
-            {/* Status indicator */}
-            <div className="flex-shrink-0 mt-0.5">
-              {addon.isEnabled ? (
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-              ) : (
-                <XCircle className="h-5 w-5 text-gray-400" />
-              )}
+            {/* Title and badges on same row */}
+            <div className="flex items-center justify-between mb-2 gap-3">
+              <h4 className="text-sm font-medium text-foreground leading-tight">
+                {addon.displayName}
+              </h4>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Badge 
+                  variant={addon.isEnabled ? "default" : "outline"} 
+                  className="text-xs"
+                >
+                  {addon.version}
+                </Badge>
+                <Badge 
+                  variant={addon.isEnabled ? "default" : "secondary"} 
+                  className={`text-xs ${
+                    addon.isEnabled 
+                      ? "bg-green-100 text-green-800 hover:bg-green-100" 
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {addon.isEnabled ? "Active" : "Disabled"}
+                </Badge>
+              </div>
             </div>
             
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between mb-1 gap-2">
-                <h4 className="text-sm font-medium text-foreground leading-tight">
-                  {addon.displayName}
-                </h4>
-                <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                  <Badge 
-                    variant={addon.isEnabled ? "default" : "outline"} 
-                    className="text-xs"
-                  >
-                    {addon.version}
-                  </Badge>
-                  <Badge 
-                    variant={addon.isEnabled ? "default" : "secondary"} 
-                    className={`text-xs ${
-                      addon.isEnabled 
-                        ? "bg-green-100 text-green-800 hover:bg-green-100" 
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {addon.isEnabled ? "Active" : "Disabled"}
-                  </Badge>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {addon.description}
-              </p>
-            </div>
+            {/* Description */}
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {addon.description}
+            </p>
           </div>
         ))}
 
