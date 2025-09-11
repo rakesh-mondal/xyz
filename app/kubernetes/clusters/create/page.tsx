@@ -1175,8 +1175,8 @@ function NodePoolsAndAddonsView({
     return {
       totalInstanceCost,
       totalStorageCost,
-      clusterCost: clusterCost.hourly,
-      totalCost: totalInstanceCost + totalStorageCost + clusterCost.hourly
+      clusterCost: clusterCost,
+      totalCost: totalInstanceCost + totalStorageCost + clusterCost
     }
   }, [nodePools])
 
