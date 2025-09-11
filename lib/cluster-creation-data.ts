@@ -41,7 +41,7 @@ export interface APIServerEndpoint {
 export interface ClusterConfiguration {
   region: string
   vpcId: string
-  subnetIds: string[]
+  subnetId: string
   kubernetesVersion: string
   apiServerEndpoint: APIServerEndpoint
   podCIDR: string
@@ -282,7 +282,7 @@ export const calculateCosts = (configuration: Partial<ClusterConfiguration>): Co
 // Generate ClusterSpec YAML
 export const generateClusterSpecYAML = (configuration: ClusterConfiguration): string => {
   const vpc = mockVPCs.find(v => v.id === configuration.vpcId)
-  const subnets = mockSubnets.filter(s => configuration.subnetIds.includes(s.id))
+  const subnet = mockSubnets.find(s => s.id === configuration.subnetId)
   
   return `apiVersion: v1
 kind: ClusterSpec
@@ -298,12 +298,12 @@ spec:
     name: ${vpc?.name || 'unknown'}
     cidr: ${vpc?.cidr || 'unknown'}
   networking:
-    subnets:
-${subnets.map(subnet => `      - id: ${subnet.id}
-        name: ${subnet.name}
-        type: ${subnet.type}
-        cidr: ${subnet.cidr}
-        availabilityZone: ${subnet.availabilityZone}`).join('\n')}
+    subnet:
+      id: ${subnet?.id || 'unknown'}
+      name: ${subnet?.name || 'unknown'}
+      type: ${subnet?.type || 'unknown'}
+      cidr: ${subnet?.cidr || 'unknown'}
+      availabilityZone: ${subnet?.availabilityZone || 'unknown'}
   kubernetes:
     version: ${configuration.kubernetesVersion}
   apiServer:

@@ -236,19 +236,9 @@ export default function EditClusterPage() {
               <div className="font-medium font-mono" style={{ fontSize: '14px' }}>{cluster.serviceCIDR}</div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnets</label>
+              <label className="text-sm font-normal text-gray-700" style={{ fontSize: '13px' }}>Subnet</label>
               <div className="font-medium" style={{ fontSize: '14px' }}>
-                {cluster.subnetIds.length > 0 ? (
-                  <div className="space-y-1">
-                    {cluster.subnetIds.map((subnetId, index) => (
-                      <div key={subnetId} className="font-medium" style={{ fontSize: '14px' }}>
-                        {subnetId}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  'None'
-                )}
+                {cluster.subnetId || 'None'}
               </div>
             </div>
             <div className="space-y-1">

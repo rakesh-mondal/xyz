@@ -10,7 +10,7 @@ export interface MKSCluster {
   createdAt: string
   tags: string[]
   vpcId: string
-  subnetIds: string[]
+  subnetId: string
   securityGroupIds: string[]
   kubeApiEndpoint: string
   nodePools: MKSNodePool[]
@@ -194,7 +194,7 @@ export const mockMKSClusters: MKSCluster[] = [
     createdAt: '2024-01-15T10:30:00Z',
     tags: ['production', 'web-apps', 'critical'],
     vpcId: 'vpc-prod-001',
-    subnetIds: ['subnet-prod-1a', 'subnet-prod-1b'],
+    subnetId: 'subnet-prod-1a',
     securityGroupIds: ['sg-prod-cluster'],
     kubeApiEndpoint: 'https://api.production-cluster.k8s.local',
     podCIDR: '10.244.0.0/16',
@@ -243,7 +243,7 @@ export const mockMKSClusters: MKSCluster[] = [
     createdAt: '2024-02-20T14:15:00Z',
     tags: ['staging', 'testing'],
     vpcId: 'vpc-staging-001',
-    subnetIds: ['subnet-staging-1a'],
+    subnetId: 'subnet-staging-1a',
     securityGroupIds: ['sg-staging-cluster'],
     kubeApiEndpoint: 'https://api.staging-cluster.k8s.local',
     podCIDR: '10.245.0.0/16',
@@ -292,7 +292,7 @@ export const mockMKSClusters: MKSCluster[] = [
     createdAt: '2024-12-19T09:00:00Z',
     tags: ['development', 'experimental'],
     vpcId: 'vpc-dev-001',
-    subnetIds: ['subnet-dev-1a'],
+    subnetId: 'subnet-dev-1a',
     securityGroupIds: ['sg-dev-cluster'],
     kubeApiEndpoint: 'https://api.dev-cluster.k8s.local',
     podCIDR: '10.246.0.0/16',
@@ -326,7 +326,7 @@ export const mockMKSClusters: MKSCluster[] = [
     createdAt: '2024-11-10T16:45:00Z',
     tags: ['testing', 'qa'],
     vpcId: 'vpc-test-001',
-    subnetIds: ['subnet-test-1a'],
+    subnetId: 'subnet-test-1a',
     securityGroupIds: ['sg-test-cluster'],
     kubeApiEndpoint: 'https://api.test-cluster.k8s.local',
     podCIDR: '10.247.0.0/16',
@@ -360,7 +360,7 @@ export const mockMKSClusters: MKSCluster[] = [
     createdAt: '2024-10-05T11:20:00Z',
     tags: ['demo', 'presentation'],
     vpcId: 'vpc-demo-001',
-    subnetIds: ['subnet-demo-1a'],
+    subnetId: 'subnet-demo-1a',
     securityGroupIds: ['sg-demo-cluster'],
     kubeApiEndpoint: 'https://api.demo-cluster.k8s.local',
     podCIDR: '10.248.0.0/16',

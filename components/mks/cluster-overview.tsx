@@ -171,19 +171,9 @@ export function ClusterOverview({ cluster }: ClusterOverviewProps) {
                 <span className="text-muted-foreground">VPC:</span>
                 <span className="font-mono text-xs">{cluster.vpcId}</span>
               </div>
-              <div className="flex justify-between items-start">
-                <span className="text-muted-foreground">Subnets:</span>
-                <div className="text-right">
-                  {cluster.subnetIds.length > 0 ? (
-                    cluster.subnetIds.map((subnetId, index) => (
-                      <div key={subnetId} className="font-medium text-sm">
-                        {subnetId}
-                      </div>
-                    ))
-                  ) : (
-                    <span className="font-medium text-sm">None</span>
-                  )}
-                </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subnet:</span>
+                <span className="font-mono text-xs">{cluster.subnetId || 'None'}</span>
               </div>
             </div>
           </div>
