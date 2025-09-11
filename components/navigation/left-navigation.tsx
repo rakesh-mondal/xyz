@@ -131,7 +131,14 @@ const navigationConfig = {
           { href: "/networking/security-groups", label: "Security Groups" },
           { href: "/networking/static-ips", label: "Static IP Addresses" },
           { href: "/networking/load-balancing", label: "Load Balancers" },
-          { href: "/networking/dns", label: "DNS" },
+          { 
+            href: "/networking/dns", 
+            label: "DNS",
+            subItems: [
+              { href: "/networking/dns", label: "Hosted Zones" },
+              { href: "/networking/dns/create", label: "Create Zone" },
+            ]
+          },
         ],
       },
     ],
@@ -575,6 +582,9 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     } else if (pathname.startsWith("/networking")) {
       setExpandedItem("/core-infrastructure")
       setExpandedSubItem("/networking")
+      if (pathname.startsWith("/networking/dns")) {
+        setExpandedTertiaryItem("/networking/dns")
+      }
     } else if (pathname.startsWith("/storage")) {
       setExpandedItem("/core-infrastructure")
       setExpandedSubItem("/storage")
@@ -650,6 +660,8 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
         router.push("/compute/vms")
       } else if (href === "/networking") {
         router.push("/networking/vpc")
+      } else if (href === "/networking/dns") {
+        router.push("/networking/dns")
       } else if (href === "/storage") {
         setExpandedTertiaryItem("/storage/block")
         router.push("/storage/block")
@@ -697,6 +709,9 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     }
     if (path === "/networking") {
       return pathname.startsWith("/networking")
+    }
+    if (path === "/networking/dns") {
+      return pathname.startsWith("/networking/dns")
     }
     if (path === "/storage") {
       return pathname.startsWith("/storage")
