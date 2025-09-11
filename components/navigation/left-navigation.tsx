@@ -131,7 +131,14 @@ const navigationConfig = {
           { href: "/networking/security-groups", label: "Security Groups" },
           { href: "/networking/static-ips", label: "Static IP Addresses" },
           { href: "/networking/load-balancing", label: "Load Balancers" },
-          { href: "/networking/dns", label: "DNS" },
+          { 
+            href: "/networking/dns", 
+            label: "DNS Management",
+            subItems: [
+              { href: "/networking/dns", label: "Hosted Zones" },
+              { href: "/networking/dns/create", label: "Create Zone" },
+            ]
+          },
         ],
       },
     ],
@@ -267,6 +274,16 @@ const navigationConfig = {
       {
         href: "/developer/sdks",
         label: "SDKs",
+        subItems: [
+          { href: "/developer/sdks", label: "SDK Overview" },
+          { href: "/documentation/sdk/infrastructure", label: "Infrastructure SDK" },
+          { href: "/documentation/sdk/ai-studio", label: "AI Studio SDK" },
+          { href: "/documentation/sdk/ai-saas", label: "AI SaaS SDK" },
+        ],
+      },
+      {
+        href: "/apis",
+        label: "API Reference",
       },
     ],
   },
@@ -575,6 +592,9 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     } else if (pathname.startsWith("/networking")) {
       setExpandedItem("/core-infrastructure")
       setExpandedSubItem("/networking")
+      if (pathname.startsWith("/networking/dns")) {
+        setExpandedTertiaryItem("/networking/dns")
+      }
     } else if (pathname.startsWith("/storage")) {
       setExpandedItem("/core-infrastructure")
       setExpandedSubItem("/storage")
@@ -603,6 +623,12 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
         }
       } else if (pathname.startsWith("/doc-intelligence")) {
         setExpandedSubItem("/ai-solutions/document-intelligence")
+      }
+    } else if (pathname.startsWith("/developer")) {
+      setExpandedItem("/developer")
+      setExpandedSubItem("/developer/sdks")
+      if (pathname.startsWith("/documentation/sdk")) {
+        setExpandedTertiaryItem("/developer/sdks")
       }
     } else if (pathname.startsWith("/administration")) {
       setExpandedItem("/administration")
@@ -650,6 +676,8 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
         router.push("/compute/vms")
       } else if (href === "/networking") {
         router.push("/networking/vpc")
+      } else if (href === "/networking/dns") {
+        router.push("/networking/dns")
       } else if (href === "/storage") {
         setExpandedTertiaryItem("/storage/block")
         router.push("/storage/block")
@@ -667,6 +695,8 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
         router.push("/bhashik/speech-services")
       } else if (href === "/administration/kms") {
         router.push("/administration/kms/storage")
+      } else if (href === "/developer/sdks") {
+        router.push("/developer/sdks")
       }
     } else {
       // If collapsing, clear tertiary expansion
@@ -697,6 +727,15 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     }
     if (path === "/networking") {
       return pathname.startsWith("/networking")
+    }
+    if (path === "/networking/dns") {
+      return pathname.startsWith("/networking/dns")
+    }
+    if (path === "/developer") {
+      return pathname.startsWith("/developer") || pathname.startsWith("/documentation/sdk")
+    }
+    if (path === "/developer/sdks") {
+      return pathname.startsWith("/developer/sdks") || pathname.startsWith("/documentation/sdk")
     }
     if (path === "/storage") {
       return pathname.startsWith("/storage")
