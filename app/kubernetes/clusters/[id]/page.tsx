@@ -50,6 +50,10 @@ export default function ClusterDetailsPage() {
   const clusterId = params.id as string
   const [cluster, setCluster] = useState<MKSCluster | undefined>(getClusterById(clusterId))
   
+  const handleClusterUpdate = (updatedCluster: MKSCluster) => {
+    setCluster(updatedCluster)
+  }
+  
   // Modal states
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -300,6 +304,7 @@ export default function ClusterDetailsPage() {
       <div className="mb-8">
         <NodePoolsSection 
           cluster={cluster} 
+          onUpdate={handleClusterUpdate}
         />
       </div>
 
@@ -307,6 +312,7 @@ export default function ClusterDetailsPage() {
       <div className="mb-8">
         <AddOnsSection 
           cluster={cluster} 
+          onUpdate={handleClusterUpdate}
         />
       </div>
 

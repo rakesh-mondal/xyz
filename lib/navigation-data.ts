@@ -18,6 +18,7 @@ import {
   HelpCircle,
   Home,
   Key,
+  Globe,
 } from "lucide-react"
 
 export interface NavItem {
@@ -86,6 +87,7 @@ export const navigationStructure: NavCategory[] = [
         items: [
           { title: "VPC", href: "/network/vpc" },
           { title: "Security Groups", href: "/network/security-groups" },
+          { title: "DNS", href: "/networking/dns" },
         ],
       },
     ],
@@ -157,6 +159,16 @@ export const navigationStructure: NavCategory[] = [
         title: "IAM",
         href: "/iam",
         icon: <Shield className="h-5 w-5" />,
+      },
+    ],
+  },
+  {
+    title: "DEVELOPER TOOLS",
+    items: [
+      {
+        title: "SDKs & Libraries",
+        href: "/developer/sdks",
+        icon: <Code className="h-5 w-5" />,
       },
     ],
   },
@@ -218,6 +230,7 @@ export const leftSidebarNavigation: NavCategory[] = [
         items: [
           { title: "VPC", href: "/network/vpc" },
           { title: "Security Groups", href: "/network/security-groups" },
+          { title: "DNS", href: "/networking/dns" },
         ],
       },
     ],
@@ -293,6 +306,16 @@ export const leftSidebarNavigation: NavCategory[] = [
     ],
   },
   {
+    title: "DEVELOPER TOOLS",
+    items: [
+      {
+        title: "SDKs & Libraries",
+        href: "/developer/sdks",
+        icon: <Code className="h-5 w-5" />,
+      },
+    ],
+  },
+  {
     title: "HELP & RESOURCES",
     items: [
       {
@@ -315,6 +338,7 @@ export function getSectionFromPathname(pathname: string): string {
     pathname.startsWith("/compute") ||
     pathname.startsWith("/storage") ||
     pathname.startsWith("/network") ||
+    pathname.startsWith("/networking") ||
     pathname.startsWith("/infrastructure")
   ) {
     return "infrastructure"
@@ -337,6 +361,8 @@ export function getSectionFromPathname(pathname: string): string {
     pathname.startsWith("/administration")
   ) {
     return "administration"
+  } else if (pathname.startsWith("/developer")) {
+    return "developer-tools"
   } else if (pathname.startsWith("/documentation") || pathname.startsWith("/support")) {
     return "help-resources"
   } else if (pathname.startsWith("/dashboard")) {
@@ -357,6 +383,8 @@ export function getSectionTitle(section: string): string {
       return "Ola Maps"
     case "administration":
       return "Administration"
+    case "developer-tools":
+      return "Developer Tools"
     case "help-resources":
       return "Help & Resources"
     case "home":
@@ -373,6 +401,7 @@ export function getNavigationItemsForSection(section: string): NavItem[] {
     "ai-studio": navigationStructure.find((category) => category.title === "AI STUDIO")?.items || [],
     "ola-maps": navigationStructure.find((category) => category.title === "OLA MAPS")?.items || [],
     administration: navigationStructure.find((category) => category.title === "ADMINISTRATION")?.items || [],
+    "developer-tools": navigationStructure.find((category) => category.title === "DEVELOPER TOOLS")?.items || [],
     "help-resources": navigationStructure.find((category) => category.title === "HELP & RESOURCES")?.items || [],
     home: navigationStructure.find((category) => category.title === "")?.items || [],
   }
