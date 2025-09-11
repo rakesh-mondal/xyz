@@ -26,11 +26,11 @@ export function AddOnsSection({ cluster, onUpdate }: AddOnsSectionProps) {
         </div>
       </div>
       
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {cluster.addOns.map((addon) => (
           <div 
             key={addon.id} 
-            className="flex items-start gap-4 py-3 px-1 hover:bg-muted/30 rounded-lg transition-colors"
+            className="flex items-start gap-4 py-3 px-3 hover:bg-muted/30 rounded-lg transition-colors border border-transparent hover:border-muted-foreground/10"
           >
             {/* Status indicator */}
             <div className="flex-shrink-0 mt-0.5">
@@ -43,11 +43,11 @@ export function AddOnsSection({ cluster, onUpdate }: AddOnsSectionProps) {
             
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-1">
-                <h4 className="text-sm font-medium text-foreground">
+              <div className="flex items-start justify-between mb-1 gap-2">
+                <h4 className="text-sm font-medium text-foreground leading-tight">
                   {addon.displayName}
                 </h4>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col items-end gap-1 flex-shrink-0">
                   <Badge 
                     variant={addon.isEnabled ? "default" : "outline"} 
                     className="text-xs"
