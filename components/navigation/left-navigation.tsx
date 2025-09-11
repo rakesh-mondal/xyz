@@ -256,7 +256,7 @@ const navigationConfig = {
         subItems: [
           { href: "/administration/kms/storage", label: "Storage" },
           { href: "/administration/kms/models", label: "Models" },
-          { href: "/administration/kms/service", label: "Key Management Service" },
+          // { href: "/administration/kms/service", label: "Key Management Service" }, // Hidden temporarily
         ],
       },
       {
