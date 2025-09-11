@@ -42,7 +42,7 @@ export function PageShell({ title, description, tabs, children, headerActions, h
           <Breadcrumb>
             <BreadcrumbList>
               {breadcrumbs.map((crumb, index) => (
-                <React.Fragment key={crumb.href}>
+                <React.Fragment key={`${crumb.href}-${index}`}>
                   {index > 0 && <BreadcrumbSeparator />}
                   <BreadcrumbItem>
                     {index === breadcrumbs.length - 1 ? (

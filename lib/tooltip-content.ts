@@ -68,6 +68,7 @@ export const tooltipContent = {
     staticIP: "Manage static IP addresses",
     dns: "Configure DNS settings",
     securityGroups: "Manage network security groups",
+    routingProtocol: "Choose how DNS queries are routed to your resources. Simple routes to one IP, Weighted distributes traffic by percentage, GeoIP routes by location, HealthPort/HealthURL route only to healthy servers.",
   },
 
   // APIs service
@@ -134,10 +135,15 @@ export const tooltipContent = {
 
   // Status and actions
   status: {
-    active: "Resource is running and operational",
+    // Load Balancer specific statuses
+    active: "Serving traffic normally",
+    provisioning: "LB is being set up; resources being allocated",
+    error: "Creation or update failed",
+    offline: "Not serving traffic (all backends unhealthy, listeners disabled, or admin stopped)",
+    
+    // General statuses
     inactive: "Resource is stopped or not running",
     pending: "Resource is being created or started",
-    error: "Resource has encountered an error",
     warning: "Resource requires attention",
     success: "Operation completed successfully",
     loading: "Operation is in progress",

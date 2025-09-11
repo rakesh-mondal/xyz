@@ -2,10 +2,26 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { VMAnimatedPieChart } from "@/components/ui/vm-animated-pie-chart"
+import { StorageAnimatedBarChart } from "@/components/ui/storage-animated-bar-chart"
+import { ObjectStorageAnimatedChart } from "@/components/ui/object-storage-animated-chart"
+import { AiPodsAnimatedChart } from "@/components/ui/ai-pods-animated-chart"
 import { Activity, CreditCard, DollarSign, Users, Server, Database, Cpu, BarChart3, Plus, ExternalLink, MapPin, BookOpen, Shield, Key, Code, Globe, Brain, FileText } from "lucide-react"
+import { VirtualMachinesIcon } from "@/components/icons/virtual-machines-icon"
+import { BlockStorageIcon } from "@/components/icons/block-storage-icon"
+import { ObjectStorageIcon } from "@/components/icons/object-storage-icon"
+import { AiPodsIcon } from "@/components/icons/ai-pods-icon"
+import { AiSolutionsIcon } from "@/components/icons/ai-solutions-icon"
+import { NetworkingIcon } from "@/components/icons/networking-icon"
+import { StorageIcon } from "@/components/icons/storage-icon"
+import { ComputeStorageIcon } from "@/components/icons/compute-storage-icon"
+import { AccessUsageIcon } from "@/components/icons/access-usage-icon"
+import { DeveloperApiIcon } from "@/components/icons/developer-api-icon"
+import { ComputeIcon } from "@/components/icons/compute-icon"
 import { CommandPaletteProvider } from "@/components/command/command-palette-provider"
 import { AccessBanner } from "@/components/access-control/access-banner"
 import { FeatureRestriction } from "@/components/access-control/feature-restriction"
+// import { MaintenanceBanner } from "@/components/maintenance-banner"
 import { Button } from "@/components/ui/button"
 import { Stepper, StepperItem, StepperIndicator, StepperTitle, StepperDescription, StepperSeparator, StepperNav, StepperPanel, StepperContent } from '@/components/ui/stepper'
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +37,7 @@ import { ShadcnDataTable } from "@/components/ui/shadcn-data-table"
 import React from "react"
 import { StatusBadge } from "@/components/status-badge"
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper"
+import { HoverArrowLink } from "@/components/ui/hover-arrow-link"
 
 // Resource Cards Component
 function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
@@ -85,7 +102,7 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                 <p className="text-sm text-gray-600 mt-1">A step-by-step panel to help you configure and launch VM services</p>
               </div>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/getting-started/quickstart" className="flex items-center gap-1 font-normal text-foreground">
+                <HoverArrowLink href="/getting-started/quickstart" className="flex items-center gap-1 font-normal text-foreground">
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
                     viewBox="-0.5 -0.5 24 24" 
@@ -100,7 +117,7 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                     <path d="M13.416666666666668 1.9166666666666667v3.8333333333333335a1.9166666666666667 1.9166666666666667 0 0 0 1.9166666666666667 1.9166666666666667h3.8333333333333335"></path>
                   </svg>
                   View Docs
-                </Link>
+                </HoverArrowLink>
               </Button>
             </div>
             
@@ -119,9 +136,9 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                       asChild={step.enabled}
                     >
                       {step.enabled ? (
-                        <Link href={step.href}>
+                        <HoverArrowLink href={step.href} variant="button">
                           {step.button}
-                        </Link>
+                        </HoverArrowLink>
                       ) : (
                         <span>{step.button}</span>
                       )}
@@ -184,9 +201,9 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
                     asChild={step.enabled}
                   >
                     {step.enabled ? (
-                      <Link href={step.href}>
+                      <HoverArrowLink href={step.href} variant="button">
                         {step.button}
-                      </Link>
+                      </HoverArrowLink>
                     ) : (
                       <span>{step.button}</span>
                     )}
@@ -232,32 +249,36 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
     virtualMachines: {
       activeVMs: 8,
       totalVMs: 12,
-      icon: Server,
+      icon: VirtualMachinesIcon,
       color: "bg-blue-100 text-blue-700",
       href: "/compute/vms"
     },
     blockStorage: {
       totalAllocatedSize: 256,
+      totalCapacity: 500,
       volumeCount: 15,
-      icon: Database,
+      icon: BlockStorageIcon,
       color: "bg-green-100 text-green-700", 
       href: "/storage/block"
     },
     objectStorage: {
       storageUsed: 45.2,
-      totalBuckets: 8,
-      icon: FileText,
+      totalCapacity: 100,
+      totalBuckets: 25,
+      icon: ObjectStorageIcon,
       color: "bg-purple-100 text-purple-700",
       href: "/storage/object"
     },
     aiPods: {
       activePods: 3,
       totalPods: 5,
-      icon: Cpu,
+      icon: AiPodsIcon,
       color: "bg-orange-100 text-orange-700",
       href: "/compute/ai-pods"
     }
   };
+
+
 
   return (
     <div className="space-y-6">
@@ -280,25 +301,56 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
             <Card className="bg-white rounded-lg border border-gray-200">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${resourceData.virtualMachines.color}`}>
-                    <resourceData.virtualMachines.icon className="h-5 w-5" />
+                  <div className="p-[1px] rounded-lg">
+                    <resourceData.virtualMachines.icon className="h-6 w-6" />
                   </div>
                   <CardTitle className="text-base font-semibold">Virtual Machines</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Active VMs</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.virtualMachines.activeVMs}</span>
+                <div>
+                  {/* Animated Pie Chart */}
+                  <div className="relative pb-1">
+                    <VMAnimatedPieChart 
+                      activeVMs={resourceData.virtualMachines.activeVMs}
+                      totalVMs={resourceData.virtualMachines.totalVMs}
+                      className="h-[160px]"
+                    />
+                    
+                    {/* Center Text Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-black drop-shadow-sm">
+                          {resourceData.virtualMachines.totalVMs}
+                        </div>
+                        <div className="text-xs text-gray-700 mt-0.5 font-semibold">
+                          Total VMs
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total VMs</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.virtualMachines.totalVMs}</span>
+                  
+                  {/* VM Status Indicators */}
+                  <div className="flex items-center justify-center gap-2 py-2 pb-3">
+                    <div className="flex shrink-0 items-center rounded-full border border-green-200 bg-green-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#4CAF50]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-green-800">
+                        {resourceData.virtualMachines.activeVMs} Active
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center rounded-full border border-gray-200 bg-gray-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#e5e7eb]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-gray-600">
+                        {resourceData.virtualMachines.totalVMs - resourceData.virtualMachines.activeVMs} Inactive
+                      </span>
+                    </div>
                   </div>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={resourceData.virtualMachines.href}>Manage VMs</Link>
+                  
+                  {/* Manage VMs Button */}
+                  <div>
+                    <Button variant="outline" size="sm" className="w-full hover:bg-black hover:text-white hover:border-black" asChild>
+                      <HoverArrowLink href={resourceData.virtualMachines.href} variant="button" showIcon={false}>Manage VMs</HoverArrowLink>
                     </Button>
                   </div>
                 </div>
@@ -309,25 +361,44 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
             <Card className="bg-white rounded-lg border border-gray-200">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${resourceData.blockStorage.color}`}>
-                    <resourceData.blockStorage.icon className="h-5 w-5" />
+                  <div className="p-[1px] rounded-lg">
+                    <resourceData.blockStorage.icon className="h-6 w-6" />
                   </div>
                   <CardTitle className="text-base font-semibold">Block Storage</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total Allocated</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.blockStorage.totalAllocatedSize} GB</span>
+                <div>
+                  {/* Animated Bar Chart */}
+                  <div className="relative pb-1">
+                    <StorageAnimatedBarChart 
+                      allocatedGB={resourceData.blockStorage.totalAllocatedSize}
+                      totalCapacityGB={resourceData.blockStorage.totalCapacity}
+                      volumeCount={resourceData.blockStorage.volumeCount}
+                      className="h-[160px]"
+                    />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Volume Count</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.blockStorage.volumeCount}</span>
+                  
+                  {/* Storage Status Indicators */}
+                  <div className="flex items-center justify-center gap-2 py-2 pb-3">
+                    <div className="flex shrink-0 items-center rounded-full border border-green-200 bg-green-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#10b981]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-green-800">
+                        {resourceData.blockStorage.totalAllocatedSize} GB Used
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center rounded-full border border-gray-200 bg-gray-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#e5e7eb]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-gray-600">
+                        {resourceData.blockStorage.volumeCount} Volumes
+                      </span>
+                    </div>
                   </div>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={resourceData.blockStorage.href}>Manage Block Storage</Link>
+                  
+                  {/* Manage Block Storage Button */}
+                  <div>
+                    <Button variant="outline" size="sm" className="w-full hover:bg-black hover:text-white hover:border-black" asChild>
+                      <HoverArrowLink href={resourceData.blockStorage.href} variant="button" showIcon={false}>Manage Block Storage</HoverArrowLink>
                     </Button>
                   </div>
                 </div>
@@ -338,25 +409,44 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
             <Card className="bg-white rounded-lg border border-gray-200">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${resourceData.objectStorage.color}`}>
-                    <resourceData.objectStorage.icon className="h-5 w-5" />
+                  <div className="p-[1px] rounded-lg">
+                    <resourceData.objectStorage.icon className="h-6 w-6" />
                   </div>
                   <CardTitle className="text-base font-semibold">Object Storage</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Storage Used</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.objectStorage.storageUsed} GB</span>
+                <div>
+                  {/* Animated Bucket Chart */}
+                  <div className="relative pb-1">
+                    <ObjectStorageAnimatedChart 
+                      storageUsed={resourceData.objectStorage.storageUsed}
+                      totalCapacity={resourceData.objectStorage.totalCapacity}
+                      totalBuckets={resourceData.objectStorage.totalBuckets}
+                      className="h-[160px]"
+                    />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total Buckets</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.objectStorage.totalBuckets}</span>
+                  
+                  {/* Object Storage Status Indicators */}
+                  <div className="flex items-center justify-center gap-2 py-2 pb-3">
+                    <div className="flex shrink-0 items-center rounded-full border border-sky-200 bg-sky-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#0ea5e9]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-sky-800">
+                        {resourceData.objectStorage.storageUsed} GB Used
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center rounded-full border border-gray-200 bg-gray-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#e5e7eb]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-gray-600">
+                        {resourceData.objectStorage.totalBuckets} Buckets
+                      </span>
+                    </div>
                   </div>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={resourceData.objectStorage.href}>Manage Object Storage</Link>
+                  
+                  {/* Manage Object Storage Button */}
+                  <div>
+                    <Button variant="outline" size="sm" className="w-full hover:bg-black hover:text-white hover:border-black" asChild>
+                      <HoverArrowLink href={resourceData.objectStorage.href} variant="button" showIcon={false}>Manage Object Storage</HoverArrowLink>
                     </Button>
                   </div>
                 </div>
@@ -367,25 +457,43 @@ function ResourceCards({ isNewUser = false }: { isNewUser?: boolean }) {
             <Card className="bg-white rounded-lg border border-gray-200">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${resourceData.aiPods.color}`}>
-                    <resourceData.aiPods.icon className="h-5 w-5" />
+                  <div className="p-[1px] rounded-lg">
+                    <resourceData.aiPods.icon className="h-6 w-6" />
                   </div>
                   <CardTitle className="text-base font-semibold">AI Pods</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Active Pods</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.aiPods.activePods}</span>
+                <div>
+                  {/* Animated Pod Cluster Chart */}
+                  <div className="relative pb-1">
+                    <AiPodsAnimatedChart 
+                      activePods={resourceData.aiPods.activePods}
+                      totalPods={resourceData.aiPods.totalPods}
+                      className="h-[160px]"
+                    />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total Pods</span>
-                    <span className="text-lg font-semibold text-gray-900">{resourceData.aiPods.totalPods}</span>
+                  
+                  {/* AI Pods Status Indicators */}
+                  <div className="flex items-center justify-center gap-2 py-2 pb-3">
+                    <div className="flex shrink-0 items-center rounded-full border border-orange-200 bg-orange-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#f59e0b]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-orange-800">
+                        {resourceData.aiPods.activePods} Active
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center rounded-full border border-gray-200 bg-gray-50/95 px-2.5 py-1 backdrop-blur-sm shadow-sm">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#e5e7eb]" />
+                      <span className="ml-1.5 text-[11px] font-medium text-gray-600">
+                        {resourceData.aiPods.totalPods - resourceData.aiPods.activePods} Inactive
+                      </span>
+                    </div>
                   </div>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={resourceData.aiPods.href}>Manage AI Pods</Link>
+                  
+                  {/* Manage AI Pods Button */}
+                  <div>
+                    <Button variant="outline" size="sm" className="w-full hover:bg-black hover:text-white hover:border-black" asChild>
+                      <HoverArrowLink href={resourceData.aiPods.href} variant="button" showIcon={false}>Manage AI Pods</HoverArrowLink>
                     </Button>
                   </div>
                 </div>
@@ -403,7 +511,7 @@ function ServicesAvailable() {
   const services = [
     {
       category: "Compute",
-      icon: Server,
+      icon: ComputeIcon,
       color: "bg-blue-100 text-blue-700",
       items: [
         { name: "Virtual Machines", href: "/compute/vms", description: "Launch and manage virtual machines" },
@@ -413,7 +521,7 @@ function ServicesAvailable() {
     },
     {
       category: "Storage",
-      icon: Database,
+      icon: StorageIcon,
       color: "bg-green-100 text-green-700",
       items: [
         { name: "Object Storage", href: "/storage/object", description: "Create and manage buckets" },
@@ -422,17 +530,18 @@ function ServicesAvailable() {
     },
     {
       category: "Networking",
-      icon: Globe,
+      icon: NetworkingIcon,
       color: "bg-purple-100 text-purple-700",
       items: [
         { name: "VPC", href: "/networking/vpc", description: "Virtual Private Cloud" },
         { name: "Subnets", href: "/networking/subnets", description: "Network segmentation" },
-        { name: "Security Groups", href: "/networking/security-groups", description: "Firewall rules" }
+        { name: "Security Groups", href: "/networking/security-groups", description: "Firewall rules" },
+        { name: "DNS", href: "/networking/dns", description: "Hosted zones and DNS records management" }
       ]
     },
     {
       category: "AI Solutions",
-      icon: Brain,
+      icon: AiSolutionsIcon,
       color: "bg-orange-100 text-orange-700",
       items: [
         { name: "Models", href: "/models", description: "AI model management" },
@@ -453,8 +562,8 @@ function ServicesAvailable() {
             <Card key={service.category}>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${service.color}`}>
-                    <Icon className="h-5 w-5" />
+                  <div className="p-[1px] rounded-lg">
+                    <Icon className="h-6 w-6" />
                   </div>
                   <CardTitle className="text-lg">{service.category}</CardTitle>
                 </div>
@@ -463,9 +572,11 @@ function ServicesAvailable() {
                 <div className="space-y-3">
                   {service.items.map((item) => (
                     <div key={item.name} className="space-y-1">
-                      <Link href={item.href} className="block">
-                        <p className="font-medium text-sm hover:underline">{item.name}</p>
-                      </Link>
+                      <div>
+                        <HoverArrowLink href={item.href} className="inline-flex">
+                          <span className="font-medium text-sm">{item.name}</span>
+                        </HoverArrowLink>
+                      </div>
                       <p className="text-xs text-gray-600">{item.description}</p>
                     </div>
                   ))}
@@ -484,7 +595,7 @@ function DocumentationHub() {
   const docs = [
     {
       category: "Compute & Storage Services",
-      icon: Server,
+      icon: ComputeStorageIcon,
       color: "bg-blue-100 text-blue-700",
       items: [
         { name: "VMs and Baremetals", href: "#" },
@@ -494,7 +605,7 @@ function DocumentationHub() {
     },
     {
       category: "Access & Usage",
-      icon: Shield,
+      icon: AccessUsageIcon,
       color: "bg-green-100 text-green-700",
       items: [
         { name: "SSH Key", href: "#" },
@@ -504,7 +615,7 @@ function DocumentationHub() {
     },
     {
       category: "Developer & API Reference",
-      icon: Code,
+      icon: DeveloperApiIcon,
       color: "bg-purple-100 text-purple-700",
       items: [
         { name: "Object Storage", href: "#" },
@@ -525,8 +636,8 @@ function DocumentationHub() {
             <Card key={doc.category}>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${doc.color}`}>
-                    <Icon className="h-5 w-5" />
+                  <div className="p-[1px] rounded-lg">
+                    <Icon className="h-6 w-6" />
                   </div>
                   <CardTitle className="text-lg">{doc.category}</CardTitle>
                 </div>
@@ -535,9 +646,9 @@ function DocumentationHub() {
                 <div className="space-y-2">
                   {doc.items.map((item) => (
                     <div key={item.name}>
-                      <Link href={item.href} className="block">
-                        <p className="text-sm font-medium hover:underline">{item.name}</p>
-                      </Link>
+                      <HoverArrowLink href={item.href} className="inline-flex">
+                        <span className="text-sm font-medium">{item.name}</span>
+                      </HoverArrowLink>
                     </div>
                   ))}
                 </div>
@@ -582,10 +693,9 @@ function OlaMapsBanner() {
           </div>
         </div>
         <Button asChild size="lg">
-          <Link href="/maps" className="flex items-center gap-2">
+          <HoverArrowLink href="/maps" variant="button" showIcon={false}>
             Start with Ola Maps
-            <ExternalLink className="h-4 w-4" />
-          </Link>
+          </HoverArrowLink>
         </Button>
       </CardContent>
     </Card>
@@ -618,10 +728,11 @@ export default function DashboardPage() {
     <CommandPaletteProvider>
       <div className="space-y-4 flex flex-col min-h-screen pb-12">
         <AccessBanner onCompleteProfile={handleVerifyIdentity} />
+        {/* <MaintenanceBanner /> */}
 
         {/* Welcome Message */}
         <div className="mb-2">
-          <h2 className="text-3xl font-bold text-gray-900 text-left mb-1">Hey Rakesh,</h2>
+          <h2 className="text-3xl font-bold text-gray-900 text-left mb-1">Hey Faria,</h2>
           <div className="text-lg text-gray-700 font-normal text-left mb-1">
             {isNewUser ? "Get Started with Krutrim Cloud" : "Welcome back to Krutrim Cloud"}
           </div>
@@ -669,7 +780,7 @@ export default function DashboardPage() {
           <CardContent className="flex flex-col md:flex-row items-center justify-between gap-4 py-6">
             <div className="text-base md:text-lg font-medium text-gray-900">Need help with enterprise deployments, custom solutions, or pricing?</div>
             <Button variant="default" size="default" onClick={() => setIsEnterpriseModalOpen(true)}>
-              Contact Us &rarr;
+              Contact Us
             </Button>
           </CardContent>
         </Card>

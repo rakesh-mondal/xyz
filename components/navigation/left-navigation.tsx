@@ -614,6 +614,9 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
       } else if (pathname.startsWith("/doc-intelligence")) {
         setExpandedSubItem("/ai-solutions/document-intelligence")
       }
+    } else if (pathname.startsWith("/developer")) {
+      setExpandedItem("/developer")
+      setExpandedSubItem("/developer/sdks")
     } else if (pathname.startsWith("/administration")) {
       setExpandedItem("/administration")
     }
@@ -679,6 +682,8 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
         router.push("/bhashik/speech-services")
       } else if (href === "/administration/kms") {
         router.push("/administration/kms/storage")
+      } else if (href === "/developer/sdks") {
+        router.push("/developer/sdks")
       }
     } else {
       // If collapsing, clear tertiary expansion
@@ -712,6 +717,12 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     }
     if (path === "/networking/dns") {
       return pathname.startsWith("/networking/dns")
+    }
+    if (path === "/developer") {
+      return pathname.startsWith("/developer")
+    }
+    if (path === "/developer/sdks") {
+      return pathname.startsWith("/developer/sdks")
     }
     if (path === "/storage") {
       return pathname.startsWith("/storage")

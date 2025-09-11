@@ -482,18 +482,24 @@ export default function CreateVolumePage() {
                               value={tag.value}
                               onChange={(e) => updateTag(index, 'value', e.target.value)}
                             />
-                            {tags.length > 1 ? (
+                            {index === tags.length - 1 ? (
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm"
+                                onClick={addTag}
+                              >
+                                Add
+                              </Button>
+                            ) : (
                               <Button 
                                 type="button" 
                                 variant="outline" 
                                 size="sm"
                                 onClick={() => removeTag(index)}
+                                className="px-2"
                               >
-                                Remove
-                              </Button>
-                            ) : (
-                              <Button type="button" variant="outline" size="sm" onClick={addTag}>
-                                Add Tag
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             )}
                           </div>

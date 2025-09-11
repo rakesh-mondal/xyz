@@ -30,6 +30,8 @@ export function generateBreadcrumbs(pathname: string): Breadcrumb[] {
     "iam": "IAM",
     "vpc": "VPC",
     "static-ips": "Static IP Addresses",
+    "certificates": "Certificate Manager",
+    "load-balancing": "Load Balancers",
   }
 
   // Build the rest of the breadcrumbs

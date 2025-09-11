@@ -6,8 +6,8 @@ export default function AdministrationLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
-      <div className="flex-1 overflow-auto">
+    <div className="flex min-h-[calc(100vh-4rem)]">
+      <div className="flex-1">
         <div className="p-4">
           {children}
         </div>

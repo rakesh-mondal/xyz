@@ -17,7 +17,7 @@ export function getUserType(): 'new' | 'existing' | 'regular' {
 }
 
 // Filter function for list data
-export function filterDataForUser<T>(data: T[]): T[] {
+export function filterDataForUser<T>(data: T[], resourceType?: string): T[] {
   const userType = getUserType()
   
   // NEW USER: Show empty lists (no data)
@@ -78,7 +78,7 @@ export function filterBillingDataForUser(data: any): any {
 }
 
 // Check if user should see empty states
-export function shouldShowEmptyState(): boolean {
+export function shouldShowEmptyState(data?: any[], resourceType?: string): boolean {
   return getUserType() === 'new'
 }
 
@@ -112,6 +112,26 @@ export function getEmptyStateMessage(resourceType: string): {
         description: "Reserve static IP addresses for your cloud resources to ensure consistent connectivity.",
         actionText: "Reserve IP Address"
       },
+      'load-balancer': {
+        title: "No Load Balancers yet",
+        description: "Create load balancers to distribute incoming traffic across multiple targets for high availability.",
+        actionText: "Create Load Balancer"
+      },
+      'target-group': {
+        title: "No Target Groups yet", 
+        description: "Create target groups to define health check settings and routing rules for your load balancers.",
+        actionText: "Create Target Group"
+      },
+      dns: {
+        title: "No DNS Records yet",
+        description: "Create DNS records to resolve domain names to IP addresses and configure domain settings.",
+        actionText: "Create DNS Record"
+      },
+      'hosted-zones': {
+        title: "No Hosted Zones yet",
+        description: "Create hosted zones to manage DNS records for your domains and subdomains.",
+        actionText: "Create Hosted Zone"
+      },
       volumes: {
         title: "No Volumes yet",
         description: "Create block storage volumes to provide persistent storage for your cloud instances.",
@@ -137,6 +157,11 @@ export function getEmptyStateMessage(resourceType: string): {
         description: "Assess model performance characteristics including latency, throughput, and resource utilization.",
         actionText: "New Evaluation"
       },
+      'key-management-service': {
+        title: "No Keys yet",
+        description: "Create encryption keys to secure your data and applications. Manage symmetric, asymmetric, and HMAC keys for various use cases.",
+        actionText: "Create Key"
+      },
       billing: {
         title: "No Usage Yet",
         description: "Start using Krutrim Cloud services to see your usage and billing information here."
@@ -155,6 +180,21 @@ export function getEmptyStateMessage(resourceType: string): {
         description: "Create automated backups to ensure your data is protected and can be restored when needed.",
         actionText: "Create Backup"
       },
+      certificates: {
+        title: "No Certificates yet",
+        description: "Import SSL/TLS certificates and other security credentials to secure your applications and services.",
+        actionText: "Upload Certificate"
+      },
+      asg: {
+        title: "No Auto Scaling Groups yet",
+        description: "Create auto scaling groups to automatically adjust the number of instances based on demand and maintain application availability.",
+        actionText: "Create Auto Scaling Group"
+      },
+      template: {
+        title: "No Templates yet",
+        description: "Create auto scaling templates to standardize your instance configurations and make it easier to launch consistent auto scaling groups.",
+        actionText: "Create Template"
+      },
       default: {
         title: `No ${resourceType} yet`,
         description: `Create your first ${resourceType} to get started.`,
@@ -167,7 +207,7 @@ export function getEmptyStateMessage(resourceType: string): {
   
   // For existing users, this shouldn't be called since they have data
   return {
-    title: "No data available",
+    title: "No record available",
     description: "No information to display at this time."
   }
 } 

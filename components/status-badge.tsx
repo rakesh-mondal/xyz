@@ -53,6 +53,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "operational":
     case "attached":
     case "public":
+    case "healthy":
     case "tcp":
       bgColor = "bg-green-100"
       textColor = "text-green-800"
@@ -67,6 +68,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "deploying":
     case "warning":
     case "degraded":
+    case "draining":
       bgColor = "bg-yellow-100"
       textColor = "text-yellow-800"
       break
@@ -80,6 +82,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "incompleted":
     case "rejected":
     case "cancelled":
+    case "unhealthy":
       bgColor = "bg-red-100"
       textColor = "text-red-800"
       break
@@ -93,6 +96,12 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
     case "full":
       bgColor = "bg-blue-100"
       textColor = "text-blue-800"
+      break
+    
+    // Inactive/Disabled States - Grey (#6b7280 / #4b5563)
+    case "inactive":
+      bgColor = "bg-gray-100"
+      textColor = "text-gray-600"
       break
     
     // Special Protocol States - Purple (#8b5cf6 / #7c3aed)
@@ -119,6 +128,12 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
       textColor = "text-blue-800"
       break
     
+    // Offline States - Gray (#6b7280 / #374151)
+    case "offline":
+      bgColor = "bg-gray-100"
+      textColor = "text-gray-800"
+      break
+    
     // Neutral/Default States - Gray (#6b7280 / #374151)
     case "all":
     case "unknown":
@@ -131,7 +146,7 @@ export function StatusBadge({ status, tooltip }: StatusBadgeProps) {
   }
 
   const badge = (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-200 ${bgColor} ${textColor}`}>
       {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
     </span>
   )

@@ -57,6 +57,7 @@ export interface Column<T = any> {
   searchable?: boolean
   render?: (value: any, row: T) => React.ReactNode
   align?: "left" | "right" | "center"
+  width?: string | number
 }
 
 interface ShadcnDataTableProps<T = any> {
@@ -82,6 +83,7 @@ interface ShadcnDataTableProps<T = any> {
   statusOptions?: { value: string; label: string }[]
   onStatusChange?: (status: string) => void
   statusFilterColumn?: string
+  searchPlaceholder?: string
 }
 
 export function ShadcnDataTable<T = any>({ 
@@ -103,7 +105,8 @@ export function ShadcnDataTable<T = any>({
   enableStatusFilter = false,
   statusOptions = [],
   onStatusChange,
-  statusFilterColumn = 'jobStatus'
+  statusFilterColumn = 'jobStatus',
+  searchPlaceholder
 }: ShadcnDataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>(() => {
     if (defaultSort) {
@@ -269,7 +272,7 @@ export function ShadcnDataTable<T = any>({
       id: col.key,
       header: ({ column }) => {
         if (!col.sortable) {
-          return <div className={`font-medium ${col.align === "right" ? "text-right" : "text-left"}`}>{col.label}</div>
+          return <div className={`font-medium ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}`}>{col.label}</div>
         }
         // Determine sort state
         const isSorted = column.getIsSorted();
@@ -278,7 +281,7 @@ export function ShadcnDataTable<T = any>({
           <button
             type="button"
             onClick={() => column.toggleSorting(isSorted === "asc")}
-            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === "right" ? "justify-end" : "text-left"} pr-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
+            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === "right" ? "justify-end" : col.align === "center" ? "justify-center" : "text-left"} pr-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
             style={{ minWidth: 0 }}
           >
             <span className="truncate">{col.label}</span>
@@ -302,7 +305,7 @@ export function ShadcnDataTable<T = any>({
         if (col.render) {
           return col.render(value, row.original)
         }
-        return <div className={`${col.align === "right" ? "text-right" : "text-left"}`}>{String(value ?? '')}</div>
+        return <div className={`${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}`}>{String(value ?? '')}</div>
       },
       enableSorting: col.sortable,
       enableHiding: true,
@@ -352,7 +355,7 @@ export function ShadcnDataTable<T = any>({
               <div className="relative max-w-sm">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder={`Search ${primarySearchColumn ? columns.find(c => c.key === primarySearchColumn)?.label?.toLowerCase() || 'items' : 'items'}...`}
+                  placeholder={searchPlaceholder || `Search ${primarySearchColumn ? columns.find(c => c.key === primarySearchColumn)?.label?.toLowerCase() || 'items' : 'items'}...`}
                   value={globalFilter}
                   onChange={(event) => setGlobalFilter(event.target.value)}
                   className="pl-8 h-9"
@@ -516,8 +519,14 @@ export function ShadcnDataTable<T = any>({
                   {headerGroup.headers.map((header, index) => {
                     const isFirst = index === 0;
                     const isLast = index === headerGroup.headers.length - 1;
+                    const column = columns.find(col => col.key === header.id);
+                    const width = column?.width ? (typeof column.width === 'number' ? `${column.width}px` : column.width) : undefined;
                     return (
-                      <th key={header.id} className={`h-10 px-4 text-left align-middle font-medium text-muted-foreground ${isFirst ? 'rounded-tl-md' : ''} ${isLast ? 'rounded-tr-md' : ''}`}>
+                      <th 
+                        key={header.id} 
+                        className={`h-10 px-4 text-left align-middle font-medium text-muted-foreground ${isFirst ? 'rounded-tl-md' : ''} ${isLast ? 'rounded-tr-md' : ''}`}
+                        style={{ width }}
+                      >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -543,8 +552,14 @@ export function ShadcnDataTable<T = any>({
                       {row.getVisibleCells().map((cell, cellIndex) => {
                         const isFirst = cellIndex === 0;
                         const isLast = cellIndex === row.getVisibleCells().length - 1;
+                        const column = columns.find(col => col.key === cell.column.id);
+                        const width = column?.width ? (typeof column.width === 'number' ? `${column.width}px` : column.width) : undefined;
                         return (
-                          <td key={cell.id} className={`px-4 py-2 align-middle ${isLastRow && isFirst ? 'rounded-bl-md' : ''} ${isLastRow && isLast ? 'rounded-br-md' : ''}`}>
+                          <td 
+                            key={cell.id} 
+                            className={`px-4 py-2 align-middle ${isLastRow && isFirst ? 'rounded-bl-md' : ''} ${isLastRow && isLast ? 'rounded-br-md' : ''}`}
+                            style={{ width }}
+                          >
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext()

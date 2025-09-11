@@ -1,18 +1,124 @@
 ---
-description: 
-globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 # Design Mode Rule
 
-We are in design mode. We're not going to be building any backend functionality. We're just going to use dummy JSON in order to mock up the prototype of our application.
+We are in design mode for a cloud infrastructure management platform. Focus on creating high-fidelity UI/UX prototypes using our established design system and component library. No backend functionality will be implemented - use comprehensive mock data to simulate realistic user experiences.
 
-## Guidelines:
-- Focus on UI/UX prototype development only
-- Use dummy JSON data for all data requirements
-- Mock all API responses and backend interactions
-- Prioritize visual design and user experience over functional implementation
-- Create realistic but static data representations
-- Use mock data files (e.g., [lib/data.ts](mdc:lib/data.ts)) for consistent data structure
-- Avoid implementing actual database connections, API calls, or server-side logic
-- Simulate user flows and interactions with static responses
+## Technology Stack Requirements:
+- **Framework**: Next.js 15.2.4 with React 19 and App Router
+- **UI Components**: shadcn/ui component library exclusively
+- **Styling**: Tailwind CSS with our custom design tokens
+- **Typography**: Open Sauce One font family
+- **Icons**: Lucide React icons
+- **State Management**: React hooks (useState, useReducer) for prototype interactions
+
+## Design System Guidelines:
+
+### Component Usage:
+- **MANDATORY**: Use only shadcn/ui components (Card, Button, Input, Select, etc.)
+- **NO custom UI components** for standard elements without documented exception
+- Maintain consistent component patterns across all pages
+- Follow existing component architecture from `components/ui/` directory
+
+### Color System:
+- **Primary**: `--primary: #000` (black) for primary actions
+- **Success**: `--krutrim-green: #4CAF50` for success states  
+- **Blue variants**: For in-progress/info states
+- **Gray variants**: For pending/disabled states
+- Use CSS custom properties for theming consistency
+
+### Layout Patterns:
+- **Page Structure**: Use `PageLayout` component for consistent page structure
+- **Cards**: Use Card components for content sections with proper CardHeader/CardContent
+- **Sidebars**: Follow w-full md:w-80 pattern for right sidebars
+- **Responsive**: Mobile-first approach with consistent breakpoints
+
+## Data Management:
+
+### Mock Data Requirements:
+- **Centralized Mock Data**: Use `lib/data.ts` and `lib/cluster-creation-data.ts` patterns
+- **Realistic Data**: Create comprehensive mock datasets that reflect real cloud infrastructure
+- **Consistent Structure**: Maintain TypeScript interfaces for all data types
+- **Static Responses**: Simulate API responses with realistic loading states and error handling
+
+### Data Categories to Mock:
+- **Infrastructure**: VMs, containers, clusters, storage volumes
+- **Networking**: VPCs, subnets, security groups, load balancers
+- **Billing**: Usage data, cost calculations, billing history
+- **User Management**: Users, roles, permissions, organizations
+- **Monitoring**: Metrics, logs, alerts, performance data
+
+## Component Architecture:
+
+### File Organization:
+- **Pages**: Server Components in `app/` directory by default
+- **Interactive Components**: Client Components in `components/` with `"use client"`
+- **Feature Grouping**: Organize components by feature domains
+- **Shared Components**: Place reusable components in `components/ui/`
+
+### Component Patterns:
+```typescript
+// Example component structure
+"use client" // Only when needed for interactivity
+
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+
+interface ComponentProps {
+  // TypeScript props
+}
+
+export function Component({ prop }: ComponentProps) {
+  // Hooks
+  const [state, setState] = useState()
+  
+  // Handlers
+  const handleAction = () => {
+    // Mock interactions
+  }
+  
+  // Render
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Title</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {/* Content */}
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+## User Experience Guidelines:
+
+### Interaction Patterns:
+- **Loading States**: Show skeleton loaders and loading spinners
+- **Error Handling**: Display user-friendly error messages
+- **Form Validation**: Implement realistic form validation patterns
+- **Navigation**: Maintain consistent breadcrumb and navigation patterns
+- **Accessibility**: Follow ARIA guidelines and keyboard navigation
+
+### Page Types:
+- **Dashboard Pages**: Overview cards with metrics and quick actions
+- **List Views**: Data tables with filtering, sorting, and pagination
+- **Detail Views**: Comprehensive information with action panels
+- **Creation Flows**: Multi-step forms with progress indicators
+- **Settings Pages**: Configuration forms with save/cancel patterns
+
+## Prototype Scope:
+- **NO Backend Logic**: Avoid database connections, API implementations
+- **Static Data Only**: All data comes from mock files
+- **Simulated Interactions**: Use setTimeout for loading states
+- **Visual Fidelity**: Focus on pixel-perfect UI implementation
+- **Responsive Design**: Ensure mobile and desktop compatibility
+
+## Quality Standards:
+- **TypeScript**: Strict typing for all components and data
+- **Performance**: Implement proper code splitting and lazy loading
+- **Consistency**: Follow established patterns from existing codebase
+- **Documentation**: Document complex component interactions
+- **Testing**: Focus on visual testing and component behavior
