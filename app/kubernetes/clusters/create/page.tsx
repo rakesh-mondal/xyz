@@ -37,6 +37,63 @@ const mockSecurityGroups = [
   { id: "sg-cache", name: "cache-servers", description: "Security group for cache servers" }
 ]
 
+// Mock region availability data
+const regionAvailability = {
+  "us-east-1": {
+    name: "US East (N. Virginia)",
+    resources: [
+      { type: "CPU Instances", availability: "high" },
+      { type: "GPU A40", availability: "high" },
+      { type: "GPU RTX A5000", availability: "medium" },
+      { type: "Storage", availability: "high" },
+    ]
+  },
+  "us-west-2": {
+    name: "US West (Oregon)",
+    resources: [
+      { type: "CPU Instances", availability: "high" },
+      { type: "GPU A40", availability: "medium" },
+      { type: "Storage", availability: "high" },
+    ]
+  },
+  "eu-west-1": {
+    name: "EU (Ireland)",
+    resources: [
+      { type: "CPU Instances", availability: "high" },
+      { type: "GPU A40", availability: "medium" },
+      { type: "Storage", availability: "high" },
+    ]
+  },
+  "ap-south-1": {
+    name: "Asia Pacific (Mumbai)",
+    resources: [
+      { type: "CPU Instances", availability: "high" },
+      { type: "GPU A40", availability: "low" },
+      { type: "Storage", availability: "high" },
+    ]
+  },
+  "ap-southeast-1": {
+    name: "Asia Pacific (Singapore)",
+    resources: [
+      { type: "CPU Instances", availability: "medium" },
+      { type: "GPU A40", availability: "low" },
+      { type: "Storage", availability: "high" },
+    ]
+  }
+}
+
+const getAvailabilityBars = (level: string) => {
+  const barCount = level === "high" ? 3 : level === "medium" ? 2 : 1
+  const barColor = level === "high" ? "bg-green-500" : level === "medium" ? "bg-yellow-500" : "bg-gray-400"
+  
+  return Array.from({ length: 3 }, (_, i) => (
+    <div
+      key={i}
+      className={`h-2 w-1 ${i < barCount ? barColor : "bg-gray-200"} rounded-sm`}
+    />
+  ))
+}
+
 // Step Indicator Component
 function StepIndicator({ currentStep }: { currentStep: "configuration" | "nodePoolsAndAddons" }) {
   const steps = [
@@ -358,63 +415,87 @@ export default function CreateClusterPage() {
   // Main configuration view
   return (
     <PageLayout
-      title="Create Kubernetes Cluster"
+      title="Set Up Your Cluster"
       description="Configure and deploy a new Kubernetes cluster with enterprise-grade reliability"
     >
       <div className="flex flex-col md:flex-row gap-6">
         {/* Main Configuration Form */}
         <div className="flex-1 space-y-6">
-          <StepIndicator currentStep="configuration" />
-
-          {/* Basic Configuration */}
+          <StepIndicator currentStep={step} />
           <Card>
-            <CardHeader>
-              <CardTitle>Basic Configuration</CardTitle>
-              <CardDescription>
-                Configure the basic settings for your Kubernetes cluster
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Region Selection */}
-              <div className="mb-8">
-                <div className="mb-5">
-                  <Label className="block mb-2 font-medium">
-                    Region <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={configuration.region} onValueChange={handleRegionChange}>
-                    <SelectTrigger className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.region ? "border-red-300 bg-red-50" : ""}`}>
-                      <SelectValue placeholder="Select a region" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableRegions.map((region) => (
-                        <SelectItem key={region.id} value={region.id}>
-                          <div className="flex items-center gap-3">
-                            <div>
-                              <div className="font-medium">{region.displayName}</div>
-                              <div className="text-sm text-muted-foreground">{region.name}</div>
+            <CardContent className="space-y-6 pt-6">
+              <form onSubmit={(e) => { e.preventDefault(); handleReviewConfiguration(); }}>
+                {/* Region Selection */}
+                <div className="mb-8">
+                  <div className="mb-5">
+                    <Label className="block mb-2 font-medium">
+                      Region <span className="text-destructive">*</span>
+                    </Label>
+                    <Select value={configuration.region} onValueChange={handleRegionChange} required>
+                      <SelectTrigger className={formTouched && !configuration.region ? 'border-red-300 bg-red-50' : ''}>
+                        <SelectValue placeholder="Select a region" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
+                        <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
+                        <SelectItem value="eu-west-1">EU (Ireland)</SelectItem>
+                        <SelectItem value="ap-south-1">Asia Pacific (Mumbai)</SelectItem>
+                        <SelectItem value="ap-southeast-1">Asia Pacific (Singapore)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* Region Availability Display */}
+                    {configuration.region && regionAvailability[configuration.region as keyof typeof regionAvailability] && (
+                      <div className="mt-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs text-gray-900">
+                            Resource Availability
+                          </h4>
+                          <span className="text-xs text-gray-500">
+                            {regionAvailability[configuration.region as keyof typeof regionAvailability].name}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {regionAvailability[configuration.region as keyof typeof regionAvailability].resources.map((resource, index) => (
+                            <div key={index} className="flex items-center justify-between">
+                              <span className="text-xs text-gray-700">
+                                {resource.type}
+                              </span>
+                              <div className="flex items-center gap-0.5">
+                                {getAvailabilityBars(resource.availability)}
+                              </div>
                             </div>
-                            {!region.isAvailable && (
-                              <Badge variant="outline" className="text-xs">
-                                Coming Soon
-                              </Badge>
-                            )}
+                          ))}
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 bg-green-500 rounded-sm"></div>
+                                <span>High</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 bg-yellow-500 rounded-sm"></div>
+                                <span>Medium</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 bg-gray-400 rounded-sm"></div>
+                                <span>Low</span>
+                              </div>
+                            </div>
+                            <span>Updated 5 min ago</span>
                           </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.region && (
-                    <p className="text-sm text-red-600 mt-1">{errors.region}</p>
-                  )}
+                        </div>
+                      </div>
+                    )}
+                    {errors.region && (
+                      <p className="text-sm text-red-600 mt-1">{errors.region}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* VPC Selection */}
-              <div className="mb-8">
-                <div className="mb-5">
-                  <Label className="block mb-2 font-medium">
-                    VPC <span className="text-destructive">*</span>
-                  </Label>
+                {/* VPC Selection */}
+                <div className="mb-8">
                   <VPCSelectorInline
                     value={configuration.vpcId || ""}
                     region={configuration.region || ""}
@@ -429,7 +510,6 @@ export default function CreateClusterPage() {
                     error={errors.vpcId}
                   />
                 </div>
-              </div>
 
               {/* Subnet Selection */}
               <div className="mb-8">
@@ -597,15 +677,16 @@ export default function CreateClusterPage() {
                 </div>
               </div>
 
-              {/* Navigation */}
-              <div className="flex justify-end gap-4 pt-6 border-t">
-                <Button variant="outline" onClick={() => router.push("/kubernetes")}>
-                  Cancel
-                </Button>
-                <Button onClick={handleReviewConfiguration} disabled={!isFormValid()}>
-                  Continue to Node Pools
-                </Button>
-              </div>
+                {/* Navigation */}
+                <div className="flex justify-end gap-4 pt-6 border-t">
+                  <Button variant="outline" onClick={() => router.push("/kubernetes")}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={!isFormValid()}>
+                    Continue to Node Pools
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>
