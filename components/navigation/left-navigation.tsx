@@ -274,16 +274,6 @@ const navigationConfig = {
       {
         href: "/developer/sdks",
         label: "SDKs",
-        subItems: [
-          { href: "/developer/sdks", label: "SDK Overview" },
-          { href: "/documentation/sdk/infrastructure", label: "Infrastructure SDK" },
-          { href: "/documentation/sdk/ai-studio", label: "AI Studio SDK" },
-          { href: "/documentation/sdk/ai-saas", label: "AI SaaS SDK" },
-        ],
-      },
-      {
-        href: "/apis",
-        label: "API Reference",
       },
     ],
   },
@@ -627,9 +617,6 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
     } else if (pathname.startsWith("/developer")) {
       setExpandedItem("/developer")
       setExpandedSubItem("/developer/sdks")
-      if (pathname.startsWith("/documentation/sdk")) {
-        setExpandedTertiaryItem("/developer/sdks")
-      }
     } else if (pathname.startsWith("/administration")) {
       setExpandedItem("/administration")
     }
@@ -732,10 +719,10 @@ export function LeftNavigation({ onClose }: LeftNavigationProps) {
       return pathname.startsWith("/networking/dns")
     }
     if (path === "/developer") {
-      return pathname.startsWith("/developer") || pathname.startsWith("/documentation/sdk")
+      return pathname.startsWith("/developer")
     }
     if (path === "/developer/sdks") {
-      return pathname.startsWith("/developer/sdks") || pathname.startsWith("/documentation/sdk")
+      return pathname.startsWith("/developer/sdks")
     }
     if (path === "/storage") {
       return pathname.startsWith("/storage")
