@@ -681,7 +681,7 @@ export default function CreateClusterPage() {
                         </Alert>
                       )
                     ) : (
-                      <div className="text-muted-foreground py-2 px-3 border border-input bg-background rounded-md">
+                      <div className="py-2 px-3 border border-input bg-background rounded-md text-sm text-muted-foreground/70 placeholder:text-muted-foreground">
                         Please select a VPC first to view available subnets
                       </div>
                     )}
@@ -968,7 +968,7 @@ function VPCSelectorInline({ value, region, availableVPCs, onChange, error }: {
         VPC <span className="text-destructive">*</span>
       </Label>
       {!region ? (
-        <div className="text-muted-foreground py-2 px-3 border border-input bg-background rounded-md">
+        <div className="py-2 px-3 border border-input bg-background rounded-md text-sm text-muted-foreground/70 placeholder:text-muted-foreground">
           Pick a region to see available VPCs
         </div>
       ) : (
