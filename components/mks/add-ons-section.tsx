@@ -30,44 +30,25 @@ export function AddOnsSection({ cluster, onUpdate }: AddOnsSectionProps) {
         {/* Add-ons */}
         <div className="grid grid-cols-2 gap-4">
           {cluster.addOns.map((addon) => (
-            <div 
-              key={addon.id} 
-              className={`p-4 border rounded-lg relative ${
-                addon.isEnabled 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border bg-card'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                {/* Checkbox positioned on the left */}
-                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                  addon.isEnabled 
-                    ? 'border-primary bg-primary' 
-                    : 'border-gray-300'
-                }`}>
-                  {addon.isEnabled && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
+            <div key={addon.id} className="p-4 border rounded-lg relative">
+              <Badge variant="outline" className="absolute top-3 right-3 text-xs font-medium">
+                {addon.version}
+              </Badge>
+              <div className="space-y-1 pr-16">
+                <div className="text-sm font-medium leading-none">
+                  {addon.displayName}
                 </div>
-                
-                {/* Title and version on the same line */}
-                <div className="flex items-center justify-between flex-1 min-w-0">
-                  <div className="text-sm font-medium leading-none">
-                    {addon.displayName}
-                  </div>
-                  <Badge variant="outline" className="text-xs font-medium ml-2">
-                    {addon.version}
-                  </Badge>
-                </div>
-              </div>
-              
-              {/* Description on separate line */}
-              <div className="mt-2 ml-8">
                 <p className="text-sm text-muted-foreground">
                   {addon.description}
                 </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge 
+                    variant={addon.isEnabled ? "default" : "secondary"}
+                    className="text-xs"
+                  >
+                    {addon.isEnabled ? 'Enabled' : 'Disabled'}
+                  </Badge>
+                </div>
               </div>
             </div>
           ))}
