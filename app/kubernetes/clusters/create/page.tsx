@@ -634,22 +634,19 @@ export default function CreateClusterPage() {
                     </Label>
                     {configuration.vpcId ? (
                       availableSubnets.length > 0 ? (
-                        <RadioGroup 
+                        <Select 
                           value={configuration.subnetId || ""} 
                           onValueChange={handleSubnetChange}
-                          className="space-y-4"
                         >
-                          {availableSubnets.map((subnet) => (
-                            <div key={subnet.id} className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-                              <RadioGroupItem 
-                                value={subnet.id} 
-                                id={subnet.id}
-                                className="mt-0.5"
-                              />
-                              <Label htmlFor={subnet.id} className="flex-1 cursor-pointer">
-                                <div className="flex items-center justify-between mb-1">
+                          <SelectTrigger className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.subnets ? "border-red-300 bg-red-50" : ""}`}>
+                            <SelectValue placeholder="Select a subnet" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableSubnets.map((subnet) => (
+                              <SelectItem key={subnet.id} value={subnet.id}>
+                                <div className="flex items-center justify-between w-full">
                                   <div className="flex items-center gap-2">
-                                    <span className="font-medium text-sm">{subnet.name}</span>
+                                    <span className="font-medium">{subnet.name}</span>
                                     <Badge 
                                       variant="secondary" 
                                       className={`text-xs ${
@@ -661,17 +658,14 @@ export default function CreateClusterPage() {
                                       {subnet.type}
                                     </Badge>
                                   </div>
-                                  <div className="text-sm text-muted-foreground">
+                                  <div className="text-sm text-muted-foreground ml-2">
                                     {subnet.cidr} • {subnet.availabilityZone}
                                   </div>
                                 </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {subnet.description || `Subnet in ${subnet.availabilityZone}`}
-                                </div>
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       ) : (
                         <Alert>
                           <AlertCircle className="h-4 w-4" />
