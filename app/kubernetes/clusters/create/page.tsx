@@ -2159,6 +2159,7 @@ ${nodePoolsYAML}`
                   <p>• All other resources are preconfigured</p>
                   <p>• Costs are estimates only</p>
                   <p>• Actual billing may vary</p>
+                  {/* Build fix for Vercel deployment */}
                 </div>
               </div>
             </div>
