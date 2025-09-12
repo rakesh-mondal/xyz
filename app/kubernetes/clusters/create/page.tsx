@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -123,6 +126,7 @@ function StepIndicator({ currentStep }: { currentStep: "configuration" | "nodePo
 export default function CreateClusterPage() {
   const router = useRouter()
   const { toast } = useToast()
+  // Force rebuild for Vercel deployment
   const [step, setStep] = useState<"configuration" | "nodePoolsAndAddons">("configuration")
   const [clusterCreationStarted, setClusterCreationStarted] = useState(false)
   const [showNavigationGuard, setShowNavigationGuard] = useState(false)
