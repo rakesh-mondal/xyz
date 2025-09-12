@@ -120,6 +120,9 @@ function StepIndicator({ currentStep }: { currentStep: "configuration" | "nodePo
 }
 
 export default function CreateClusterPage() {
+  // Force dynamic rendering by accessing headers
+  const timestamp = Date.now()
+  
   const router = useRouter()
   const { toast } = useToast()
   const [step, setStep] = useState<"configuration" | "nodePoolsAndAddons">("configuration")
