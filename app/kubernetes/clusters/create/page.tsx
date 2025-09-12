@@ -479,7 +479,7 @@ export default function CreateClusterPage() {
         <NodePoolsAndAddonsView 
           onBack={() => setStep("configuration")}
           onContinue={handleCompleteCluster}
-          clusterCost={costs.cluster}
+          clusterCost={costs.cluster.hourly}
           clusterCreationStarted={clusterCreationStarted}
         />
         
@@ -2159,7 +2159,6 @@ ${nodePoolsYAML}`
                   <p>• All other resources are preconfigured</p>
                   <p>• Costs are estimates only</p>
                   <p>• Actual billing may vary</p>
-                  {/* Build fix for Vercel deployment */}
                 </div>
               </div>
             </div>
