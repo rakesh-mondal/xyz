@@ -131,7 +131,7 @@ export default function CreateClusterPage() {
   const [configuration, setConfiguration] = useState<Partial<ClusterConfiguration>>({
     region: "",
     vpcId: "",
-    subnetIds: [],
+    subnetId: "",
     kubernetesVersion: "",
     apiServerEndpoint: {
       type: "public"
@@ -329,8 +329,8 @@ export default function CreateClusterPage() {
       newErrors.vpcId = "VPC is required"
     }
 
-    if (!configuration.subnetIds || configuration.subnetIds.length === 0) {
-      newErrors.subnets = "At least one subnet must be selected"
+    if (!configuration.subnetId) {
+      newErrors.subnets = "A subnet must be selected"
     }
 
     if (!configuration.kubernetesVersion) {
@@ -348,8 +348,7 @@ export default function CreateClusterPage() {
     return !!(
       configuration.region &&
       configuration.vpcId &&
-      configuration.subnetIds &&
-      configuration.subnetIds.length > 0 &&
+      configuration.subnetId &&
       configuration.kubernetesVersion
     )
   }
@@ -360,7 +359,7 @@ export default function CreateClusterPage() {
       ...prev,
       region: regionId,
       vpcId: "", // Reset VPC when region changes
-      subnetIds: [] // Reset subnets when VPC changes
+      subnetId: "" // Reset subnet when region changes
     }))
     setFormTouched(true)
   }
@@ -370,17 +369,15 @@ export default function CreateClusterPage() {
     setConfiguration(prev => ({
       ...prev,
       vpcId,
-      subnetIds: [] // Reset subnets when VPC changes
+      subnetId: "" // Reset subnet when VPC changes
     }))
   }
 
   // Handle subnet selection
-  const handleSubnetChange = (subnetId: string, checked: boolean) => {
+  const handleSubnetChange = (subnetId: string) => {
     setConfiguration(prev => ({
       ...prev,
-      subnetIds: checked 
-        ? [...(prev.subnetIds || []), subnetId]
-        : (prev.subnetIds || []).filter(id => id !== subnetId)
+      subnetId: subnetId
     }))
   }
 
@@ -633,47 +630,42 @@ export default function CreateClusterPage() {
                 <div className="mb-8">
                   <div className="mb-5">
                     <Label className="block mb-2 font-medium">
-                      Subnets <span className="text-destructive">*</span>
+                      Subnet <span className="text-destructive">*</span>
                     </Label>
                     {configuration.vpcId ? (
                       availableSubnets.length > 0 ? (
-                        <div className="space-y-4">
-                          {availableSubnets.map((subnet) => (
-                            <div key={subnet.id} className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-                              <Checkbox
-                                id={subnet.id}
-                                checked={configuration.subnetIds?.includes(subnet.id) || false}
-                                onCheckedChange={(checked) => 
-                                  handleSubnetChange(subnet.id, checked as boolean)
-                                }
-                                className="mt-0.5"
-                              />
-                              <Label htmlFor={subnet.id} className="flex-1 cursor-pointer">
-                                <div className="flex items-center justify-between mb-1">
-                                  <div>
-                                    <span className="font-medium text-sm">{subnet.name}</span>
+                        <Select 
+                          value={configuration.subnetId || ""} 
+                          onValueChange={handleSubnetChange}
+                        >
+                          <SelectTrigger className={`focus:ring-2 focus:ring-ring focus:ring-offset-2 ${errors.subnets ? "border-red-300 bg-red-50" : ""}`}>
+                            <SelectValue placeholder="Select a subnet" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableSubnets.map((subnet) => (
+                              <SelectItem key={subnet.id} value={subnet.id}>
+                                <div className="flex items-center justify-between w-full">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{subnet.name}</span>
                                     <Badge 
-                                      variant={subnet.type === "Public" ? "default" : "secondary"} 
-                                      className={`ml-2 text-xs ${
+                                      variant="secondary" 
+                                      className={`text-xs ${
                                         subnet.type === "Public" 
-                                          ? "bg-blue-100 text-blue-800 hover:bg-blue-200" 
-                                          : "bg-orange-100 text-orange-800 hover:bg-orange-200"
+                                          ? "bg-blue-100 text-blue-800" 
+                                          : "bg-orange-100 text-orange-800"
                                       }`}
                                     >
                                       {subnet.type}
                                     </Badge>
                                   </div>
-                                  <div className="text-sm text-muted-foreground">
+                                  <div className="text-sm text-muted-foreground ml-2">
                                     {subnet.cidr} • {subnet.availabilityZone}
                                   </div>
                                 </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {subnet.description}
-                                </div>
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       ) : (
                         <Alert>
                           <AlertCircle className="h-4 w-4" />
