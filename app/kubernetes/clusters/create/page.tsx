@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -14,6 +15,75 @@ import { Info, AlertCircle } from "lucide-react"
 import Link from "next/link"
 
 export default function CreateClusterPage() {
+  // Form state
+  const [formData, setFormData] = useState({
+    region: "",
+    vpcId: "",
+    subnetId: "",
+    kubernetesVersion: "",
+    podCIDR: "10.244.0.0/16",
+    serviceCIDR: "10.96.0.0/12",
+    apiServerAccess: "public"
+  })
+  
+  // Validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [formTouched, setFormTouched] = useState(false)
+
+  // Validation function
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!formData.region) {
+      newErrors.region = "Region is required"
+    }
+    if (!formData.vpcId) {
+      newErrors.vpcId = "VPC is required"
+    }
+    if (!formData.subnetId) {
+      newErrors.subnetId = "Subnet is required"
+    }
+    if (!formData.kubernetesVersion) {
+      newErrors.kubernetesVersion = "Kubernetes version is required"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  // Check if form is valid
+  const isFormValid = () => {
+    return !!(
+      formData.region &&
+      formData.vpcId &&
+      formData.subnetId &&
+      formData.kubernetesVersion
+    )
+  }
+
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setFormTouched(true)
+    
+    if (validateForm()) {
+      // Form is valid - would normally submit here
+      console.log("Form submitted:", formData)
+      alert("Cluster creation started! (This is a design prototype)")
+    }
+  }
+
+  // Handle field changes
+  const handleFieldChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormTouched(true)
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }))
+    }
+  }
+
   return (
     <PageLayout
       title="Set Up Your Cluster"
@@ -24,13 +94,14 @@ export default function CreateClusterPage() {
         <div className="flex-1 space-y-6">
           <Card>
             <CardContent className="space-y-6 pt-6">
+              <form onSubmit={handleSubmit}>
               {/* Region Selection */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium">
                   Region <span className="text-destructive">*</span>
                 </Label>
-                <Select>
-                  <SelectTrigger>
+                <Select value={formData.region} onValueChange={(value) => handleFieldChange('region', value)}>
+                  <SelectTrigger className={formTouched && !formData.region ? 'border-red-300 bg-red-50' : ''}>
                     <SelectValue placeholder="Select a region" />
                   </SelectTrigger>
                   <SelectContent>
@@ -41,6 +112,9 @@ export default function CreateClusterPage() {
                     <SelectItem value="ap-southeast-1">Asia Pacific (Singapore)</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.region && (
+                  <p className="text-sm text-red-600 mt-1">{errors.region}</p>
+                )}
               </div>
 
               {/* VPC Selection */}
@@ -48,8 +122,8 @@ export default function CreateClusterPage() {
                 <Label className="text-sm font-medium">
                   VPC <span className="text-destructive">*</span>
                 </Label>
-                <Select>
-                  <SelectTrigger>
+                <Select value={formData.vpcId} onValueChange={(value) => handleFieldChange('vpcId', value)}>
+                  <SelectTrigger className={formTouched && !formData.vpcId ? 'border-red-300 bg-red-50' : ''}>
                     <SelectValue placeholder="Select VPC to isolate your workload" />
                   </SelectTrigger>
                   <SelectContent>
@@ -58,6 +132,9 @@ export default function CreateClusterPage() {
                     <SelectItem value="vpc-3">Development VPC (192.168.0.0/16)</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.vpcId && (
+                  <p className="text-sm text-red-600 mt-1">{errors.vpcId}</p>
+                )}
               </div>
 
               {/* Subnet Selection */}
@@ -65,8 +142,8 @@ export default function CreateClusterPage() {
                 <Label className="text-sm font-medium">
                   Subnet <span className="text-destructive">*</span>
                 </Label>
-                <Select>
-                  <SelectTrigger>
+                <Select value={formData.subnetId} onValueChange={(value) => handleFieldChange('subnetId', value)}>
+                  <SelectTrigger className={formTouched && !formData.subnetId ? 'border-red-300 bg-red-50' : ''}>
                     <SelectValue placeholder="Select a subnet" />
                   </SelectTrigger>
                   <SelectContent>
@@ -98,6 +175,9 @@ export default function CreateClusterPage() {
                     </SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.subnetId && (
+                  <p className="text-sm text-red-600 mt-1">{errors.subnetId}</p>
+                )}
               </div>
 
               {/* Kubernetes Version */}
@@ -105,8 +185,8 @@ export default function CreateClusterPage() {
                 <Label className="text-sm font-medium">
                   Kubernetes Version <span className="text-destructive">*</span>
                 </Label>
-                <Select>
-                  <SelectTrigger>
+                <Select value={formData.kubernetesVersion} onValueChange={(value) => handleFieldChange('kubernetesVersion', value)}>
+                  <SelectTrigger className={formTouched && !formData.kubernetesVersion ? 'border-red-300 bg-red-50' : ''}>
                     <SelectValue placeholder="Select a version" />
                   </SelectTrigger>
                   <SelectContent>
@@ -135,6 +215,9 @@ export default function CreateClusterPage() {
                     </SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.kubernetesVersion && (
+                  <p className="text-sm text-red-600 mt-1">{errors.kubernetesVersion}</p>
+                )}
               </div>
 
               {/* Network Configuration */}
@@ -160,7 +243,8 @@ export default function CreateClusterPage() {
                       </TooltipProvider>
                     </div>
                     <Input
-                      defaultValue="10.244.0.0/16"
+                      value={formData.podCIDR}
+                      onChange={(e) => handleFieldChange('podCIDR', e.target.value)}
                       className="font-mono"
                       placeholder="10.244.0.0/16"
                     />
@@ -184,7 +268,8 @@ export default function CreateClusterPage() {
                       </TooltipProvider>
                     </div>
                     <Input
-                      defaultValue="10.96.0.0/12"
+                      value={formData.serviceCIDR}
+                      onChange={(e) => handleFieldChange('serviceCIDR', e.target.value)}
                       className="font-mono"
                       placeholder="10.96.0.0/12"
                     />
@@ -197,7 +282,11 @@ export default function CreateClusterPage() {
                 <Label className="text-sm font-medium">
                   API Server Access
                 </Label>
-                <RadioGroup defaultValue="public" className="space-y-3">
+                <RadioGroup 
+                  value={formData.apiServerAccess} 
+                  onValueChange={(value) => handleFieldChange('apiServerAccess', value)}
+                  className="space-y-3"
+                >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="public" id="public" />
                     <Label htmlFor="public" className="flex-1">
@@ -209,13 +298,23 @@ export default function CreateClusterPage() {
                   </div>
                 </RadioGroup>
               </div>
+              </form>
             </CardContent>
             
             <div className="flex justify-end gap-4 px-6 pb-6">
               <Button variant="outline" asChild>
                 <Link href="/kubernetes">Cancel</Link>
               </Button>
-              <Button className="bg-black text-white hover:bg-black/90">
+              <Button 
+                type="submit"
+                disabled={!isFormValid()}
+                className={`transition-colors ${
+                  isFormValid() 
+                    ? 'bg-black text-white hover:bg-black/90' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                onClick={handleSubmit}
+              >
                 Start Cluster Creation
               </Button>
             </div>
