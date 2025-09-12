@@ -681,7 +681,7 @@ export default function CreateClusterPage() {
                         </Alert>
                       )
                     ) : (
-                      <div className="text-sm text-muted-foreground p-3 border rounded-md bg-muted/30">
+                      <div className="text-muted-foreground py-2 px-3 border border-input bg-background rounded-md">
                         Please select a VPC first to view available subnets
                       </div>
                     )}
